@@ -1,15 +1,12 @@
-from __future__ import annotations
-
-from gensie.agent import GenSIEAgent, Participant, ParticipantInfo
-from gensie.pipeline import ComposablePipelineAgent
-from gensie.pipeline.defaults import (
-    build_default_registry,
-    default_pipeline_specs,
-)
-from gensie.pipeline.registry import PipelineRegistry
-from gensie.pipeline.specs import PipelineSpec
-from gensie.runtime import ChatClient, OpenAIChatClient
-from gensie.sampling import PipelineExecutionRunner
+﻿import os
+import json
+import time
+from datetime import datetime, timezone
+from typing import Any, Dict
+from openai import OpenAI
+from gensie.agent import GenSIEAgent, Participant, ParticipantInfo, PipelineInfo
+from gensie.task import Task
+from gensie.tracing import trace_step
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,9 +16,96 @@ def _default_chat_client() -> ChatClient:
     return OpenAIChatClient()
 
 
-def _runner(chat_client: ChatClient) -> PipelineExecutionRunner:
-    return PipelineExecutionRunner(chat_client=chat_client)
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        """
+        Executes the extraction using OpenAI's response_format for strict schema compliance.
+        """
+        prompt = task.get_input_prompt()
+        messages = [
+            {
+                "role": "system",
+                "content": "You are a precise data extraction agent.",
+            },
+            {"role": "user", "content": prompt},
+        ]
+        response_format = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "extraction",
+                "schema": task.target_schema,
+                "strict": True,
+            },
+        }
+        request_payload = {
+            "model": model,
+            "messages": messages,
+            "response_format": response_format,
+        }
 
+        started_at = datetime.now(timezone.utc)
+        started_perf = time.perf_counter()
+
+        try:
+            # Call OpenAI with the task's JSON schema
+            response = self.client.chat.completions.create(
+                model=model,
+                messages=messages,
+                response_format=response_format,
+            )
+            completed_at = datetime.now(timezone.utc)
+            duration_ms = (time.perf_counter() - started_perf) * 1000
+            raw_response = (
+                response.model_dump()
+                if hasattr(response, "model_dump")
+                else {"raw": str(response)}
+            )
+            usage = raw_response.get("usage") or {}
+            trace_step(
+                task,
+                "extract",
+                prompt=prompt,
+                request_payload=request_payload,
+                response_payload=raw_response,
+                metrics={
+                    "tokens": {
+                        "prompt_tokens": usage.get("prompt_tokens"),
+                        "completion_tokens": usage.get("completion_tokens"),
+                        "total_tokens": usage.get("total_tokens"),
+                    },
+                    "timings": {
+                        "started_at": started_at.isoformat(),
+                        "completed_at": completed_at.isoformat(),
+                        "total_duration_ms": round(duration_ms, 3),
+                        "time_to_first_token_ms": None,
+                        "time_to_first_token_note": "Not captured by the current non-streaming baseline.",
+                    },
+                },
+            )
+        except Exception as e:
+            completed_at = datetime.now(timezone.utc)
+            duration_ms = (time.perf_counter() - started_perf) * 1000
+            trace_step(
+                task,
+                "extract",
+                prompt=prompt,
+                request_payload=request_payload,
+                error=str(e),
+                metrics={
+                    "tokens": {
+                        "prompt_tokens": None,
+                        "completion_tokens": None,
+                        "total_tokens": None,
+                    },
+                    "timings": {
+                        "started_at": started_at.isoformat(),
+                        "completed_at": completed_at.isoformat(),
+                        "total_duration_ms": round(duration_ms, 3),
+                        "time_to_first_token_ms": None,
+                        "time_to_first_token_note": "Not captured by the current non-streaming baseline.",
+                    },
+                },
+            )
+            raise
 
 def _spec(name: str) -> PipelineSpec:
     for spec in default_pipeline_specs():

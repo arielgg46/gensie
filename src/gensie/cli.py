@@ -1,4 +1,4 @@
-import typer
+﻿import typer
 import uvicorn
 import httpx
 import json
@@ -26,28 +26,132 @@ app = typer.Typer(help="GenSIE Developer Tools")
 console = Console()
 
 
-def _resolve_eval_artifact_paths(
-    *,
-    pipeline: str,
-    output: Path | None,
-    details_dir: Path | None,
-    auto_output_paths: bool,
-    run_timestamp: str | None = None,
-) -> tuple[Path | None, Path | None, str]:
-    timestamp = run_timestamp or datetime.now().strftime("%Y%m%d-%H%M%S")
-    pipeline_slug = slugify(pipeline)
-    if auto_output_paths:
-        auto_run_dir = Path("local-results") / pipeline_slug / timestamp
-        if details_dir is None:
-            details_dir = auto_run_dir
-        if output is None:
-            output = auto_run_dir / f"{pipeline_slug}-{timestamp}-summary.json"
+def _write_json(path: Path, payload: Any):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2, ensure_ascii=False)
 
-    return (
-        output.absolute() if output is not None else None,
-        details_dir.absolute() if details_dir is not None else None,
-        timestamp,
-    )
+
+def _write_text(path: Path, content: str):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+
+def _collect_trace_metrics(task_dir: Path) -> Optional[Dict[str, Any]]:
+    steps_dir = task_dir / "steps"
+    if not steps_dir.is_dir():
+        return None
+
+    step_summaries = []
+    for summary_path in sorted(steps_dir.glob("*/summary.json")):
+        with open(summary_path, "r", encoding="utf-8") as f:
+            step_summaries.append(json.load(f))
+
+    if not step_summaries:
+        return None
+
+    prompt_tokens = 0
+    completion_tokens = 0
+    total_tokens = 0
+    total_duration_ms = 0.0
+    measured_durations = 0
+    request_count = 0
+    failed_requests = 0
+    ttft_values = []
+
+    for step in step_summaries:
+        metrics = step.get("metrics") or {}
+        tokens = metrics.get("tokens") or {}
+        timings = metrics.get("timings") or {}
+
+        request_count += 1
+        if step.get("error"):
+            failed_requests += 1
+
+        prompt_tokens += int(tokens.get("prompt_tokens") or 0)
+        completion_tokens += int(tokens.get("completion_tokens") or 0)
+        total_tokens += int(tokens.get("total_tokens") or 0)
+
+        duration_ms = timings.get("total_duration_ms")
+        if duration_ms is not None:
+            total_duration_ms += float(duration_ms)
+            measured_durations += 1
+
+        ttft_ms = timings.get("time_to_first_token_ms")
+        if ttft_ms is not None:
+            ttft_values.append(float(ttft_ms))
+
+    return {
+        "request_count": request_count,
+        "failed_request_count": failed_requests,
+        "tokens": {
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": total_tokens,
+        },
+        "timings": {
+            "total_duration_ms": round(total_duration_ms, 3),
+            "average_duration_ms": round(total_duration_ms / measured_durations, 3)
+            if measured_durations
+            else None,
+            "time_to_first_token_ms": round(sum(ttft_values) / len(ttft_values), 3)
+            if ttft_values
+            else None,
+            "time_to_first_token_available": bool(ttft_values),
+            "time_to_first_token_note": None
+            if ttft_values
+            else "Not captured by the current non-streaming baseline.",
+        },
+        "steps": [
+            {
+                "step_index": step.get("step_index"),
+                "step_name": step.get("step_name"),
+                "error": step.get("error"),
+                "tokens": (step.get("metrics") or {}).get("tokens"),
+                "timings": (step.get("metrics") or {}).get("timings"),
+            }
+            for step in step_summaries
+        ],
+    }
+
+
+def _write_task_details(
+    details_dir: Path,
+    task: Task,
+    system_output: Optional[Dict[str, Any]],
+    tps: float,
+    gold_keys: int,
+    system_keys: int,
+    status: str,
+    error: Optional[str] = None,
+):
+    task_dir = details_dir / task.id
+    prompt = task.get_input_prompt()
+
+    _write_text(task_dir / "prompt.txt", prompt)
+    _write_json(task_dir / "task.json", task.model_dump(mode="json"))
+    _write_json(task_dir / "gold.json", task.output)
+
+    if system_output is not None:
+        _write_json(task_dir / "prediction.json", system_output)
+
+    summary = {
+        "task_id": task.id,
+        "tps": tps,
+        "gold_keys": gold_keys,
+        "system_keys": system_keys,
+        "status": status,
+    }
+    trace_metrics = _collect_trace_metrics(task_dir)
+    if trace_metrics is not None:
+        summary["trace_metrics"] = trace_metrics
+    if error:
+        summary["error"] = error
+        _write_text(task_dir / "error.txt", error)
+
+    _write_json(task_dir / "summary.json", summary)
+    return summary
 
 
 @app.command()
@@ -73,29 +177,7 @@ def eval(
     ),
     details_dir: Optional[Path] = typer.Option(
         None,
-        "--details-dir",
-        help="Directory where per-task prompt/request/response trace artifacts are saved",
-    ),
-    auto_output_paths: bool = typer.Option(
-        False,
-        "--auto-output-paths",
-        help="Derive details-dir and output paths from pipeline name and run datetime",
-    ),
-    time_budget_s: float = typer.Option(
-        60.0,
-        help="Soft per-instance wall-time budget (target, averaged over the test set)",
-    ),
-    request_timeout_s: float = typer.Option(
-        300.0,
-        help="Hard safety cap per /run request — generous so the run is not stopped at the soft budget",
-    ),
-    usage_log: Optional[Path] = typer.Option(
-        None,
-        help="Path to the inference server's JSONL token-usage log (authoritative token source)",
-    ),
-    usage_log_api_key: Optional[str] = typer.Option(
-        None,
-        help="API key to filter the usage log by (default: $OPENAI_API_KEY; unset -> all rows)",
+        help="Directory to save prompts, predictions, gold outputs, and per-task summaries",
     ),
 ):
     """Evaluates the agent against a local dataset and generates a report.
@@ -115,18 +197,8 @@ def eval(
     if limit:
         json_files = json_files[:limit]
 
-    output, details_dir, _ = _resolve_eval_artifact_paths(
-        pipeline=pipeline,
-        output=output,
-        details_dir=details_dir,
-        auto_output_paths=auto_output_paths,
-    )
-    if details_dir is not None:
-        console.print(f"[blue]Trace artifacts dir:[/blue] {details_dir}")
-    if output is not None:
-        console.print(f"[blue]Summary output:[/blue] {output}")
-
-    log_key = usage_log_api_key or os.getenv("OPENAI_API_KEY")
+    if details_dir:
+        details_dir.mkdir(parents=True, exist_ok=True)
 
     tps_list = []
     gold_counts = []
@@ -166,17 +238,19 @@ def eval(
         # 2. Process Tasks
         for file_path in track(json_files, description="Processing tasks..."):
             task = None
-            header_usage = None
-            n0 = len(usage_rows(usage_log, log_key)) if usage_log else None
-            t0 = time.perf_counter()
+            system_output = None
+            error_message = None
             try:
                 task = Task.load(file_path)
-                if details_dir is not None:
-                    task.metadata["_trace_dir"] = str(details_dir / slugify(task.id))
+                task_payload = task.model_dump(mode="json")
+                if details_dir:
+                    task_payload.setdefault("metadata", {})
+                    task_payload["metadata"]["_trace_dir"] = str(
+                        (details_dir / task.id).absolute()
+                    )
+
                 # Call agent
-                resp = client.post(
-                    f"{url}/run", json=task.model_dump(mode="json"), params=params
-                )
+                resp = client.post(f"{url}/run", json=task_payload, params=params)
                 resp.raise_for_status()
                 system_output = resp.json()
                 header_usage = parse_usage_header(
@@ -196,6 +270,7 @@ def eval(
                 status = "FAIL"
                 tps = 0.0
                 s_count = 0
+                error_message = str(e)
                 g_count = (
                     len(flatten_json(task.output, expand_lists=False)) if task else 0
                 )
@@ -246,17 +321,31 @@ def eval(
                     if status == "PASS"
                     else f"[red]{status}[/red]",
                 )
-                individual_results.append(
-                    {
-                        "task_id": task.id,
-                        "tps": tps,
-                        "gold_keys": g_count,
-                        "system_keys": s_count,
-                        "elapsed_s": elapsed,
-                        "tokens": tokens,
-                        "status": status,
-                    }
-                )
+
+                task_result = {
+                    "task_id": task.id,
+                    "tps": tps,
+                    "gold_keys": g_count,
+                    "system_keys": s_count,
+                    "status": status,
+                    "error": error_message,
+                }
+
+                if details_dir:
+                    summary = _write_task_details(
+                        details_dir,
+                        task,
+                        system_output,
+                        tps,
+                        g_count,
+                        s_count,
+                        status,
+                        error=error_message,
+                    )
+                    if "trace_metrics" in summary:
+                        task_result["trace_metrics"] = summary["trace_metrics"]
+
+                individual_results.append(task_result)
 
     # 3. Calculate final metrics
     metrics = evaluator.calculate_metrics(tps_list, gold_counts, system_counts)
@@ -343,10 +432,25 @@ def eval(
             "token_usage": token_usage,
             "tasks": individual_results,
         }
-        output.parent.mkdir(parents=True, exist_ok=True)
-        with open(output, "w", encoding="utf-8") as f:
-            json.dump(report, f, indent=2, ensure_ascii=False)
+        _write_json(output, report)
         console.print(f"\n[bold blue]Report saved to {output}[/bold blue]")
+
+    if details_dir:
+        detailed_report = {
+            "participant": participant_info,
+            "config": {
+                "model": model,
+                "pipeline": pipeline,
+                "data_source": str(data.absolute()),
+                "details_dir": str(details_dir.absolute()),
+            },
+            "metrics": metrics,
+            "tasks": individual_results,
+        }
+        _write_json(details_dir / "detailed_report.json", detailed_report)
+        console.print(
+            f"[bold blue]Detailed artifacts saved to {details_dir}[/bold blue]"
+        )
 
 
 @app.command()
