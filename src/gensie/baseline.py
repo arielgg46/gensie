@@ -24,11 +24,9 @@ class BasicAgent(GenSIEAgent):
     """
 
     def __init__(self):
-        timeout_s = float(os.getenv("OPENAI_TIMEOUT_S", "120"))
         self.client = OpenAI(
             base_url=os.getenv("OPENAI_BASE_URL"),
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
-            timeout=timeout_s,
         )
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
@@ -97,10 +95,6 @@ class BasicAgent(GenSIEAgent):
                 },
             )
         except Exception as e:
-            base_url = os.getenv("OPENAI_BASE_URL")
-            err_msg = str(e) or repr(e)
-            if base_url:
-                err_msg = f"{err_msg} (OPENAI_BASE_URL={base_url})"
             completed_at = datetime.now(timezone.utc)
             duration_ms = (time.perf_counter() - started_perf) * 1000
             trace_step(
@@ -108,7 +102,7 @@ class BasicAgent(GenSIEAgent):
                 "extract",
                 prompt=prompt,
                 request_payload=request_payload,
-                error=err_msg,
+                error=str(e),
                 metrics={
                     "tokens": {
                         "prompt_tokens": None,
@@ -124,7 +118,7 @@ class BasicAgent(GenSIEAgent):
                     },
                 },
             )
-            raise RuntimeError(err_msg) from e
+            raise
 
         # Parse the structured JSON response
         try:
