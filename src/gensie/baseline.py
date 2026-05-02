@@ -8,6 +8,10 @@ from gensie.agent import GenSIEAgent, Participant, ParticipantInfo, PipelineInfo
 from gensie.task import Task
 from gensie.tracing import trace_step
 from gensie.schema_enrichment import build_enriched_prompt
+from gensie.prompting import (
+    SIMPLE_CLEAN_SCHEMA_SYSTEM_PROMPT,
+    build_simple_clean_schema_prompt,
+)
 from dotenv import load_dotenv
 from logging import getLogger
 
@@ -252,6 +256,121 @@ class EnrichedSchemaAgent(GenSIEAgent):
             return {"error": str(e)}
 
 
+class SimpleCleanSchemaAgent(GenSIEAgent):
+    """
+    Cheap baseline-plus pipeline: one model call, original schema for structured
+    output, and a cleaned schema representation in the prompt.
+    """
+
+    def __init__(self):
+        timeout_s = float(os.getenv("OPENAI_TIMEOUT_S", "120"))
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+            timeout=timeout_s,
+        )
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        prompt = build_simple_clean_schema_prompt(task)
+        messages = [
+            {
+                "role": "system",
+                "content": SIMPLE_CLEAN_SCHEMA_SYSTEM_PROMPT,
+            },
+            {"role": "user", "content": prompt},
+        ]
+        response_format = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "extraction",
+                "schema": task.target_schema,
+                "strict": True,
+            },
+        }
+        request_payload = {
+            "model": model,
+            "messages": messages,
+            "response_format": response_format,
+        }
+
+        started_at = datetime.now(timezone.utc)
+        started_perf = time.perf_counter()
+
+        try:
+            response = self.client.chat.completions.create(
+                model=model,
+                messages=messages,
+                response_format=response_format,
+            )
+            completed_at = datetime.now(timezone.utc)
+            duration_ms = (time.perf_counter() - started_perf) * 1000
+            raw_response = (
+                response.model_dump()
+                if hasattr(response, "model_dump")
+                else {"raw": str(response)}
+            )
+            usage = raw_response.get("usage") or {}
+            trace_step(
+                task,
+                "extract",
+                prompt=prompt,
+                request_payload=request_payload,
+                response_payload=raw_response,
+                metrics={
+                    "tokens": {
+                        "prompt_tokens": usage.get("prompt_tokens"),
+                        "completion_tokens": usage.get("completion_tokens"),
+                        "total_tokens": usage.get("total_tokens"),
+                    },
+                    "timings": {
+                        "started_at": started_at.isoformat(),
+                        "completed_at": completed_at.isoformat(),
+                        "total_duration_ms": round(duration_ms, 3),
+                        "time_to_first_token_ms": None,
+                        "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                    },
+                },
+            )
+        except Exception as e:
+            base_url = os.getenv("OPENAI_BASE_URL")
+            err_msg = str(e) or repr(e)
+            if base_url:
+                err_msg = f"{err_msg} (OPENAI_BASE_URL={base_url})"
+            completed_at = datetime.now(timezone.utc)
+            duration_ms = (time.perf_counter() - started_perf) * 1000
+            trace_step(
+                task,
+                "extract",
+                prompt=prompt,
+                request_payload=request_payload,
+                error=err_msg,
+                metrics={
+                    "tokens": {
+                        "prompt_tokens": None,
+                        "completion_tokens": None,
+                        "total_tokens": None,
+                    },
+                    "timings": {
+                        "started_at": started_at.isoformat(),
+                        "completed_at": completed_at.isoformat(),
+                        "total_duration_ms": round(duration_ms, 3),
+                        "time_to_first_token_ms": None,
+                        "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                    },
+                },
+            )
+            raise RuntimeError(err_msg) from e
+
+        try:
+            content = response.choices[0].message.content
+            return json.loads(content)
+        except (json.JSONDecodeError, AttributeError, IndexError) as e:
+            return {"error": f"Failed to parse model response: {str(e)}"}
+        except Exception as e:
+            logger.error(str(e))
+            return {"error": str(e)}
+
+
 class OfficialParticipant(Participant):
     """
     Standard entry point for the competition.
@@ -263,6 +382,7 @@ class OfficialParticipant(Participant):
         self.pipelines = {
             "baseline": BasicAgent(),
             "enriched-schema": EnrichedSchemaAgent(),
+            "simple-clean-schema": SimpleCleanSchemaAgent(),
             # "pipeline2": MyCustomAgent(arg1, arg2...),
             # "pipeline3": AnotherAgent(...),
         }
@@ -279,6 +399,10 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="enriched-schema",
                     description="Baseline + enriched schema prompt (field cards + Pydantic-like code).",
+                ),
+                PipelineInfo(
+                    name="simple-clean-schema",
+                    description="One-call baseline-plus with improved prompting and cleaned prompt schema; original schema is still used for structured output.",
                 ),
                 # Add descriptions for your other pipelines here:
                 # PipelineInfo(name="pipeline2", description="My advanced RAG agent"),

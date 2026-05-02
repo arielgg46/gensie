@@ -116,9 +116,6 @@ def _write_task_details(
     error: Optional[str] = None,
 ):
     task_dir = details_dir / task.id
-    prompt = task.get_input_prompt()
-
-    _write_text(task_dir / "prompt.txt", prompt)
     _write_json(task_dir / "task.json", task.model_dump(mode="json"))
     _write_json(task_dir / "gold.json", task.output)
 
