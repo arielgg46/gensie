@@ -162,11 +162,28 @@ class EnrichedSchemaAgent(GenSIEAgent):
             instruction=task.instruction,
             input_text=task.input_text,
             target_schema=task.target_schema,
+            rules=[],
+        )
+        system_prompt = "\n".join(
+            [
+                "You are a precise, grounded data extraction agent.",
+                "",
+                "Primary objective: maximize schema coverage WITHOUT hallucinating.",
+                "",
+                "Rules:",
+                "- Include EVERY required field (never omit required keys).",
+                "- For optional fields: include the key if the TEXT supports a value; otherwise follow schema nullability:",
+                "  - If the field allows null: use null when not supported by TEXT.",
+                "  - If the field does NOT allow null: omit the key when not supported by TEXT.",
+                "- Enums: output must match exactly one of the allowed literals (case-sensitive).",
+                "- Numbers/booleans/dates: do not guess; if not supported by TEXT => null (only if allowed) or omit.",
+                "- Output ONLY a valid JSON object (no markdown, no extra keys).",
+            ]
         )
         messages = [
             {
                 "role": "system",
-                "content": "You are a precise data extraction agent.",
+                "content": system_prompt,
             },
             {"role": "user", "content": prompt},
         ]
