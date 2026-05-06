@@ -1,6 +1,7 @@
 ﻿import os
 import json
 import time
+import threading
 from datetime import datetime, timezone
 from typing import Any, Dict
 from openai import OpenAI
@@ -18,11 +19,48 @@ from gensie.inline_reasoning import (
     build_inline_reasoning_schema,
     unwrap_inline_reasoning_output,
 )
+from gensie.enriched_inline_reasoning import (
+    ENRICHED_INLINE_REASONING_SYSTEM_PROMPT,
+    build_enriched_inline_reasoning_prompt,
+)
 from dotenv import load_dotenv
 from logging import getLogger
 
 load_dotenv()
 logger = getLogger("gensie")
+
+DEFAULT_OPENAI_REQUEST_DELAY_S = 3.0
+_OPENAI_REQUEST_LOCK = threading.Lock()
+_OPENAI_LAST_REQUEST_STARTED_AT = 0.0
+
+
+def _get_openai_request_delay_s() -> float:
+    raw_value = os.getenv(
+        "OPENAI_REQUEST_DELAY_S", str(DEFAULT_OPENAI_REQUEST_DELAY_S)
+    )
+    try:
+        return max(float(raw_value), 0.0)
+    except ValueError:
+        logger.warning(
+            "Invalid OPENAI_REQUEST_DELAY_S=%r; using %.1f seconds.",
+            raw_value,
+            DEFAULT_OPENAI_REQUEST_DELAY_S,
+        )
+        return DEFAULT_OPENAI_REQUEST_DELAY_S
+
+
+def _create_chat_completion(client: OpenAI, **kwargs: Any) -> Any:
+    delay_s = _get_openai_request_delay_s()
+    if delay_s > 0:
+        global _OPENAI_LAST_REQUEST_STARTED_AT
+        with _OPENAI_REQUEST_LOCK:
+            now = time.monotonic()
+            wait_s = (_OPENAI_LAST_REQUEST_STARTED_AT + delay_s) - now
+            if wait_s > 0:
+                time.sleep(wait_s)
+            _OPENAI_LAST_REQUEST_STARTED_AT = time.monotonic()
+
+    return client.chat.completions.create(**kwargs)
 
 
 class BasicAgent(GenSIEAgent):
@@ -70,7 +108,8 @@ class BasicAgent(GenSIEAgent):
 
         try:
             # Call OpenAI with the task's JSON schema
-            response = self.client.chat.completions.create(
+            response = _create_chat_completion(
+                self.client,
                 model=model,
                 messages=messages,
                 response_format=response_format,
@@ -205,7 +244,8 @@ class EnrichedSchemaAgent(GenSIEAgent):
         started_perf = time.perf_counter()
 
         try:
-            response = self.client.chat.completions.create(
+            response = _create_chat_completion(
+                self.client,
                 model=model,
                 messages=messages,
                 response_format=response_format,
@@ -320,7 +360,8 @@ class SimpleCleanSchemaAgent(GenSIEAgent):
         started_perf = time.perf_counter()
 
         try:
-            response = self.client.chat.completions.create(
+            response = _create_chat_completion(
+                self.client,
                 model=model,
                 messages=messages,
                 response_format=response_format,
@@ -438,7 +479,8 @@ class InlineReasoningAgent(GenSIEAgent):
         raw_response = None
 
         try:
-            response = self.client.chat.completions.create(
+            response = _create_chat_completion(
+                self.client,
                 model=model,
                 messages=messages,
                 response_format=response_format,
@@ -543,6 +585,158 @@ class InlineReasoningAgent(GenSIEAgent):
         return final_output
 
 
+class EnrichedInlineReasoningAgent(GenSIEAgent):
+    """
+    One-call pipeline that combines inline reasoning wrappers with a compact
+    Pydantic-like schema representation using Reasoned[T] and Nullable[T].
+    """
+
+    def __init__(self):
+        timeout_s = float(os.getenv("OPENAI_TIMEOUT_S", "120"))
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+            timeout=timeout_s,
+        )
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        prompt = build_enriched_inline_reasoning_prompt(task)
+        reasoning_schema = build_inline_reasoning_schema(task.target_schema)
+        messages = [
+            {
+                "role": "system",
+                "content": ENRICHED_INLINE_REASONING_SYSTEM_PROMPT,
+            },
+            {"role": "user", "content": prompt},
+        ]
+        response_format = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "enriched_inline_reasoning_extraction",
+                "schema": reasoning_schema,
+                "strict": True,
+            },
+        }
+        request_payload = {
+            "model": model,
+            "messages": messages,
+            "response_format": response_format,
+        }
+
+        started_at = datetime.now(timezone.utc)
+        started_perf = time.perf_counter()
+        response = None
+        raw_response = None
+
+        try:
+            response = _create_chat_completion(
+                self.client,
+                model=model,
+                messages=messages,
+                response_format=response_format,
+            )
+            completed_at = datetime.now(timezone.utc)
+            duration_ms = (time.perf_counter() - started_perf) * 1000
+            raw_response = (
+                response.model_dump()
+                if hasattr(response, "model_dump")
+                else {"raw": str(response)}
+            )
+            usage = raw_response.get("usage") or {}
+        except Exception as e:
+            base_url = os.getenv("OPENAI_BASE_URL")
+            err_msg = str(e) or repr(e)
+            if base_url:
+                err_msg = f"{err_msg} (OPENAI_BASE_URL={base_url})"
+            completed_at = datetime.now(timezone.utc)
+            duration_ms = (time.perf_counter() - started_perf) * 1000
+            trace_step(
+                task,
+                "extract",
+                prompt=prompt,
+                request_payload=request_payload,
+                error=err_msg,
+                metrics={
+                    "tokens": {
+                        "prompt_tokens": None,
+                        "completion_tokens": None,
+                        "total_tokens": None,
+                    },
+                    "timings": {
+                        "started_at": started_at.isoformat(),
+                        "completed_at": completed_at.isoformat(),
+                        "total_duration_ms": round(duration_ms, 3),
+                        "time_to_first_token_ms": None,
+                        "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                    },
+                },
+            )
+            raise RuntimeError(err_msg) from e
+
+        try:
+            content = response.choices[0].message.content
+            inline_output = json.loads(content)
+            final_output = unwrap_inline_reasoning_output(
+                inline_output, task.target_schema
+            )
+        except (json.JSONDecodeError, AttributeError, IndexError, ValueError) as e:
+            trace_step(
+                task,
+                "extract",
+                prompt=prompt,
+                request_payload=request_payload,
+                response_payload=raw_response,
+                error=str(e),
+                metrics={
+                    "tokens": {
+                        "prompt_tokens": usage.get("prompt_tokens"),
+                        "completion_tokens": usage.get("completion_tokens"),
+                        "total_tokens": usage.get("total_tokens"),
+                    },
+                    "timings": {
+                        "started_at": started_at.isoformat(),
+                        "completed_at": completed_at.isoformat(),
+                        "total_duration_ms": round(duration_ms, 3),
+                        "time_to_first_token_ms": None,
+                        "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                    },
+                },
+            )
+            return {
+                "error": f"Failed to parse enriched inline reasoning response: {str(e)}"
+            }
+        except Exception as e:
+            logger.error(str(e))
+            return {"error": str(e)}
+
+        trace_step(
+            task,
+            "extract",
+            prompt=prompt,
+            request_payload=request_payload,
+            response_payload={
+                "api_response": raw_response,
+                "inline_reasoning_output": inline_output,
+                "final_output": final_output,
+            },
+            metrics={
+                "tokens": {
+                    "prompt_tokens": usage.get("prompt_tokens"),
+                    "completion_tokens": usage.get("completion_tokens"),
+                    "total_tokens": usage.get("total_tokens"),
+                },
+                "timings": {
+                    "started_at": started_at.isoformat(),
+                    "completed_at": completed_at.isoformat(),
+                    "total_duration_ms": round(duration_ms, 3),
+                    "time_to_first_token_ms": None,
+                    "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                },
+            },
+        )
+        return final_output
+
+
 class OfficialParticipant(Participant):
     """
     Standard entry point for the competition.
@@ -556,6 +750,7 @@ class OfficialParticipant(Participant):
             "enriched-schema": EnrichedSchemaAgent(),
             "simple-clean-schema": SimpleCleanSchemaAgent(),
             "inline-reasoning": InlineReasoningAgent(),
+            "enriched-inline-reasoning": EnrichedInlineReasoningAgent(),
             # "pipeline2": MyCustomAgent(arg1, arg2...),
             # "pipeline3": AnotherAgent(...),
         }
@@ -580,6 +775,10 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="inline-reasoning",
                     description="One-call pipeline with top-level field reasoning wrappers in the generation schema, unwrapped to final values. Optional one-shot example.",
+                ),
+                PipelineInfo(
+                    name="enriched-inline-reasoning",
+                    description="Inline reasoning wrappers plus compact Pydantic-like schema prompt with Reasoned[T]/Nullable[T].",
                 ),
                 # Add descriptions for your other pipelines here:
                 # PipelineInfo(name="pipeline2", description="My advanced RAG agent"),

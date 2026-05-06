@@ -234,7 +234,7 @@ def build_inline_reasoning_few_shot_example() -> str:
         f"{schema_description or 'No root schema description provided.'}\n\n"
         "SCHEMA DEL EJEMPLO:\n"
         f"{schema_json}\n\n"
-        "TEXTO FUENTEDEL EJEMPLO:\n"
+        "TEXTO FUENTE DEL EJEMPLO:\n"
         f"{CULTURAL_LITERATURE_FEW_SHOT_INPUT_TEXT}\n\n"
         "OUTPUT DEL EJEMPLO:\n"
         f"{output_json}\n\n"

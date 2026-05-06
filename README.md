@@ -23,6 +23,7 @@ Create a `.env` file to configure your inference backend:
 ```bash
 OPENAI_API_KEY="your-api-key"
 OPENAI_BASE_URL="http://localhost:1234/v1" # Optional: for local LLMs
+OPENAI_REQUEST_DELAY_S="3" # Optional: minimum seconds between API request starts
 ```
 
 ### 3. Serving your Agent

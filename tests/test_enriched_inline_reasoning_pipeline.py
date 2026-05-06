@@ -1,0 +1,173 @@
+from types import SimpleNamespace
+
+from gensie.baseline import EnrichedInlineReasoningAgent, OfficialParticipant
+from gensie.enriched_inline_reasoning import (
+    INCLUDE_ENRICHED_INLINE_REASONING_FEW_SHOT,
+    build_enriched_inline_reasoning_few_shot_example,
+    build_enriched_inline_reasoning_prompt,
+    render_reasoned_pydantic_schema,
+)
+from gensie.task import Task
+
+
+def _sample_task() -> Task:
+    return Task(
+        id="sample",
+        input_text="Ada Lovelace publico notas sobre la Maquina Analitica en 1843.",
+        instruction="Extrae la persona, el ano y las etiquetas.",
+        target_schema={
+            "$defs": {
+                "Tag": {
+                    "enum": ["SCIENCE", "OTHER"],
+                    "title": "Tag",
+                    "type": "string",
+                },
+                "Mention": {
+                    "additionalProperties": False,
+                    "properties": {
+                        "text": {"type": "string"},
+                        "label": {"type": "string"},
+                    },
+                    "required": ["text", "label"],
+                    "type": "object",
+                },
+            },
+            "additionalProperties": False,
+            "description": "Extracts historical computing facts.",
+            "properties": {
+                "person": {
+                    "description": "Verbatim person name",
+                    "title": "Person",
+                    "type": "string",
+                },
+                "year": {
+                    "anyOf": [{"type": "integer"}, {"type": "null"}],
+                    "default": None,
+                    "description": "Year mentioned in the text",
+                    "title": "Year",
+                },
+                "tags": {
+                    "items": {"$ref": "#/$defs/Tag"},
+                    "type": "array",
+                },
+                "mentions": {
+                    "items": {"$ref": "#/$defs/Mention"},
+                    "type": "array",
+                },
+            },
+            "required": ["person"],
+            "title": "SampleSchema",
+            "type": "object",
+        },
+    )
+
+
+def test_render_reasoned_pydantic_schema_is_compact_and_reasoned():
+    code = render_reasoned_pydantic_schema(_sample_task().target_schema)
+
+    assert "from __future__" not in code
+    assert "from typing" not in code
+    assert "from pydantic" not in code
+    assert "Optional[" not in code
+    assert "class Reasoned[T](BaseModel):" in code
+    assert code.count("class Reasoned[T](BaseModel):") == 1
+    assert "Nullable[T] = T | null" in code
+    assert "class Output(BaseModel):" in code
+    assert "class SampleSchema(BaseModel):" not in code
+    assert "class ReasonedPerson" not in code
+    assert "Tag = Literal[\"SCIENCE\", \"OTHER\"]" in code
+    assert "class Mention(BaseModel):" in code
+    assert "text: str" in code
+    assert "person: Reasoned[str] = Field(description=\"Verbatim person name\")" in code
+    assert "year: Reasoned[Nullable[int]] = Field(description=\"Year mentioned in the text\")" in code
+    assert "tags: Reasoned[List[Tag]]" in code
+    assert "mentions: Reasoned[List[Mention]]" in code
+
+
+def test_enriched_inline_few_shot_uses_pydantic_schema():
+    example = build_enriched_inline_reasoning_few_shot_example()
+
+    assert INCLUDE_ENRICHED_INLINE_REASONING_FEW_SHOT is True
+    assert "INSTRUCCI" in example
+    assert "SCHEMA PYDANTIC DEL EJEMPLO:" in example
+    assert "SCHEMA MODIFICADO DEL EJEMPLO" not in example
+    assert "class Reasoned[T](BaseModel):" in example
+    assert "class Output(BaseModel):" in example
+    assert "class LiteraryWork(BaseModel):" not in example
+    assert "Nullable[T] = T | null" in example
+    assert "OUTPUT DEL EJEMPLO:" in example
+    assert "\"reasoning\"" in example
+    assert "\"value\": null" in example
+
+
+def test_enriched_inline_prompt_puts_rules_before_few_shot():
+    prompt = build_enriched_inline_reasoning_prompt(_sample_task())
+
+    assert prompt.startswith("TAREA:")
+    assert "FORMATO DE RAZONAMIENTO:" in prompt
+    assert "EJEMPLO:" in prompt
+    assert "INSTRUCCIÓN:" in prompt
+    assert "SCHEMA PYDANTIC:" in prompt
+    assert "TEXTO FUENTE:" in prompt
+    assert prompt.index("FORMATO DE RAZONAMIENTO:") < prompt.index("EJEMPLO:")
+    assert prompt.index("FIN DEL EJEMPLO.") < prompt.index("INSTRUCCIÓN:")
+    assert "Reasoned[T] significa" in prompt
+    assert "Nullable[T] significa" in prompt
+    assert prompt.count("class Output(BaseModel):") == 2
+    assert "class SampleSchema(BaseModel):" not in prompt
+
+
+def test_enriched_inline_agent_uses_wrapper_schema_and_returns_values(monkeypatch):
+    task = _sample_task()
+    captured = {}
+
+    class FakeCompletions:
+        def create(self, **kwargs):
+            captured.update(kwargs)
+            message = SimpleNamespace(
+                content=(
+                    '{"person":{"reasoning":"The text names Ada Lovelace.","value":"Ada Lovelace"},'
+                    '"year":{"reasoning":"The text states 1843.","value":1843},'
+                    '"tags":{"reasoning":"The topic is computing history.","value":["SCIENCE"]},'
+                    '"mentions":{"reasoning":"Ada Lovelace is directly mentioned.","value":[{"text":"Ada Lovelace","label":"PERSON"}]}}'
+                )
+            )
+            choice = SimpleNamespace(message=message)
+            return SimpleNamespace(
+                choices=[choice],
+                model_dump=lambda: {
+                    "usage": {
+                        "prompt_tokens": 1,
+                        "completion_tokens": 1,
+                        "total_tokens": 2,
+                    }
+                },
+            )
+
+    class FakeClient:
+        chat = SimpleNamespace(completions=FakeCompletions())
+
+    agent = EnrichedInlineReasoningAgent()
+    agent.client = FakeClient()
+    monkeypatch.setattr("gensie.baseline.trace_step", lambda *args, **kwargs: None)
+
+    result = agent.run(task, "dummy-model")
+
+    assert result == {
+        "person": "Ada Lovelace",
+        "year": 1843,
+        "tags": ["SCIENCE"],
+        "mentions": [{"text": "Ada Lovelace", "label": "PERSON"}],
+    }
+    generation_schema = captured["response_format"]["json_schema"]["schema"]
+    assert generation_schema["properties"]["person"]["properties"]["reasoning"]["type"] == "string"
+    assert generation_schema["properties"]["person"]["properties"]["value"] == task.target_schema["properties"]["person"]
+    prompt = captured["messages"][1]["content"]
+    assert "class Reasoned[T](BaseModel):" in prompt
+    assert "person: Reasoned[str]" in prompt
+
+
+def test_official_participant_registers_enriched_inline_reasoning():
+    names = [p.name for p in OfficialParticipant().get_info().pipelines]
+
+    assert "enriched-inline-reasoning" in names
