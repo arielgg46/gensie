@@ -20,8 +20,12 @@ from gensie.inline_reasoning import (
     unwrap_inline_reasoning_output,
 )
 from gensie.enriched_inline_reasoning import (
+    DEEP_INLINE_REASONING_SYSTEM_PROMPT,
     ENRICHED_INLINE_REASONING_SYSTEM_PROMPT,
+    build_deep_inline_reasoning_schema,
+    build_enriched_deep_inline_reasoning_prompt,
     build_enriched_inline_reasoning_prompt,
+    unwrap_deep_inline_reasoning_output,
 )
 from gensie.self_consistency import (
     SchemaAwareSelfConsistencyAggregator,
@@ -795,6 +799,158 @@ class EnrichedInlineReasoningAgent(GenSIEAgent):
         return final_output
 
 
+class EnrichedDeepInlineReasoningAgent(GenSIEAgent):
+    """
+    One-call enriched inline reasoning variant where every schema field and
+    array item is wrapped as {reasoning, value}, not only top-level fields.
+    """
+
+    def __init__(self):
+        timeout_s = float(os.getenv("OPENAI_TIMEOUT_S", "120"))
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+            timeout=timeout_s,
+        )
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        prompt = build_enriched_deep_inline_reasoning_prompt(task)
+        reasoning_schema = build_deep_inline_reasoning_schema(task.target_schema)
+        messages = [
+            {
+                "role": "system",
+                "content": DEEP_INLINE_REASONING_SYSTEM_PROMPT,
+            },
+            {"role": "user", "content": prompt},
+        ]
+        response_format = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "enriched_deep_inline_reasoning_extraction",
+                "schema": reasoning_schema,
+                "strict": True,
+            },
+        }
+        request_payload = {
+            "model": model,
+            "messages": messages,
+            "response_format": response_format,
+        }
+
+        started_at = datetime.now(timezone.utc)
+        started_perf = time.perf_counter()
+        response = None
+        raw_response = None
+
+        try:
+            response = _create_chat_completion(
+                self.client,
+                model=model,
+                messages=messages,
+                response_format=response_format,
+            )
+            completed_at = datetime.now(timezone.utc)
+            duration_ms = (time.perf_counter() - started_perf) * 1000
+            raw_response = (
+                response.model_dump()
+                if hasattr(response, "model_dump")
+                else {"raw": str(response)}
+            )
+            usage = raw_response.get("usage") or {}
+        except Exception as e:
+            base_url = os.getenv("OPENAI_BASE_URL")
+            err_msg = str(e) or repr(e)
+            if base_url:
+                err_msg = f"{err_msg} (OPENAI_BASE_URL={base_url})"
+            completed_at = datetime.now(timezone.utc)
+            duration_ms = (time.perf_counter() - started_perf) * 1000
+            trace_step(
+                task,
+                "extract",
+                prompt=prompt,
+                request_payload=request_payload,
+                error=err_msg,
+                metrics={
+                    "tokens": {
+                        "prompt_tokens": None,
+                        "completion_tokens": None,
+                        "total_tokens": None,
+                    },
+                    "timings": {
+                        "started_at": started_at.isoformat(),
+                        "completed_at": completed_at.isoformat(),
+                        "total_duration_ms": round(duration_ms, 3),
+                        "time_to_first_token_ms": None,
+                        "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                    },
+                },
+            )
+            raise RuntimeError(err_msg) from e
+
+        try:
+            content = response.choices[0].message.content
+            inline_output = json.loads(content)
+            final_output = unwrap_deep_inline_reasoning_output(
+                inline_output, task.target_schema
+            )
+        except (json.JSONDecodeError, AttributeError, IndexError, ValueError) as e:
+            trace_step(
+                task,
+                "extract",
+                prompt=prompt,
+                request_payload=request_payload,
+                response_payload=raw_response,
+                error=str(e),
+                metrics={
+                    "tokens": {
+                        "prompt_tokens": usage.get("prompt_tokens"),
+                        "completion_tokens": usage.get("completion_tokens"),
+                        "total_tokens": usage.get("total_tokens"),
+                    },
+                    "timings": {
+                        "started_at": started_at.isoformat(),
+                        "completed_at": completed_at.isoformat(),
+                        "total_duration_ms": round(duration_ms, 3),
+                        "time_to_first_token_ms": None,
+                        "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                    },
+                },
+            )
+            return {
+                "error": f"Failed to parse enriched deep inline reasoning response: {str(e)}"
+            }
+        except Exception as e:
+            logger.error(str(e))
+            return {"error": str(e)}
+
+        trace_step(
+            task,
+            "extract",
+            prompt=prompt,
+            request_payload=request_payload,
+            response_payload={
+                "api_response": raw_response,
+                "deep_inline_reasoning_output": inline_output,
+                "final_output": final_output,
+            },
+            metrics={
+                "tokens": {
+                    "prompt_tokens": usage.get("prompt_tokens"),
+                    "completion_tokens": usage.get("completion_tokens"),
+                    "total_tokens": usage.get("total_tokens"),
+                },
+                "timings": {
+                    "started_at": started_at.isoformat(),
+                    "completed_at": completed_at.isoformat(),
+                    "total_duration_ms": round(duration_ms, 3),
+                    "time_to_first_token_ms": None,
+                    "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                },
+            },
+        )
+        return final_output
+
+
 class EnrichedInlineReasoningSelfConsistencyAgent(GenSIEAgent):
     """
     Multi-sample variant of enriched-inline-reasoning.
@@ -1204,6 +1360,7 @@ class OfficialParticipant(Participant):
             "simple-clean-schema": SimpleCleanSchemaAgent(),
             "inline-reasoning": InlineReasoningAgent(),
             "enriched-inline-reasoning": EnrichedInlineReasoningAgent(),
+            "enriched-inline-reasoning-deep": EnrichedDeepInlineReasoningAgent(),
             "enriched-inline-reasoning-self-consistency": EnrichedInlineReasoningSelfConsistencyAgent(),
             # "pipeline2": MyCustomAgent(arg1, arg2...),
             # "pipeline3": AnotherAgent(...),
@@ -1233,6 +1390,10 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="enriched-inline-reasoning",
                     description="Inline reasoning wrappers plus compact Pydantic-like schema prompt with Reasoned[T]/Nullable[T].",
+                ),
+                PipelineInfo(
+                    name="enriched-inline-reasoning-deep",
+                    description="Enriched inline reasoning with recursive Reasoned[T] wrappers for all fields, subfields, and array items.",
                 ),
                 PipelineInfo(
                     name="enriched-inline-reasoning-self-consistency",
