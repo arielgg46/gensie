@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from gensie.baseline import (
     EnrichedDeepInlineReasoningAgent,
     EnrichedInlineReasoningAgent,
+    EnrichedInlineReasoningSuperFspAgent,
     OfficialParticipant,
 )
 from gensie.enriched_inline_reasoning import (
@@ -11,6 +12,7 @@ from gensie.enriched_inline_reasoning import (
     build_enriched_deep_inline_reasoning_prompt,
     build_enriched_inline_reasoning_few_shot_example,
     build_enriched_inline_reasoning_prompt,
+    build_enriched_inline_reasoning_super_fsp_prompt,
     render_reasoned_pydantic_schema,
     render_deep_reasoned_pydantic_schema,
     unwrap_deep_inline_reasoning_output,
@@ -205,6 +207,30 @@ def test_enriched_inline_prompt_puts_rules_before_few_shot():
     assert "class SampleSchema(BaseModel):" not in prompt
 
 
+def test_enriched_inline_super_fsp_prompt_uses_full_synthetic_example():
+    prompt = build_enriched_inline_reasoning_super_fsp_prompt(_sample_task())
+
+    assert prompt.startswith("TAREA:")
+    assert "FORMATO DE RAZONAMIENTO:" in prompt
+    assert "EJEMPLO:\nINSTRUCCIÓN DEL EJEMPLO:" in prompt
+    assert "Este super ejemplo" not in prompt
+    assert "Subtareas seleccionadas:" not in prompt
+    assert "Atlas-IE presenta avances en extracción de información" in prompt
+    assert "pilot_outcome: Reasoned[PilotOutcome]" in prompt
+    assert "entities: Reasoned[List[Entity]]" in prompt
+    assert "registry_code: Reasoned[str]" in prompt
+    assert "Lucía Ferrer" in prompt
+    assert "Andrés Núñez" in prompt
+    assert "SHA256" not in prompt
+    assert "CEO" not in prompt
+    assert "métodos clínicos" not in prompt
+    assert "Complexity:" not in prompt
+    assert "Don Quijote de la Mancha" not in prompt
+    assert prompt.index("FORMATO DE RAZONAMIENTO:") < prompt.index("EJEMPLO:")
+    assert prompt.index("FIN DEL EJEMPLO.") < prompt.index("INSTRUCCIÓN:")
+    assert prompt.count("class Output(BaseModel):") == 2
+
+
 def test_enriched_inline_agent_uses_wrapper_schema_and_returns_values(monkeypatch):
     task = _sample_task()
     captured = {}
@@ -253,6 +279,60 @@ def test_enriched_inline_agent_uses_wrapper_schema_and_returns_values(monkeypatc
     prompt = captured["messages"][1]["content"]
     assert "class Reasoned[T](BaseModel):" in prompt
     assert "person: Reasoned[str]" in prompt
+
+
+def test_enriched_inline_super_fsp_agent_only_changes_prompt(monkeypatch):
+    task = _sample_task()
+    captured = {}
+
+    class FakeCompletions:
+        def create(self, **kwargs):
+            captured.update(kwargs)
+            message = SimpleNamespace(
+                content=(
+                    '{"person":{"reasoning":"The text names Ada Lovelace.","value":"Ada Lovelace"},'
+                    '"year":{"reasoning":"The text states 1843.","value":1843},'
+                    '"tags":{"reasoning":"The topic is computing history.","value":["SCIENCE"]},'
+                    '"mentions":{"reasoning":"Ada Lovelace is directly mentioned.","value":[{"text":"Ada Lovelace","label":"PERSON"}]}}'
+                )
+            )
+            choice = SimpleNamespace(message=message)
+            return SimpleNamespace(
+                choices=[choice],
+                model_dump=lambda: {
+                    "usage": {
+                        "prompt_tokens": 1,
+                        "completion_tokens": 1,
+                        "total_tokens": 2,
+                    }
+                },
+            )
+
+    class FakeClient:
+        chat = SimpleNamespace(completions=FakeCompletions())
+
+    agent = EnrichedInlineReasoningSuperFspAgent()
+    agent.client = FakeClient()
+    monkeypatch.setattr("gensie.baseline.trace_step", lambda *args, **kwargs: None)
+
+    result = agent.run(task, "dummy-model")
+
+    assert result == {
+        "person": "Ada Lovelace",
+        "year": 1843,
+        "tags": ["SCIENCE"],
+        "mentions": [{"text": "Ada Lovelace", "label": "PERSON"}],
+    }
+    generation_schema = captured["response_format"]["json_schema"]["schema"]
+    assert generation_schema["properties"]["person"]["properties"]["value"] == task.target_schema["properties"]["person"]
+    assert generation_schema["properties"]["mentions"]["properties"]["value"]["items"]["$ref"] == "#/$defs/Mention"
+    prompt = captured["messages"][1]["content"]
+    assert "Atlas-IE presenta avances en extracción de información" in prompt
+    assert "Este super ejemplo" not in prompt
+    assert "Don Quijote de la Mancha" not in prompt
+    assert "SHA256" not in prompt
+    assert "CEO" not in prompt
+    assert "mentions: Reasoned[List[Mention]]" in prompt
 
 
 def test_enriched_deep_inline_agent_uses_recursive_wrapper_schema_and_returns_values(monkeypatch):
@@ -312,4 +392,5 @@ def test_official_participant_registers_enriched_inline_reasoning():
     names = [p.name for p in OfficialParticipant().get_info().pipelines]
 
     assert "enriched-inline-reasoning" in names
+    assert "enriched-inline-reasoning-super-fsp" in names
     assert "enriched-inline-reasoning-deep" in names

@@ -25,6 +25,7 @@ from gensie.enriched_inline_reasoning import (
     build_deep_inline_reasoning_schema,
     build_enriched_deep_inline_reasoning_prompt,
     build_enriched_inline_reasoning_prompt,
+    build_enriched_inline_reasoning_super_fsp_prompt,
     unwrap_deep_inline_reasoning_output,
 )
 from gensie.self_consistency import (
@@ -661,8 +662,11 @@ class EnrichedInlineReasoningAgent(GenSIEAgent):
             timeout=timeout_s,
         )
 
+    def build_prompt(self, task: Task) -> str:
+        return build_enriched_inline_reasoning_prompt(task)
+
     def run(self, task: Task, model: str) -> Dict[str, Any]:
-        prompt = build_enriched_inline_reasoning_prompt(task)
+        prompt = self.build_prompt(task)
         reasoning_schema = build_inline_reasoning_schema(task.target_schema)
         messages = [
             {
@@ -797,6 +801,16 @@ class EnrichedInlineReasoningAgent(GenSIEAgent):
             },
         )
         return final_output
+
+
+class EnrichedInlineReasoningSuperFspAgent(EnrichedInlineReasoningAgent):
+    """
+    Enriched inline reasoning variant that keeps the same extraction mechanics
+    but always uses the full synthetic super FSP.
+    """
+
+    def build_prompt(self, task: Task) -> str:
+        return build_enriched_inline_reasoning_super_fsp_prompt(task)
 
 
 class EnrichedDeepInlineReasoningAgent(GenSIEAgent):
@@ -1360,6 +1374,7 @@ class OfficialParticipant(Participant):
             "simple-clean-schema": SimpleCleanSchemaAgent(),
             "inline-reasoning": InlineReasoningAgent(),
             "enriched-inline-reasoning": EnrichedInlineReasoningAgent(),
+            "enriched-inline-reasoning-super-fsp": EnrichedInlineReasoningSuperFspAgent(),
             "enriched-inline-reasoning-deep": EnrichedDeepInlineReasoningAgent(),
             "enriched-inline-reasoning-self-consistency": EnrichedInlineReasoningSelfConsistencyAgent(),
             # "pipeline2": MyCustomAgent(arg1, arg2...),
@@ -1390,6 +1405,10 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="enriched-inline-reasoning",
                     description="Inline reasoning wrappers plus compact Pydantic-like schema prompt with Reasoned[T]/Nullable[T].",
+                ),
+                PipelineInfo(
+                    name="enriched-inline-reasoning-super-fsp",
+                    description="Same as enriched-inline-reasoning, but always uses the full synthetic super FSP covering all extraction subtask types.",
                 ),
                 PipelineInfo(
                     name="enriched-inline-reasoning-deep",

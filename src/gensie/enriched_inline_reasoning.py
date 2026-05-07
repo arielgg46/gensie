@@ -22,6 +22,7 @@ from gensie.schema_enrichment import (
     _schema_type,
     _unwrap_nullable_anyof,
 )
+from gensie.super_fsp import build_super_fsp_example
 from gensie.task import Task
 
 
@@ -760,14 +761,29 @@ def build_enriched_deep_inline_reasoning_few_shot_example() -> str:
 
 
 def build_enriched_inline_reasoning_prompt(task: Task) -> str:
-    _, root_description = clean_schema_for_prompt(task.target_schema)
-    schema_description = root_description or "No root schema description provided."
-    schema_code = render_reasoned_pydantic_schema(task.target_schema)
     few_shot_example = (
         build_enriched_inline_reasoning_few_shot_example() + "\n"
         if INCLUDE_ENRICHED_INLINE_REASONING_FEW_SHOT
         else ""
     )
+    return _build_enriched_inline_reasoning_prompt(task, few_shot_example=few_shot_example)
+
+
+def build_enriched_inline_reasoning_super_fsp_prompt(task: Task) -> str:
+    return _build_enriched_inline_reasoning_prompt(
+        task,
+        few_shot_example=build_super_fsp_example() + "\n",
+    )
+
+
+def _build_enriched_inline_reasoning_prompt(
+    task: Task,
+    *,
+    few_shot_example: str,
+) -> str:
+    _, root_description = clean_schema_for_prompt(task.target_schema)
+    schema_description = root_description or "No root schema description provided."
+    schema_code = render_reasoned_pydantic_schema(task.target_schema)
 
     return (
         "TAREA:\n"
