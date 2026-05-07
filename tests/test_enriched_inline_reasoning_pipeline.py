@@ -98,6 +98,9 @@ def test_enriched_inline_few_shot_uses_pydantic_schema():
     assert "OUTPUT DEL EJEMPLO:" in example
     assert "\"reasoning\"" in example
     assert "\"value\": null" in example
+    assert "fragmento verbatim" in example
+    assert "literary_impact_evidence" in example
+    assert "primera novela moderna" in example
 
 
 def test_enriched_inline_prompt_puts_rules_before_few_shot():
@@ -114,6 +117,7 @@ def test_enriched_inline_prompt_puts_rules_before_few_shot():
     assert "Reasoned[T] significa" in prompt
     assert "Nullable[T] significa" in prompt
     assert prompt.count("class Output(BaseModel):") == 2
+    assert "fragmento verbatim/source text/evidence" in prompt
     assert "class SampleSchema(BaseModel):" not in prompt
 
 

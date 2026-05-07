@@ -1,3 +1,4 @@
+import copy
 import json
 from typing import Any, Dict, List, Tuple
 
@@ -270,17 +271,54 @@ def _nested_models_for_field(
     return []
 
 
-def build_enriched_inline_reasoning_few_shot_example() -> str:
-    _, schema_description = clean_schema_for_prompt(CULTURAL_LITERATURE_FEW_SHOT_SCHEMA)
-    schema_code = render_reasoned_pydantic_schema(CULTURAL_LITERATURE_FEW_SHOT_SCHEMA)
-    output_json = json.dumps(
-        CULTURAL_LITERATURE_FEW_SHOT_OUTPUT, ensure_ascii=False, indent=2
-    )
+def _build_enriched_cultural_few_shot_schema() -> JsonDict:
+    schema = copy.deepcopy(CULTURAL_LITERATURE_FEW_SHOT_SCHEMA)
+    props = schema.setdefault("properties", {})
+    props["literary_impact_evidence"] = {
+        "description": (
+            "The complete verbatim source-text fragment that supports the work "
+            "being the first modern and polyphonic novel."
+        ),
+        "title": "Literary Impact Evidence",
+        "type": "string",
+    }
+    required = schema.setdefault("required", [])
+    if "literary_impact_evidence" not in required:
+        required.append("literary_impact_evidence")
+    return schema
+
+
+def _build_enriched_cultural_few_shot_output() -> JsonDict:
+    output = copy.deepcopy(CULTURAL_LITERATURE_FEW_SHOT_OUTPUT)
+    output["literary_impact_evidence"] = {
+        "reasoning": (
+            "El campo pide un fragmento verbatim completo de evidencia, no una "
+            "etiqueta resumida como \"novela moderna\". La frase del texto que "
+            "responde es larga y conecta la clasificacion con su impacto narrativo: "
+            "\"Representa la primera novela moderna y la primera novela polifónica; "
+            "como tal, ejerció un enorme influjo en toda la narrativa europea\". "
+            "Por eso value copia el fragmento minimo completo."
+        ),
+        "value": (
+            "Representa la primera novela moderna y la primera novela polifónica; "
+            "como tal, ejerció un enorme influjo en toda la narrativa europea."
+        ),
+    }
+    return output
+
+
+def _build_cultural_enriched_inline_reasoning_few_shot_example() -> str:
+    schema = _build_enriched_cultural_few_shot_schema()
+    output = _build_enriched_cultural_few_shot_output()
+    _, schema_description = clean_schema_for_prompt(schema)
+    schema_code = render_reasoned_pydantic_schema(schema)
+    output_json = json.dumps(output, ensure_ascii=False, indent=2)
     return (
         "EJEMPLO:\n"
-        "Este ejemplo muestra cómo citar evidencia y razonar antes de escribir value.\n\n"
+        "Este ejemplo muestra cómo citar evidencia, razonar antes de escribir value "
+        "y copiar fragmentos verbatim largos cuando un campo lo pide.\n\n"
         "INSTRUCCIÓN DEL EJEMPLO:\n"
-        f"{CULTURAL_LITERATURE_FEW_SHOT_INSTRUCTION}\n"
+        f"{CULTURAL_LITERATURE_FEW_SHOT_INSTRUCTION} Incluye tambien el fragmento verbatim completo que evidencia su importancia literaria.\n"
         f"{schema_description or 'No root schema description provided.'}\n\n"
         "SCHEMA PYDANTIC DEL EJEMPLO:\n"
         f"{schema_code}\n"
@@ -290,6 +328,10 @@ def build_enriched_inline_reasoning_few_shot_example() -> str:
         f"{output_json}\n\n"
         "FIN DEL EJEMPLO.\n"
     )
+
+
+def build_enriched_inline_reasoning_few_shot_example() -> str:
+    return _build_cultural_enriched_inline_reasoning_few_shot_example()
 
 
 def build_enriched_inline_reasoning_prompt(task: Task) -> str:
@@ -312,6 +354,7 @@ def build_enriched_inline_reasoning_prompt(task: Task) -> str:
         "- reasoning debe citar texto exacto del TEXTO FUENTE cuando exista evidencia.\n"
         "- Si no hay evidencia suficiente y value permite null, usa null y explica por qué.\n"
         "- value contiene solo la respuesta final, sin explicaciones.\n"
+        "- Si un campo pide fragmento verbatim/source text/evidence, copia el fragmento minimo completo del texto que responde la pregunta; no devuelvas solo la entidad o respuesta normalizada.\n"
         "- Reasoned[T] significa que el campo se genera como {\"reasoning\": str, \"value\": T}.\n"
         "- La description de un campo Reasoned[T] describe su value.\n"
         "- Nullable[T] significa que value puede ser null, pero el campo no se puede omitir.\n"

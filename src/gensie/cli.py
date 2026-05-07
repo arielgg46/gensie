@@ -45,17 +45,27 @@ def _collect_trace_metrics(task_dir: Path) -> Optional[Dict[str, Any]]:
     total_tokens = 0
     total_duration_ms = 0.0
     measured_durations = 0
+    model_duration_ms = 0.0
+    measured_model_durations = 0
+    aggregation_duration_ms = 0.0
     request_count = 0
     failed_requests = 0
+    aggregation_step_count = 0
     ttft_values = []
 
     for step in step_summaries:
         metrics = step.get("metrics") or {}
         tokens = metrics.get("tokens") or {}
         timings = metrics.get("timings") or {}
+        request_info = metrics.get("request") or {}
+        is_model_request = request_info.get("is_model_request", True)
 
-        request_count += 1
-        if step.get("error"):
+        if is_model_request:
+            request_count += 1
+        else:
+            aggregation_step_count += 1
+
+        if step.get("error") and is_model_request:
             failed_requests += 1
 
         prompt_tokens += int(tokens.get("prompt_tokens") or 0)
@@ -64,8 +74,14 @@ def _collect_trace_metrics(task_dir: Path) -> Optional[Dict[str, Any]]:
 
         duration_ms = timings.get("total_duration_ms")
         if duration_ms is not None:
-            total_duration_ms += float(duration_ms)
+            duration_ms = float(duration_ms)
+            total_duration_ms += duration_ms
             measured_durations += 1
+            if is_model_request:
+                model_duration_ms += duration_ms
+                measured_model_durations += 1
+            else:
+                aggregation_duration_ms += duration_ms
 
         ttft_ms = timings.get("time_to_first_token_ms")
         if ttft_ms is not None:
@@ -74,6 +90,7 @@ def _collect_trace_metrics(task_dir: Path) -> Optional[Dict[str, Any]]:
     return {
         "request_count": request_count,
         "failed_request_count": failed_requests,
+        "aggregation_step_count": aggregation_step_count,
         "tokens": {
             "prompt_tokens": prompt_tokens,
             "completion_tokens": completion_tokens,
@@ -81,8 +98,12 @@ def _collect_trace_metrics(task_dir: Path) -> Optional[Dict[str, Any]]:
         },
         "timings": {
             "total_duration_ms": round(total_duration_ms, 3),
-            "average_duration_ms": round(total_duration_ms / measured_durations, 3)
-            if measured_durations
+            "model_duration_ms": round(model_duration_ms, 3),
+            "aggregation_duration_ms": round(aggregation_duration_ms, 3),
+            "average_duration_ms": round(
+                model_duration_ms / measured_model_durations, 3
+            )
+            if measured_model_durations
             else None,
             "time_to_first_token_ms": round(sum(ttft_values) / len(ttft_values), 3)
             if ttft_values
@@ -96,6 +117,11 @@ def _collect_trace_metrics(task_dir: Path) -> Optional[Dict[str, Any]]:
             {
                 "step_index": step.get("step_index"),
                 "step_name": step.get("step_name"),
+                "is_model_request": (
+                    ((step.get("metrics") or {}).get("request") or {}).get(
+                        "is_model_request", True
+                    )
+                ),
                 "error": step.get("error"),
                 "tokens": (step.get("metrics") or {}).get("tokens"),
                 "timings": (step.get("metrics") or {}).get("timings"),
