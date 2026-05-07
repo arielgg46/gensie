@@ -2,6 +2,7 @@ from types import SimpleNamespace
 
 from gensie.baseline import (
     EnrichedInlineReasoningSelfConsistencyAgent,
+    EnrichedInlineReasoningSuperFspSelfConsistencyAgent,
     OfficialParticipant,
 )
 from gensie.self_consistency import (
@@ -364,7 +365,68 @@ def test_self_consistency_default_cap_allows_budget_to_choose_more_than_three(mo
     assert agent.trial_planner.config.max_trials == 12
 
 
+def test_super_fsp_self_consistency_uses_super_fsp_prompt(monkeypatch):
+    task = Task(
+        id="sample",
+        input_text="Ada Lovelace publico notas en 1843.",
+        instruction="Extrae persona y ano.",
+        target_schema={
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "person": {"type": "string"},
+                "year": {"type": "integer"},
+            },
+            "required": ["person", "year"],
+        },
+    )
+    content = (
+        '{"person":{"reasoning":"name","value":"Ada Lovelace"},'
+        '"year":{"reasoning":"year","value":1843}}'
+    )
+    calls = []
+
+    class FakeCompletions:
+        def create(self, **kwargs):
+            calls.append(kwargs)
+            message = SimpleNamespace(content=content)
+            choice = SimpleNamespace(message=message)
+            return SimpleNamespace(
+                choices=[choice],
+                model_dump=lambda: {
+                    "usage": {
+                        "prompt_tokens": 10,
+                        "completion_tokens": 5,
+                        "total_tokens": 15,
+                    }
+                },
+            )
+
+    class FakeClient:
+        chat = SimpleNamespace(completions=FakeCompletions())
+
+    monkeypatch.setenv("OPENAI_REQUEST_DELAY_S", "0")
+    monkeypatch.setenv("GENSIE_SC_TRIALS", "2")
+    monkeypatch.setattr("gensie.baseline.trace_step", lambda *args, **kwargs: None)
+    agent = EnrichedInlineReasoningSuperFspSelfConsistencyAgent()
+    agent.client = FakeClient()
+
+    result = agent.run(task, "dummy-model")
+
+    assert len(calls) == 2
+    assert result == {"person": "Ada Lovelace", "year": 1843}
+    prompt = calls[0]["messages"][1]["content"]
+    assert "Atlas-IE presenta avances" in prompt
+    assert "entities: Reasoned[List[Entity]]" in prompt
+    assert "Don Quijote de la Mancha" not in prompt
+    assert (
+        calls[0]["response_format"]["json_schema"]["name"]
+        == "enriched_inline_reasoning_super_fsp_self_consistency"
+    )
+
+
 def test_official_participant_registers_self_consistency():
     names = [p.name for p in OfficialParticipant().get_info().pipelines]
 
     assert "enriched-inline-reasoning-self-consistency" in names
+    assert "enriched-inline-reasoning-super-fsp-self-consistency" in names

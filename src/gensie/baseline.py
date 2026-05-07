@@ -973,6 +973,8 @@ class EnrichedInlineReasoningSelfConsistencyAgent(GenSIEAgent):
     aggregated field-by-field with a schema-aware self-consistency aggregator.
     """
 
+    response_format_name = "enriched_inline_reasoning_self_consistency"
+
     def __init__(self):
         timeout_s = float(os.getenv("OPENAI_TIMEOUT_S", "120"))
         self.client = OpenAI(
@@ -986,8 +988,11 @@ class EnrichedInlineReasoningSelfConsistencyAgent(GenSIEAgent):
         )
         self.trial_planner = TrialBudgetPlanner(self._build_trial_budget_config())
 
+    def build_prompt(self, task: Task) -> str:
+        return build_enriched_inline_reasoning_prompt(task)
+
     def run(self, task: Task, model: str) -> Dict[str, Any]:
-        prompt = build_enriched_inline_reasoning_prompt(task)
+        prompt = self.build_prompt(task)
         reasoning_schema = build_inline_reasoning_schema(task.target_schema)
         messages = [
             {
@@ -999,7 +1004,7 @@ class EnrichedInlineReasoningSelfConsistencyAgent(GenSIEAgent):
         response_format = {
             "type": "json_schema",
             "json_schema": {
-                "name": "enriched_inline_reasoning_self_consistency",
+                "name": self.response_format_name,
                 "schema": reasoning_schema,
                 "strict": True,
             },
@@ -1360,6 +1365,20 @@ class EnrichedInlineReasoningSelfConsistencyAgent(GenSIEAgent):
         )
 
 
+class EnrichedInlineReasoningSuperFspSelfConsistencyAgent(
+    EnrichedInlineReasoningSelfConsistencyAgent
+):
+    """
+    Multi-sample self-consistency variant whose base prompt is
+    enriched-inline-reasoning-super-fsp.
+    """
+
+    response_format_name = "enriched_inline_reasoning_super_fsp_self_consistency"
+
+    def build_prompt(self, task: Task) -> str:
+        return build_enriched_inline_reasoning_super_fsp_prompt(task)
+
+
 class OfficialParticipant(Participant):
     """
     Standard entry point for the competition.
@@ -1377,6 +1396,7 @@ class OfficialParticipant(Participant):
             "enriched-inline-reasoning-super-fsp": EnrichedInlineReasoningSuperFspAgent(),
             "enriched-inline-reasoning-deep": EnrichedDeepInlineReasoningAgent(),
             "enriched-inline-reasoning-self-consistency": EnrichedInlineReasoningSelfConsistencyAgent(),
+            "enriched-inline-reasoning-super-fsp-self-consistency": EnrichedInlineReasoningSuperFspSelfConsistencyAgent(),
             # "pipeline2": MyCustomAgent(arg1, arg2...),
             # "pipeline3": AnotherAgent(...),
         }
@@ -1417,6 +1437,10 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="enriched-inline-reasoning-self-consistency",
                     description="Multi-sample enriched inline reasoning with modular schema-aware self-consistency over scalars, objects, and arrays.",
+                ),
+                PipelineInfo(
+                    name="enriched-inline-reasoning-super-fsp-self-consistency",
+                    description="Multi-sample enriched inline reasoning using the full synthetic super FSP prompt before schema-aware self-consistency aggregation.",
                 ),
                 # Add descriptions for your other pipelines here:
                 # PipelineInfo(name="pipeline2", description="My advanced RAG agent"),
