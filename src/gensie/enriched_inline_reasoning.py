@@ -1,6 +1,6 @@
 import copy
 import json
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Sequence, Tuple
 
 from gensie.inline_reasoning import (
     CULTURAL_LITERATURE_FEW_SHOT_INPUT_TEXT,
@@ -760,19 +760,28 @@ def build_enriched_deep_inline_reasoning_few_shot_example() -> str:
     )
 
 
-def build_enriched_inline_reasoning_prompt(task: Task) -> str:
+def build_enriched_inline_reasoning_prompt(
+    task: Task,
+    *,
+    verbatim_entity_list: Sequence[str] | None = None,
+) -> str:
     few_shot_example = (
         build_enriched_inline_reasoning_few_shot_example() + "\n"
         if INCLUDE_ENRICHED_INLINE_REASONING_FEW_SHOT
         else ""
     )
-    return _build_enriched_inline_reasoning_prompt(task, few_shot_example=few_shot_example)
+    return _build_enriched_inline_reasoning_prompt(
+        task,
+        few_shot_example=few_shot_example,
+        verbatim_entity_list=verbatim_entity_list,
+    )
 
 
 def build_enriched_inline_reasoning_super_fsp_prompt(task: Task) -> str:
     return _build_enriched_inline_reasoning_prompt(
         task,
         few_shot_example=build_super_fsp_example() + "\n",
+        verbatim_entity_list=None,
     )
 
 
@@ -780,10 +789,14 @@ def _build_enriched_inline_reasoning_prompt(
     task: Task,
     *,
     few_shot_example: str,
+    verbatim_entity_list: Sequence[str] | None,
 ) -> str:
     _, root_description = clean_schema_for_prompt(task.target_schema)
     schema_description = root_description or "No root schema description provided."
     schema_code = render_reasoned_pydantic_schema(task.target_schema)
+    verbatim_entity_block = _build_verbatim_entity_list_prompt_block(
+        verbatim_entity_list
+    )
 
     return (
         "TAREA:\n"
@@ -799,7 +812,8 @@ def _build_enriched_inline_reasoning_prompt(
         "- Reasoned[T] significa que el campo se genera como {\"reasoning\": str, \"value\": T}.\n"
         "- La description de un campo Reasoned[T] describe su value.\n"
         "- Nullable[T] significa que value puede ser null, pero el campo no se puede omitir.\n"
-        "- En objetos, arrays de objetos y arrays de simples, haz un único reasoning para todo el campo y luego rellena value completo. Razona sobre cada campo de cada elemento. No repitas elementos.\n\n"
+        "- En objetos, arrays de objetos y arrays de simples, haz un único reasoning para todo el campo y luego rellena value completo. Razona sobre cada campo de cada elemento. No repitas elementos.\n"
+        "- En enums razona explícitamente sobre la pertenencia a cada una de las categorías.\n\n"
         f"{few_shot_example}"
         "INSTRUCCIÓN:\n"
         f"{task.instruction}\n"
@@ -807,8 +821,38 @@ def _build_enriched_inline_reasoning_prompt(
         "SCHEMA PYDANTIC:\n"
         f"{schema_code}\n"
         "TEXTO FUENTE:\n"
-        f"{task.input_text}"
+        f"{task.input_text}\n"
+        f"{verbatim_entity_block}"
     )
+
+
+def _build_verbatim_entity_list_prompt_block(
+    verbatim_entity_list: Sequence[str] | None,
+) -> str:
+    if verbatim_entity_list is None:
+        return ""
+
+    entities = _dedupe_prompt_entities(verbatim_entity_list)
+    entity_json = json.dumps(entities, ensure_ascii=False, indent=2)
+    return (
+        "\nENTIDADES PREEXTRAIDAS:\n"
+        "Se listan algunas de las entidades verbatim del TEXTO FUENTE. Úsala como ayuda de grounding, pero decide la respuesta final con el TEXTO FUENTE completo y el schema, no es infalible:\n"
+        f"{entity_json}"
+    )
+
+
+def _dedupe_prompt_entities(verbatim_entity_list: Sequence[str]) -> List[str]:
+    seen: set[str] = set()
+    entities: List[str] = []
+    for item in verbatim_entity_list:
+        if not isinstance(item, str):
+            continue
+        entity = item.strip()
+        if not entity or entity in seen:
+            continue
+        seen.add(entity)
+        entities.append(entity)
+    return entities
 
 
 def build_enriched_deep_inline_reasoning_prompt(task: Task) -> str:

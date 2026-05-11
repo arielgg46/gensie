@@ -1,0 +1,32 @@
+{
+  "input_text": "# 20 equipos participan en la Carrera Solar de Atacama 2014\n\n20 competidores recorrerán 1.200 kilómetros en el desierto de Atacama, en el norte de Chile, usando la energía solar como principal componente.\nTras las revisiones técnicas y de seguridad, 20 equipos fueron autorizados a participar de la edición 2014 de la Carrera Solar Atacama, que busca descubrir qué vehículo impulsado por energía solar puede recorrer los más de 1.200 kilómetros que compone el recorrido a través del desierto de Atacama, uno de los más áridos del planeta. Los equipos clasificados provienen de Japón, Colombia, Ecuador, Bolivia y Chile.\nEn esta edición, el equipo bicampeón mundial, Tokai, buscará ganar la competencia pero se deberán enfrentar a otros competidores destacados como el equipo de la Universidad de La Serena, quienes ganaron el desafío en 2011.\nLa competencia general se divide en dos categorías: solar e híbrida, en la cual la primera debe usar solamente energía proveniente del sol, mientras que la segunda también puede considerar el uso de la tracción humana como medio de impulso. Es así como se espera que la carrera pase por las localidades Iquique, Calama, Antofagasta, San Pedro de Atacama, entre el 13 y 17 de noviembre.",
+  "output": {
+    "personas": [],
+    "organizaciones": [
+      "Tokai",
+      "Universidad de La Serena"
+    ],
+    "fechas": [
+      "2014",
+      "2011",
+      "entre el 13 y 17 de noviembre"
+    ],
+    "lugares": [
+      "desierto de Atacama",
+      "norte de Chile",
+      "Chile",
+      "Japón",
+      "Colombia",
+      "Ecuador",
+      "Bolivia",
+      "Iquique",
+      "Calama",
+      "Antofagasta",
+      "San Pedro de Atacama"
+    ],
+    "otros": [
+      "Carrera Solar de Atacama 2014",
+      "Carrera Solar Atacama"
+    ]
+  }
+}

@@ -28,6 +28,14 @@ from gensie.enriched_inline_reasoning import (
     build_enriched_inline_reasoning_super_fsp_prompt,
     unwrap_deep_inline_reasoning_output,
 )
+from gensie.verbatim_entities import (
+    VERBATIM_ENTITY_SYSTEM_PROMPT,
+    build_verbatim_entity_prompt,
+    build_verbatim_entity_response_format,
+    flatten_verbatim_entities,
+    normalize_verbatim_entities,
+    parse_verbatim_entity_response,
+)
 from gensie.self_consistency import (
     SchemaAwareSelfConsistencyAggregator,
     SelfConsistencyConfig,
@@ -813,6 +821,250 @@ class EnrichedInlineReasoningSuperFspAgent(EnrichedInlineReasoningAgent):
         return build_enriched_inline_reasoning_super_fsp_prompt(task)
 
 
+class VerbatimEntitiesEnrichedInlineReasoningAgent(EnrichedInlineReasoningAgent):
+    """
+    Two-call variant of enriched-inline-reasoning.
+
+    First extracts verbatim entities into a fixed schema, flattens them into one
+    list, then injects that list into the enriched inline reasoning prompt.
+    """
+
+    def build_prompt(
+        self,
+        task: Task,
+        verbatim_entity_list: list[str] | None = None,
+    ) -> str:
+        return build_enriched_inline_reasoning_prompt(
+            task,
+            verbatim_entity_list=verbatim_entity_list or [],
+        )
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        verbatim_entities, verbatim_entity_list = self._run_verbatim_entity_phase(
+            task, model
+        )
+        prompt = self.build_prompt(task, verbatim_entity_list)
+        reasoning_schema = build_inline_reasoning_schema(task.target_schema)
+        messages = [
+            {
+                "role": "system",
+                "content": ENRICHED_INLINE_REASONING_SYSTEM_PROMPT,
+            },
+            {"role": "user", "content": prompt},
+        ]
+        response_format = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "verbatim_entities_enriched_inline_reasoning_extraction",
+                "schema": reasoning_schema,
+                "strict": True,
+            },
+        }
+        request_payload = {
+            "model": model,
+            "messages": messages,
+            "response_format": response_format,
+            "verbatim_entities": verbatim_entities,
+            "verbatim_entity_list": verbatim_entity_list,
+        }
+
+        started_at = datetime.now(timezone.utc)
+        started_perf = time.perf_counter()
+        response = None
+        raw_response = None
+        usage: Dict[str, Any] = {}
+
+        try:
+            response = _create_chat_completion(
+                self.client,
+                model=model,
+                messages=messages,
+                response_format=response_format,
+            )
+            completed_at = datetime.now(timezone.utc)
+            duration_ms = (time.perf_counter() - started_perf) * 1000
+            raw_response = (
+                response.model_dump()
+                if hasattr(response, "model_dump")
+                else {"raw": str(response)}
+            )
+            usage = raw_response.get("usage") or {}
+        except Exception as e:
+            base_url = os.getenv("OPENAI_BASE_URL")
+            err_msg = str(e) or repr(e)
+            if base_url:
+                err_msg = f"{err_msg} (OPENAI_BASE_URL={base_url})"
+            completed_at = datetime.now(timezone.utc)
+            duration_ms = (time.perf_counter() - started_perf) * 1000
+            trace_step(
+                task,
+                "extract",
+                prompt=prompt,
+                request_payload=request_payload,
+                error=err_msg,
+                metrics={
+                    "tokens": {
+                        "prompt_tokens": None,
+                        "completion_tokens": None,
+                        "total_tokens": None,
+                    },
+                    "timings": {
+                        "started_at": started_at.isoformat(),
+                        "completed_at": completed_at.isoformat(),
+                        "total_duration_ms": round(duration_ms, 3),
+                        "time_to_first_token_ms": None,
+                        "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                    },
+                },
+            )
+            raise RuntimeError(err_msg) from e
+
+        try:
+            content = response.choices[0].message.content
+            inline_output = json.loads(content)
+            final_output = unwrap_inline_reasoning_output(
+                inline_output, task.target_schema
+            )
+        except (json.JSONDecodeError, AttributeError, IndexError, ValueError) as e:
+            trace_step(
+                task,
+                "extract",
+                prompt=prompt,
+                request_payload=request_payload,
+                response_payload=raw_response,
+                error=str(e),
+                metrics={
+                    "tokens": {
+                        "prompt_tokens": usage.get("prompt_tokens"),
+                        "completion_tokens": usage.get("completion_tokens"),
+                        "total_tokens": usage.get("total_tokens"),
+                    },
+                    "timings": {
+                        "started_at": started_at.isoformat(),
+                        "completed_at": completed_at.isoformat(),
+                        "total_duration_ms": round(duration_ms, 3),
+                        "time_to_first_token_ms": None,
+                        "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                    },
+                },
+            )
+            return {
+                "error": "Failed to parse verbatim entities enriched inline reasoning "
+                f"response: {str(e)}"
+            }
+        except Exception as e:
+            logger.error(str(e))
+            return {"error": str(e)}
+
+        trace_step(
+            task,
+            "extract",
+            prompt=prompt,
+            request_payload=request_payload,
+            response_payload={
+                "api_response": raw_response,
+                "verbatim_entities": verbatim_entities,
+                "verbatim_entity_list": verbatim_entity_list,
+                "inline_reasoning_output": inline_output,
+                "final_output": final_output,
+            },
+            metrics={
+                "tokens": {
+                    "prompt_tokens": usage.get("prompt_tokens"),
+                    "completion_tokens": usage.get("completion_tokens"),
+                    "total_tokens": usage.get("total_tokens"),
+                },
+                "timings": {
+                    "started_at": started_at.isoformat(),
+                    "completed_at": completed_at.isoformat(),
+                    "total_duration_ms": round(duration_ms, 3),
+                    "time_to_first_token_ms": None,
+                    "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                },
+            },
+        )
+        return final_output
+
+    def _run_verbatim_entity_phase(
+        self, task: Task, model: str
+    ) -> tuple[Dict[str, Any], list[str]]:
+        prompt = build_verbatim_entity_prompt(task.input_text)
+        messages = [
+            {
+                "role": "system",
+                "content": VERBATIM_ENTITY_SYSTEM_PROMPT,
+            },
+            {"role": "user", "content": prompt},
+        ]
+        response_format = build_verbatim_entity_response_format()
+        request_payload = {
+            "model": model,
+            "messages": messages,
+            "response_format": response_format,
+            "temperature": 0.0,
+        }
+        started_at = datetime.now(timezone.utc)
+        started_perf = time.perf_counter()
+        raw_response = None
+        usage: Dict[str, Any] = {}
+        error = None
+        verbatim_entities = normalize_verbatim_entities({})
+        verbatim_entity_list: list[str] = []
+
+        try:
+            response = _create_chat_completion(
+                self.client,
+                model=model,
+                messages=messages,
+                response_format=response_format,
+                temperature=0.0,
+            )
+            raw_response = (
+                response.model_dump()
+                if hasattr(response, "model_dump")
+                else {"raw": str(response)}
+            )
+            usage = raw_response.get("usage") or {}
+            content = response.choices[0].message.content
+            verbatim_entities = parse_verbatim_entity_response(content)
+            verbatim_entity_list = flatten_verbatim_entities(verbatim_entities)
+        except Exception as e:
+            base_url = os.getenv("OPENAI_BASE_URL")
+            error = str(e) or repr(e)
+            if base_url:
+                error = f"{error} (OPENAI_BASE_URL={base_url})"
+
+        completed_at = datetime.now(timezone.utc)
+        duration_ms = (time.perf_counter() - started_perf) * 1000
+        trace_step(
+            task,
+            "extract_verbatim_entities",
+            prompt=prompt,
+            request_payload=request_payload,
+            response_payload={
+                "api_response": raw_response,
+                "verbatim_entities": verbatim_entities,
+                "verbatim_entity_list": verbatim_entity_list,
+            },
+            error=error,
+            metrics={
+                "tokens": {
+                    "prompt_tokens": usage.get("prompt_tokens"),
+                    "completion_tokens": usage.get("completion_tokens"),
+                    "total_tokens": usage.get("total_tokens"),
+                },
+                "timings": {
+                    "started_at": started_at.isoformat(),
+                    "completed_at": completed_at.isoformat(),
+                    "total_duration_ms": round(duration_ms, 3),
+                    "time_to_first_token_ms": None,
+                    "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                },
+            },
+        )
+        return verbatim_entities, verbatim_entity_list
+
+
 class EnrichedDeepInlineReasoningAgent(GenSIEAgent):
     """
     One-call enriched inline reasoning variant where every schema field and
@@ -1393,6 +1645,7 @@ class OfficialParticipant(Participant):
             "simple-clean-schema": SimpleCleanSchemaAgent(),
             "inline-reasoning": InlineReasoningAgent(),
             "enriched-inline-reasoning": EnrichedInlineReasoningAgent(),
+            "verbatim-entities-enriched-inline-reasoning": VerbatimEntitiesEnrichedInlineReasoningAgent(),
             "enriched-inline-reasoning-super-fsp": EnrichedInlineReasoningSuperFspAgent(),
             "enriched-inline-reasoning-deep": EnrichedDeepInlineReasoningAgent(),
             "enriched-inline-reasoning-self-consistency": EnrichedInlineReasoningSelfConsistencyAgent(),
@@ -1425,6 +1678,10 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="enriched-inline-reasoning",
                     description="Inline reasoning wrappers plus compact Pydantic-like schema prompt with Reasoned[T]/Nullable[T].",
+                ),
+                PipelineInfo(
+                    name="verbatim-entities-enriched-inline-reasoning",
+                    description="Two-call enriched inline reasoning: first extracts verbatim entities, flattens them into one list, then injects that list into the prompt.",
                 ),
                 PipelineInfo(
                     name="enriched-inline-reasoning-super-fsp",

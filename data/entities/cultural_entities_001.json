@@ -1,0 +1,18 @@
+{
+  "input_text": "# 'Cleaner: Rescate Vertical' logra que Daisy Ridley brille como heroína de acción en un plagio desvergonzado de 'Jungla de cristal' [...] John McClane arrastrándose por el túnel de ventilación, en camiseta de tirantes, es pura historia del cine. A todos nos gusta 'Jungla de cristal', y los homenajes constantes no son sino una muestra de admiración absoluta. Eso sí, hasta para homenajear hay que tener clase: no es lo mismo tomar un par de escenas como base que, básicamente, fusilar el guion entero. Eso es lo que hace 'Cleaner: Rescate Vertical', una película que solo impresionará a los que nunca entraron en el Nakatomi.",
+  "output": {
+    "personas": [
+      "Daisy Ridley",
+      "John McClane"
+    ],
+    "organizaciones": [],
+    "fechas": [],
+    "lugares": [
+      "Nakatomi"
+    ],
+    "otros": [
+      "Cleaner: Rescate Vertical",
+      "Jungla de cristal"
+    ]
+  }
+}

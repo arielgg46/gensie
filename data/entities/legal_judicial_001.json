@@ -1,0 +1,23 @@
+{
+  "input_text": "# \"Maldito Cris\" es abatido por la policía en un enfrentamiento\n\nEl delincuente Christopher Fuentes González, alias \"Maldito Cris\", fue abatido por la Policía Nacional del Perú en medio de un enfrentamiento en el distrito limeño de San Martín de Porres. \"Maldito Cris\", de nacionalidad venezolana, tenía en su poder 4 armas de fuego y 3 caserinas, y se encontraba junto a otros hampones cuando se inició el enfrentamiento con los agentes de la policía, enfrentamiento que, además, dejó 3 policías heridos. \nEl delincuente era buscado por diversos crímenes, entre ellos la muerte de Luis Manrique Pizarro, sereno de Surco, a quien \"Maldito Cris\" dejó gravemente herido tras intentar frustrar un asalto. El alcalde de Surco, Carlos Bruce, expresó: \"Uno no debería alegrarse de la muerte de una vida humana, pero no voy a ser hipócrita. Realmente estoy muy contento que la Policía Nacional del Perú nos haya librado de un elemento que nos generaba una sociedad insegura, que no tenía respeto por la vida humana. El Maldito Cris no solo mató al sereno Luis Manrique, también es sospechoso de haber asesinado a otros dos policías. Por tanto, era una persona que despreciaba la vida humana. Les aseguro que el Maldito Cris iba seguir matando. Su muerte esta noche hace de la sociedad peruana, una sociedad más segura. Por eso, me alegro de que haya recibido su merecido\".",
+  "output": {
+    "personas": [
+      "Christopher Fuentes González",
+      "\"Maldito Cris\"",
+      "Luis Manrique Pizarro",
+      "Carlos Bruce",
+      "El Maldito Cris"
+    ],
+    "organizaciones": [
+      "Policía Nacional del Perú"
+    ],
+    "fechas": [
+    ],
+    "lugares": [
+      "Perú",
+      "San Martín de Porres",
+      "Surco"
+    ],
+    "otros": []
+  }
+}

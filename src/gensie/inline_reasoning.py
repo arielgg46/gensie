@@ -87,45 +87,47 @@ CULTURAL_LITERATURE_FEW_SHOT_SCHEMA: dict[str, Any] = {
 CULTURAL_LITERATURE_FEW_SHOT_OUTPUT: dict[str, Any] = {
     "title": {
         "reasoning": (
-            "El campo pide el título oficial de la obra literaria. El texto abre con "
+            "EL CAMPO PIDE el título oficial de la obra literaria.\n"
+            "FRAGMENTOS RELEVANTES: El texto abre con "
             "\"# Don Quijote de la Mancha\" y luego repite \"Don Quijote de la Mancha es una novela\". "
             "Aunque también aparece \"El ingenioso hidalgo don Quijote de la Mancha\", ese fragmento se presenta como "
             "\"el título\" de la primera parte publicada en 1605, no como el nombre general de la obra descrita. "
-            "Por eso el valor final debe ser el título principal usado para la obra completa."
+            "POR TANTO EL VALOR FINAL debe ser el título principal usado para la obra completa."
         ),
         "value": "Don Quijote de la Mancha",
     },
     "author": {
         "reasoning": (
-            "El campo pide el autor principal. La evidencia textual directa es "
+            "EL CAMPO PIDE el autor principal.\n"
+            "FRAGMENTOS RELEVANTES: la evidencia textual directa es "
             "\"es una novela escrita por el español Miguel de Cervantes Saavedra\". "
-            "Esa frase identifica explícitamente a Miguel de Cervantes Saavedra como quien escribió la obra, "
-            "así que ese es el valor final."
+            "Esa frase identifica explícitamente a Miguel de Cervantes Saavedra como quien escribió la obra.\n"
+            "POR TANTO EL VALOR FINAL es el nombre completo del autor tal como aparece en el texto."
         ),
         "value": "Miguel de Cervantes Saavedra",
     },
     "publication_year": {
         "reasoning": (
-            "El campo pide el año de primera publicación. El texto dice "
-            "\"Publicada su primera parte ... a comienzos de 1605\" y más adelante menciona "
-            "\"En 1615 apareció su continuación\". Como se pide la primera publicación, la evidencia relevante es 1605; "
-            "se normaliza como entero porque el schema permite integer."
+            "EL CAMPO PIDE el año de primera publicación.\n"
+            "FRAGMENTOS RELEVANTES: \"Publicada su primera parte ... a comienzos de 1605\" y más adelante menciona \"En 1615 apareció su continuación\". Como se pide la primera publicación, la evidencia relevante es 1605; se normaliza como entero porque el schema permite integer. POR TANTO EL VALOR FINAL es 1605."
         ),
         "value": 1605,
     },
     "genres": {
         "reasoning": (
-            "El campo pide géneros literarios asociados con la obra. El texto da evidencia explícita en "
-            "\"es una novela\", \"Representa la primera novela moderna\" y \"la primera novela polifónica\". "
-            "Esos fragmentos respaldan una lista breve de etiquetas de género o tipo literario sin añadir categorías externas."
+            "EL CAMPO PIDE géneros literarios asociados con la obra.\n"
+            "FRAGMENTOS RELEVANTES: \"es una novela\", \"Representa la primera novela moderna\" y \"la primera novela polifónica\". "
+            "Esos fragmentos respaldan una lista breve de etiquetas de género o tipo literario sin añadir categorías externas.\n"
+            "POR TANTO EL VALOR FINAL es la lista [\"novela\", \"novela moderna\", \"novela polifónica\"]."
         ),
         "value": ["novela", "novela moderna", "novela polifónica"],
     },
     "key_themes": {
         "reasoning": (
-            "El campo pide temas principales. La evidencia aparece en "
-            "\"desmitificadora de la tradición caballeresca y cortés por su tratamiento burlesco\". "
-            "De esa frase se extraen los temas apoyados directamente: tradición caballeresca, tradición cortés y tratamiento burlesco."
+            "EL CAMPO PIDE temas principales.\n"
+            "FRAGMENTOS RELEVANTES: \"desmitificadora de la tradición caballeresca y cortés por su tratamiento burlesco\". "
+            "De esa frase se extraen los temas apoyados directamente.\n"
+            "POR TANTO EL VALOR FINAL es la lista [\"tradición caballeresca\", \"tradición cortés\", \"tratamiento burlesco\"]."
         ),
         "value": [
             "tradición caballeresca",
@@ -135,10 +137,12 @@ CULTURAL_LITERATURE_FEW_SHOT_OUTPUT: dict[str, Any] = {
     },
     "original_language": {
         "reasoning": (
-            "El campo pide la lengua original de la obra. El texto dice que es una obra de la "
+            "EL CAMPO PIDE la lengua original de la obra.\n"
+            "FRAGMENTOS RELEVANTES: El texto dice que es una obra de la "
             "\"literatura española\" y que fue escrita por \"el español Miguel de Cervantes Saavedra\", "
             "pero no afirma explícitamente que la lengua original sea el español o castellano. "
-            "Como el schema permite null y la respuesta debe estar grounded en el texto, el valor final debe ser null."
+            "El schema permite null y la respuesta debe estar grounded en el texto.\n"
+            "POR TANTO EL VALOR FINAL debe ser null."
         ),
         "value": None,
     },

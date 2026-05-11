@@ -113,7 +113,7 @@
     "platforms": [],
     "primary_developer": "Ton Roosendaal",
     "features": [],
-    "exact_release_date": "13 de octubre de 2002",
+    "exact_release_date": "13/10/2002",
     "latest_stable_version_sha256": null,
     "current_ceo_name": null
   },
@@ -122,5 +122,5 @@
     "domain": "technical",
     "subdomain": "software"
   },
-  "golden_note": "El instruction dice 'Determina la fecha exacta en la que Blender fue liberado al mundo como software libre.', como si fuera un task de 'technical_extraction' de responder a una pregunta, en vez de extracción de informaciones variadas. app_category no se puede inferir por el contexto, output lo marca como GRAPHICS_EDITOR por conocimiento externo, y no hay una opción de SoftwareType o app_category de null. primary_developer lo cambié a 'Ton Roosendaal' pues es el que lidera al 'equipo de '. current_ceo_name no se debe poder inferir, pues no se dice explícitamente que 'Ton Roosendaal voluntarios...' sea algo más que el creado y desarrollador principal actual junto con voluntarios; además es código abierto así que no creo que haya un CEO."
+  "golden_note": "El instruction dice 'Determina la fecha exacta en la que Blender fue liberado al mundo como software libre.', como si fuera un task de 'technical_extraction' de responder a una pregunta, en vez de extracción de informaciones variadas. app_category no se puede inferir por el contexto, output lo marca como GRAPHICS_EDITOR por conocimiento externo, y no hay una opción de SoftwareType o app_category de null. primary_developer lo cambié a 'Ton Roosendaal' pues es el que lidera al 'equipo de '. current_ceo_name no se debe poder inferir, pues no se dice explícitamente que 'Ton Roosendaal voluntarios...' sea algo más que el creado y desarrollador principal actual junto con voluntarios; además es código abierto así que no creo que haya un CEO. exact_release_date se cambia a '13/10/2002' porque el instruction pide la fecha exact en ese formato."
 }

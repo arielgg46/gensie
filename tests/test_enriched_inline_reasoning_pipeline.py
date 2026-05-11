@@ -5,6 +5,7 @@ from gensie.baseline import (
     EnrichedInlineReasoningAgent,
     EnrichedInlineReasoningSuperFspAgent,
     OfficialParticipant,
+    VerbatimEntitiesEnrichedInlineReasoningAgent,
 )
 from gensie.enriched_inline_reasoning import (
     INCLUDE_ENRICHED_INLINE_REASONING_FEW_SHOT,
@@ -17,6 +18,7 @@ from gensie.enriched_inline_reasoning import (
     render_deep_reasoned_pydantic_schema,
     unwrap_deep_inline_reasoning_output,
 )
+from gensie.verbatim_entities import build_verbatim_entity_response_format
 from gensie.task import Task
 
 
@@ -207,6 +209,23 @@ def test_enriched_inline_prompt_puts_rules_before_few_shot():
     assert "class SampleSchema(BaseModel):" not in prompt
 
 
+def test_enriched_inline_prompt_can_include_flat_verbatim_entity_list():
+    prompt = build_enriched_inline_reasoning_prompt(
+        _sample_task(),
+        verbatim_entity_list=["Ada Lovelace", "1843", "Ada Lovelace"],
+    )
+
+    assert "ENTIDADES PREEXTRAIDAS:" in prompt
+    assert '[\n  "Ada Lovelace",\n  "1843"\n]' in prompt
+    assert '"personas"' not in prompt
+    assert prompt.index("SCHEMA PYDANTIC:") < prompt.index(
+        "ENTIDADES PREEXTRAIDAS:"
+    )
+    assert prompt.index("ENTIDADES PREEXTRAIDAS:") < prompt.index(
+        "TEXTO FUENTE:"
+    )
+
+
 def test_enriched_inline_super_fsp_prompt_uses_full_synthetic_example():
     prompt = build_enriched_inline_reasoning_super_fsp_prompt(_sample_task())
 
@@ -335,6 +354,70 @@ def test_enriched_inline_super_fsp_agent_only_changes_prompt(monkeypatch):
     assert "mentions: Reasoned[List[Mention]]" in prompt
 
 
+def test_verbatim_entities_enriched_inline_agent_runs_two_phases(monkeypatch):
+    task = _sample_task()
+    calls = []
+    entity_content = (
+        '{"personas":["Ada Lovelace"],'
+        '"organizaciones":[],'
+        '"fechas":["1843"],'
+        '"lugares":[],'
+        '"otros":["Maquina Analitica"]}'
+    )
+    extraction_content = (
+        '{"person":{"reasoning":"The text names Ada Lovelace.","value":"Ada Lovelace"},'
+        '"year":{"reasoning":"The text states 1843.","value":1843},'
+        '"tags":{"reasoning":"The topic is computing history.","value":["SCIENCE"]},'
+        '"mentions":{"reasoning":"Ada Lovelace is directly mentioned.","value":[{"text":"Ada Lovelace","label":"PERSON"}]}}'
+    )
+
+    class FakeCompletions:
+        def create(self, **kwargs):
+            calls.append(kwargs)
+            content = entity_content if len(calls) == 1 else extraction_content
+            message = SimpleNamespace(content=content)
+            choice = SimpleNamespace(message=message)
+            return SimpleNamespace(
+                choices=[choice],
+                model_dump=lambda: {
+                    "usage": {
+                        "prompt_tokens": 1,
+                        "completion_tokens": 1,
+                        "total_tokens": 2,
+                    }
+                },
+            )
+
+    class FakeClient:
+        chat = SimpleNamespace(completions=FakeCompletions())
+
+    agent = VerbatimEntitiesEnrichedInlineReasoningAgent()
+    agent.client = FakeClient()
+    monkeypatch.setattr("gensie.baseline.trace_step", lambda *args, **kwargs: None)
+
+    result = agent.run(task, "dummy-model")
+
+    assert result == {
+        "person": "Ada Lovelace",
+        "year": 1843,
+        "tags": ["SCIENCE"],
+        "mentions": [{"text": "Ada Lovelace", "label": "PERSON"}],
+    }
+    assert len(calls) == 2
+    assert calls[0]["response_format"] == build_verbatim_entity_response_format()
+    assert calls[0]["temperature"] == 0.0
+    assert "Extrae entidades verbatim" in calls[0]["messages"][1]["content"]
+
+    generation_schema = calls[1]["response_format"]["json_schema"]["schema"]
+    assert generation_schema["properties"]["person"]["properties"]["value"] == task.target_schema["properties"]["person"]
+    prompt = calls[1]["messages"][1]["content"]
+    assert "ENTIDADES VERBATIM PREEXTRAIDAS:" in prompt
+    assert '"Ada Lovelace"' in prompt
+    assert '"1843"' in prompt
+    assert '"Maquina Analitica"' in prompt
+    assert '"personas"' not in prompt
+
+
 def test_enriched_deep_inline_agent_uses_recursive_wrapper_schema_and_returns_values(monkeypatch):
     task = _sample_task()
     captured = {}
@@ -392,5 +475,6 @@ def test_official_participant_registers_enriched_inline_reasoning():
     names = [p.name for p in OfficialParticipant().get_info().pipelines]
 
     assert "enriched-inline-reasoning" in names
+    assert "verbatim-entities-enriched-inline-reasoning" in names
     assert "enriched-inline-reasoning-super-fsp" in names
     assert "enriched-inline-reasoning-deep" in names

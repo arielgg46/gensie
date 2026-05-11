@@ -1,0 +1,25 @@
+{
+  "input_text": "# \"Adrián\" se convierte en el primer huracán del 2011 en el Pacífico\n\nEl huracán \"Adrián\" se convirtió en el primero de la temporada de huracanes en el Pacífico este año. El ciclón amenazó durante varias horas a algunos estados de México y Estados Unidos, que habían elevado la alarma por el riesgo de que cobrara fuerza en las horas siguientes. Sin embargo, \"Adrián\" se aleja de las costas centroamericanas y se prevé que se disipe mar adentro.\nLos meteorólogos del Centro Nacional de Huracanes en Miami informaron que para las próximas 48 horas mejoraría el tiempo en todos Centroamérica así como en México.\nHace algunos días el sistema de baja presión que causó fuertes lluvias en Haití y Cuba se disipó, por lo tanto actualmente no se encuentra ningún sistema activo.",
+  "output": {
+    "personas": [],
+    "organizaciones": [
+      "Centro Nacional de Huracanes"
+    ],
+    "fechas": [
+      "2011"
+    ],
+    "lugares": [
+      "Pacífico",
+      "México",
+      "Estados Unidos",
+      "costas centroamericanas",
+      "Miami",
+      "Centroamérica",
+      "Haití",
+      "Cuba"
+    ],
+    "otros": [
+      "\"Adrián\""
+    ]
+  }
+}
