@@ -13,6 +13,7 @@ class ReasoningMode(StrEnum):
 
 class SchemaPromptMode(StrEnum):
     JSON_SCHEMA = "json_schema"
+    CLEAN_JSON_SCHEMA = "clean_json_schema"
     PYDANTIC = "pydantic"
     REASONED_PYDANTIC = "reasoned_pydantic"
 

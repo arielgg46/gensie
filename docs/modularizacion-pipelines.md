@@ -120,6 +120,32 @@ Verificacion de fase 2:
 
 Resultado observado: `16 passed`.
 
+## Estado de fase 3
+
+Estado aplicado:
+
+- Se crearon modulos puros de `gensie.schemas` para:
+  - inspeccion de JSON Schema y refs locales;
+  - limpieza de schemas para prompt;
+  - parsing de campos y field cards;
+  - render Pydantic final, `Reasoned[T]` top-level y `Reasoned[T]` profundo;
+  - transformacion y unwrap de schemas `{reasoning, value}` top-level y deep.
+- Se crearon modulos de `gensie.prompts` para:
+  - system prompts por modo de reasoning;
+  - vistas de schema raw JSON, clean JSON, Pydantic y reasoned Pydantic;
+  - builder de prompt de extraccion que recibe un provider FSP separado.
+- Se creo `gensie.fsp.providers` con providers FSP sin ejemplo, estatico y de texto pre-renderizado.
+- Se extendio `SchemaPromptMode` con `CLEAN_JSON_SCHEMA`.
+- No se conecto aun ningun agente real a estos builders; eso queda para fase 4.
+
+Verificacion de fase 3:
+
+```bash
+.venv\Scripts\python.exe -m pytest tests\test_schema_prompt_modules.py tests\test_pipeline_composition.py tests\test_core.py tests\test_server.py tests\test_timing.py tests\test_token_usage.py -p no:cacheprovider
+```
+
+Resultado observado: `26 passed`.
+
 ## Inventario de modulos actuales
 
 ### Orquestacion
