@@ -43,6 +43,10 @@ from gensie.self_consistency import (
     TrialBudgetPlanner,
     build_string_similarity_from_env,
 )
+from gensie.self_consistency_judge import (
+    SELF_CONSISTENCY_JUDGE_SYSTEM_PROMPT,
+    build_self_consistency_judge_prompt,
+)
 from dotenv import load_dotenv
 from logging import getLogger
 
@@ -1243,6 +1247,22 @@ class EnrichedInlineReasoningSelfConsistencyAgent(GenSIEAgent):
     def build_prompt(self, task: Task) -> str:
         return build_enriched_inline_reasoning_prompt(task)
 
+    def _self_consistency_metadata(
+        self,
+        *,
+        max_trials: int,
+        allowed_trials: int,
+        initial_budget_estimate: Any,
+    ) -> Dict[str, Any]:
+        return {
+            "max_trials": max_trials,
+            "initial_allowed_trials": allowed_trials,
+            "trial_budget": self.trial_planner.config.__dict__,
+            "initial_budget_estimate": initial_budget_estimate.__dict__,
+            "string_similarity": self.aggregator.string_similarity.name,
+            "config": self.aggregator.config.__dict__,
+        }
+
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         prompt = self.build_prompt(task)
         reasoning_schema = build_inline_reasoning_schema(task.target_schema)
@@ -1277,14 +1297,11 @@ class EnrichedInlineReasoningSelfConsistencyAgent(GenSIEAgent):
             "model": model,
             "messages": messages,
             "response_format": response_format,
-            "self_consistency": {
-                "max_trials": max_trials,
-                "initial_allowed_trials": allowed_trials,
-                "trial_budget": self.trial_planner.config.__dict__,
-                "initial_budget_estimate": initial_budget_estimate.__dict__,
-                "string_similarity": self.aggregator.string_similarity.name,
-                "config": self.aggregator.config.__dict__,
-            },
+            "self_consistency": self._self_consistency_metadata(
+                max_trials=max_trials,
+                allowed_trials=allowed_trials,
+                initial_budget_estimate=initial_budget_estimate,
+            ),
         }
 
         trial_payloads = []
@@ -1468,6 +1485,29 @@ class EnrichedInlineReasoningSelfConsistencyAgent(GenSIEAgent):
             )
             return {"error": f"Failed to run self-consistency: {error_msg}"}
 
+        return self._aggregate_final_candidates(
+            task=task,
+            base_request_payload=base_request_payload,
+            trial_payloads=trial_payloads,
+            trial_responses=trial_responses,
+            trial_errors=trial_errors,
+            budget_estimates=budget_estimates,
+            final_candidates=final_candidates,
+        )
+
+    def _aggregate_final_candidates(
+        self,
+        *,
+        task: Task,
+        base_request_payload: Dict[str, Any],
+        trial_payloads: list[Dict[str, Any]],
+        trial_responses: list[Dict[str, Any]],
+        trial_errors: list[Dict[str, Any]],
+        budget_estimates: list[Dict[str, Any]],
+        final_candidates: list[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        aggregation_started_at = datetime.now(timezone.utc)
+        aggregation_started_perf = time.perf_counter()
         final_output, aggregation_diagnostics = self.aggregator.aggregate_with_diagnostics(
             final_candidates, task.target_schema
         )
@@ -1631,6 +1671,238 @@ class EnrichedInlineReasoningSuperFspSelfConsistencyAgent(
         return build_enriched_inline_reasoning_super_fsp_prompt(task)
 
 
+class EnrichedInlineReasoningJudgeSelfConsistencyAgent(
+    EnrichedInlineReasoningSelfConsistencyAgent
+):
+    """
+    Multi-sample enriched inline reasoning where the final aggregation is a
+    structured judge call instead of the local heuristic aggregator.
+    """
+
+    response_format_name = "enriched_inline_reasoning_self_consistency_judge_trial"
+    judge_response_format_name = "enriched_inline_reasoning_self_consistency_judge"
+
+    def _self_consistency_metadata(
+        self,
+        *,
+        max_trials: int,
+        allowed_trials: int,
+        initial_budget_estimate: Any,
+    ) -> Dict[str, Any]:
+        return {
+            "max_trials": max_trials,
+            "initial_allowed_trials": allowed_trials,
+            "trial_budget": self.trial_planner.config.__dict__,
+            "initial_budget_estimate": initial_budget_estimate.__dict__,
+            "aggregation": "slm_judge",
+            "judge": {
+                "include_scalar_reasonings": self._include_judge_scalar_reasonings(),
+                "include_array_reasonings": self._include_judge_array_reasonings(),
+                "generation_options": self._judge_generation_options(),
+            },
+        }
+
+    def _aggregate_final_candidates(
+        self,
+        *,
+        task: Task,
+        base_request_payload: Dict[str, Any],
+        trial_payloads: list[Dict[str, Any]],
+        trial_responses: list[Dict[str, Any]],
+        trial_errors: list[Dict[str, Any]],
+        budget_estimates: list[Dict[str, Any]],
+        final_candidates: list[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        fallback_output = final_candidates[0]
+        if len(final_candidates) == 1:
+            fallback_started_at = datetime.now(timezone.utc)
+            fallback_started_perf = time.perf_counter()
+            fallback_completed_at = datetime.now(timezone.utc)
+            fallback_duration_ms = (
+                time.perf_counter() - fallback_started_perf
+            ) * 1000
+            trace_step(
+                task,
+                "self_consistency_judge_fallback",
+                request_payload={
+                    **base_request_payload,
+                    "trial_payloads": trial_payloads,
+                    "fallback_reason": "single_valid_trial",
+                },
+                response_payload={
+                    "trials": trial_responses,
+                    "trial_errors": trial_errors,
+                    "budget_estimates": budget_estimates,
+                    "final_candidates": final_candidates,
+                    "fallback_reason": "single_valid_trial",
+                    "final_output": fallback_output,
+                },
+                error=(
+                    "; ".join(str(error["error"]) for error in trial_errors)
+                    if trial_errors
+                    else None
+                ),
+                metrics={
+                    "request": {
+                        "is_model_request": False,
+                        "role": "single_valid_trial_fallback",
+                    },
+                    "tokens": {
+                        "prompt_tokens": 0,
+                        "completion_tokens": 0,
+                        "total_tokens": 0,
+                    },
+                    "timings": {
+                        "started_at": fallback_started_at.isoformat(),
+                        "completed_at": fallback_completed_at.isoformat(),
+                        "total_duration_ms": round(fallback_duration_ms, 3),
+                        "time_to_first_token_ms": None,
+                        "time_to_first_token_note": "Fallback step; no model stream.",
+                    },
+                },
+            )
+            return fallback_output
+
+        include_scalar_reasonings = self._include_judge_scalar_reasonings()
+        include_array_reasonings = self._include_judge_array_reasonings()
+        judge_prompt = build_self_consistency_judge_prompt(
+            task,
+            trial_responses,
+            include_scalar_reasonings=include_scalar_reasonings,
+            include_array_reasonings=include_array_reasonings,
+        )
+        judge_messages = [
+            {
+                "role": "system",
+                "content": SELF_CONSISTENCY_JUDGE_SYSTEM_PROMPT,
+            },
+            {"role": "user", "content": judge_prompt},
+        ]
+        judge_response_format = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": self.judge_response_format_name,
+                "schema": build_inline_reasoning_schema(task.target_schema),
+                "strict": True,
+            },
+        }
+        judge_options = self._judge_generation_options()
+        model = str(base_request_payload.get("model") or "")
+        request_payload = {
+            "model": model,
+            "messages": judge_messages,
+            "response_format": judge_response_format,
+            "self_consistency_judge": {
+                "include_scalar_reasonings": include_scalar_reasonings,
+                "include_array_reasonings": include_array_reasonings,
+                "generation_options": judge_options,
+                "trial_payloads": trial_payloads,
+                "budget_estimates": budget_estimates,
+            },
+        }
+
+        judge_started_at = datetime.now(timezone.utc)
+        judge_started_perf = time.perf_counter()
+        raw_response = None
+        judge_inline_output = None
+        final_output = None
+        judge_final_output = None
+        usage = {}
+        judge_error = None
+        try:
+            response = _create_chat_completion(
+                self.client,
+                model=model,
+                messages=judge_messages,
+                response_format=judge_response_format,
+                **judge_options,
+            )
+            raw_response = (
+                response.model_dump()
+                if hasattr(response, "model_dump")
+                else {"raw": str(response)}
+            )
+            usage = raw_response.get("usage") or {}
+            content = response.choices[0].message.content
+            judge_inline_output = json.loads(content)
+            final_output = unwrap_inline_reasoning_output(
+                judge_inline_output, task.target_schema
+            )
+            judge_final_output = final_output
+        except Exception as e:
+            base_url = os.getenv("OPENAI_BASE_URL")
+            judge_error = str(e) or repr(e)
+            if base_url:
+                judge_error = f"{judge_error} (OPENAI_BASE_URL={base_url})"
+            final_output = fallback_output
+        finally:
+            judge_completed_at = datetime.now(timezone.utc)
+            judge_duration_ms = (time.perf_counter() - judge_started_perf) * 1000
+            trace_step(
+                task,
+                "self_consistency_judge",
+                prompt=judge_prompt,
+                request_payload=request_payload,
+                response_payload={
+                    "trials": trial_responses,
+                    "trial_errors": trial_errors,
+                    "final_candidates": final_candidates,
+                    "api_response": raw_response,
+                    "inline_reasoning_output": judge_inline_output,
+                    "judge_final_output": judge_final_output,
+                    "fallback_used": judge_error is not None,
+                    "fallback_reason": (
+                        "judge_failed" if judge_error is not None else None
+                    ),
+                    "final_output": final_output,
+                },
+                error=judge_error,
+                metrics={
+                    "request": {
+                        "is_model_request": True,
+                        "role": "judge",
+                    },
+                    "tokens": {
+                        "prompt_tokens": usage.get("prompt_tokens"),
+                        "completion_tokens": usage.get("completion_tokens"),
+                        "total_tokens": usage.get("total_tokens"),
+                    },
+                    "timings": {
+                        "started_at": judge_started_at.isoformat(),
+                        "completed_at": judge_completed_at.isoformat(),
+                        "total_duration_ms": round(judge_duration_ms, 3),
+                        "time_to_first_token_ms": None,
+                        "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                    },
+                },
+            )
+
+        return final_output
+
+    def _include_judge_scalar_reasonings(self) -> bool:
+        return _env_bool("GENSIE_SC_JUDGE_INCLUDE_SCALAR_REASONINGS", False)
+
+    def _include_judge_array_reasonings(self) -> bool:
+        return _env_bool("GENSIE_SC_JUDGE_INCLUDE_ARRAY_REASONINGS", False)
+
+    def _judge_generation_options(self) -> Dict[str, Any]:
+        options: Dict[str, Any] = {
+            "temperature": _env_float(
+                "GENSIE_SC_JUDGE_TEMPERATURE", 0.0, minimum=0.0
+            )
+        }
+        top_p = _env_optional_float("GENSIE_SC_JUDGE_TOP_P")
+        if top_p is not None:
+            options["top_p"] = top_p
+        max_tokens = _env_optional_int("GENSIE_SC_JUDGE_MAX_TOKENS")
+        if max_tokens is not None:
+            options["max_tokens"] = max_tokens
+        top_k = _env_optional_int("GENSIE_SC_JUDGE_TOP_K")
+        if top_k is not None:
+            options["extra_body"] = {"top_k": top_k}
+        return options
+
+
 class OfficialParticipant(Participant):
     """
     Standard entry point for the competition.
@@ -1650,6 +1922,7 @@ class OfficialParticipant(Participant):
             "enriched-inline-reasoning-deep": EnrichedDeepInlineReasoningAgent(),
             "enriched-inline-reasoning-self-consistency": EnrichedInlineReasoningSelfConsistencyAgent(),
             "enriched-inline-reasoning-super-fsp-self-consistency": EnrichedInlineReasoningSuperFspSelfConsistencyAgent(),
+            "enriched-inline-reasoning-self-consistency-judge": EnrichedInlineReasoningJudgeSelfConsistencyAgent(),
             # "pipeline2": MyCustomAgent(arg1, arg2...),
             # "pipeline3": AnotherAgent(...),
         }
@@ -1698,6 +1971,10 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="enriched-inline-reasoning-super-fsp-self-consistency",
                     description="Multi-sample enriched inline reasoning using the full synthetic super FSP prompt before schema-aware self-consistency aggregation.",
+                ),
+                PipelineInfo(
+                    name="enriched-inline-reasoning-self-consistency-judge",
+                    description="Multi-sample enriched inline reasoning with a final structured SLM judge over per-field value votes and per-array item votes.",
                 ),
                 # Add descriptions for your other pipelines here:
                 # PipelineInfo(name="pipeline2", description="My advanced RAG agent"),
