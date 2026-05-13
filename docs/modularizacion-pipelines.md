@@ -96,6 +96,30 @@ Verificacion inicial:
   `tests/test_core.py`, `tests/test_server.py`, `tests/test_timing.py`, `tests/test_token_usage.py`.
 - La suite completa de `upstream/main` queda bloqueada en este entorno por permisos en directorios temporales y por carga/descarga de `fastembed`/HuggingFace, no por cambios de la modularizacion.
 
+## Estado de fase 2
+
+Estado aplicado:
+
+- Se creo el paquete `gensie.pipeline` con especificaciones declarativas,
+  registros de resultados, contexto de ejecucion, registry y adaptador
+  `ComposablePipelineAgent`.
+- Se creo `gensie.sampling` con resolucion determinista de planes de trials,
+  incluyendo grupos heterogeneos por `count` o `ratio`.
+- Se creo `gensie.aggregation` con el contrato de agregador y un agregador
+  `PassthroughAggregator` para el caso de un unico resultado valido o fallback.
+- Se crearon contratos livianos para `gensie.runtime`, `gensie.prompts`,
+  `gensie.fsp` y `gensie.phases`.
+- No se migro aun la logica experimental desde `reference/`; esta fase solo
+  fija las fronteras de modulos y tipos compartidos.
+
+Verificacion de fase 2:
+
+```bash
+.venv\Scripts\python.exe -m pytest tests\test_pipeline_composition.py tests\test_core.py tests\test_server.py tests\test_timing.py tests\test_token_usage.py -p no:cacheprovider
+```
+
+Resultado observado: `16 passed`.
+
 ## Inventario de modulos actuales
 
 ### Orquestacion
