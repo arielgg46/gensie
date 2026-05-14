@@ -37,6 +37,19 @@ def unwrap_reasoning_output(
     raise ValueError(f"unsupported reasoning mode: {reasoning}")
 
 
+def extract_reasoning_view(
+    raw_output: JsonDict, original_schema: JsonDict, reasoning: Any
+) -> JsonDict:
+    mode = _reasoning_value(reasoning)
+    if mode == "none" or not isinstance(raw_output, dict):
+        return {}
+    if mode == "top_level":
+        return _top_level_reasoning_view(raw_output)
+    if mode == "deep":
+        return _deep_reasoning_view(raw_output, original_schema)
+    raise ValueError(f"unsupported reasoning mode: {reasoning}")
+
+
 def build_inline_reasoning_schema(schema: JsonDict) -> JsonDict:
     original = copy.deepcopy(schema)
     properties = original.get("properties")
@@ -249,3 +262,79 @@ def _unwrap_deep_reasoned_object(
 def _reasoning_value(reasoning: Any) -> str:
     value = getattr(reasoning, "value", reasoning)
     return str(value)
+
+
+def _top_level_reasoning_view(raw_output: JsonDict) -> JsonDict:
+    out: JsonDict = {}
+    for field_name, wrapped in raw_output.items():
+        if not isinstance(wrapped, dict):
+            continue
+        reasoning = wrapped.get("reasoning")
+        if isinstance(reasoning, str):
+            out[str(field_name)] = reasoning
+    return out
+
+
+def _deep_reasoning_view(raw_output: JsonDict, original_schema: JsonDict) -> JsonDict:
+    out: JsonDict = {}
+    schema = deref(original_schema, original_schema)
+    properties = schema.get("properties")
+    if not isinstance(properties, dict):
+        return out
+    for field_name, field_schema in properties.items():
+        if field_name not in raw_output or not isinstance(field_schema, dict):
+            continue
+        _collect_deep_reasoning(
+            raw_output[field_name],
+            field_schema,
+            original_schema,
+            path=str(field_name),
+            out=out,
+        )
+    return out
+
+
+def _collect_deep_reasoning(
+    wrapped: Any,
+    schema: JsonDict,
+    root_schema: JsonDict,
+    *,
+    path: str,
+    out: JsonDict,
+) -> None:
+    if not isinstance(wrapped, dict):
+        return
+    reasoning = wrapped.get("reasoning")
+    if isinstance(reasoning, str):
+        out[path] = reasoning
+    if "value" not in wrapped:
+        return
+
+    schema, _ = unwrap_nullable_anyof(schema, root_schema)
+    schema = deref(schema, root_schema)
+    value = wrapped["value"]
+    current_type = schema_type(schema)
+    if current_type == "object" and isinstance(value, dict):
+        properties = schema.get("properties")
+        if not isinstance(properties, dict):
+            return
+        for field_name, field_schema in properties.items():
+            if field_name not in value or not isinstance(field_schema, dict):
+                continue
+            _collect_deep_reasoning(
+                value[field_name],
+                field_schema,
+                root_schema,
+                path=f"{path}.{field_name}",
+                out=out,
+            )
+    elif current_type == "array" and isinstance(value, list):
+        item_schema = schema.get("items") if isinstance(schema.get("items"), dict) else {}
+        for index, item in enumerate(value):
+            _collect_deep_reasoning(
+                item,
+                item_schema,
+                root_schema,
+                path=f"{path}[{index}]",
+                out=out,
+            )

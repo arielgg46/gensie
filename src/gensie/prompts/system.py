@@ -4,6 +4,13 @@ BASE_EXTRACTION_SYSTEM_PROMPT = (
     "Use only evidence from the source text."
 )
 
+ENRICHED_SCHEMA_SYSTEM_PROMPT = (
+    "Eres un motor experto de extracción de información en español.\n"
+    "Devuelve solo el objeto JSON requerido por el schema.\n"
+    "Usa solo evidencia del texto fuente.\n"
+    "No incluyas explicaciones, reasoning ni campos adicionales."
+)
+
 INLINE_REASONING_SYSTEM_PROMPT = (
     "Eres un motor experto de extracción de información en español.\n"
     "Devuelve solo el objeto JSON requerido por el schema.\n"

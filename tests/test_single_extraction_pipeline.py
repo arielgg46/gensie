@@ -4,8 +4,10 @@ from gensie.baseline import (
     BasicAgent,
     EnrichedDeepInlineReasoningAgent,
     EnrichedInlineReasoningAgent,
+    EnrichedSchemaAgent,
     EnrichedInlineReasoningSuperFspAgent,
     InlineReasoningAgent,
+    MixedExtractorsJudgeSelfConsistencyAgent,
     OfficialParticipant,
     VerbatimEntitiesEnrichedInlineReasoningAgent,
 )
@@ -171,6 +173,34 @@ def test_enriched_agent_uses_reference_pydantic_prompt_and_don_quijote_fsp():
     assert "Extract structured information from the SOURCE TEXT" not in prompt
 
 
+def test_enriched_schema_agent_uses_plain_pydantic_prompt_without_reasoning_or_fsp():
+    fake = FakeChatClient(
+        '{"person":"Ada Lovelace","year":1843,'
+        '"mentions":[{"text":"Ada Lovelace","label":"PERSON"}]}'
+    )
+    agent = EnrichedSchemaAgent(chat_client=fake)
+
+    output = agent.run(_task(), model="demo")
+
+    assert output["person"] == "Ada Lovelace"
+    request = fake.requests[0]
+    prompt = request.messages[1].content
+    assert request.metadata["prompt_style"] == "enriched-schema"
+    assert request.response_format["json_schema"]["schema"] == _task().target_schema
+    assert "SCHEMA PYDANTIC:" in prompt
+    assert "Nullable[T] = T | null" in prompt
+    assert "class Output(BaseModel):" in prompt
+    assert "year: Nullable[int]" in prompt
+    assert "from __future__ import annotations" not in prompt
+    assert "from typing import Any, List, Optional, Literal" not in prompt
+    assert "from pydantic import BaseModel, Field" not in prompt
+    assert "No incluyas campos `reasoning`, `value`" in prompt
+    assert "Reasoned[" not in prompt
+    assert "class Reasoned" not in prompt
+    assert "SCHEMA PYDANTIC DEL EJEMPLO:" not in prompt
+    assert "Don Quijote de la Mancha" not in prompt
+
+
 def test_verbatim_entities_enriched_agent_runs_phase_and_injects_entities():
     fake = QueueChatClient(
         [
@@ -271,11 +301,20 @@ def test_official_participant_exposes_default_specs_and_fallback_agent():
         "baseline",
         "inline-reasoning",
         "enriched-inline-reasoning",
+        "enriched-schema",
         "verbatim-entities-enriched-inline-reasoning",
         "enriched-inline-reasoning-deep",
         "enriched-inline-reasoning-super-fsp",
+        "enriched-inline-reasoning-self-consistency",
+        "enriched-inline-reasoning-super-fsp-self-consistency",
+        "enriched-inline-reasoning-self-consistency-judge",
+        "mixed-extractors-self-consistency-judge",
     ]
     assert participant.get_agent("missing") is participant.get_agent("baseline")
+    assert (
+        MixedExtractorsJudgeSelfConsistencyAgent.pipeline_name
+        == "mixed-extractors-self-consistency-judge"
+    )
 
 
 def test_openai_chat_client_maps_request_to_chat_completion():

@@ -105,6 +105,8 @@ def request_payload(request: ChatRequest) -> dict[str, Any]:
         payload["response_format"] = to_jsonable(request.response_format)
     if request.temperature is not None:
         payload["temperature"] = request.temperature
+    if request.options:
+        payload["options"] = to_jsonable(request.options)
     if request.metadata:
         payload["metadata"] = to_jsonable(request.metadata)
     return payload

@@ -267,6 +267,90 @@ Verificación de fase 6:
 
 Resultado observado: `46 passed`.
 
+## Estado de fase 7
+
+Estado aplicado:
+
+- Se agregó `PipelineExecutionRunner` como runner modular que decide entre
+  single-call y multi-trial según `PipelineSpec`.
+- Se agregó `gensie.sampling.budget` con `TrialBudgetPlanner`, configuración por
+  entorno y estimación dinámica de trials.
+- `SingleExtractionRunner` ahora expone `run_extraction`, que devuelve
+  `ExtractionResult` normalizado con:
+  - output final;
+  - output bruto estructurado;
+  - `reasoning_view`;
+  - metadata de request/response.
+- `TrialRecord` se produce por cada intento con índice, grupo, extracción,
+  opciones de generación y estimación de presupuesto.
+- Se extendió `ChatRequest` para aceptar `options` de generación (`top_p`,
+  `max_tokens`, `extra_body`), sin cambiar los single-call que no las usan.
+- La agregación heurística se migró desde referencia en módulos separados:
+  - `aggregation/config.py`;
+  - `aggregation/schema_utils.py`;
+  - `aggregation/similarity.py`;
+  - `aggregation/clustering.py`;
+  - `aggregation/arrays.py`;
+  - `aggregation/self_consistency.py`;
+  - `aggregation/diagnostics.py`;
+  - `aggregation/heuristic.py`.
+- Se implementó el juez modular:
+  - `aggregation/judge_scope.py` detecta campos estables/disputados y construye
+    schema reducido;
+  - `aggregation/judge_fsp.py` contiene el proveedor FSP fijo reemplazable;
+  - `aggregation/judge_prompt.py` renderiza prompt y resumen de votos solo para
+    campos disputados;
+  - `aggregation/judge.py` llama al juez, hace merge final y aplica fallbacks.
+- El FSP fijo del juez usa el task del Quijote como ejemplo, pero adaptado a
+  decisión de campos disputados: candidatos por campo con distintos soportes y
+  reasonings que evalúan explícitamente cada candidato. La sección de respuesta
+  del ejemplo se etiqueta como `SALIDA`.
+- El prompt y el FSP del juez respetan knobs explícitos:
+  - `GENSIE_SC_JUDGE_INCLUDE_STABLE_FIELDS=0` por defecto: no incluye
+    `CAMPOS YA CONSENSUADOS` ni la instrucción de no devolverlos;
+  - `GENSIE_SC_JUDGE_INCLUDE_STABLE_FIELDS=1`: incluye esos campos solo como
+    contexto y añade la instrucción `No devuelvas campos ya consensuados; esos
+    se reconstruyen fuera de esta llamada.`;
+  - `GENSIE_SC_JUDGE_INCLUDE_SUPPORT_COUNTS=1` por defecto: incluye
+    `Trials válidos: N` y soportes tipo `2/3:` o `(3/4)`;
+  - `GENSIE_SC_JUDGE_INCLUDE_SUPPORT_COUNTS=0`: oculta la cantidad de trials
+    válidos y los prefijos de soporte por candidato.
+- El juez conserva los fallbacks acordados:
+  - un solo trial válido: usa ese trial, sin llamada al juez;
+  - cero campos disputados: reconstruye desde campos estables, sin llamada al juez;
+  - fallo del juez: usa el primer trial válido completo.
+- Se registraron los pipelines:
+  - `enriched-inline-reasoning-self-consistency`;
+  - `enriched-inline-reasoning-super-fsp-self-consistency`;
+  - `enriched-inline-reasoning-self-consistency-judge`;
+  - `mixed-extractors-self-consistency-judge`.
+- `mixed-extractors-self-consistency-judge` usa grupos de trials
+  heterogéneos:
+  - `baseline`;
+  - `enriched-schema`;
+  - `enriched-inline-reasoning`;
+  Los tres grupos tienen el mismo `ratio`.
+- `enriched-schema` es una variante sin reasoning ni FSP: usa el estilo de
+  prompt enriquecido en español, pero con schema Pydantic plano y output final
+  directo.
+  Cada grupo tiene `ratio=1.0` y `min_count=1`, para que una prueba rápida con
+  `GENSIE_SC_TRIALS=3` ejecute un trial por extractor.
+- Comando de prueba rápido del juez heterogéneo:
+  `uv run gensie eval --data data/dev_rev --url http://localhost:8000 --pipeline mixed-extractors-self-consistency-judge --model llama3.1-8b --auto-output-paths --limit 1`
+- Queda pendiente la planificación de budget para pipelines heterogéneos; no se
+  intenta resolver aquí porque la política correcta debe considerar grupos,
+  ratios, costes distintos por extractor y llamada final del juez.
+- `baseline.py` sigue como facade: solo clases finas, registry y
+  `OfficialParticipant`.
+
+Verificación de fase 7:
+
+```bash
+.venv\Scripts\python.exe -m pytest tests\test_self_consistency_aggregation.py tests\test_multi_trial_runner.py tests\test_judge_aggregation.py tests\test_tracing.py tests\test_cli_artifacts.py tests\test_verbatim_entities_phase.py tests\test_server.py tests\test_single_extraction_pipeline.py tests\test_schema_prompt_modules.py tests\test_pipeline_composition.py tests\test_core.py tests\test_timing.py tests\test_token_usage.py -p no:cacheprovider
+```
+
+Resultado observado: `62 passed`.
+
 ## Inventario de módulos actuales
 
 ### Orquestación
@@ -505,8 +589,11 @@ Responsabilidades:
 - resumir votos por campo;
 - agrupar valores escalares;
 - agrupar items de arrays item-by-item;
+- identificar campos estables vs. campos disputados antes de llamar al juez;
+- construir un schema reducido solo con los campos disputados;
 - construir prompt del juez;
 - renderizar resumen compacto para el prompt.
+- reconstruir el output final combinando campos estables con el veredicto del juez.
 
 Funciones principales:
 
@@ -514,10 +601,37 @@ Funciones principales:
 - `build_judge_vote_summary`
 - `render_judge_vote_summary`
 
+Responsabilidades nuevas para la versión modular:
+
+- Si todos los trials válidos coinciden en un campo de primer nivel, ese campo no
+  debe ir al juez.
+- Para campos simples, la estabilidad se decide por igualdad canónica del valor.
+- Para campos array, la estabilidad se decide por igualdad canónica del conjunto
+  de elementos, ignorando el orden cuando todos los trials producen los mismos
+  items.
+- El juez recibe solo los campos disputados. Para eso se deriva un schema con
+  `properties` y `required` restringidos a esos campos, conservando `$defs` para
+  no romper referencias.
+- El prompt mantiene la instrucción del task, pero la etiqueta como
+  `INSTRUCCIÓN ORIGINAL`. Luego añade `INSTRUCCIÓN DEL JUEZ` indicando que debe
+  razonar y dar veredicto solo sobre los campos disputados.
+- Si no hay campos disputados, no se llama al juez: el output final se
+  reconstruye directamente desde los valores estables.
+- Si hay campos disputados, el output final se reconstruye mezclando:
+  campos estables consensuados + campos disputados devueltos por el juez.
+- El juez debe tener un FSP propio. En fase 7 será fijo, pero la implementación
+  debe usar un proveedor reemplazable para poder conectar RAG después.
+
 Knobs actuales:
 
 - `GENSIE_SC_JUDGE_INCLUDE_SCALAR_REASONINGS`
 - `GENSIE_SC_JUDGE_INCLUDE_ARRAY_REASONINGS`
+- `GENSIE_SC_JUDGE_INCLUDE_STABLE_FIELDS`: por defecto `false`; si se activa,
+  incluye `CAMPOS YA CONSENSUADOS` en el prompt del juez y en su FSP, y añade la
+  instrucción de no devolver esos campos.
+- `GENSIE_SC_JUDGE_INCLUDE_SUPPORT_COUNTS`: por defecto `true`; si se desactiva,
+  omite `Trials válidos: N` y los prefijos `soporte/trials` en candidatos del
+  prompt del juez y de su FSP.
 - `GENSIE_SC_JUDGE_TEMPERATURE`
 - `GENSIE_SC_JUDGE_TOP_P`
 - `GENSIE_SC_JUDGE_TOP_K`
@@ -526,6 +640,7 @@ Knobs actuales:
 Fallbacks implementados:
 
 - si solo hay un trial válido, no se llama al juez;
+- si no hay campos disputados, no se llama al juez;
 - si falla el juez, se usa el primer trial válido;
 - si no hay ningún trial válido, se devuelve error.
 
@@ -759,7 +874,9 @@ src/gensie/
     clustering.py              # item clustering and identity selection
     arrays.py                  # array candidate builders/selectors
     judge.py                   # SLM judge aggregator
+    judge_scope.py             # stable/disputed field detection and output merge
     judge_prompt.py            # vote summary and judge prompt rendering
+    judge_fsp.py               # judge few-shot providers, fixed now and RAG later
 ```
 
 Notas sobre esta estructura:
@@ -768,6 +885,9 @@ Notas sobre esta estructura:
 - `pipeline/agent.py` debe ser el único adaptador principal a `GenSIEAgent`.
 - `runtime/chat.py` debe ser el único camino normal para llamar al modelo, así se conserva `UsageTracker`.
 - `aggregation/self_consistency.py` puede exponer una fachada, pero los detalles largos de similitud, clustering y arrays deben vivir en archivos separados.
+- `aggregation/judge.py` debe orquestar el juez, no contener todo el algoritmo:
+  scope/schema/merge va en `judge_scope.py`, prompt/votos en `judge_prompt.py` y
+  ejemplos del juez en `judge_fsp.py`.
 - `fsp/super.py` puede ser grande por contener datos de ejemplo, pero no debe mezclar ejecución de pipelines ni llamadas al modelo.
 - Si un archivo crece porque acumula dos responsabilidades, se separa por responsabilidad, no por tamaño arbitrario.
 
@@ -878,6 +998,92 @@ El juez debe recibir un resumen que pueda indicar el origen de los candidatos:
 
 Esto permite que el juez compare no solo "cuántos trials votan por X", sino también "qué familia de extractor produjo X".
 
+### Scope reducido para el juez
+
+El juez no debe decidir campos que ya tienen consenso completo entre trials
+válidos. Antes de construir el prompt y el response format del juez, el agregador
+debe calcular un `JudgeScope`:
+
+```python
+JudgeScope(
+    stable_fields={
+        "person": "Ada Lovelace",
+    },
+    disputed_fields=("year", "symptoms"),
+    stable_sources={
+        "person": {"trial_indices": [0, 1, 2], "groups": ["enriched"]},
+    },
+)
+```
+
+Reglas iniciales de estabilidad:
+
+- Campos escalares, objetos y nulls: comparar con JSON canónico
+  (`sort_keys=True`) para detectar igualdad exacta entre trials válidos.
+- Campos array: comparar por conjunto/multiset canónico de items, ignorando el
+  orden cuando todos los trials contienen los mismos elementos. El valor estable
+  conservado puede usar el orden del primer trial válido.
+- Campos ausentes o inválidos en algún trial se tratan como disputa, salvo que
+  todos los trials válidos omitan el campo y el schema permita reconstruirlo de
+  forma segura.
+- Si solo hay un trial válido, se usa ese trial completo como output final y no
+  se llama al juez.
+- Si no hay campos disputados, se reconstruye el output final desde
+  `stable_fields` y no se llama al juez.
+
+El schema del juez debe derivarse del schema original:
+
+- conservar `$defs`;
+- conservar metadatos útiles como `title` y `description`;
+- limitar `properties` a `disputed_fields`;
+- limitar `required` a la intersección entre `required` original y
+  `disputed_fields`;
+- aplicar luego el wrapper `{reasoning, value}` top-level solo sobre ese schema
+  reducido.
+
+El prompt del juez debe mostrar:
+
+- `INSTRUCCIÓN ORIGINAL`, con `task.instruction`;
+- `INSTRUCCIÓN DEL JUEZ`, indicando explícitamente que debe razonar y emitir
+  veredicto solo para `disputed_fields`;
+- `CAMPOS YA CONSENSUADOS`, opcional y compacto, solo como contexto si
+  `GENSIE_SC_JUDGE_INCLUDE_STABLE_FIELDS=1`;
+- `VALORES CANDIDATOS POR CAMPO`, restringido a campos disputados.
+
+Por defecto no se incluyen campos consensuados en el prompt ni en el FSP del
+juez, y tampoco se añade la instrucción `No devuelvas campos ya consensuados;
+esos se reconstruyen fuera de esta llamada.`. Los conteos de soporte se pueden
+desactivar con `GENSIE_SC_JUDGE_INCLUDE_SUPPORT_COUNTS=0`; al hacerlo se oculta
+la línea `Trials válidos: N` y los prefijos `soporte/trials` de cada candidato.
+
+Después de la llamada al juez:
+
+- se desenvuelve el output del juez contra el schema reducido;
+- se mezcla con los campos estables para reconstruir el output final completo;
+- si el juez falla, se usa como fallback el primer trial válido completo.
+
+El FSP del juez debe ser independiente del FSP de extracción:
+
+```python
+class JudgeFspProvider(Protocol):
+    def build(
+        self,
+        scope: JudgeScope,
+        *,
+        include_stable_fields: bool = False,
+        include_support_counts: bool = True,
+    ) -> str:
+        ...
+```
+
+En fase 7 se implementa un ejemplo fijo en español basado en el mismo task del
+Quijote usado por el FSP de extracción. El ejemplo está adaptado al prompt del
+juez: puede mostrar campos consensuados omitidos del schema reducido cuando se
+activa el knob correspondiente, muestra varios valores candidatos por campo,
+puede incluir soportes distintos, usa reasonings que evalúan explícitamente cada
+candidato, y la sección final se etiqueta simplemente como `SALIDA`. La interfaz
+debe permitir sustituirlo luego por un provider RAG sin tocar `JudgeAggregator`.
+
 ### Normalización entre variantes de extracción
 
 Para que trials heterogéneos sean agregables, todos deben pasar por un adaptador común:
@@ -986,7 +1192,10 @@ TrialGroupSpec(
 ```python
 AggregationSpec(
     mode="none | heuristic_self_consistency | judge",
-    options={...},
+    options={
+        "judge_scope": "disputed_fields_only",
+        "judge_fsp": "fixed",
+    },
 )
 ```
 
@@ -1010,6 +1219,34 @@ TrialRecord(
 
 La clave es que `reasoning_view` abstraiga si el reasoning es top-level o profundo, para que el juez y futuros refiners no dependan del formato exacto del output del modelo.
 
+`JudgeScope`:
+
+```python
+JudgeScope(
+    stable_fields={...},
+    disputed_fields=("field_a", "field_b"),
+    reduced_schema={...},
+    stable_sources={...},
+)
+```
+
+`JudgeAggregationResult` puede vivir como metadata del `AggregationResult`:
+
+```python
+AggregationResult(
+    output=merged_output,
+    mode="judge",
+    metadata={
+        "judge_scope": {
+            "stable_fields": [...],
+            "disputed_fields": [...],
+            "judge_called": True,
+            "fallback_used": False,
+        }
+    },
+)
+```
+
 ## Matriz de módulos y dependencias
 
 | Módulo | Depende de | Produce | Combinable con |
@@ -1023,7 +1260,9 @@ La clave es que `reasoning_view` abstraiga si el reasoning es top-level o profun
 | Multi-trial homogéneo | extraction callable | lista de TrialRecord de un grupo | heurística, juez |
 | Multi-trial heterogéneo | plan de TrialGroupSpec | lista de TrialRecord normalizados por grupo | heurística, juez, futuras agregaciones ponderadas |
 | Agregación heurística | candidatos finales y metadatos de trials | output final | top-level, deep, trials heterogéneos |
-| Juez | TrialRecord con reasoning normalizado | output final | top-level, deep si hay reasoning_view normalizado |
+| Scope del juez | TrialRecord y schema original | campos estables, campos disputados y schema reducido | juez, tracing, diagnósticos |
+| FSP del juez | JudgeScope | ejemplo fijo o recuperado para decidir campos disputados | juez fijo, juez RAG futuro |
+| Juez | TrialRecord con reasoning normalizado y JudgeScope | output parcial de campos disputados + output final reconstruido | top-level, deep si hay reasoning_view normalizado |
 | Self-refine futuro | output inicial | output revisado | single/multi/agregado |
 | Sub-extracción futura | schema segmentado | outputs parciales | cualquier extraction spec |
 
@@ -1204,9 +1443,19 @@ CLI esperado:
 4. Implementar reparto de trials por `count`, `min_count`, `max_count` y `ratio`.
 5. Soportar ejecución agrupada e intercalada.
 6. Conectar agregación heurística usando primero `final_candidate`, pero preservando metadatos.
-7. Conectar juez con fallbacks y resumen opcional por grupo.
-8. Agregar tests de compatibilidad para outputs equivalentes.
-9. Agregar tests específicos para planes heterogéneos: baseline + enriched + deep.
+7. Implementar `JudgeScope`: detectar campos estables y disputados entre trials
+   válidos.
+8. Construir schema reducido del juez solo con campos disputados y response format
+   `{reasoning, value}` sobre ese schema reducido.
+9. Implementar prompt del juez con `INSTRUCCIÓN ORIGINAL`, `INSTRUCCIÓN DEL JUEZ`,
+   campos disputados y resumen de votos restringido al scope.
+10. Implementar FSP fijo del juez detrás de un `JudgeFspProvider` reemplazable.
+11. Conectar juez con fallbacks: un solo trial válido, cero campos disputados y
+   fallo de llamada al juez.
+12. Reconstruir output final mezclando campos estables y campos devueltos por el juez.
+13. Agregar tests de compatibilidad para outputs equivalentes.
+14. Agregar tests específicos para planes heterogéneos: baseline + enriched-schema
+    + enriched-inline-reasoning.
 
 ### Fase 8: FSP dinámico y futuros módulos
 
@@ -1262,6 +1511,16 @@ Mitigación:
 - los agregadores no deben depender del JSON bruto de una variante concreta;
 - el juez debe poder ver conteos por grupo cuando existan trials heterogéneos.
 
+### Riesgo: el juez redecide campos ya consensuados
+
+Mitigación:
+
+- calcular `JudgeScope` antes de construir prompt y schema;
+- excluir campos estables del schema reducido del juez;
+- probar arrays con los mismos elementos en distinto orden;
+- reconstruir el output final con merge explícito de campos estables y campos
+  disputados decididos por el juez.
+
 ### Riesgo: FSP acoplado a un modo de reasoning
 
 Mitigación:
@@ -1286,6 +1545,10 @@ Mitigación:
 - Conviene mantener `trace_step` como módulo experimental o adaptarlo al nuevo formato de reportes de upstream?
 - Los porcentajes de trials heterogéneos deben configurarse por variables de entorno, por archivo de config, o solo por specs Python?
 - La agregación heurística debe ponderar todos los grupos igual o permitir pesos por grupo?
+- Para arrays estables del juez, la comparación debe ser estrictamente multiset
+  o puede tratar duplicados como equivalentes si el schema no permite duplicados?
+- El FSP fijo del juez debe vivir como texto declarativo en `judge_fsp.py` o
+  como recurso versionado si luego se convierte en colección RAG?
 
 ## Resultado esperado
 

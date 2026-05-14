@@ -16,10 +16,12 @@ class ChatRequest:
     messages: tuple[ChatMessage, ...]
     response_format: Mapping[str, Any] | None = None
     temperature: float | None = None
+    options: Mapping[str, Any] = field(default_factory=dict)
     metadata: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "messages", tuple(self.messages))
+        object.__setattr__(self, "options", dict(self.options))
         object.__setattr__(self, "metadata", dict(self.metadata))
 
 

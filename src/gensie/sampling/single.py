@@ -8,8 +8,8 @@ from typing import Any, Mapping
 
 from gensie.phases import PipelinePhase, VerbatimEntitiesPhase
 from gensie.pipeline.context import PipelineContext
-from gensie.pipeline.records import AggregationResult
-from gensie.pipeline.specs import PhaseKind, PipelineSpec
+from gensie.pipeline.records import AggregationResult, ExtractionResult
+from gensie.pipeline.specs import ExtractionSpec, PhaseKind, PipelineSpec
 from gensie.prompts import ReferenceExtractionPromptBuilder
 from gensie.prompts.base import PromptBuilder
 from gensie.runtime import (
@@ -22,6 +22,7 @@ from gensie.runtime import (
     trace_step,
     usage_payload,
 )
+from gensie.schemas import extract_reasoning_view
 from gensie.schemas.reasoning import unwrap_reasoning_output
 
 
@@ -42,16 +43,38 @@ class SingleExtractionRunner:
     def run(
         self, spec: PipelineSpec, context: PipelineContext
     ) -> dict[str, Any] | AggregationResult:
+        result = self.run_extraction(spec, context)
+        if result.is_valid:
+            return dict(result.output or {})
+        error = "; ".join(result.errors) or "Failed to run extraction."
+        return {"error": error}
+
+    def run_extraction(
+        self,
+        spec: PipelineSpec,
+        context: PipelineContext,
+        *,
+        extraction_override: ExtractionSpec | None = None,
+        step_name: str = "extract",
+        generation_options: Mapping[str, Any] | None = None,
+    ) -> ExtractionResult:
         extraction = spec.extraction
+        if extraction_override is not None:
+            extraction = extraction_override
         self._run_pre_phases(extraction.phases, context)
         prompt = self.prompt_builder.build(context, extraction)
+        options = {**dict(extraction.options), **dict(generation_options or {})}
+        temperature, request_options = _request_generation_options(options)
         request = ChatRequest(
             model=context.model,
             messages=prompt.messages(),
             response_format=build_json_schema_response_format(
-                context.task.target_schema, extraction.reasoning
+                context.task.target_schema,
+                extraction.reasoning,
+                name=str(options.get("response_format_name") or "extraction"),
             ),
-            temperature=_temperature(spec),
+            temperature=temperature,
+            options=request_options,
             metadata={
                 "pipeline": spec.name,
                 "extraction": extraction.name,
@@ -68,11 +91,12 @@ class SingleExtractionRunner:
             _trace_extraction_step(
                 context,
                 request,
+                step_name=step_name,
                 started_at=started_at,
                 started_perf=started_perf,
                 error=error,
             )
-            return {"error": error}
+            return ExtractionResult(output=None, errors=(error,))
 
         context.usage.add(response.usage)
         try:
@@ -82,15 +106,24 @@ class SingleExtractionRunner:
             _trace_extraction_step(
                 context,
                 request,
+                step_name=step_name,
                 response=response,
                 started_at=started_at,
                 started_perf=started_perf,
                 error=error,
             )
-            return {"error": error}
+            return ExtractionResult(
+                output=None,
+                raw_output=response.content,
+                errors=(error,),
+                metadata={"response": response_payload(response)},
+            )
 
         try:
             final_output = unwrap_reasoning_output(
+                raw_output, context.task.target_schema, extraction.reasoning
+            )
+            reasoning_view = extract_reasoning_view(
                 raw_output, context.task.target_schema, extraction.reasoning
             )
         except Exception as exc:
@@ -98,24 +131,39 @@ class SingleExtractionRunner:
             _trace_extraction_step(
                 context,
                 request,
+                step_name=step_name,
                 response=response,
                 raw_output=raw_output,
                 started_at=started_at,
                 started_perf=started_perf,
                 error=error,
             )
-            return {"error": error}
+            return ExtractionResult(
+                output=None,
+                raw_output=raw_output,
+                errors=(error,),
+                metadata={"response": response_payload(response)},
+            )
 
         _trace_extraction_step(
             context,
             request,
+            step_name=step_name,
             response=response,
             raw_output=raw_output,
             final_output=final_output,
             started_at=started_at,
             started_perf=started_perf,
         )
-        return final_output
+        return ExtractionResult(
+            output=final_output,
+            raw_output=raw_output,
+            reasoning=reasoning_view,
+            metadata={
+                "request": request_payload(request),
+                "response": response_payload(response),
+            },
+        )
 
     def _run_pre_phases(
         self, phases: tuple[PhaseKind, ...], context: PipelineContext
@@ -138,17 +186,29 @@ class SingleExtractionRunner:
             }
 
 
-def _temperature(spec: PipelineSpec) -> float | None:
-    value = spec.extraction.options.get("temperature")
-    if isinstance(value, (int, float)):
-        return float(value)
-    return None
+def _request_generation_options(
+    options: Mapping[str, Any]
+) -> tuple[float | None, dict[str, Any]]:
+    value = options.get("temperature")
+    temperature = float(value) if isinstance(value, (int, float)) else None
+    request_options: dict[str, Any] = {}
+    for key in ("top_p", "max_tokens", "extra_body"):
+        if key in options:
+            request_options[key] = options[key]
+    top_k = options.get("top_k")
+    if isinstance(top_k, int):
+        request_options["extra_body"] = {
+            **dict(request_options.get("extra_body") or {}),
+            "top_k": top_k,
+        }
+    return temperature, request_options
 
 
 def _trace_extraction_step(
     context: PipelineContext,
     request: ChatRequest,
     *,
+    step_name: str,
     started_at: datetime,
     started_perf: float,
     response: ChatResponse | None = None,
@@ -169,7 +229,7 @@ def _trace_extraction_step(
     )
     trace_step(
         context.task,
-        "extract",
+        step_name,
         prompt_messages=request.messages,
         request_payload=request_payload(request),
         response_payload=payload,

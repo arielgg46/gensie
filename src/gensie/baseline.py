@@ -9,7 +9,7 @@ from gensie.pipeline.defaults import (
 from gensie.pipeline.registry import PipelineRegistry
 from gensie.pipeline.specs import PipelineSpec
 from gensie.runtime import ChatClient, OpenAIChatClient
-from gensie.sampling import SingleExtractionRunner
+from gensie.sampling import PipelineExecutionRunner
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,8 +19,8 @@ def _default_chat_client() -> ChatClient:
     return OpenAIChatClient()
 
 
-def _runner(chat_client: ChatClient) -> SingleExtractionRunner:
-    return SingleExtractionRunner(chat_client=chat_client)
+def _runner(chat_client: ChatClient) -> PipelineExecutionRunner:
+    return PipelineExecutionRunner(chat_client=chat_client)
 
 
 def _spec(name: str) -> PipelineSpec:
@@ -50,6 +50,10 @@ class EnrichedInlineReasoningAgent(_DefaultPipelineAgent):
     pipeline_name = "enriched-inline-reasoning"
 
 
+class EnrichedSchemaAgent(_DefaultPipelineAgent):
+    pipeline_name = "enriched-schema"
+
+
 class VerbatimEntitiesEnrichedInlineReasoningAgent(_DefaultPipelineAgent):
     pipeline_name = "verbatim-entities-enriched-inline-reasoning"
 
@@ -60,6 +64,22 @@ class EnrichedDeepInlineReasoningAgent(_DefaultPipelineAgent):
 
 class EnrichedInlineReasoningSuperFspAgent(_DefaultPipelineAgent):
     pipeline_name = "enriched-inline-reasoning-super-fsp"
+
+
+class EnrichedInlineReasoningSelfConsistencyAgent(_DefaultPipelineAgent):
+    pipeline_name = "enriched-inline-reasoning-self-consistency"
+
+
+class EnrichedInlineReasoningSuperFspSelfConsistencyAgent(_DefaultPipelineAgent):
+    pipeline_name = "enriched-inline-reasoning-super-fsp-self-consistency"
+
+
+class EnrichedInlineReasoningJudgeSelfConsistencyAgent(_DefaultPipelineAgent):
+    pipeline_name = "enriched-inline-reasoning-self-consistency-judge"
+
+
+class MixedExtractorsJudgeSelfConsistencyAgent(_DefaultPipelineAgent):
+    pipeline_name = "mixed-extractors-self-consistency-judge"
 
 
 class OfficialParticipant(Participant):

@@ -13,12 +13,14 @@ from gensie.schemas.inspect import (
 from gensie.schemas.pydantic_render import (
     render_deep_reasoned_pydantic_schema,
     render_pydantic_code,
+    render_plain_pydantic_schema,
     render_reasoned_pydantic_schema,
 )
 from gensie.schemas.reasoning import (
     build_deep_inline_reasoning_schema,
     build_inline_reasoning_prompt_schema,
     build_inline_reasoning_schema,
+    extract_reasoning_view,
     transform_schema_for_reasoning,
     unwrap_deep_inline_reasoning_output,
     unwrap_inline_reasoning_output,
@@ -33,6 +35,7 @@ __all__ = [
     "build_inline_reasoning_schema",
     "clean_schema_for_prompt",
     "deref",
+    "extract_reasoning_view",
     "is_null_schema",
     "parse_field",
     "parse_schema_fields",
@@ -40,6 +43,7 @@ __all__ = [
     "render_deep_reasoned_pydantic_schema",
     "render_field_cards",
     "render_pydantic_code",
+    "render_plain_pydantic_schema",
     "render_reasoned_pydantic_schema",
     "resolve_local_ref",
     "safe_name",

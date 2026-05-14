@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import floor
+from typing import Any, Mapping
 
 from gensie.pipeline.specs import ExtractionSpec, SamplingSpec
 
@@ -13,6 +14,7 @@ class TrialPlanItem:
     group_trial_index: int
     group_name: str
     extraction: ExtractionSpec
+    options: Mapping[str, Any] | None = None
 
 
 def resolve_group_counts(sampling: SamplingSpec) -> tuple[int, ...]:
@@ -75,6 +77,7 @@ def resolve_trial_plan(
                 group_trial_index=index,
                 group_name=default_extraction.name,
                 extraction=default_extraction,
+                options=sampling.options,
             )
             for index in range(sampling.total_trials)
         )
@@ -98,6 +101,7 @@ def _grouped_plan(
                     group_trial_index=group_trial_index,
                     group_name=group.name,
                     extraction=group.extraction,
+                    options=group.options,
                 )
             )
     return tuple(items)
@@ -120,6 +124,7 @@ def _interleaved_plan(
                     group_trial_index=seen[group_index],
                     group_name=group.name,
                     extraction=group.extraction,
+                    options=group.options,
                 )
             )
             seen[group_index] += 1

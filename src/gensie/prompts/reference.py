@@ -15,12 +15,14 @@ from gensie.prompts.base import PromptBundle, PromptBuilder
 from gensie.prompts.system import (
     BASE_EXTRACTION_SYSTEM_PROMPT,
     DEEP_INLINE_REASONING_SYSTEM_PROMPT,
+    ENRICHED_SCHEMA_SYSTEM_PROMPT,
     ENRICHED_INLINE_REASONING_SYSTEM_PROMPT,
     INLINE_REASONING_SYSTEM_PROMPT,
 )
 from gensie.schemas.clean import clean_schema_for_prompt
 from gensie.schemas.pydantic_render import (
     render_deep_reasoned_pydantic_schema,
+    render_plain_pydantic_schema,
     render_reasoned_pydantic_schema,
 )
 from gensie.schemas.reasoning import build_inline_reasoning_prompt_schema
@@ -33,6 +35,13 @@ class ReferenceExtractionPromptBuilder(PromptBuilder):
         self, context: PipelineContext, extraction: ExtractionSpec
     ) -> PromptBundle:
         task = context.task
+        if extraction.name == "enriched-schema":
+            return PromptBundle(
+                system=ENRICHED_SCHEMA_SYSTEM_PROMPT,
+                user=build_enriched_schema_prompt(task),
+                metadata={"prompt_style": "enriched-schema"},
+            )
+
         if extraction.reasoning is ReasoningMode.NONE:
             return PromptBundle(
                 system=BASE_EXTRACTION_SYSTEM_PROMPT,
@@ -113,6 +122,33 @@ def build_enriched_inline_reasoning_prompt(
         task,
         few_shot_example=build_enriched_inline_reasoning_few_shot_example() + "\n",
         verbatim_entity_list=verbatim_entity_list,
+    )
+
+
+def build_enriched_schema_prompt(task: Task) -> str:
+    _, root_description = clean_schema_for_prompt(task.target_schema)
+    schema_description = root_description or "No root schema description provided."
+    schema_code = render_plain_pydantic_schema(task.target_schema)
+
+    return (
+        "TAREA:\n"
+        "Eres un extractor de información estructurada. Debes usar solo evidencia del TEXTO FUENTE.\n"
+        "La salida debe seguir el schema de generación: devuelve directamente los valores finales, sin reasoning.\n\n"
+        "REGLAS DE EXTRACCIÓN:\n"
+        "- Completa todos los campos del schema.\n"
+        "- No incluyas campos `reasoning`, `value` ni explicaciones dentro del JSON.\n"
+        "- Si no hay evidencia suficiente y el campo permite null, usa null.\n"
+        "- Si un array no tiene elementos apoyados por el texto, usa [].\n"
+        "- Si un campo pide fragmento verbatim/source text/evidence, copia el fragmento mínimo completo del texto que responde la pregunta; no devuelvas solo la entidad o respuesta normalizada.\n"
+        "- En enums, el valor debe coincidir exactamente con una opción del schema.\n"
+        "- No uses conocimiento externo.\n\n"
+        "INSTRUCCIÓN:\n"
+        f"{task.instruction}\n"
+        f"{schema_description}\n\n"
+        "SCHEMA PYDANTIC:\n"
+        f"{schema_code}\n"
+        "TEXTO FUENTE:\n"
+        f"{task.input_text}"
     )
 
 

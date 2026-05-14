@@ -42,6 +42,42 @@ def render_pydantic_code(schema: JsonDict, *, root_name: str | None = None) -> s
     return "\n".join(lines).rstrip() + "\n"
 
 
+def render_plain_pydantic_schema(schema: JsonDict) -> str:
+    root_schema = schema
+    ref_name_map = _render_defs_name_map(schema)
+    lines = _plain_pydantic_prelude()
+    lines.extend(
+        _render_defs(
+            schema,
+            root_schema,
+            ref_name_map,
+            reasoned=False,
+            deep=False,
+            nullable_alias=True,
+        )
+    )
+
+    root = deref(schema, root_schema)
+    if root.get("type") == "object":
+        lines.extend(
+            _render_object_model(
+                "Output",
+                root,
+                root_schema,
+                class_hint="Output",
+                ref_name_map=ref_name_map,
+                reasoned=False,
+                deep=False,
+                nullable_alias=True,
+            )
+        )
+    else:
+        lines.append("class Output(BaseModel):")
+        lines.append("    value: Any")
+
+    return "\n".join(lines).rstrip() + "\n"
+
+
 def render_reasoned_pydantic_schema(schema: JsonDict) -> str:
     return _render_reasoned_schema(schema, deep=False)
 
@@ -86,6 +122,13 @@ def _final_pydantic_prelude() -> list[str]:
     ]
 
 
+def _plain_pydantic_prelude() -> list[str]:
+    return [
+        "Nullable[T] = T | null",
+        "",
+    ]
+
+
 def _reasoned_pydantic_prelude() -> list[str]:
     return [
         "Nullable[T] = T | null",
@@ -113,6 +156,7 @@ def _render_defs(
     *,
     reasoned: bool,
     deep: bool,
+    nullable_alias: bool | None = None,
 ) -> list[str]:
     defs = schema.get("$defs") if isinstance(schema.get("$defs"), dict) else {}
     lines: list[str] = []
@@ -134,6 +178,7 @@ def _render_defs(
                     ref_name_map=ref_name_map,
                     reasoned=reasoned,
                     deep=deep,
+                    nullable_alias=nullable_alias,
                 )
             )
             lines.append("")
@@ -149,6 +194,7 @@ def _render_object_model(
     ref_name_map: dict[str, str],
     reasoned: bool,
     deep: bool,
+    nullable_alias: bool | None = None,
 ) -> list[str]:
     properties = schema.get("properties") if isinstance(schema.get("properties"), dict) else {}
     required_set = set(schema.get("required") or [])
@@ -183,6 +229,7 @@ def _render_object_model(
                     ref_name_map=ref_name_map,
                     reasoned=reasoned and deep,
                     deep=deep,
+                    nullable_alias=nullable_alias,
                 )
             )
             output.append("")
@@ -197,7 +244,7 @@ def _render_object_model(
             field,
             ref_name_map=ref_name_map,
             deep=deep,
-            nullable_alias=reasoned,
+            nullable_alias=reasoned if nullable_alias is None else nullable_alias,
         )
         if reasoned:
             type_hint = f"Reasoned[{type_hint}]"

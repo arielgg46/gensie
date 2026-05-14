@@ -11,6 +11,7 @@ from gensie.prompts.schema_views import (
 )
 from gensie.prompts.reference import (
     ReferenceExtractionPromptBuilder,
+    build_enriched_schema_prompt,
     build_enriched_deep_inline_reasoning_prompt,
     build_enriched_inline_reasoning_prompt,
     build_enriched_inline_reasoning_super_fsp_prompt,
@@ -24,6 +25,7 @@ __all__ = [
     "ReferenceExtractionPromptBuilder",
     "SchemaView",
     "build_enriched_deep_inline_reasoning_prompt",
+    "build_enriched_schema_prompt",
     "build_enriched_inline_reasoning_prompt",
     "build_enriched_inline_reasoning_super_fsp_prompt",
     "build_extraction_prompt",

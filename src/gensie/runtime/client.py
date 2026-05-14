@@ -24,6 +24,7 @@ class OpenAIChatClient(ChatClient):
             kwargs["response_format"] = request.response_format
         if request.temperature is not None:
             kwargs["temperature"] = request.temperature
+        kwargs.update(dict(request.options))
 
         response = self.client.chat.completions.create(**kwargs)
         content = response.choices[0].message.content
