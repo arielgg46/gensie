@@ -1,5 +1,9 @@
 """The /run endpoint reports the agent's token tally in X-GenSIE-Token-Usage."""
 
+import json
+import shutil
+from pathlib import Path
+
 import gensie.server as server
 from fastapi.testclient import TestClient
 from gensie.agent import GenSIEAgent, Participant, ParticipantInfo, PipelineInfo
@@ -46,12 +50,31 @@ def test_run_sets_token_usage_header(monkeypatch):
     resp = client.post("/run", params={"model": "demo"}, json=_TASK)
     assert resp.status_code == 200
     assert resp.json() == {"answer": "ok"}
-    import json as _json
 
-    usage = _json.loads(resp.headers["x-gensie-token-usage"])
+    usage = json.loads(resp.headers["x-gensie-token-usage"])
     assert usage == {
         "input_tokens": 1234,
         "output_tokens": 567,
         "total_tokens": 1801,
         "calls": 1,
     }
+
+
+def test_run_writes_pred_and_gold_trace_artifacts(monkeypatch):
+    trace_dir = Path("test-artifacts/unit-server-tracing")
+    shutil.rmtree(trace_dir, ignore_errors=True)
+    try:
+        monkeypatch.setattr(server, "participant", _FakeParticipant())
+        client = TestClient(server.app)
+        task = dict(_TASK)
+        task["metadata"] = {"_trace_dir": str(trace_dir / "t1")}
+
+        resp = client.post("/run", params={"model": "demo"}, json=task)
+
+        assert resp.status_code == 200
+        pred = json.loads((trace_dir / "t1" / "pred.json").read_text(encoding="utf-8"))
+        gold = json.loads((trace_dir / "t1" / "gold.json").read_text(encoding="utf-8"))
+        assert pred == {"answer": "ok"}
+        assert gold == {"answer": "ok"}
+    finally:
+        shutil.rmtree(trace_dir, ignore_errors=True)

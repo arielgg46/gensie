@@ -1,3 +1,7 @@
+import json
+import shutil
+from pathlib import Path
+
 from gensie.phases import (
     VERBATIM_ENTITY_SCHEMA_NAME,
     VerbatimEntitiesPhase,
@@ -121,6 +125,40 @@ def test_verbatim_entities_phase_calls_model_with_strict_schema_and_tracks_usage
         "total_tokens": 8,
         "calls": 1,
     }
+
+
+def test_verbatim_entities_phase_traces_its_own_step():
+    fake = FakeChatClient(
+        '{"personas":["Lucía Ferrer"],'
+        '"organizaciones":[],'
+        '"fechas":["14 de abril de 2026"],'
+        '"lugares":["Madrid"],'
+        '"otros":["Atlas-IE"]}'
+    )
+    trace_dir = Path("test-artifacts/unit-verbatim-tracing")
+    shutil.rmtree(trace_dir, ignore_errors=True)
+    task = _task()
+    task.metadata["_trace_dir"] = str(trace_dir / "entity-sample")
+    context = PipelineContext(task=task, model="demo", usage=UsageTracker())
+
+    try:
+        VerbatimEntitiesPhase(chat_client=fake).run(context)
+
+        step_dir = trace_dir / "entity-sample" / "steps" / "01-extract_verbatim_entities"
+        assert (step_dir / "system_prompt.txt").exists()
+        assert (step_dir / "user_prompt.txt").exists()
+        assert not (step_dir / "prompt.txt").exists()
+        request = json.loads((step_dir / "request.json").read_text(encoding="utf-8"))
+        response = json.loads((step_dir / "response.json").read_text(encoding="utf-8"))
+        assert request["temperature"] == 0.0
+        assert response["verbatim_entity_list"] == [
+            "Lucía Ferrer",
+            "14 de abril de 2026",
+            "Madrid",
+            "Atlas-IE",
+        ]
+    finally:
+        shutil.rmtree(trace_dir, ignore_errors=True)
 
 
 def test_verbatim_entities_phase_falls_back_to_empty_entities_on_failure():

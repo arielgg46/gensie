@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import JSONResponse
 from gensie.task import Task
 from gensie.agent import Participant
+from gensie.runtime import trace_task_result
 from typing import Any
 import importlib
 import os
@@ -55,7 +56,9 @@ async def run_task(
         p = get_participant()
         agent = p.get_agent(pipeline)
 
+        trace_task_result(task, gold=task.output)
         result = agent.run(task, model=model)
+        trace_task_result(task, pred=result, gold=task.output)
         headers = {}
         tracker = getattr(agent, "usage", None)
         if tracker is not None and hasattr(tracker, "header_value"):

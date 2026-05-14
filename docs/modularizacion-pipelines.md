@@ -217,6 +217,56 @@ Verificación de fase 5:
 
 Resultado observado: `39 passed`.
 
+## Estado de fase 6
+
+Estado aplicado:
+
+- Se agregó `gensie.runtime.tracing` con `trace_step` modular.
+- El tracing se activa por task cuando `metadata["_trace_dir"]` está presente, o
+  globalmente con `GENSIE_TRACE_DIR`.
+- `GENSIE_TRACE_ENABLED=0|false|no|off` desactiva tracing aunque exista ruta.
+- Cada step escribe artefactos bajo `steps/<index>-<step>/`:
+  - `system_prompt.txt`, si el request tiene mensaje `system`;
+  - `user_prompt.txt`, si el request tiene mensaje `user`;
+  - `request.json`;
+  - `response.json`;
+  - `error.txt`, solo si hay error;
+  - `summary.json`.
+- La carpeta raíz del task escribe también `gold.json` y `pred.json` cuando el
+  endpoint `/run` conoce el gold y el output final del pipeline.
+- `SingleExtractionRunner` traza el step `extract` con prompts por rol, request,
+  response crudo serializado, output parseado, output final, errores, usage y
+  timings.
+- `VerbatimEntitiesPhase` traza `extract_verbatim_entities` con prompts por rol
+  para entidades, request, response, entidades normalizadas y lista plana.
+- `gensie eval` vuelve a aceptar `--details-dir` para el flujo explícito
+  compatible con la implementación experimental.
+- `gensie eval --auto-output-paths` deriva rutas por pipeline y datetime:
+  - artefactos por task: `local-results/<pipeline>/<timestamp>/<task>/`;
+  - summary: `local-results/<pipeline>/<timestamp>/<pipeline>-<timestamp>-summary.json`.
+- Si el usuario pasa `--details-dir` u `--output`, esas rutas explícitas tienen
+  prioridad sobre las rutas automáticas.
+
+Comando explícito:
+
+```bash
+uv run gensie eval --data data/dev_rev --url http://localhost:8000 --pipeline verbatim-entities-enriched-inline-reasoning --model llama3.1-8b --details-dir local-results/verbatim-entities-enriched-inline-reasoning --output local-results/verbatim-entities-enriched-inline-reasoning-summary.json --limit 5
+```
+
+Comando con rutas automáticas:
+
+```bash
+uv run gensie eval --data data/dev_rev --url http://localhost:8000 --pipeline verbatim-entities-enriched-inline-reasoning --model llama3.1-8b --auto-output-paths --limit 5
+```
+
+Verificación de fase 6:
+
+```bash
+.venv\Scripts\python.exe -m pytest tests\test_tracing.py tests\test_cli_artifacts.py tests\test_verbatim_entities_phase.py tests\test_single_extraction_pipeline.py tests\test_schema_prompt_modules.py tests\test_pipeline_composition.py tests\test_core.py tests\test_server.py tests\test_timing.py tests\test_token_usage.py -p no:cacheprovider
+```
+
+Resultado observado: `46 passed`.
+
 ## Inventario de módulos actuales
 
 ### Orquestación
@@ -1118,11 +1168,14 @@ PipelineSpec(
 
 1. Reimplementar `trace_step` como módulo modular, probablemente en `runtime/tracing.py`.
 2. Guardar artefactos por task, pipeline y step sin acoplarlos a un agente concreto.
-3. Registrar prompt, request payload, response payload crudo, output parseado, output final, errores, usage y timings.
+3. Registrar prompts por rol (`system_prompt.txt`, `user_prompt.txt`), request payload,
+   response payload crudo, output parseado, output final, errores, usage y timings.
 4. Soportar múltiples steps por pipeline, por ejemplo `extract_verbatim_entities` y `extract`.
 5. Exponer configuración por variables de entorno para activar/desactivar tracing y elegir carpeta destino.
 6. Mantener el tracing fuera del camino crítico si está desactivado.
 7. Agregar tests unitarios que verifiquen estructura de artefactos sin llamar al modelo.
+8. Guardar `gold.json` y `pred.json` en la carpeta raíz del task cuando se corre
+   desde el endpoint `/run`.
 
 CLI esperado:
 
@@ -1132,12 +1185,13 @@ CLI esperado:
   rutas y evitar sobrescribir corridas previas. El usuario debería poder indicar
   solo el pipeline y un flag de auto-rutas.
 - En modo automático, `eval` debe derivar:
-  - `details_dir`: carpeta bajo `local-results/` que incluya nombre de pipeline
-    y datetime de la corrida;
+  - `details_dir`: carpeta de corrida bajo `local-results/` que incluya nombre de
+    pipeline y datetime, con las carpetas de task directamente dentro, sin una
+    subcarpeta extra `details`;
   - `output`: JSON summary bajo la misma corrida o con nombre equivalente que
     incluya pipeline y datetime.
 - El datetime debe calcularse al iniciar el comando y reutilizarse para todos los
-  paths de esa corrida, de modo que details y summary queden agrupados.
+  paths de esa corrida, de modo que artefactos por task y summary queden agrupados.
 - El comando explícito debe seguir teniendo prioridad: si el usuario pasa
   `--details-dir` u `--output`, esas rutas no deben ser reemplazadas por el modo
   automático salvo que se documente una regla clara.

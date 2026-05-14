@@ -2,12 +2,22 @@ from __future__ import annotations
 
 import copy
 import json
+import time
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Any, Mapping
 
 from gensie.phases.base import PhaseResult, PipelinePhase
 from gensie.pipeline.context import PipelineContext
-from gensie.runtime import ChatClient, ChatMessage, ChatRequest
+from gensie.runtime import (
+    ChatClient,
+    ChatMessage,
+    ChatRequest,
+    request_payload,
+    response_payload,
+    trace_step,
+    usage_payload,
+)
 
 
 JsonDict = dict[str, Any]
@@ -181,6 +191,9 @@ class VerbatimEntitiesPhase(PipelinePhase):
         verbatim_entities = normalize_verbatim_entities({})
         verbatim_entity_list: list[str] = []
         metadata: dict[str, Any] = {}
+        response = None
+        started_at = datetime.now(timezone.utc)
+        started_perf = time.perf_counter()
 
         try:
             response = self.chat_client.complete(request)
@@ -190,7 +203,38 @@ class VerbatimEntitiesPhase(PipelinePhase):
         except Exception as exc:
             metadata["error"] = str(exc) or repr(exc)
 
+        completed_at = datetime.now(timezone.utc)
+        duration_ms = (time.perf_counter() - started_perf) * 1000
         metadata["entity_count"] = len(verbatim_entity_list)
+        trace_step(
+            context.task,
+            "extract_verbatim_entities",
+            prompt_messages=request.messages,
+            request_payload=request_payload(request),
+            response_payload=(
+                response_payload(
+                    response,
+                    verbatim_entities=verbatim_entities,
+                    verbatim_entity_list=verbatim_entity_list,
+                )
+                if response is not None
+                else {
+                    "verbatim_entities": verbatim_entities,
+                    "verbatim_entity_list": verbatim_entity_list,
+                }
+            ),
+            error=metadata.get("error"),
+            metrics={
+                "tokens": usage_payload(response.usage if response is not None else None),
+                "timings": {
+                    "started_at": started_at.isoformat(),
+                    "completed_at": completed_at.isoformat(),
+                    "total_duration_ms": round(duration_ms, 3),
+                    "time_to_first_token_ms": None,
+                    "time_to_first_token_note": "Not captured by the current non-streaming pipeline.",
+                },
+            },
+        )
         return PhaseResult(
             name=self.name,
             data={
