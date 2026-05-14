@@ -51,6 +51,9 @@ def render_schema_view(
             metadata={"mode": prompt_mode.value, "cleaned": True},
         )
 
+    if prompt_mode is SchemaPromptMode.INLINE_REASONING_WRAPPER:
+        return render_inline_prompt_schema_view(schema)
+
     if prompt_mode is SchemaPromptMode.PYDANTIC:
         return SchemaView(
             heading="SCHEMA PYDANTIC",

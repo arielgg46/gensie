@@ -258,7 +258,8 @@ def test_extraction_prompt_builder_keeps_fsp_separate_from_schema_view():
 
     bundle = builder.build(context, extraction)
 
-    assert "reasoning before the final value" in bundle.system
+    assert "Eres un motor experto de extracción de información en español" in bundle.system
+    assert "razonamiento antes del valor final" in bundle.system
     assert "FEW-SHOT EXAMPLES:" in bundle.user
     assert "Example 1: mini" in bundle.user
     assert "SCHEMA PYDANTIC:" in bundle.user

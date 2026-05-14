@@ -14,6 +14,7 @@ class ReasoningMode(StrEnum):
 class SchemaPromptMode(StrEnum):
     JSON_SCHEMA = "json_schema"
     CLEAN_JSON_SCHEMA = "clean_json_schema"
+    INLINE_REASONING_WRAPPER = "inline_reasoning_wrapper"
     PYDANTIC = "pydantic"
     REASONED_PYDANTIC = "reasoned_pydantic"
 

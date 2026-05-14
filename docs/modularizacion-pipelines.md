@@ -1,18 +1,18 @@
-# Plan de modularizacion de pipelines GenSIE
+# Plan de modularización de pipelines GenSIE
 
 ## Objetivo
 
-Modularizar las variantes experimentales de extraccion para que los pipelines se construyan seleccionando un subconjunto de modulos y variantes, en lugar de crear una clase nueva por cada combinacion.
+Modularizar las variantes experimentales de extracción para que los pipelines se construyan seleccionando un subconjunto de módulos y variantes, en lugar de crear una clase nueva por cada combinación.
 
-La meta es que una configuracion de pipeline pueda expresar decisiones como:
+La meta es que una configuración de pipeline pueda expresar decisiones como:
 
-- tipo de extraccion estructurada inline;
-- representacion del schema en el prompt;
+- tipo de extracción estructurada inline;
+- representación del schema en el prompt;
 - estrategia de few-shot prompting;
-- fases previas de extraccion;
-- numero de trials;
-- estrategia de agregacion;
-- fases futuras como self-refine o sub-extraccion.
+- fases previas de extracción;
+- número de trials;
+- estrategia de agregación;
+- fases futuras como self-refine o sub-extracción.
 
 El resultado deseado es una arquitectura declarativa y combinable, manteniendo compatibilidad con el servidor/evaluador oficial de GenSIE.
 
@@ -20,7 +20,7 @@ El resultado deseado es una arquitectura declarativa y combinable, manteniendo c
 
 La rama actual de trabajo contiene las variantes experimentales en `dev_set_curation`.
 
-El `origin/main` local no contiene las actualizaciones del 12 de mayo. El main actualizado del repositorio base original esta en:
+El `origin/main` local no contiene las actualizaciones del 12 de mayo. El main actualizado del repositorio base original está en:
 
 `https://github.com/gia-uh/gensie.git`
 
@@ -34,15 +34,15 @@ Punta observada:
 
 Commits relevantes incorporados en `upstream/main`:
 
-- `02aed48`: actualizacion de documentacion del 12 de mayo.
-- `13f5d9b`: alineacion de metricas con la especificacion, comando `gensie rank` y timing por instancia.
-- `3b455f5`: modulo `gensie.usage`, lectura de usage logs, parsing de headers y `UsageTracker`.
+- `02aed48`: actualización de documentación del 12 de mayo.
+- `13f5d9b`: alineación de métricas con la especificación, comando `gensie rank` y timing por instancia.
+- `3b455f5`: módulo `gensie.usage`, lectura de usage logs, parsing de headers y `UsageTracker`.
 - `21e00cc`: resumen de token usage con presupuesto blando medio de 32K.
 - `d57cffe`: `gensie eval` registra tokens por instancia usando log o header.
-- `284bf7d`: el agente de referencia emite `X-GenSIE-Token-Usage` via `UsageTracker`.
+- `284bf7d`: el agente de referencia emite `X-GenSIE-Token-Usage` vía `UsageTracker`.
 - `5f112d0`: documenta regla de no streaming, header de token usage y reporte `token_usage`.
 
-La modularizacion debe partir de `upstream/main`, no de `origin/main`.
+La modularización debe partir de `upstream/main`, no de `origin/main`.
 
 ## Estrategia de rama
 
@@ -52,7 +52,7 @@ Crear una rama nueva desde `upstream/main`:
 git switch -c refactor/modular-pipeline-composition upstream/main
 ```
 
-En esa rama, conservar la implementacion experimental actual solo como referencia en una carpeta no importable, por ejemplo:
+En esa rama, conservar la implementación experimental actual solo como referencia en una carpeta no importable, por ejemplo:
 
 `reference/experimental_pipelines_2026_05_13/`
 
@@ -77,7 +77,7 @@ Archivos relevantes a copiar desde `dev_set_curation` o el commit experimental a
 - `docs/pipeline proposal *.md`
 - `docs/super-fsp-extraction-types.md`
 
-Esta carpeta debe servir para consulta humana durante la refactorizacion, no como codigo ejecutable del paquete.
+Esta carpeta debe servir para consulta humana durante la refactorización, no como código ejecutable del paquete.
 
 ## Estado de fase 1
 
@@ -87,32 +87,32 @@ Estado aplicado en esta rama:
 - Base: `upstream/main` en `5f112d0`.
 - Referencia experimental: `reference/experimental_pipelines_2026_05_13/`.
 - Commit de procedencia de la referencia: `dev_set_curation` en `8a1930e`.
-- La referencia no debe importarse desde `src/gensie`; solo se consulta durante la migracion.
-- Se ignoran artefactos locales de ejecucion/evaluacion: `local-results/`, `test-artifacts/` y `pytest-cache-files-*/`.
+- La referencia no debe importarse desde `src/gensie`; solo se consulta durante la migración.
+- Se ignoran artefactos locales de ejecución/evaluación: `local-results/`, `test-artifacts/` y `pytest-cache-files-*/`.
 
-Verificacion inicial:
+Verificación inicial:
 
-- Pasan los tests que no dependen del evaluador semantico ni de descargas externas:
+- Pasan los tests que no dependen del evaluador semántico ni de descargas externas:
   `tests/test_core.py`, `tests/test_server.py`, `tests/test_timing.py`, `tests/test_token_usage.py`.
-- La suite completa de `upstream/main` queda bloqueada en este entorno por permisos en directorios temporales y por carga/descarga de `fastembed`/HuggingFace, no por cambios de la modularizacion.
+- La suite completa de `upstream/main` queda bloqueada en este entorno por permisos en directorios temporales y por carga/descarga de `fastembed`/HuggingFace, no por cambios de la modularización.
 
 ## Estado de fase 2
 
 Estado aplicado:
 
-- Se creo el paquete `gensie.pipeline` con especificaciones declarativas,
-  registros de resultados, contexto de ejecucion, registry y adaptador
+- Se creó el paquete `gensie.pipeline` con especificaciones declarativas,
+  registros de resultados, contexto de ejecución, registry y adaptador
   `ComposablePipelineAgent`.
-- Se creo `gensie.sampling` con resolucion determinista de planes de trials,
-  incluyendo grupos heterogeneos por `count` o `ratio`.
-- Se creo `gensie.aggregation` con el contrato de agregador y un agregador
-  `PassthroughAggregator` para el caso de un unico resultado valido o fallback.
+- Se creó `gensie.sampling` con resolución determinista de planes de trials,
+  incluyendo grupos heterogéneos por `count` o `ratio`.
+- Se creó `gensie.aggregation` con el contrato de agregador y un agregador
+  `PassthroughAggregator` para el caso de un único resultado válido o fallback.
 - Se crearon contratos livianos para `gensie.runtime`, `gensie.prompts`,
   `gensie.fsp` y `gensie.phases`.
-- No se migro aun la logica experimental desde `reference/`; esta fase solo
-  fija las fronteras de modulos y tipos compartidos.
+- No se migró aún la lógica experimental desde `reference/`; esta fase solo
+  fija las fronteras de módulos y tipos compartidos.
 
-Verificacion de fase 2:
+Verificación de fase 2:
 
 ```bash
 .venv\Scripts\python.exe -m pytest tests\test_pipeline_composition.py tests\test_core.py tests\test_server.py tests\test_timing.py tests\test_token_usage.py -p no:cacheprovider
@@ -124,21 +124,21 @@ Resultado observado: `16 passed`.
 
 Estado aplicado:
 
-- Se crearon modulos puros de `gensie.schemas` para:
-  - inspeccion de JSON Schema y refs locales;
+- Se crearon módulos puros de `gensie.schemas` para:
+  - inspección de JSON Schema y refs locales;
   - limpieza de schemas para prompt;
   - parsing de campos y field cards;
   - render Pydantic final, `Reasoned[T]` top-level y `Reasoned[T]` profundo;
-  - transformacion y unwrap de schemas `{reasoning, value}` top-level y deep.
-- Se crearon modulos de `gensie.prompts` para:
+  - transformación y unwrap de schemas `{reasoning, value}` top-level y deep.
+- Se crearon módulos de `gensie.prompts` para:
   - system prompts por modo de reasoning;
   - vistas de schema raw JSON, clean JSON, Pydantic y reasoned Pydantic;
-  - builder de prompt de extraccion que recibe un provider FSP separado.
-- Se creo `gensie.fsp.providers` con providers FSP sin ejemplo, estatico y de texto pre-renderizado.
-- Se extendio `SchemaPromptMode` con `CLEAN_JSON_SCHEMA`.
-- No se conecto aun ningun agente real a estos builders; eso queda para fase 4.
+  - builder de prompt de extracción que recibe un provider FSP separado.
+- Se creó `gensie.fsp.providers` con providers FSP sin ejemplo, estático y de texto pre-renderizado.
+- Se extendió `SchemaPromptMode` con `CLEAN_JSON_SCHEMA`.
+- No se conectó aún ningún agente real a estos builders; eso queda para fase 4.
 
-Verificacion de fase 3:
+Verificación de fase 3:
 
 ```bash
 .venv\Scripts\python.exe -m pytest tests\test_schema_prompt_modules.py tests\test_pipeline_composition.py tests\test_core.py tests\test_server.py tests\test_timing.py tests\test_token_usage.py -p no:cacheprovider
@@ -146,32 +146,72 @@ Verificacion de fase 3:
 
 Resultado observado: `26 passed`.
 
-## Inventario de modulos actuales
+## Estado de fase 4
 
-### Orquestacion
+Estado aplicado:
 
-Actualmente la mayor parte de la orquestacion vive en `src/gensie/baseline.py`.
+- Se agregó `OpenAIChatClient` como adaptador único de chat completions sin streaming.
+- Se agregó `build_json_schema_response_format` para construir el response format
+  usando el schema original o el schema transformado por reasoning.
+- Se agregó `SingleExtractionRunner` para pipelines single-call:
+  - construye prompt mediante `ExtractionPromptBuilder`;
+  - llama al runtime común;
+  - registra usage en `UsageTracker`;
+  - parsea JSON;
+  - normaliza outputs `{reasoning, value}` a valores finales.
+- Se agregaron specs por defecto para:
+  - `baseline`;
+  - `inline-reasoning`;
+  - `enriched-inline-reasoning`;
+  - `enriched-inline-reasoning-deep`;
+  - `enriched-inline-reasoning-super-fsp`.
+- Se agregaron providers FSP fijos y super-estático en módulos separados.
+- `baseline.py` quedó como facade/compatibilidad: clases finas, registry y
+  `OfficialParticipant`; no contiene prompts largos, transforms de schema ni
+  lógica de ejecución.
+- Corrección de fidelidad: los pipelines oficiales single-call usan ahora un
+  builder de referencia que conserva los prompts en español de la implementación
+  experimental y los FSP originales:
+  - Don Quijote para inline/enriched/deep;
+  - Atlas-IE para super FSP.
+  El builder genérico queda disponible para variantes futuras, pero no sustituye
+  el comportamiento experimental ya validado.
+
+Verificación de fase 4:
+
+```bash
+.venv\Scripts\python.exe -m pytest tests\test_single_extraction_pipeline.py tests\test_schema_prompt_modules.py tests\test_pipeline_composition.py tests\test_core.py tests\test_server.py tests\test_timing.py tests\test_token_usage.py -p no:cacheprovider
+```
+
+Resultado observado después de la corrección de fidelidad: `34 passed`, con
+asserts explícitos sobre prompts/FSP de referencia.
+
+## Inventario de módulos actuales
+
+### Orquestación
+
+Actualmente la mayor parte de la orquestación vive en `src/gensie/baseline.py`.
 
 Responsabilidades mezcladas:
 
-- construccion del cliente OpenAI;
+- construcción del cliente OpenAI;
 - control de delay entre requests;
 - lectura de variables de entorno;
-- construccion de prompts;
-- construccion de schemas de respuesta;
+- construcción de prompts;
+- construcción de schemas de respuesta;
 - llamada al modelo;
 - parsing y unwrap;
 - tracing;
-- planificacion de trials;
-- agregacion local;
+- planificación de trials;
+- agregación local;
 - llamada al juez;
 - registro de pipelines en `OfficialParticipant`.
 
-Esta concentracion hace dificil combinar modulos sin duplicar clases.
+Esta concentración hace difícil combinar módulos sin duplicar clases.
 
 ### Extraccion estructurada inline
 
-Modulo actual:
+Módulo actual:
 
 `src/gensie/inline_reasoning.py`
 
@@ -197,7 +237,7 @@ Knobs actuales:
 
 ### Extraccion inline profunda
 
-Modulo actual:
+Módulo actual:
 
 `src/gensie/enriched_inline_reasoning.py`
 
@@ -218,7 +258,7 @@ Sistema:
 
 ### Schema Pydantic en prompt
 
-Modulos actuales:
+Módulos actuales:
 
 - `src/gensie/schema_enrichment.py`
 - `src/gensie/enriched_inline_reasoning.py`
@@ -241,11 +281,11 @@ Funciones principales:
 
 Dependencia importante:
 
-La representacion Pydantic con `Reasoned[T]` depende de la estrategia de extraccion inline seleccionada. No debe ser un modulo totalmente independiente: debe recibir el modo de reasoning o una abstraccion de schema transform.
+La representación Pydantic con `Reasoned[T]` depende de la estrategia de extracción inline seleccionada. No debe ser un módulo totalmente independiente: debe recibir el modo de reasoning o una abstracción de schema transform.
 
 ### Few-shot prompting y FSP
 
-Modulo actual:
+Módulo actual:
 
 `src/gensie/super_fsp.py`
 
@@ -253,7 +293,7 @@ Variantes actuales:
 
 - FSP fijo de Quijote/cultural en `inline_reasoning.py` y `enriched_inline_reasoning.py`.
 - Super FSP fijo basado en Atlas-IE.
-- Super FSP dinamico task-schema-dependant: ya existen funciones para seleccionar subtareas por schema, pero no estan conectadas a los pipelines actuales.
+- Super FSP dinámico task-schema-dependant: ya existen funciones para seleccionar subtareas por schema, pero no están conectadas a los pipelines actuales.
 - RAG: no implementado.
 
 Funciones principales:
@@ -288,19 +328,19 @@ Subtareas FSP actuales:
 
 ### Varios trials
 
-Modulo actual:
+Módulo actual:
 
 `src/gensie/self_consistency.py`
 
 Responsabilidades:
 
-- estimacion de presupuesto de trials;
+- estimación de presupuesto de trials;
 - sampling multi-trial;
 - similitud de strings;
-- comparacion schema-aware de valores;
+- comparación schema-aware de valores;
 - clustering;
-- agregacion de arrays;
-- diagnosticos de agregacion.
+- agregación de arrays;
+- diagnósticos de agregación.
 
 Clases principales:
 
@@ -353,9 +393,9 @@ Knobs actuales:
 - `GENSIE_SC_RECALL_MBR_TOLERANCE`
 - `GENSIE_SC_NULL_WINS_TIES`
 
-### Agregacion heuristica self-consistency
+### Agregación heurística self-consistency
 
-Implementacion actual:
+Implementación actual:
 
 `SchemaAwareSelfConsistencyAggregator`
 
@@ -367,15 +407,15 @@ Entrada:
 Salida:
 
 - objeto final;
-- diagnosticos opcionales.
+- diagnósticos opcionales.
 
-Observacion:
+Observación:
 
-Como opera sobre candidatos finales, puede reutilizarse con extraccion top-level o profunda si antes se aplica el unwrap adecuado.
+Como opera sobre candidatos finales, puede reutilizarse con extracción top-level o profunda si antes se aplica el unwrap adecuado.
 
-### Agregacion con juez SLM
+### Agregación con juez SLM
 
-Modulo actual:
+Módulo actual:
 
 `src/gensie/self_consistency_judge.py`
 
@@ -404,26 +444,26 @@ Knobs actuales:
 
 Fallbacks implementados:
 
-- si solo hay un trial valido, no se llama al juez;
-- si falla el juez, se usa el primer trial valido;
-- si no hay ningun trial valido, se devuelve error.
+- si solo hay un trial válido, no se llama al juez;
+- si falla el juez, se usa el primer trial válido;
+- si no hay ningún trial válido, se devuelve error.
 
-Limitacion actual:
+Limitación actual:
 
-El juez asume trials con razonamiento top-level. Para soportar razonamiento profundo haria falta normalizar los trials a una estructura comun.
+El juez asume trials con razonamiento top-level. Para soportar razonamiento profundo haría falta normalizar los trials a una estructura común.
 
-### Fase de extraccion de entidades
+### Fase de extracción de entidades
 
-Modulo actual:
+Módulo actual:
 
 `src/gensie/verbatim_entities.py`
 
 Responsabilidades:
 
-- extraccion previa de entidades verbatim en un schema fijo;
-- normalizacion;
+- extracción previa de entidades verbatim en un schema fijo;
+- normalización;
 - flatten a lista;
-- evaluacion auxiliar.
+- evaluación auxiliar.
 
 Funciones principales:
 
@@ -441,21 +481,21 @@ Solo existe una variante concreta:
 
 `VerbatimEntitiesEnrichedInlineReasoningAgent`
 
-En la modularizacion debe convertirse en una fase previa opcional que enriquece el contexto del prompt.
+En la modularización debe convertirse en una fase previa opcional que enriquece el contexto del prompt.
 
-### Modulos futuros no implementados
+### Módulos futuros no implementados
 
 Self-Refine:
 
-- debe modelarse como fase posterior a una extraccion inicial;
-- podria recibir output candidato, schema, texto fuente y razonamientos;
-- podria devolver un output corregido o un objeto inline reasoned corregido.
+- debe modelarse como fase posterior a una extracción inicial;
+- podría recibir output candidato, schema, texto fuente y razonamientos;
+- podría devolver un output corregido o un objeto inline reasoned corregido.
 
-Sub-extraccion:
+Sub-extracción:
 
 - debe modelarse como un subpipeline por campo, grupo de campos o item de array;
-- podria compartir los mismos modulos de extraction, FSP y aggregation;
-- probablemente necesita un contrato de composicion jerarquico.
+- podría compartir los mismos módulos de extraction, FSP y aggregation;
+- probablemente necesita un contrato de composición jerárquico.
 
 RAG para FSP:
 
@@ -475,7 +515,7 @@ Por tanto, la nueva arquitectura debe:
 - resetear usage al inicio de cada `run`;
 - registrar cada llamada al modelo con `usage.add(response.usage)`;
 - mantener el contrato de no streaming;
-- permitir que el evaluador mida tokens via header o usage log;
+- permitir que el evaluador mida tokens vía header o usage log;
 - evitar que cada modulo implemente su propio conteo incompatible.
 
 El tracing experimental puede conservarse como diagnostico opcional, pero no debe sustituir el contrato oficial de usage.
@@ -503,64 +543,64 @@ El tracing experimental puede conservarse como diagnostico opcional, pero no deb
 
 `prompts`
 
-- composicion de prompt;
+- composición de prompt;
 - render de schema limpio;
 - render de schema Pydantic;
 - render de `Reasoned[T]`;
 - inclusion de FSP;
-- inclusion de contexto de fases previas.
+- inclusión de contexto de fases previas.
 
 `fsp`
 
 - proveedor sin ejemplos;
 - proveedor FSP fijo;
 - proveedor Super FSP fijo;
-- proveedor Super FSP dinamico por schema;
+- proveedor Super FSP dinámico por schema;
 - proveedor RAG futuro.
 
 `phases`
 
 - fase previa de entidades verbatim;
-- fases futuras de sub-extraccion;
+- fases futuras de sub-extracción;
 - fases futuras de self-refine.
 
 `sampling`
 
 - single call;
 - multi-trial;
-- planificacion dinamica de trials.
+- planificación dinámica de trials.
 
 `aggregation`
 
 - passthrough para single call;
-- agregacion heuristica self-consistency;
-- agregacion con juez;
-- futuras agregaciones hibridas.
+- agregación heurística self-consistency;
+- agregación con juez;
+- futuras agregaciones híbridas.
 
 `registry`
 
 - registro de pipelines declarativos;
 - metadata de `ParticipantInfo`;
-- construccion de `GenSIEAgent` a partir de specs.
+- construcción de `GenSIEAgent` a partir de specs.
 
-### Organizacion fisica de la implementacion
+### Organización física de la implementación
 
-La implementacion no debe volver a concentrarse en archivos `.py` masivos. La regla de diseno es:
+La implementación no debe volver a concentrarse en archivos `.py` masivos. La regla de diseño es:
 
 - cada archivo debe tener una responsabilidad dominante;
-- los runners orquestan, pero no contienen prompts largos, transformaciones de schema ni algoritmos de agregacion completos;
-- los prompts largos y ejemplos FSP viven en modulos de `prompts` o `fsp`;
-- las dataclasses/configs viven cerca del modulo que configuran;
-- los `__init__.py` solo exportan una API pequena y estable;
+- los runners orquestan, pero no contienen prompts largos, transformaciones de schema ni algoritmos de agregación completos;
+- los prompts largos y ejemplos FSP viven en módulos de `prompts` o `fsp`;
+- las dataclasses/configs viven cerca del módulo que configuran;
+- los `__init__.py` solo exportan una API pequeña y estable;
 - las dependencias deben ir de capas bajas a altas: `schemas` y `prompts` no importan `pipeline`, `registry` ni `agents`.
 
-No hay que atomizar en exceso. Un archivo puede contener varias funciones privadas si todas sirven a una unica responsabilidad. Lo que se debe evitar es repetir el patron actual de un archivo como `baseline.py` que contiene clientes, prompts, schemas, sampling, agregacion, trazas y registro a la vez.
+No hay que atomizar en exceso. Un archivo puede contener varias funciones privadas si todas sirven a una única responsabilidad. Lo que se debe evitar es repetir el patrón actual de un archivo como `baseline.py` que contiene clientes, prompts, schemas, sampling, agregación, trazas y registro a la vez.
 
 Estructura propuesta:
 
 ```text
 src/gensie/
-  baseline.py                  # OfficialParticipant y compatibilidad minima
+  baseline.py                  # OfficialParticipant y compatibilidad mínima
   agent.py
   task.py
   eval.py
@@ -637,16 +677,16 @@ src/gensie/
 
 Notas sobre esta estructura:
 
-- `baseline.py` debe volver a ser pequeno. Su responsabilidad ideal es construir y exponer `OfficialParticipant`, no implementar cada pipeline.
-- `pipeline/agent.py` debe ser el unico adaptador principal a `GenSIEAgent`.
-- `runtime/chat.py` debe ser el unico camino normal para llamar al modelo, asi se conserva `UsageTracker`.
+- `baseline.py` debe volver a ser pequeño. Su responsabilidad ideal es construir y exponer `OfficialParticipant`, no implementar cada pipeline.
+- `pipeline/agent.py` debe ser el único adaptador principal a `GenSIEAgent`.
+- `runtime/chat.py` debe ser el único camino normal para llamar al modelo, así se conserva `UsageTracker`.
 - `aggregation/self_consistency.py` puede exponer una fachada, pero los detalles largos de similitud, clustering y arrays deben vivir en archivos separados.
-- `fsp/super.py` puede ser grande por contener datos de ejemplo, pero no debe mezclar ejecucion de pipelines ni llamadas al modelo.
+- `fsp/super.py` puede ser grande por contener datos de ejemplo, pero no debe mezclar ejecución de pipelines ni llamadas al modelo.
 - Si un archivo crece porque acumula dos responsabilidades, se separa por responsabilidad, no por tamaño arbitrario.
 
-### Diseno de multi-trials heterogeneos
+### Diseño de multi-trials heterogéneos
 
-Los multi-trials no deben asumir que todos los trials usan el mismo extractor. Desde el inicio, el sampling debe aceptar un plan de trials con grupos heterogeneos.
+Los multi-trials no deben asumir que todos los trials usan el mismo extractor. Desde el inicio, el sampling debe aceptar un plan de trials con grupos heterogéneos.
 
 Caso objetivo:
 
@@ -655,7 +695,7 @@ Caso objetivo:
 - otros usan `deep-inline-reasoning`;
 - otros usan un FSP distinto;
 - todos producen `TrialRecord` normalizados;
-- la agregacion opera sobre esos records normalizados.
+- la agregación opera sobre esos records normalizados.
 
 Para esto, `SamplingSpec` debe poder expresar un plan:
 
@@ -698,16 +738,16 @@ SamplingSpec(
 )
 ```
 
-Reglas para planes heterogeneos:
+Reglas para planes heterogéneos:
 
 - cada grupo define su propio `ExtractionSpec`;
 - cada grupo puede definir sus propios generation options;
 - `count` tiene prioridad sobre `ratio`;
-- `ratio` se resuelve contra el numero de trials permitido por el presupuesto;
+- `ratio` se resuelve contra el número de trials permitido por el presupuesto;
 - el planner debe garantizar al menos los grupos con `min_count` antes de repartir ratios;
-- el orden de ejecucion debe ser configurable: secuencial por grupos o intercalado;
+- el orden de ejecución debe ser configurable: secuencial por grupos o intercalado;
 - cada `TrialRecord` conserva `group_name`, `pipeline_variant`, `extraction_spec` y `generation_options`;
-- los errores se registran por trial sin abortar todo el plan si quedan candidatos validos.
+- los errores se registran por trial sin abortar todo el plan si quedan candidatos válidos.
 
 Contrato propuesto:
 
@@ -739,21 +779,21 @@ TrialRecord(
 )
 ```
 
-La agregacion heuristica puede empezar usando solo `final_candidate`, pero debe recibir tambien los metadatos para diagnosticos y futuras estrategias ponderadas.
+La agregación heurística puede empezar usando solo `final_candidate`, pero debe recibir también los metadatos para diagnósticos y futuras estrategias ponderadas.
 
 El juez debe recibir un resumen que pueda indicar el origen de los candidatos:
 
 - conteos globales por valor;
-- conteos por grupo cuando sea util;
-- indices de trial;
+- conteos por grupo cuando sea útil;
+- índices de trial;
 - reasoning normalizado;
 - advertencia cuando un valor solo aparece en un grupo especifico.
 
-Esto permite que el juez compare no solo "cuantos trials votan por X", sino tambien "que familia de extractor produjo X".
+Esto permite que el juez compare no solo "cuántos trials votan por X", sino también "qué familia de extractor produjo X".
 
-### Normalizacion entre variantes de extraccion
+### Normalización entre variantes de extracción
 
-Para que trials heterogeneos sean agregables, todos deben pasar por un adaptador comun:
+Para que trials heterogéneos sean agregables, todos deben pasar por un adaptador común:
 
 ```python
 ExtractionResult(
@@ -766,16 +806,16 @@ ExtractionResult(
 
 Ejemplos:
 
-- baseline sin reasoning: `reasoning_view` vacio o con entradas `None`;
+- baseline sin reasoning: `reasoning_view` vacío o con entradas `None`;
 - top-level inline: `reasoning_view["field"] = reasoning`;
-- deep inline: `reasoning_view["field.subfield"] = reasoning` y tambien un resumen top-level opcional;
+- deep inline: `reasoning_view["field.subfield"] = reasoning` y también un resumen top-level opcional;
 - futuras sub-extracciones: `reasoning_view` puede incluir `source_phase` o `subtask_id`.
 
-Esta normalizacion debe vivir en `schemas/reasoning.py` o en un modulo pequeno de `pipeline/records.py`, no dentro del agregador.
+Esta normalización debe vivir en `schemas/reasoning.py` o en un módulo pequeño de `pipeline/records.py`, no dentro del agregador.
 
-### Politica de tamaño y responsabilidades
+### Política de tamaño y responsabilidades
 
-No se fija un limite numerico rigido, pero si un archivo supera aproximadamente 400-500 lineas debe revisarse si contiene mas de una responsabilidad. Excepciones razonables:
+No se fija un límite numérico rígido, pero si un archivo supera aproximadamente 400-500 líneas debe revisarse si contiene más de una responsabilidad. Excepciones razonables:
 
 - archivos con datos declarativos extensos, como `fsp/super.py`;
 - tests que cubren una matriz amplia de casos relacionados;
@@ -783,15 +823,15 @@ No se fija un limite numerico rigido, pero si un archivo supera aproximadamente 
 
 Señales de que un archivo debe dividirse:
 
-- importa OpenAI y tambien renderiza prompts largos;
-- contiene dataclasses de configuracion y tambien algoritmos extensos;
+- importa OpenAI y también renderiza prompts largos;
+- contiene dataclasses de configuración y también algoritmos extensos;
 - contiene varias clases `Agent` concretas;
 - contiene muchas variables de entorno de dominios distintos;
 - requiere tocarlo para agregar una variante que conceptualmente pertenece a otra capa.
 
 ### Contratos propuestos
 
-La unidad de composicion principal debe ser un `PipelineSpec`:
+La unidad de composición principal debe ser un `PipelineSpec`:
 
 ```python
 PipelineSpec(
@@ -883,22 +923,22 @@ TrialRecord(
 
 La clave es que `reasoning_view` abstraiga si el reasoning es top-level o profundo, para que el juez y futuros refiners no dependan del formato exacto del output del modelo.
 
-## Matriz de modulos y dependencias
+## Matriz de módulos y dependencias
 
-| Modulo | Depende de | Produce | Combinable con |
+| Módulo | Depende de | Produce | Combinable con |
 | --- | --- | --- | --- |
-| Inline top-level | schema original | reasoned schema top-level, unwrap top-level | single, multi-trial, heuristica, juez |
-| Inline deep | schema original | deep reasoned schema, unwrap deep | single, multi-trial, heuristica |
+| Inline top-level | schema original | reasoned schema top-level, unwrap top-level | single, multi-trial, heurística, juez |
+| Inline deep | schema original | deep reasoned schema, unwrap deep | single, multi-trial, heurística |
 | Pydantic prompt | schema parser | texto de schema | FSP, entidades, single/multi |
 | FSP fijo | prompt renderer | bloque de ejemplo | top-level, deep si se adapta el ejemplo |
-| Super FSP dinamico | schema parser | bloque de ejemplo seleccionado | top-level primero; deep requiere output deep |
+| Super FSP dinámico | schema parser | bloque de ejemplo seleccionado | top-level primero; deep requiere output deep |
 | Entidades verbatim | texto fuente, modelo | contexto auxiliar | extraction prompt |
-| Multi-trial homogeneo | extraction callable | lista de TrialRecord de un grupo | heuristica, juez |
-| Multi-trial heterogeneo | plan de TrialGroupSpec | lista de TrialRecord normalizados por grupo | heuristica, juez, futuras agregaciones ponderadas |
-| Agregacion heuristica | candidatos finales y metadatos de trials | output final | top-level, deep, trials heterogeneos |
+| Multi-trial homogéneo | extraction callable | lista de TrialRecord de un grupo | heurística, juez |
+| Multi-trial heterogéneo | plan de TrialGroupSpec | lista de TrialRecord normalizados por grupo | heurística, juez, futuras agregaciones ponderadas |
+| Agregación heurística | candidatos finales y metadatos de trials | output final | top-level, deep, trials heterogéneos |
 | Juez | TrialRecord con reasoning normalizado | output final | top-level, deep si hay reasoning_view normalizado |
 | Self-refine futuro | output inicial | output revisado | single/multi/agregado |
-| Sub-extraccion futura | schema segmentado | outputs parciales | cualquier extraction spec |
+| Sub-extracción futura | schema segmentado | outputs parciales | cualquier extraction spec |
 
 ## Pipelines actuales expresados como specs
 
@@ -1002,16 +1042,16 @@ PipelineSpec(
 )
 ```
 
-## Plan de migracion recomendado
+## Plan de migración recomendado
 
 ### Fase 1: base limpia y carpeta de referencia
 
 1. Crear rama desde `upstream/main`.
-2. Copiar la implementacion experimental a `reference/experimental_pipelines_2026_05_13/`.
+2. Copiar la implementación experimental a `reference/experimental_pipelines_2026_05_13/`.
 3. Confirmar que el baseline upstream sigue pasando tests.
 4. No importar nada desde `reference/`.
 
-### Fase 2: runtime comun
+### Fase 2: runtime común
 
 1. Crear un runtime de llamadas al modelo que use `UsageTracker`.
 2. Centralizar timeout, base URL, API key y request pacing.
@@ -1020,12 +1060,12 @@ PipelineSpec(
 
 ### Fase 3: schemas y prompts
 
-1. Migrar transformaciones de schema a modulos puros.
+1. Migrar transformaciones de schema a módulos puros.
 2. Migrar renderers de prompt.
 3. Separar FSP providers del prompt builder.
 4. Cubrir con tests unitarios sin llamadas al modelo.
 
-### Fase 4: extraccion single-call
+### Fase 4: extracción single-call
 
 1. Implementar un `ExtractionRunner`.
 2. Recrear `baseline`, `inline-reasoning`, `enriched-inline-reasoning`, `deep` y `super-fsp` como specs.
@@ -1037,82 +1077,82 @@ PipelineSpec(
 2. Hacer que el prompt builder reciba contexto enriquecido por fases.
 3. Reproducir `verbatim-entities-enriched-inline-reasoning`.
 
-### Fase 6: multi-trial y agregacion
+### Fase 6: multi-trial y agregación
 
-1. Implementar `TrialGroupSpec` y resolucion de planes homogeneos/heterogeneos.
+1. Implementar `TrialGroupSpec` y resolución de planes homogéneos/heterogéneos.
 2. Implementar `SamplingRunner` que produce `TrialRecord` normalizados con metadatos de grupo.
-3. Conectar `TrialBudgetPlanner` para calcular el numero total de trials permitidos.
+3. Conectar `TrialBudgetPlanner` para calcular el número total de trials permitidos.
 4. Implementar reparto de trials por `count`, `min_count`, `max_count` y `ratio`.
-5. Soportar ejecucion agrupada e intercalada.
-6. Conectar agregacion heuristica usando primero `final_candidate`, pero preservando metadatos.
+5. Soportar ejecución agrupada e intercalada.
+6. Conectar agregación heurística usando primero `final_candidate`, pero preservando metadatos.
 7. Conectar juez con fallbacks y resumen opcional por grupo.
 8. Agregar tests de compatibilidad para outputs equivalentes.
-9. Agregar tests especificos para planes heterogeneos: baseline + enriched + deep.
+9. Agregar tests específicos para planes heterogéneos: baseline + enriched + deep.
 
-### Fase 7: FSP dinamico y futuros modulos
+### Fase 7: FSP dinámico y futuros módulos
 
 1. Conectar `build_super_fsp_example_for_schema`.
 2. Definir interfaz RAG como proveedor de ejemplos.
 3. Definir interfaz self-refine.
-4. Definir interfaz sub-extraccion.
+4. Definir interfaz sub-extracción.
 
 ## Riesgos principales
 
 ### Riesgo: romper el contrato de usage de upstream
 
-Mitigacion:
+Mitigación:
 
-- toda llamada al modelo debe pasar por runtime comun;
+- toda llamada al modelo debe pasar por runtime común;
 - runtime registra `UsageTracker`;
 - tests de servidor deben comprobar header.
 
 ### Riesgo: mezclar reasoning top-level y deep
 
-Mitigacion:
+Mitigación:
 
 - definir `ReasoningMode`;
 - cada modo proporciona schema transform, unwrap y reasoning view;
 - el juez trabaja sobre `TrialRecord`, no sobre el JSON bruto.
 
-### Riesgo: explosion de combinaciones
+### Riesgo: explosión de combinaciones
 
-Mitigacion:
+Mitigación:
 
 - specs declarativos;
-- registry de pipelines publicos;
-- tests unitarios de modulos;
+- registry de pipelines públicos;
+- tests unitarios de módulos;
 - pocos tests end-to-end de combinaciones importantes.
 
 ### Riesgo: recrear archivos monoliticos
 
-Mitigacion:
+Mitigación:
 
-- revisar responsabilidades antes de agregar codigo nuevo;
-- si una clase necesita prompts, schemas, runtime y agregacion a la vez, convertirla en orquestador que delega;
-- mantener `baseline.py` como facade/registry pequeno;
-- mover algoritmos largos a submodulos dedicados;
-- evitar clases `Agent` por combinacion de pipeline.
+- revisar responsabilidades antes de agregar código nuevo;
+- si una clase necesita prompts, schemas, runtime y agregación a la vez, convertirla en orquestador que delega;
+- mantener `baseline.py` como facade/registry pequeño;
+- mover algoritmos largos a submódulos dedicados;
+- evitar clases `Agent` por combinación de pipeline.
 
-### Riesgo: trials heterogeneos no comparables
+### Riesgo: trials heterogéneos no comparables
 
-Mitigacion:
+Mitigación:
 
-- toda variante de extraccion debe producir `ExtractionResult`;
+- toda variante de extracción debe producir `ExtractionResult`;
 - todo trial debe producir `TrialRecord`;
 - `reasoning_view` debe normalizar top-level, deep, baseline y futuras sub-extracciones;
 - los agregadores no deben depender del JSON bruto de una variante concreta;
-- el juez debe poder ver conteos por grupo cuando existan trials heterogeneos.
+- el juez debe poder ver conteos por grupo cuando existan trials heterogéneos.
 
 ### Riesgo: FSP acoplado a un modo de reasoning
 
-Mitigacion:
+Mitigación:
 
 - `FspProvider` debe declarar que reasoning modes soporta;
 - FSP top-level y FSP deep deben renderizar outputs distintos si es necesario.
 
 ### Riesgo: dependencia de variables de entorno dispersas
 
-Mitigacion:
+Mitigación:
 
 - mover lectura env a factories de config;
 - las clases internas reciben dataclasses ya construidas;
@@ -1120,17 +1160,17 @@ Mitigacion:
 
 ## Preguntas abiertas
 
-- El juez debe soportar tambien reasoning profundo o solo top-level en la primera version modular?
-- El Super FSP dinamico debe reemplazar al Super FSP fijo o convivir como variante?
+- El juez debe soportar también reasoning profundo o solo top-level en la primera versión modular?
+- El Super FSP dinámico debe reemplazar al Super FSP fijo o convivir como variante?
 - La fase de entidades debe usar siempre temperatura `0.0` o debe tener config propia?
 - La carpeta `reference/` debe versionarse completa o solo incluir archivos fuente y docs, excluyendo resultados grandes?
-- Conviene mantener `trace_step` como modulo experimental o adaptarlo al nuevo formato de reportes de upstream?
-- Los porcentajes de trials heterogeneos deben configurarse por variables de entorno, por archivo de config, o solo por specs Python?
-- La agregacion heuristica debe ponderar todos los grupos igual o permitir pesos por grupo?
+- Conviene mantener `trace_step` como módulo experimental o adaptarlo al nuevo formato de reportes de upstream?
+- Los porcentajes de trials heterogéneos deben configurarse por variables de entorno, por archivo de config, o solo por specs Python?
+- La agregación heurística debe ponderar todos los grupos igual o permitir pesos por grupo?
 
 ## Resultado esperado
 
-Al final de la refactorizacion, agregar un pipeline nuevo deberia ser principalmente declarar una combinacion de modulos:
+Al final de la refactorización, agregar un pipeline nuevo debería ser principalmente declarar una combinación de módulos:
 
 ```python
 register_pipeline(
