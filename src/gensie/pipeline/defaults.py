@@ -5,6 +5,7 @@ from gensie.pipeline.registry import PipelineRegistry
 from gensie.pipeline.specs import (
     ExtractionSpec,
     FewShotMode,
+    PhaseKind,
     PipelineSpec,
     ReasoningMode,
     SchemaPromptMode,
@@ -40,6 +41,17 @@ def default_pipeline_specs() -> tuple[PipelineSpec, ...]:
                 reasoning=ReasoningMode.TOP_LEVEL,
                 schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
                 few_shot=FewShotMode.FIXED,
+            ),
+        ),
+        PipelineSpec(
+            name="verbatim-entities-enriched-inline-reasoning",
+            description="Two-call enriched inline reasoning: extract verbatim entities first, then inject the flat entity list into the extraction prompt.",
+            extraction=ExtractionSpec(
+                name="verbatim-entities-enriched-inline-reasoning",
+                reasoning=ReasoningMode.TOP_LEVEL,
+                schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+                few_shot=FewShotMode.FIXED,
+                phases=(PhaseKind.VERBATIM_ENTITIES,),
             ),
         ),
         PipelineSpec(

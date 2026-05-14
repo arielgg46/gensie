@@ -7,7 +7,9 @@ from gensie.baseline import (
     EnrichedInlineReasoningSuperFspAgent,
     InlineReasoningAgent,
     OfficialParticipant,
+    VerbatimEntitiesEnrichedInlineReasoningAgent,
 )
+from gensie.phases import build_verbatim_entity_response_format
 from gensie.pipeline import (
     ComposablePipelineAgent,
     ExtractionSpec,
@@ -31,6 +33,17 @@ class FakeChatClient:
             content=self.content,
             usage={"prompt_tokens": 11, "completion_tokens": 7},
         )
+
+
+class QueueChatClient:
+    def __init__(self, responses):
+        self.responses = list(responses)
+        self.requests = []
+
+    def complete(self, request):
+        self.requests.append(request)
+        content, usage = self.responses.pop(0)
+        return ChatResponse(content=content, usage=usage)
 
 
 def _task() -> Task:
@@ -158,6 +171,48 @@ def test_enriched_agent_uses_reference_pydantic_prompt_and_don_quijote_fsp():
     assert "Extract structured information from the SOURCE TEXT" not in prompt
 
 
+def test_verbatim_entities_enriched_agent_runs_phase_and_injects_entities():
+    fake = QueueChatClient(
+        [
+            (
+                '{"personas":["Ada Lovelace"],'
+                '"organizaciones":[],'
+                '"fechas":["1843"],'
+                '"lugares":[],'
+                '"otros":["Analytical Engine"]}',
+                {"prompt_tokens": 5, "completion_tokens": 3},
+            ),
+            (
+                '{"person":{"reasoning":"Entity list and source text name Ada.","value":"Ada Lovelace"},'
+                '"year":{"reasoning":"The source text states 1843.","value":1843},'
+                '"mentions":{"reasoning":"The person is mentioned.","value":[{"text":"Ada Lovelace","label":"PERSON"}]}}',
+                {"prompt_tokens": 11, "completion_tokens": 7},
+            ),
+        ]
+    )
+    agent = VerbatimEntitiesEnrichedInlineReasoningAgent(chat_client=fake)
+
+    output = agent.run(_task(), model="demo")
+
+    assert output["person"] == "Ada Lovelace"
+    assert len(fake.requests) == 2
+    phase_request, extraction_request = fake.requests
+    assert phase_request.temperature == 0.0
+    assert phase_request.response_format == build_verbatim_entity_response_format()
+    assert "Extrae entidades verbatim" in phase_request.messages[1].content
+    prompt = extraction_request.messages[1].content
+    assert "ENTIDADES PREEXTRAIDAS:" in prompt
+    assert '"Ada Lovelace"' in prompt
+    assert '"1843"' in prompt
+    assert '"Analytical Engine"' in prompt
+    assert agent.usage.snapshot() == {
+        "input_tokens": 16,
+        "output_tokens": 10,
+        "total_tokens": 26,
+        "calls": 2,
+    }
+
+
 def test_deep_agent_unwraps_recursive_reasoning_output():
     fake = FakeChatClient(
         '{"person":{"reasoning":"Named directly.","value":"Ada Lovelace"},'
@@ -216,6 +271,7 @@ def test_official_participant_exposes_default_specs_and_fallback_agent():
         "baseline",
         "inline-reasoning",
         "enriched-inline-reasoning",
+        "verbatim-entities-enriched-inline-reasoning",
         "enriched-inline-reasoning-deep",
         "enriched-inline-reasoning-super-fsp",
     ]

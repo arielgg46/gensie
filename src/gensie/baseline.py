@@ -50,6 +50,10 @@ class EnrichedInlineReasoningAgent(_DefaultPipelineAgent):
     pipeline_name = "enriched-inline-reasoning"
 
 
+class VerbatimEntitiesEnrichedInlineReasoningAgent(_DefaultPipelineAgent):
+    pipeline_name = "verbatim-entities-enriched-inline-reasoning"
+
+
 class EnrichedDeepInlineReasoningAgent(_DefaultPipelineAgent):
     pipeline_name = "enriched-inline-reasoning-deep"
 

@@ -163,6 +163,7 @@ Estado aplicado:
   - `baseline`;
   - `inline-reasoning`;
   - `enriched-inline-reasoning`;
+  - `verbatim-entities-enriched-inline-reasoning`;
   - `enriched-inline-reasoning-deep`;
   - `enriched-inline-reasoning-super-fsp`.
 - Se agregaron providers FSP fijos y super-estático en módulos separados.
@@ -185,6 +186,36 @@ Verificación de fase 4:
 
 Resultado observado después de la corrección de fidelidad: `34 passed`, con
 asserts explícitos sobre prompts/FSP de referencia.
+
+## Estado de fase 5
+
+Estado aplicado:
+
+- Se migró la extracción de entidades verbatim a `gensie.phases.verbatim_entities`.
+- El módulo de fase conserva el contrato de referencia:
+  - schema fijo con `personas`, `organizaciones`, `fechas`, `lugares` y `otros`;
+  - prompt en español para copiar entidades verbatim sin normalizar;
+  - response format strict con nombre `verbatim_entity_extraction`;
+  - parse, normalización y flatten de entidades con dedupe estable.
+- `SingleExtractionRunner` ejecuta fases previas declaradas en `ExtractionSpec.phases`
+  antes de construir el prompt principal.
+- La fase de entidades usa el runtime común `ChatClient`, temperatura `0.0` y
+  registra usage en el `UsageTracker` compartido.
+- Si la fase de entidades falla, se conserva el comportamiento de referencia:
+  el pipeline no aborta, continúa con listas vacías y deja el error en metadata
+  de fase.
+- `ReferenceExtractionPromptBuilder` inyecta `verbatim_entity_list` en el prompt
+  enriched inline cuando el spec incluye `PhaseKind.VERBATIM_ENTITIES`.
+- Se agregó el spec y la clase de compatibilidad
+  `VerbatimEntitiesEnrichedInlineReasoningAgent`.
+
+Verificación de fase 5:
+
+```bash
+.venv\Scripts\python.exe -m pytest tests\test_verbatim_entities_phase.py tests\test_single_extraction_pipeline.py tests\test_schema_prompt_modules.py tests\test_pipeline_composition.py tests\test_core.py tests\test_server.py tests\test_timing.py tests\test_token_usage.py -p no:cacheprovider
+```
+
+Resultado observado: `39 passed`.
 
 ## Inventario de módulos actuales
 
@@ -209,7 +240,7 @@ Responsabilidades mezcladas:
 
 Esta concentración hace difícil combinar módulos sin duplicar clases.
 
-### Extraccion estructurada inline
+### Extracción estructurada inline
 
 Módulo actual:
 
@@ -235,7 +266,7 @@ Knobs actuales:
 - `INLINE_PROMPT_SCHEMA_VIEW`
 - `INCLUDE_INLINE_REASONING_FEW_SHOT`
 
-### Extraccion inline profunda
+### Extracción inline profunda
 
 Módulo actual:
 
@@ -454,16 +485,18 @@ El juez asume trials con razonamiento top-level. Para soportar razonamiento prof
 
 ### Fase de extracción de entidades
 
-Módulo actual:
+Módulos:
 
-`src/gensie/verbatim_entities.py`
+- Referencia original: `reference/experimental_pipelines_2026_05_13/src/gensie/verbatim_entities.py`.
+- Implementación modular: `src/gensie/phases/verbatim_entities.py`.
 
-Responsabilidades:
+Responsabilidades migradas:
 
 - extracción previa de entidades verbatim en un schema fijo;
 - normalización;
 - flatten a lista;
-- evaluación auxiliar.
+- ejecución como `PipelinePhase`;
+- fallback a listas vacías si falla la llamada de entidades.
 
 Funciones principales:
 
@@ -473,15 +506,19 @@ Funciones principales:
 - `parse_verbatim_entity_response`
 - `normalize_verbatim_entities`
 - `flatten_verbatim_entities`
-- `extract_verbatim_entities`
+- `VerbatimEntitiesPhase.run`
+
+Pendiente:
+
+- evaluación auxiliar standalone de tareas de entidades, si se decide conservarla.
 
 Uso actual:
 
-Solo existe una variante concreta:
+Existe una variante concreta:
 
 `VerbatimEntitiesEnrichedInlineReasoningAgent`
 
-En la modularización debe convertirse en una fase previa opcional que enriquece el contexto del prompt.
+Ya se expresa como un spec enriched inline con `PhaseKind.VERBATIM_ENTITIES`, que enriquece el contexto del prompt con `verbatim_entity_list`.
 
 ### Módulos futuros no implementados
 
@@ -1077,7 +1114,35 @@ PipelineSpec(
 2. Hacer que el prompt builder reciba contexto enriquecido por fases.
 3. Reproducir `verbatim-entities-enriched-inline-reasoning`.
 
-### Fase 6: multi-trial y agregación
+### Fase 6: tracing y artefactos de ejecución
+
+1. Reimplementar `trace_step` como módulo modular, probablemente en `runtime/tracing.py`.
+2. Guardar artefactos por task, pipeline y step sin acoplarlos a un agente concreto.
+3. Registrar prompt, request payload, response payload crudo, output parseado, output final, errores, usage y timings.
+4. Soportar múltiples steps por pipeline, por ejemplo `extract_verbatim_entities` y `extract`.
+5. Exponer configuración por variables de entorno para activar/desactivar tracing y elegir carpeta destino.
+6. Mantener el tracing fuera del camino crítico si está desactivado.
+7. Agregar tests unitarios que verifiquen estructura de artefactos sin llamar al modelo.
+
+CLI esperado:
+
+- Mantener el modo explícito compatible con el flujo experimental:
+  `gensie eval --details-dir <dir> --output <summary.json>`.
+- Agregar un modo automático para no repetir el nombre del pipeline en varias
+  rutas y evitar sobrescribir corridas previas. El usuario debería poder indicar
+  solo el pipeline y un flag de auto-rutas.
+- En modo automático, `eval` debe derivar:
+  - `details_dir`: carpeta bajo `local-results/` que incluya nombre de pipeline
+    y datetime de la corrida;
+  - `output`: JSON summary bajo la misma corrida o con nombre equivalente que
+    incluya pipeline y datetime.
+- El datetime debe calcularse al iniciar el comando y reutilizarse para todos los
+  paths de esa corrida, de modo que details y summary queden agrupados.
+- El comando explícito debe seguir teniendo prioridad: si el usuario pasa
+  `--details-dir` u `--output`, esas rutas no deben ser reemplazadas por el modo
+  automático salvo que se documente una regla clara.
+
+### Fase 7: multi-trial y agregación
 
 1. Implementar `TrialGroupSpec` y resolución de planes homogéneos/heterogéneos.
 2. Implementar `SamplingRunner` que produce `TrialRecord` normalizados con metadatos de grupo.
@@ -1089,7 +1154,7 @@ PipelineSpec(
 8. Agregar tests de compatibilidad para outputs equivalentes.
 9. Agregar tests específicos para planes heterogéneos: baseline + enriched + deep.
 
-### Fase 7: FSP dinámico y futuros módulos
+### Fase 8: FSP dinámico y futuros módulos
 
 1. Conectar `build_super_fsp_example_for_schema`.
 2. Definir interfaz RAG como proveedor de ejemplos.
@@ -1123,7 +1188,7 @@ Mitigación:
 - tests unitarios de módulos;
 - pocos tests end-to-end de combinaciones importantes.
 
-### Riesgo: recrear archivos monoliticos
+### Riesgo: recrear archivos monolíticos
 
 Mitigación:
 

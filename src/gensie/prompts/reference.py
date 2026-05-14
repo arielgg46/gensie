@@ -10,7 +10,7 @@ from gensie.fsp.fixed import (
 )
 from gensie.fsp.super import build_super_fsp_example
 from gensie.pipeline.context import PipelineContext
-from gensie.pipeline.specs import ExtractionSpec, ReasoningMode
+from gensie.pipeline.specs import ExtractionSpec, PhaseKind, ReasoningMode
 from gensie.prompts.base import PromptBundle, PromptBuilder
 from gensie.prompts.system import (
     BASE_EXTRACTION_SYSTEM_PROMPT,
@@ -61,10 +61,18 @@ class ReferenceExtractionPromptBuilder(PromptBuilder):
                 metadata={"prompt_style": "enriched-inline-reasoning-super-fsp"},
             )
 
+        verbatim_entity_list = _verbatim_entity_list_from_context(context, extraction)
+        prompt_style = (
+            "verbatim-entities-enriched-inline-reasoning"
+            if PhaseKind.VERBATIM_ENTITIES in extraction.phases
+            else "enriched-inline-reasoning"
+        )
         return PromptBundle(
             system=ENRICHED_INLINE_REASONING_SYSTEM_PROMPT,
-            user=build_enriched_inline_reasoning_prompt(task),
-            metadata={"prompt_style": "enriched-inline-reasoning"},
+            user=build_enriched_inline_reasoning_prompt(
+                task, verbatim_entity_list=verbatim_entity_list
+            ),
+            metadata={"prompt_style": prompt_style},
         )
 
 
@@ -215,3 +223,15 @@ def _dedupe_prompt_entities(verbatim_entity_list: list[str]) -> list[str]:
         seen.add(entity)
         entities.append(entity)
     return entities
+
+
+def _verbatim_entity_list_from_context(
+    context: PipelineContext, extraction: ExtractionSpec
+) -> list[str] | None:
+    if PhaseKind.VERBATIM_ENTITIES not in extraction.phases:
+        return None
+
+    raw_entities = context.metadata.get("verbatim_entity_list")
+    if not isinstance(raw_entities, list):
+        return []
+    return [item for item in raw_entities if isinstance(item, str)]
