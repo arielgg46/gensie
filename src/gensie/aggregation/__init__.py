@@ -13,6 +13,7 @@ from gensie.aggregation.judge_scope import (
 )
 from gensie.aggregation.self_consistency import SchemaAwareSelfConsistencyAggregator
 from gensie.aggregation.similarity import LexicalStringSimilarity
+from gensie.aggregation.verdict_judge import VerdictJudgeAggregator
 
 __all__ = [
     "Aggregator",
@@ -23,6 +24,7 @@ __all__ = [
     "PassthroughAggregator",
     "SchemaAwareSelfConsistencyAggregator",
     "SelfConsistencyConfig",
+    "VerdictJudgeAggregator",
     "build_judge_scope",
     "build_reduced_schema",
     "build_self_consistency_config_from_env",

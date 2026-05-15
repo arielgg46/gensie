@@ -78,8 +78,16 @@ class EnrichedInlineReasoningJudgeSelfConsistencyAgent(_DefaultPipelineAgent):
     pipeline_name = "enriched-inline-reasoning-self-consistency-judge"
 
 
+class EnrichedInlineReasoningVerdictJudgeSelfConsistencyAgent(_DefaultPipelineAgent):
+    pipeline_name = "enriched-inline-reasoning-self-consistency-verdict-judge"
+
+
 class MixedExtractorsJudgeSelfConsistencyAgent(_DefaultPipelineAgent):
     pipeline_name = "mixed-extractors-self-consistency-judge"
+
+
+class MixedExtractorsVerdictJudgeSelfConsistencyAgent(_DefaultPipelineAgent):
+    pipeline_name = "mixed-extractors-self-consistency-verdict-judge"
 
 
 class OfficialParticipant(Participant):

@@ -103,7 +103,9 @@ def test_official_participant_registers_self_consistency_pipelines():
     assert "enriched-inline-reasoning-self-consistency" in names
     assert "enriched-inline-reasoning-super-fsp-self-consistency" in names
     assert "enriched-inline-reasoning-self-consistency-judge" in names
+    assert "enriched-inline-reasoning-self-consistency-verdict-judge" in names
     assert "mixed-extractors-self-consistency-judge" in names
+    assert "mixed-extractors-self-consistency-verdict-judge" in names
 
 
 def test_multi_trial_runner_supports_heterogeneous_trial_groups(monkeypatch):
@@ -202,6 +204,42 @@ def test_registered_mixed_extractors_judge_pipeline_runs_all_groups(monkeypatch)
         "enriched-inline-reasoning",
     ]
     assert fake.requests[-1].metadata["aggregation"] == "self_consistency_judge"
+
+
+def test_registered_mixed_extractors_verdict_judge_pipeline_runs_all_groups(monkeypatch):
+    monkeypatch.setenv("GENSIE_SC_TRIALS", "3")
+    monkeypatch.setenv("GENSIE_SC_DYNAMIC_TRIALS", "0")
+    fake = QueueChatClient(
+        [
+            '{"person":"Ada Lovelace","year":1843,"symptoms":["fatiga"]}',
+            '{"person":"Ada Lovelace","year":1843,"symptoms":["cefalea"]}',
+            '{"person":{"reasoning":"name","value":"Ada Lovelace"},'
+            '"year":{"reasoning":"year","value":1843},'
+            '"symptoms":{"reasoning":"items","value":["fatiga","cefalea"]}}',
+            '{"symptoms":{"field":"El campo pide síntomas mencionados.",'
+            '"candidates":['
+            '{"candidate_value":"fatiga","evidence":"Fragmento: \\"fatiga y cefalea\\". Fatiga aparece explícitamente.","include":true},'
+            '{"candidate_value":"cefalea","evidence":"Fragmento: \\"fatiga y cefalea\\". Cefalea aparece explícitamente.","include":true}'
+            ']}}',
+        ]
+    )
+    agent = OfficialParticipant(chat_client=fake).get_agent(
+        "mixed-extractors-self-consistency-verdict-judge"
+    )
+
+    output = agent.run(_task(), model="demo")
+
+    assert output == {
+        "person": "Ada Lovelace",
+        "year": 1843,
+        "symptoms": ["fatiga", "cefalea"],
+    }
+    assert [request.metadata.get("extraction") for request in fake.requests[:3]] == [
+        "baseline",
+        "enriched-schema",
+        "enriched-inline-reasoning",
+    ]
+    assert fake.requests[-1].metadata["aggregation"] == "self_consistency_verdict_judge"
 
 
 def test_judge_self_consistency_agent_class_uses_registered_pipeline(monkeypatch):

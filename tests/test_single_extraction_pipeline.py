@@ -8,6 +8,7 @@ from gensie.baseline import (
     EnrichedInlineReasoningSuperFspAgent,
     InlineReasoningAgent,
     MixedExtractorsJudgeSelfConsistencyAgent,
+    MixedExtractorsVerdictJudgeSelfConsistencyAgent,
     OfficialParticipant,
     VerbatimEntitiesEnrichedInlineReasoningAgent,
 )
@@ -308,12 +309,18 @@ def test_official_participant_exposes_default_specs_and_fallback_agent():
         "enriched-inline-reasoning-self-consistency",
         "enriched-inline-reasoning-super-fsp-self-consistency",
         "enriched-inline-reasoning-self-consistency-judge",
+        "enriched-inline-reasoning-self-consistency-verdict-judge",
         "mixed-extractors-self-consistency-judge",
+        "mixed-extractors-self-consistency-verdict-judge",
     ]
     assert participant.get_agent("missing") is participant.get_agent("baseline")
     assert (
         MixedExtractorsJudgeSelfConsistencyAgent.pipeline_name
         == "mixed-extractors-self-consistency-judge"
+    )
+    assert (
+        MixedExtractorsVerdictJudgeSelfConsistencyAgent.pipeline_name
+        == "mixed-extractors-self-consistency-verdict-judge"
     )
 
 

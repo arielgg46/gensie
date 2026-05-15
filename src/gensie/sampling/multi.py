@@ -9,6 +9,7 @@ from gensie.aggregation import (
     HeuristicSelfConsistencyAggregator,
     JudgeAggregator,
     PassthroughAggregator,
+    VerdictJudgeAggregator,
 )
 from gensie.aggregation.base import Aggregator
 from gensie.pipeline.context import PipelineContext
@@ -163,6 +164,11 @@ class PipelineExecutionRunner:
         if spec.aggregation.mode is AggregationMode.HEURISTIC_SELF_CONSISTENCY:
             return HeuristicSelfConsistencyAggregator()
         if spec.aggregation.mode is AggregationMode.JUDGE:
+            if spec.aggregation.options.get("variant") == "candidate_verdicts":
+                return VerdictJudgeAggregator(
+                    self.chat_client,
+                    judge_model=spec.aggregation.judge_model,
+                )
             return JudgeAggregator(
                 self.chat_client,
                 judge_model=spec.aggregation.judge_model,

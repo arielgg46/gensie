@@ -134,6 +134,21 @@ def default_pipeline_specs() -> tuple[PipelineSpec, ...]:
             aggregation=AggregationSpec(mode=AggregationMode.JUDGE),
         ),
         PipelineSpec(
+            name="enriched-inline-reasoning-self-consistency-verdict-judge",
+            description="Multi-trial enriched inline reasoning with a candidate-verdict SLM judge over disputed fields.",
+            extraction=ExtractionSpec(
+                name="enriched-inline-reasoning",
+                reasoning=ReasoningMode.TOP_LEVEL,
+                schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+                few_shot=FewShotMode.FIXED,
+            ),
+            sampling=SamplingSpec(total_trials=12),
+            aggregation=AggregationSpec(
+                mode=AggregationMode.JUDGE,
+                options={"variant": "candidate_verdicts"},
+            ),
+        ),
+        PipelineSpec(
             name="mixed-extractors-self-consistency-judge",
             description=(
                 "Heterogeneous self-consistency using baseline, enriched schema, "
@@ -183,6 +198,60 @@ def default_pipeline_specs() -> tuple[PipelineSpec, ...]:
                 ),
             ),
             aggregation=AggregationSpec(mode=AggregationMode.JUDGE),
+        ),
+        PipelineSpec(
+            name="mixed-extractors-self-consistency-verdict-judge",
+            description=(
+                "Heterogeneous self-consistency using baseline, enriched schema, "
+                "and enriched inline extraction trials with a candidate-verdict SLM judge."
+            ),
+            extraction=ExtractionSpec(
+                name="baseline",
+                reasoning=ReasoningMode.NONE,
+                schema_prompt=SchemaPromptMode.JSON_SCHEMA,
+            ),
+            sampling=SamplingSpec(
+                total_trials=6,
+                interleave=True,
+                groups=(
+                    TrialGroupSpec(
+                        name="baseline",
+                        extraction=ExtractionSpec(
+                            name="baseline",
+                            reasoning=ReasoningMode.NONE,
+                            schema_prompt=SchemaPromptMode.JSON_SCHEMA,
+                        ),
+                        ratio=1.0,
+                        min_count=1,
+                    ),
+                    TrialGroupSpec(
+                        name="enriched-schema",
+                        extraction=ExtractionSpec(
+                            name="enriched-schema",
+                            reasoning=ReasoningMode.NONE,
+                            schema_prompt=SchemaPromptMode.PYDANTIC,
+                            few_shot=FewShotMode.NONE,
+                        ),
+                        ratio=1.0,
+                        min_count=1,
+                    ),
+                    TrialGroupSpec(
+                        name="enriched-inline-reasoning",
+                        extraction=ExtractionSpec(
+                            name="enriched-inline-reasoning",
+                            reasoning=ReasoningMode.TOP_LEVEL,
+                            schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+                            few_shot=FewShotMode.FIXED,
+                        ),
+                        ratio=1.0,
+                        min_count=1,
+                    ),
+                ),
+            ),
+            aggregation=AggregationSpec(
+                mode=AggregationMode.JUDGE,
+                options={"variant": "candidate_verdicts"},
+            ),
         ),
     )
 
