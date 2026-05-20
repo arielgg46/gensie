@@ -9,6 +9,8 @@ from gensie.baseline import (
     EnrichedInlineReasoningSuperFspAgent,
     InlineReasoningAgent,
     MixedExtractorsJudgeSelfConsistencyAgent,
+    MixedExtractorsVerdictJudgeRagSelfConsistencyAgent,
+    MixedExtractorsVerdictJudgeRagSlotsSelfConsistencyAgent,
     MixedExtractorsVerdictJudgeSelfConsistencyAgent,
     OfficialParticipant,
     VerbatimEntitiesEnrichedInlineReasoningAgent,
@@ -357,6 +359,8 @@ def test_official_participant_exposes_default_specs_and_fallback_agent():
         "enriched-inline-reasoning-self-consistency-verdict-judge",
         "mixed-extractors-self-consistency-judge",
         "mixed-extractors-self-consistency-verdict-judge",
+        "mixed-extractors-self-consistency-verdict-judge-rag",
+        "mixed-extractors-self-consistency-verdict-judge-rag-slots",
     ]
     assert participant.get_agent("missing") is participant.get_agent("baseline")
     assert (
@@ -366,6 +370,14 @@ def test_official_participant_exposes_default_specs_and_fallback_agent():
     assert (
         MixedExtractorsVerdictJudgeSelfConsistencyAgent.pipeline_name
         == "mixed-extractors-self-consistency-verdict-judge"
+    )
+    assert (
+        MixedExtractorsVerdictJudgeRagSelfConsistencyAgent.pipeline_name
+        == "mixed-extractors-self-consistency-verdict-judge-rag"
+    )
+    assert (
+        MixedExtractorsVerdictJudgeRagSlotsSelfConsistencyAgent.pipeline_name
+        == "mixed-extractors-self-consistency-verdict-judge-rag-slots"
     )
 
 

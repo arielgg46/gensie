@@ -94,6 +94,14 @@ class MixedExtractorsVerdictJudgeSelfConsistencyAgent(_DefaultPipelineAgent):
     pipeline_name = "mixed-extractors-self-consistency-verdict-judge"
 
 
+class MixedExtractorsVerdictJudgeRagSelfConsistencyAgent(_DefaultPipelineAgent):
+    pipeline_name = "mixed-extractors-self-consistency-verdict-judge-rag"
+
+
+class MixedExtractorsVerdictJudgeRagSlotsSelfConsistencyAgent(_DefaultPipelineAgent):
+    pipeline_name = "mixed-extractors-self-consistency-verdict-judge-rag-slots"
+
+
 class OfficialParticipant(Participant):
     def __init__(self, chat_client: ChatClient | None = None):
         self.registry: PipelineRegistry = build_default_registry()

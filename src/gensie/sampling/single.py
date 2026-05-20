@@ -17,6 +17,7 @@ from gensie.runtime import (
     ChatRequest,
     ChatResponse,
     build_json_schema_response_format,
+    normalize_model_output_strings,
     request_payload,
     response_payload,
     trace_step,
@@ -100,7 +101,7 @@ class SingleExtractionRunner:
 
         context.usage.add(response.usage)
         try:
-            raw_output = json.loads(response.content)
+            raw_output = normalize_model_output_strings(json.loads(response.content))
         except (TypeError, json.JSONDecodeError) as exc:
             error = f"Failed to parse model response: {exc}"
             _trace_extraction_step(

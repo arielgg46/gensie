@@ -14,6 +14,7 @@ from gensie.runtime.tracing import (
     tracing_enabled,
     usage_payload,
 )
+from gensie.runtime.unicode import normalize_model_output_strings
 
 __all__ = [
     "ChatClient",
@@ -23,6 +24,7 @@ __all__ = [
     "OpenAIChatClient",
     "build_json_schema_response_format",
     "messages_payload",
+    "normalize_model_output_strings",
     "prompt_texts_by_role",
     "render_prompt",
     "request_payload",

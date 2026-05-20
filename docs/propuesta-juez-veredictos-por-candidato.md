@@ -64,6 +64,24 @@ challenge, esta es la opción más razonable para no quemar presupuesto ni choca
 con límites de tamaño. La validación puede hacerse estricta por configuración si
 se prefiere fallback ante cualquier desviación.
 
+Antes de construir el prompt del juez, los candidatos string se compactan por una
+clave normalizada: se decodifican escapes Unicode literales completos cuando
+aparezcan como texto, se normaliza Unicode, se eliminan marcas diacríticas
+incluida la tilde de `ñ`, se colapsan espacios y se compara con `casefold()`. De
+cada grupo se conserva como representante el candidato con más soporte, y el
+soporte mostrado pasa a ser `min(total_trials, suma_de_soportes_del_grupo)`.
+
+La salida del juez también queda acotada por prompt: `evidence` debe ser breve.
+El schema puede incluir `maxLength` si se activa
+`GENSIE_SC_VERDICT_JUDGE_USE_EVIDENCE_MAX_LENGTH=1`, pero queda apagado por
+defecto porque Cerebras rechaza ese keyword en `response_format`. Además, el
+prompt exige escribir caracteres Unicode reales en español y no secuencias
+escapadas `\uXXXX`. Como defensa general, las salidas JSON ya parseadas se
+normalizan a Unicode NFC y se decodifican escapes Unicode literales completos si
+quedaron dentro de strings. Esto no intenta reparar JSON truncado o escapes
+corruptos: la mitigación central es reducir candidatos duplicados y tamaño de
+`evidence`.
+
 ## Decisión de compatibilidad
 
 La forma ideal para expresar "un candidato por posición, con valor literal
@@ -115,8 +133,22 @@ Por eso se adopta esta regla:
 
 - el prompt enumera candidatos y sus conteos;
 - el JSON Schema de generación describe solo la forma de los veredictos y los
-  tipos base;
+  tipos base, con `maxLength` en `evidence` solo si se activa por entorno;
 - la validación local garantiza cantidad, orden, copia exacta y pertenencia.
+
+No se cambia el contrato a índices de candidatos. Los índices reducirían la
+repetición de `candidate_value`, pero hacen más fácil razonar sobre el candidato
+equivocado y no solucionan que `evidence` pueda contener tildes o eñes. La
+compatibilidad se mantiene con candidatos literales en el prompt, schema compacto
+y defensas de tamaño/normalización.
+
+Existe una variante experimental `candidate_layout="slots"` para proveedores que
+no aceptan `minItems`/`maxItems`. En esa variante `candidates` deja de ser array
+y pasa a ser un objeto con propiedades requeridas `"1"`, `"2"`, ... hasta `N`,
+sin `additionalProperties`. Cada slot sigue conteniendo `candidate_value`,
+`evidence` y, en arrays, `include`; por tanto el juez no decide por un índice
+opaco sino por el valor literal del candidato. Para ahorrar tokens, los `$defs`
+del schema generado usan nombres de un solo carácter en esta variante.
 
 ## Contratos de salida
 
@@ -946,14 +978,14 @@ Tests de integración:
   prompt y el FSP deben enseñar que `field` solo interpreta qué pide el campo.
 - Si el modelo omite candidatos o altera el orden con frecuencia, puede hacer
   falta un prompt de reparación específico o activar validación estricta.
+- Los escapes Unicode corruptos o JSON truncado no se pueden reparar de forma
+  fiable después de la llamada. Las defensas principales son reducir candidatos,
+  limitar `evidence`, normalizar salidas válidas y evitar `\uXXXX` desde el
+  prompt.
 
 ## Decisiones pendientes
 
-- Nombre del pipeline o variante.
-- Si esta variante debe ser un nuevo `AggregationMode` o un `options.variant`.
-- Si se habilita solo para pipelines experimentales o también para
-  `mixed-extractors-self-consistency-judge`.
-- Límite máximo de candidatos por campo.
-- Política de retry antes de fallback cuando falla la validación de candidatos.
+- Límite máximo de candidatos por campo, además de la compactación normalizada.
+- Si la validación estricta debe activarse por defecto o seguir como opción.
 - Validar soporte real de `$defs`/`$ref`, arrays de objetos y `anyOf` con el
   backend oficial antes de implementarla como default.

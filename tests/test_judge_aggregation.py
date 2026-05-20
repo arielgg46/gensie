@@ -1,26 +1,38 @@
 import pytest
 
 from gensie.aggregation.verdict_schema import (
+    VERDICT_EVIDENCE_MAX_LENGTH,
+    VERDICT_EVIDENCE_MAX_LENGTH_SCHEMA_ENV,
     build_verdict_generation_schema,
     build_verdict_plan,
+    build_verdict_response_format,
     reconstruct_verdict_output,
     reconstruct_verdict_output_with_report,
 )
 from gensie.aggregation import build_judge_scope
+from gensie.aggregation.judge import JudgeAggregator
+from gensie.aggregation.verdict_judge import VerdictJudgeAggregator
 from gensie.baseline import (
     EnrichedInlineReasoningJudgeSelfConsistencyAgent,
     EnrichedInlineReasoningVerdictJudgeSelfConsistencyAgent,
 )
 from gensie.pipeline import (
+    AggregationMode,
     AggregationResult,
+    AggregationSpec,
     ExtractionResult,
     ExtractionSpec,
     PipelineContext,
+    PipelineSpec,
     ReasoningMode,
+    SamplingSpec,
+    SchemaPromptMode,
     TrialRecord,
 )
 from gensie.runtime import ChatResponse
+from gensie.sampling import PipelineExecutionRunner
 from gensie.task import Task
+from gensie.usage import UsageTracker
 
 
 class QueueChatClient:
@@ -226,6 +238,25 @@ def test_judge_falls_back_to_first_valid_trial_on_judge_error(monkeypatch):
     }
 
 
+def test_judge_normalizes_unicode_in_final_output_stable_fields():
+    task = _task()
+    records = [
+        _record(0, {"person": "Ada\\u00e9", "year": 1843, "symptoms": ["fatiga"]}),
+        _record(1, {"person": "Ada\\u00e9", "year": 1843, "symptoms": ["cefalea"]}),
+    ]
+    fake = QueueChatClient(
+        [
+            '{"symptoms":{"reasoning":"items","value":["fatiga"]}}',
+        ]
+    )
+    context = PipelineContext(task=task, model="demo", usage=UsageTracker())
+
+    result = JudgeAggregator(fake).aggregate(records, context)
+
+    assert result.output["person"] == "Adaé"
+    assert result.output["symptoms"] == ["fatiga"]
+
+
 def test_verdict_generation_schema_uses_candidate_arrays_without_literal_candidates():
     task = _task()
     records = [
@@ -257,7 +288,121 @@ def test_verdict_generation_schema_uses_candidate_arrays_without_literal_candida
     )
     candidate_schema = schema["$defs"][candidate_ref]
     assert candidate_schema["properties"]["candidate_value"] == {"type": "string"}
+    assert candidate_schema["properties"]["evidence"] == {"type": "string"}
     assert candidate_schema["properties"]["include"] == {"type": "boolean"}
+
+
+def test_verdict_response_format_can_enable_evidence_max_length(monkeypatch):
+    monkeypatch.setenv(VERDICT_EVIDENCE_MAX_LENGTH_SCHEMA_ENV, "1")
+    task = _task()
+    records = [
+        _record(0, {"person": "Ada Lovelace", "year": 1843, "symptoms": ["fatiga"]}),
+        _record(1, {"person": "Ada Lovelace", "year": 1843, "symptoms": ["cefalea"]}),
+    ]
+    scope = build_judge_scope(records, task.target_schema)
+    plan = build_verdict_plan(task, records, scope)
+
+    response_format = build_verdict_response_format(task, plan)
+    schema = response_format["json_schema"]["schema"]
+    verdict_ref = schema["properties"]["symptoms"]["$ref"].rsplit("/", 1)[-1]
+    verdict_schema = schema["$defs"][verdict_ref]
+    candidate_ref = (
+        verdict_schema["properties"]["candidates"]["items"]["$ref"].rsplit("/", 1)[-1]
+    )
+    candidate_schema = schema["$defs"][candidate_ref]
+
+    assert candidate_schema["properties"]["evidence"] == {
+        "type": "string",
+        "maxLength": VERDICT_EVIDENCE_MAX_LENGTH,
+    }
+
+
+def test_verdict_generation_schema_can_force_candidate_slots():
+    task = _task()
+    records = [
+        _record(0, {"person": "Ada Lovelace", "year": 1843, "symptoms": ["fatiga"]}),
+        _record(1, {"person": "Ada Lovelace", "year": 1843, "symptoms": ["cefalea"]}),
+        _record(
+            2,
+            {
+                "person": "Ada Lovelace",
+                "year": 1843,
+                "symptoms": ["fatiga", "cefalea"],
+            },
+        ),
+    ]
+    scope = build_judge_scope(records, task.target_schema)
+    plan = build_verdict_plan(task, records, scope)
+
+    schema = build_verdict_generation_schema(
+        task.target_schema,
+        plan,
+        candidate_layout="slots",
+    )
+
+    verdict_ref = schema["properties"]["symptoms"]["$ref"].rsplit("/", 1)[-1]
+    assert len(verdict_ref) == 1
+    verdict_schema = schema["$defs"][verdict_ref]
+    candidates_schema = verdict_schema["properties"]["candidates"]
+    assert candidates_schema["type"] == "object"
+    assert candidates_schema["additionalProperties"] is False
+    assert list(candidates_schema["properties"]) == ["1", "2"]
+    assert candidates_schema["required"] == ["1", "2"]
+    candidate_ref = candidates_schema["properties"]["1"]["$ref"].rsplit("/", 1)[-1]
+    assert len(candidate_ref) == 1
+    assert schema["$defs"][candidate_ref]["properties"]["candidate_value"] == {
+        "type": "string"
+    }
+
+
+def test_verdict_plan_merges_normalized_duplicate_string_candidates():
+    task = _task()
+    records = [
+        _record(0, {"person": "Ada Lovelace", "year": 1843, "symptoms": ["Fatiga"]}),
+        _record(
+            1,
+            {
+                "person": "Ada Lovelace",
+                "year": 1843,
+                "symptoms": ["Fatiga", "fatíga"],
+            },
+        ),
+        _record(2, {"person": "Ada Lovelace", "year": 1843, "symptoms": ["fatiga"]}),
+        _record(3, {"person": "Ada Lovelace", "year": 1843, "symptoms": ["cefalea"]}),
+    ]
+    scope = build_judge_scope(records, task.target_schema)
+    plan = build_verdict_plan(task, records, scope)
+
+    symptoms = next(field for field in plan.fields if field.name == "symptoms")
+
+    assert [(candidate.value, candidate.count) for candidate in symptoms.candidates] == [
+        ("Fatiga", 4),
+        ("cefalea", 1),
+    ]
+    assert symptoms.candidates[0].trial_indices == (1, 2, 3)
+
+
+def test_verdict_plan_normalizes_literal_unicode_escape_representatives():
+    task = _task()
+    records = [
+        _record(
+            0,
+            {"person": "Ada Lovelace", "year": 1843, "symptoms": ["F\\u00e1tiga"]},
+        ),
+        _record(
+            1,
+            {"person": "Ada Lovelace", "year": 1843, "symptoms": ["F\\u00e1tiga"]},
+        ),
+        _record(2, {"person": "Ada Lovelace", "year": 1843, "symptoms": ["Fatiga"]}),
+        _record(3, {"person": "Ada Lovelace", "year": 1843, "symptoms": ["cefalea"]}),
+    ]
+    scope = build_judge_scope(records, task.target_schema)
+    plan = build_verdict_plan(task, records, scope)
+
+    symptoms = next(field for field in plan.fields if field.name == "symptoms")
+
+    assert symptoms.candidates[0].value == "Fátiga"
+    assert symptoms.candidates[0].count == 3
 
 
 def test_verdict_reconstruction_validates_candidate_order_and_values():
@@ -326,6 +471,117 @@ def test_verdict_reconstruction_validates_candidate_order_and_values():
                 }
             },
         )
+
+
+def test_verdict_reconstruction_accepts_candidate_slots():
+    task = _task()
+    records = [
+        _record(0, {"person": "Ada Lovelace", "year": 1843, "symptoms": ["fatiga"]}),
+        _record(1, {"person": "Ada Lovelace", "year": 1843, "symptoms": ["cefalea"]}),
+        _record(
+            2,
+            {
+                "person": "Ada Lovelace",
+                "year": 1843,
+                "symptoms": ["fatiga", "cefalea"],
+            },
+        ),
+    ]
+    scope = build_judge_scope(records, task.target_schema)
+    plan = build_verdict_plan(task, records, scope)
+
+    output = reconstruct_verdict_output(
+        plan,
+        scope,
+        {
+            "symptoms": {
+                "field": "síntomas mencionados",
+                "candidates": {
+                    "1": {
+                        "candidate_value": "fatiga",
+                        "evidence": "Fatiga aparece en el texto.",
+                        "include": True,
+                    },
+                    "2": {
+                        "candidate_value": "cefalea",
+                        "evidence": "Cefalea aparece en el texto.",
+                        "include": True,
+                    },
+                },
+            }
+        },
+        candidate_layout="slots",
+    )
+
+    assert output == {
+        "person": "Ada Lovelace",
+        "year": 1843,
+        "symptoms": ["fatiga", "cefalea"],
+    }
+
+
+def test_verdict_reconstruction_slots_uses_expected_values_when_unicode_is_corrupted():
+    task = _task()
+    spanish = "Espa\u00f1ol"
+    realismo = "Realismo literario espa\u00f1ol"
+    destino = "Destino tr\u00e1gico"
+    records = [
+        _record(0, {"person": spanish, "year": 1843, "symptoms": [realismo, destino]}),
+        _record(1, {"person": spanish, "year": 1843, "symptoms": [realismo]}),
+        _record(2, {"person": "Catalan", "year": 1843, "symptoms": []}),
+    ]
+    scope = build_judge_scope(records, task.target_schema)
+    plan = build_verdict_plan(task, records, scope)
+
+    reconstruction = reconstruct_verdict_output_with_report(
+        plan,
+        scope,
+        {
+            "person": {
+                "field": "persona",
+                "candidates": {
+                    "1": {
+                        "candidate_value": "Espa" + "\x1f" + "ol",
+                        "evidence": "bad escape from provider",
+                    },
+                    "2": {
+                        "candidate_value": "Catalan",
+                        "evidence": "alternate candidate",
+                    },
+                },
+                "value": "Espa" + "\x1f" + "ol",
+            },
+            "symptoms": {
+                "field": "items",
+                "candidates": {
+                    "1": {
+                        "candidate_value": "Realismo literario espa" + "\x1f" + "ol",
+                        "evidence": "bad escape from provider",
+                        "include": True,
+                    },
+                    "2": {
+                        "candidate_value": "Destino tr" + "\x1f" + "ico",
+                        "evidence": "bad escape from provider",
+                        "include": True,
+                    },
+                },
+            },
+        },
+        enforce_validation=False,
+        report_validation=True,
+        fallback_output=records[0].result.output,
+        candidate_layout="slots",
+    )
+
+    assert reconstruction.output == {
+        "person": spanish,
+        "year": 1843,
+        "symptoms": [realismo, destino],
+    }
+    assert "\x1f" not in str(reconstruction.output)
+    assert {
+        issue["code"] for issue in reconstruction.validation_issues
+    } >= {"candidate_value_mismatch", "value_not_expected_candidate"}
 
 
 def test_verdict_reconstruction_can_report_without_enforcing_validation():
@@ -412,9 +668,11 @@ def test_verdict_judge_pipeline_reconstructs_from_candidate_verdicts(monkeypatch
     }
     judge_request = fake.requests[-1]
     assert judge_request.metadata["aggregation"] == "self_consistency_verdict_judge"
+    assert judge_request.metadata["include_evidence_max_length"] is False
     judge_schema_text = str(judge_request.response_format["json_schema"]["schema"])
     assert "fatiga" not in judge_schema_text
     assert "cefalea" not in judge_schema_text
+    assert "maxLength" not in judge_schema_text
     prompt = judge_request.messages[1].content
     assert "class SingleCandidate[T]" in prompt
     assert "class ArrayCandidate[T]" in prompt
@@ -422,8 +680,141 @@ def test_verdict_judge_pipeline_reconstructs_from_candidate_verdicts(monkeypatch
     assert "key_themes: ArrayVerdict[str]" in prompt
     assert "literary_impact_evidence: SingleVerdict[str]" in prompt
     assert "Valores candidatos, en este orden:" in prompt or "Elementos candidatos, en este orden:" in prompt
+    assert f"máximo {VERDICT_EVIDENCE_MAX_LENGTH} caracteres" in prompt
+    assert "no uses secuencias escapadas \\uXXXX" in judge_request.messages[0].content
     assert '1. (2/3): "fatiga"' in prompt
     assert '2. (2/3): "cefalea"' in prompt
+
+
+def test_verdict_judge_pipeline_can_use_rag_fsp(monkeypatch):
+    monkeypatch.setenv("GENSIE_SC_TRIALS", "3")
+    fake = QueueChatClient(
+        [
+            '{"person":{"reasoning":"name","value":"Ada Lovelace"},'
+            '"year":{"reasoning":"year","value":1843},'
+            '"symptoms":{"reasoning":"items","value":["fatiga"]}}',
+            '{"person":{"reasoning":"name","value":"Ada Lovelace"},'
+            '"year":{"reasoning":"year","value":1843},'
+            '"symptoms":{"reasoning":"items","value":["cefalea"]}}',
+            '{"person":{"reasoning":"name","value":"Ada Lovelace"},'
+            '"year":{"reasoning":"year","value":1843},'
+            '"symptoms":{"reasoning":"items","value":["fatiga","cefalea"]}}',
+            '{"symptoms":{"field":"El campo pide síntomas mencionados.",'
+            '"candidates":['
+            '{"candidate_value":"fatiga","evidence":"Fragmento: \\"fatiga y cefalea\\". Fatiga aparece explícitamente.","include":true},'
+            '{"candidate_value":"cefalea","evidence":"Fragmento: \\"fatiga y cefalea\\". Cefalea aparece explícitamente.","include":true}'
+            ']}}',
+        ]
+    )
+    spec = PipelineSpec(
+        name="rag-verdict-judge-test",
+        description="Test candidate-verdict judge with RAG FSP.",
+        extraction=ExtractionSpec(
+            name="enriched-inline-reasoning",
+            reasoning=ReasoningMode.TOP_LEVEL,
+            schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+        ),
+        sampling=SamplingSpec(total_trials=3),
+        aggregation=AggregationSpec(
+            mode=AggregationMode.JUDGE,
+            options={"variant": "candidate_verdicts", "judge_fsp": "rag"},
+        ),
+    )
+    context = PipelineContext(task=_task(), model="demo", usage=UsageTracker())
+
+    result = PipelineExecutionRunner(fake).run(spec, context)
+
+    assert isinstance(result, AggregationResult)
+    assert result.output == {
+        "person": "Ada Lovelace",
+        "year": 1843,
+        "symptoms": ["fatiga", "cefalea"],
+    }
+    judge_request = fake.requests[-1]
+    assert judge_request.metadata["judge_fsp_provider"] == "RagVerdictJudgeFspProvider"
+    prompt = judge_request.messages[1].content
+    assert "Caso RAG: cultural_literature_quijote" in prompt
+    assert '"candidate_value": "Don Quijote de la Mancha"' in prompt
+    assert "genres: ArrayVerdict[str]" in prompt
+    assert "literary_impact_evidence" not in prompt
+    assert '1. (2/3): "fatiga"' in prompt
+    assert '2. (2/3): "cefalea"' in prompt
+
+
+def test_verdict_judge_pipeline_can_use_candidate_slots(monkeypatch):
+    monkeypatch.setenv("GENSIE_SC_TRIALS", "3")
+    fake = QueueChatClient(
+        [
+            '{"person":{"reasoning":"name","value":"Ada Lovelace"},'
+            '"year":{"reasoning":"year","value":1843},'
+            '"symptoms":{"reasoning":"items","value":["fatiga"]}}',
+            '{"person":{"reasoning":"name","value":"Ada Lovelace"},'
+            '"year":{"reasoning":"year","value":1843},'
+            '"symptoms":{"reasoning":"items","value":["cefalea"]}}',
+            '{"person":{"reasoning":"name","value":"Ada Lovelace"},'
+            '"year":{"reasoning":"year","value":1843},'
+            '"symptoms":{"reasoning":"items","value":["fatiga","cefalea"]}}',
+            '{"symptoms":{"field":"El campo pide síntomas mencionados.",'
+            '"candidates":{'
+            '"1":{"candidate_value":"fatiga","evidence":"Fatiga aparece.","include":true},'
+            '"2":{"candidate_value":"cefalea","evidence":"Cefalea aparece.","include":true}'
+            '}}}',
+        ]
+    )
+    spec = PipelineSpec(
+        name="slots-verdict-judge-test",
+        description="Test candidate-verdict judge with fixed candidate slots.",
+        extraction=ExtractionSpec(
+            name="enriched-inline-reasoning",
+            reasoning=ReasoningMode.TOP_LEVEL,
+            schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+        ),
+        sampling=SamplingSpec(total_trials=3),
+        aggregation=AggregationSpec(
+            mode=AggregationMode.JUDGE,
+            options={"variant": "candidate_verdicts", "candidate_layout": "slots"},
+        ),
+    )
+    context = PipelineContext(task=_task(), model="demo", usage=UsageTracker())
+
+    result = PipelineExecutionRunner(fake).run(spec, context)
+
+    assert isinstance(result, AggregationResult)
+    assert result.output == {
+        "person": "Ada Lovelace",
+        "year": 1843,
+        "symptoms": ["fatiga", "cefalea"],
+    }
+    judge_request = fake.requests[-1]
+    assert judge_request.metadata["candidate_layout"] == "slots"
+    prompt = judge_request.messages[1].content
+    assert 'claves requeridas "1", "2", ...' in prompt
+    assert "candidates: dict[str, ArrayCandidate[T]]" in prompt
+    schema_text = str(judge_request.response_format["json_schema"]["schema"])
+    assert "'required': ['1', '2']" in schema_text
+
+
+def test_verdict_judge_normalizes_unicode_in_final_output_stable_fields():
+    task = _task()
+    records = [
+        _record(0, {"person": "Ada\\u00e9", "year": 1843, "symptoms": ["fatiga"]}),
+        _record(1, {"person": "Ada\\u00e9", "year": 1843, "symptoms": ["cefalea"]}),
+    ]
+    fake = QueueChatClient(
+        [
+            '{"symptoms":{"field":"El campo pide síntomas mencionados.",'
+            '"candidates":['
+            '{"candidate_value":"fatiga","evidence":"Fatiga aparece.","include":true},'
+            '{"candidate_value":"cefalea","evidence":"Cefalea aparece.","include":true}'
+            ']}}',
+        ]
+    )
+    context = PipelineContext(task=task, model="demo", usage=UsageTracker())
+
+    result = VerdictJudgeAggregator(fake).aggregate(records, context)
+
+    assert result.output["person"] == "Adaé"
+    assert result.output["symptoms"] == ["fatiga", "cefalea"]
 
 
 def test_verdict_judge_reports_validation_issues_without_fallback(monkeypatch):

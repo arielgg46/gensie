@@ -25,6 +25,7 @@ from gensie.runtime import (
     ChatMessage,
     ChatRequest,
     build_json_schema_response_format,
+    normalize_model_output_strings,
     request_payload,
     response_payload,
     trace_step,
@@ -103,7 +104,9 @@ class JudgeAggregator:
             )
 
         fallback_record = valid_records[0]
-        fallback_output = dict(fallback_record.result.output or {})
+        fallback_output = normalize_model_output_strings(
+            dict(fallback_record.result.output or {})
+        )
         if len(valid_records) == 1:
             return self._fallback_result(
                 context,
@@ -115,7 +118,7 @@ class JudgeAggregator:
 
         scope = build_judge_scope(valid_records, context.task.target_schema)
         if not scope.has_disputes:
-            output = merge_judge_output(scope, {})
+            output = normalize_model_output_strings(merge_judge_output(scope, {}))
             return self._fallback_result(
                 context,
                 records,
@@ -167,11 +170,13 @@ class JudgeAggregator:
         try:
             response = self.chat_client.complete(request)
             context.usage.add(response.usage)
-            raw_output = json.loads(response.content)
+            raw_output = normalize_model_output_strings(json.loads(response.content))
             judge_output = unwrap_reasoning_output(
                 raw_output, scope.reduced_schema, ReasoningMode.TOP_LEVEL
             )
-            final_output = merge_judge_output(scope, judge_output)
+            final_output = normalize_model_output_strings(
+                merge_judge_output(scope, judge_output)
+            )
         except Exception as exc:
             error = str(exc) or repr(exc)
 
@@ -237,8 +242,9 @@ class JudgeAggregator:
         started_perf = time.perf_counter()
         completed_at = datetime.now(timezone.utc)
         duration_ms = (time.perf_counter() - started_perf) * 1000
+        normalized_output = normalize_model_output_strings(dict(output))
         result = AggregationResult(
-            output=output,
+            output=normalized_output,
             mode=AggregationMode.JUDGE,
             selected_trial_index=selected_trial_index,
             metadata={
@@ -257,7 +263,7 @@ class JudgeAggregator:
             response_payload={
                 "trials": [_trial_record_payload(record) for record in records],
                 "fallback_reason": reason,
-                "final_output": dict(output),
+                "final_output": normalized_output,
             },
             metrics={
                 "request": {

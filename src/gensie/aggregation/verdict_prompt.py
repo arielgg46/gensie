@@ -9,7 +9,14 @@ from gensie.aggregation.verdict_fsp import (
     NoVerdictJudgeFspProvider,
     VerdictJudgeFspProvider,
 )
-from gensie.aggregation.verdict_schema import VerdictField, VerdictPlan, json_value
+from gensie.aggregation.verdict_schema import (
+    VERDICT_EVIDENCE_MAX_LENGTH,
+    VerdictCandidateLayout,
+    VerdictField,
+    VerdictPlan,
+    json_value,
+    normalize_candidate_layout,
+)
 from gensie.schemas.inspect import deref, pascal_case, safe_name, unwrap_nullable_anyof
 from gensie.task import Task
 
@@ -20,7 +27,9 @@ VERDICT_JUDGE_SYSTEM_PROMPT = (
     "Devuelve veredictos estructurados por candidato usando solo el texto fuente.\n"
     "No inventes candidatos, no omitas candidatos y no uses conocimiento externo.\n"
     "Cada candidate_value debe copiar exactamente el literal indicado en el prompt, "
-    "en el mismo orden en que aparece para su campo."
+    "en el mismo orden en que aparece para su campo.\n"
+    "Escribe caracteres Unicode reales en español (á, é, í, ó, ú, ñ) directamente; "
+    "no uses secuencias escapadas \\uXXXX."
 )
 
 
@@ -32,10 +41,16 @@ def build_verdict_judge_prompt(
     fsp_provider: VerdictJudgeFspProvider | None = None,
     include_stable_fields: bool = False,
     include_support_counts: bool = True,
+    candidate_layout: VerdictCandidateLayout = "array",
 ) -> str:
+    candidate_layout = normalize_candidate_layout(candidate_layout)
     fsp = (fsp_provider or NoVerdictJudgeFspProvider()).build(
+        task=task,
+        scope=scope,
+        plan=plan,
         include_stable_fields=include_stable_fields,
         include_support_counts=include_support_counts,
+        candidate_layout=candidate_layout,
     )
     stable_section = _render_stable_fields_section(scope) if include_stable_fields else ""
     disputed_text = ", ".join(f"`{field}`" for field in plan.field_names)
@@ -49,15 +64,22 @@ def build_verdict_judge_prompt(
         if include_stable_fields
         else ""
     )
+    candidates_instruction = (
+        'En cada `candidates`, devuelve un objeto con claves requeridas "1", "2", ...; '
+        "cada clave corresponde al candidato de esa posición y no debes añadir otras claves.\n"
+        if candidate_layout == "slots"
+        else "En cada `candidates`, devuelve un array con exactamente un objeto por candidato listado, en el mismo orden.\n"
+    )
 
     return (
         "TAREA DEL JUEZ:\n"
         "Evalúa los candidatos observados para cada campo disputado y emite un veredicto estructurado.\n"
         f"{count_rule}"
         "En `field`, explica qué pide el campo; no decidas el valor ahí.\n"
-        "En cada `candidates`, devuelve un array con exactamente un objeto por candidato listado, en el mismo orden.\n"
+        f"{candidates_instruction}"
         "En cada `candidate_value`, copia exactamente el valor candidato correspondiente.\n"
-        "En cada `evidence`, habla de la evidencia o ausencia de evidencia de ese candidato. "
+        f"En cada `evidence`, usa una frase breve de máximo {VERDICT_EVIDENCE_MAX_LENGTH} caracteres "
+        "sobre la evidencia o ausencia de evidencia de ese candidato. "
         "Cita fragmentos verbatim con contexto y razona ahí mismo si el candidato debe ser el valor final, "
         "en campos simples, o si debe incluirse en el array final, en campos array.\n"
         "Para campos simples, después de `candidates` decide `value` con el valor final.\n"
@@ -71,7 +93,7 @@ def build_verdict_judge_prompt(
         f"Emite veredictos solo para estos campos: {disputed_text}.\n"
         f"{stable_instruction}\n"
         "SCHEMA PYDANTIC DE VEREDICTOS:\n"
-        f"{render_verdict_pydantic_schema(task.target_schema, plan)}\n"
+        f"{render_verdict_pydantic_schema(task.target_schema, plan, candidate_layout=candidate_layout)}\n"
         "TEXTO FUENTE:\n"
         f"{task.input_text}\n\n"
         f"{stable_section}"
@@ -107,7 +129,13 @@ def render_verdict_candidate_summary(
     return "\n".join(lines).rstrip()
 
 
-def render_verdict_pydantic_schema(root_schema: JsonDict, plan: VerdictPlan) -> str:
+def render_verdict_pydantic_schema(
+    root_schema: JsonDict,
+    plan: VerdictPlan,
+    *,
+    candidate_layout: VerdictCandidateLayout = "array",
+) -> str:
+    candidate_layout = normalize_candidate_layout(candidate_layout)
     lines = [
         "Nullable[T] = T | None",
         "",
@@ -117,8 +145,16 @@ def render_verdict_pydantic_schema(root_schema: JsonDict, plan: VerdictPlan) -> 
         lines.append("")
     lines.extend(
         [
-            "# candidates es una lista ordenada.",
-            "# Debe tener exactamente un item por candidato listado en VALORES CANDIDATOS POR CAMPO.",
+            (
+                '# candidates es un objeto con claves fijas "1", "2", ...'
+                if candidate_layout == "slots"
+                else "# candidates es una lista ordenada."
+            ),
+            (
+                "# Debe tener exactamente una clave por candidato listado en VALORES CANDIDATOS POR CAMPO."
+                if candidate_layout == "slots"
+                else "# Debe tener exactamente un item por candidato listado en VALORES CANDIDATOS POR CAMPO."
+            ),
             "class SingleCandidate[T](BaseModel):",
             "    candidate_value: T",
             "    evidence: str",
@@ -130,12 +166,20 @@ def render_verdict_pydantic_schema(root_schema: JsonDict, plan: VerdictPlan) -> 
             "",
             "class SingleVerdict[T](BaseModel):",
             "    field: str",
-            "    candidates: list[SingleCandidate[T]]",
+            (
+                "    candidates: dict[str, SingleCandidate[T]]"
+                if candidate_layout == "slots"
+                else "    candidates: list[SingleCandidate[T]]"
+            ),
             "    value: T",
             "",
             "class ArrayVerdict[T](BaseModel):",
             "    field: str",
-            "    candidates: list[ArrayCandidate[T]]",
+            (
+                "    candidates: dict[str, ArrayCandidate[T]]"
+                if candidate_layout == "slots"
+                else "    candidates: list[ArrayCandidate[T]]"
+            ),
             "",
             "class Output(BaseModel):",
         ]

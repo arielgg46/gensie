@@ -1,19 +1,54 @@
 from __future__ import annotations
 
-from typing import Protocol
+import copy
+import json
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any, Protocol, Sequence
 
+from gensie.fsp.cases import default_fsp_cases
+from gensie.fsp.examples import (
+    CandidateOrder,
+    JudgeCandidateExample,
+    JudgeExample,
+    JudgeFieldExample,
+    StructuredFspCase,
+    canonical_json,
+    ordered_candidates,
+)
+
+from gensie.fsp.projection import project_structured_fsp_case
+from gensie.fsp.retrieval import FspRetrievalResult, rank_fsp_cases
 from gensie.fsp.fixed import (
     CULTURAL_LITERATURE_FEW_SHOT_INPUT_TEXT,
     CULTURAL_LITERATURE_FEW_SHOT_INSTRUCTION,
 )
+from gensie.schemas.inspect import (
+    JsonDict,
+    deref,
+    safe_name,
+    schema_type,
+    unwrap_nullable_anyof,
+)
+
+if TYPE_CHECKING:
+    from gensie.aggregation.judge_scope import JudgeScope
+    from gensie.aggregation.verdict_schema import (
+        VerdictCandidateLayout,
+        VerdictPlan,
+    )
+    from gensie.task import Task
 
 
 class VerdictJudgeFspProvider(Protocol):
     def build(
         self,
         *,
+        task: Task | None = None,
+        scope: JudgeScope | None = None,
+        plan: VerdictPlan | None = None,
         include_stable_fields: bool = False,
         include_support_counts: bool = True,
+        candidate_layout: VerdictCandidateLayout = "array",
     ) -> str:
         pass
 
@@ -22,20 +57,148 @@ class NoVerdictJudgeFspProvider:
     def build(
         self,
         *,
+        task: Task | None = None,
+        scope: JudgeScope | None = None,
+        plan: VerdictPlan | None = None,
         include_stable_fields: bool = False,
         include_support_counts: bool = True,
+        candidate_layout: VerdictCandidateLayout = "array",
     ) -> str:
-        del include_stable_fields, include_support_counts
+        del task, scope, plan, include_stable_fields, include_support_counts
+        del candidate_layout
         return ""
+
+
+@dataclass(frozen=True)
+class RagVerdictJudgeFspProvider:
+    cases: tuple[StructuredFspCase, ...] = field(default_factory=default_fsp_cases)
+    top_k: int = 1
+    candidate_order: CandidateOrder = CandidateOrder.RESOURCE
+    max_prompt_chars: int | None = None
+
+    def __init__(
+        self,
+        cases: Sequence[StructuredFspCase] | None = None,
+        *,
+        top_k: int = 1,
+        candidate_order: CandidateOrder = CandidateOrder.RESOURCE,
+        max_prompt_chars: int | None = None,
+    ):
+        object.__setattr__(
+            self,
+            "cases",
+            tuple(cases) if cases is not None else default_fsp_cases(),
+        )
+        object.__setattr__(self, "top_k", max(1, top_k))
+        object.__setattr__(self, "candidate_order", candidate_order)
+        if max_prompt_chars is not None and max_prompt_chars < 1:
+            max_prompt_chars = None
+        object.__setattr__(self, "max_prompt_chars", max_prompt_chars)
+
+    def build(
+        self,
+        *,
+        task: Task | None = None,
+        scope: JudgeScope | None = None,
+        plan: VerdictPlan | None = None,
+        include_stable_fields: bool = False,
+        include_support_counts: bool = True,
+        candidate_layout: VerdictCandidateLayout = "array",
+    ) -> str:
+        del scope
+        selected = self.retrieve(task=task, plan=plan)
+        blocks: list[str] = []
+        for result in selected:
+            case = result.case
+            projection_fields = _projection_fields(result, plan)
+            if projection_fields:
+                case = project_structured_fsp_case(
+                    case,
+                    projection_fields,
+                    include_stable_fields=include_stable_fields,
+                )
+            prompt = render_candidate_verdict_fsp_example(
+                case,
+                include_stable_fields=include_stable_fields,
+                include_support_counts=include_support_counts,
+                candidate_order=self.candidate_order,
+                candidate_layout=candidate_layout,
+            )
+            if not prompt:
+                continue
+            if (
+                self.max_prompt_chars is not None
+                and len(prompt) > self.max_prompt_chars
+            ):
+                continue
+            blocks.append(prompt)
+            if len(blocks) >= self.top_k:
+                break
+        return "\n\n".join(blocks)
+
+    def retrieve(
+        self,
+        *,
+        task: Task | None = None,
+        plan: VerdictPlan | None = None,
+    ) -> tuple[FspRetrievalResult, ...]:
+        cases = tuple(case for case in self.cases if case.judge is not None)
+        if task is None:
+            return tuple(
+                FspRetrievalResult(
+                    case=case,
+                    score=0.0,
+                    rank=index,
+                    matched_tags=(),
+                    matched_terms=(),
+                    schema_match=False,
+                    compatible_fields=(),
+                )
+                for index, case in enumerate(cases[: self.top_k], start=1)
+            )
+        task_text = " ".join(
+            (
+                task.id,
+                task.instruction,
+                str(task.target_schema.get("description") or ""),
+                " ".join(plan.field_names if plan is not None else ()),
+            )
+        )
+        return rank_fsp_cases(
+            task_schema=task.target_schema,
+            task_text=task_text,
+            cases=cases,
+            top_k=len(cases) if self.max_prompt_chars is not None else self.top_k,
+        ) or self.retrieve(task=None, plan=plan)
+
+
+def _projection_fields(
+    result: FspRetrievalResult, plan: VerdictPlan | None
+) -> tuple[str, ...]:
+    if plan is None or result.case.judge is None:
+        return ()
+    if result.schema_match:
+        return plan.field_names
+    example_fields = set(result.case.judge.fields)
+    return tuple(
+        field_name
+        for field_name in plan.field_names
+        if field_name in example_fields
+    )
 
 
 class FixedVerdictJudgeFspProvider:
     def build(
         self,
         *,
+        task: Task | None = None,
+        scope: JudgeScope | None = None,
+        plan: VerdictPlan | None = None,
         include_stable_fields: bool = False,
         include_support_counts: bool = True,
+        candidate_layout: VerdictCandidateLayout = "array",
     ) -> str:
+        del task, scope, plan, candidate_layout
         stable_instruction = (
             "No devuelvas campos ya consensuados; esos se reconstruyen fuera de esta llamada.\n"
             if include_stable_fields
@@ -263,3 +426,314 @@ def _candidate_line(value: str, support: str, include_support_counts: bool) -> s
     if include_support_counts:
         return f"- ({support}): {value}"
     return value
+
+
+def render_candidate_verdict_fsp_example(
+    case: StructuredFspCase,
+    *,
+    include_stable_fields: bool = False,
+    include_support_counts: bool = True,
+    candidate_order: CandidateOrder = CandidateOrder.RESOURCE,
+    candidate_layout: VerdictCandidateLayout = "array",
+) -> str:
+    if case.judge is None or not case.judge.fields:
+        return ""
+
+    field_names = tuple(case.judge.fields)
+    disputed_text = ", ".join(f"`{field_name}`" for field_name in field_names)
+    stable_instruction = (
+        "No devuelvas campos ya consensuados; esos se reconstruyen fuera de esta llamada.\n"
+        if include_stable_fields
+        else ""
+    )
+    stable_block = (
+        _render_stable_fields(case.judge.stable_fields)
+        if include_stable_fields
+        else ""
+    )
+    output_json = json.dumps(
+        build_candidate_verdict_output(
+            case.judge,
+            candidate_order=candidate_order,
+            candidate_layout=candidate_layout,
+        ),
+        ensure_ascii=False,
+        indent=2,
+    )
+    return (
+        "EJEMPLO:\n"
+        f"Caso RAG: {case.id}\n"
+        "Este ejemplo muestra cómo evaluar cada candidato por separado y devolver candidate_value literalmente.\n\n"
+        "INSTRUCCIÓN ORIGINAL:\n"
+        f"{case.instruction}\n\n"
+        "INSTRUCCIÓN DEL JUEZ:\n"
+        f"Emite veredictos solo para estos campos: {disputed_text}.\n"
+        f"{stable_instruction}"
+        "SCHEMA PYDANTIC DE VEREDICTOS:\n"
+        f"{render_candidate_verdict_pydantic_schema(case, candidate_layout=candidate_layout)}\n"
+        "TEXTO FUENTE:\n"
+        f"{case.source_text}\n\n"
+        f"{stable_block}"
+        "VALORES CANDIDATOS POR CAMPO:\n"
+        f"{render_candidate_verdict_candidate_summary(case, include_support_counts=include_support_counts, candidate_order=candidate_order)}\n\n"
+        "SALIDA:\n"
+        f"{output_json}\n"
+        "FIN DEL EJEMPLO.\n"
+    )
+
+
+def render_candidate_verdict_candidate_summary(
+    case: StructuredFspCase,
+    *,
+    include_support_counts: bool = True,
+    candidate_order: CandidateOrder = CandidateOrder.RESOURCE,
+) -> str:
+    if case.judge is None:
+        return ""
+
+    lines = (
+        [f"Trials válidos: {case.judge.total_trials}"]
+        if include_support_counts
+        else []
+    )
+    for field_name, field in case.judge.fields.items():
+        lines.append("")
+        if field.kind == "array":
+            lines.append(f"CAMPO `{field_name}` (lista)")
+            lines.append(
+                f"Formato: ArrayVerdict[{_field_type_for_summary(case.schema, field_name, field)}]"
+            )
+            lines.append("Elementos candidatos, en este orden:")
+        else:
+            lines.append(f"CAMPO `{field_name}`")
+            lines.append(
+                f"Formato: SingleVerdict[{_field_type_for_summary(case.schema, field_name, field)}]"
+            )
+            lines.append("Valores candidatos, en este orden:")
+
+        for index, candidate in enumerate(
+            ordered_candidates(field.candidates, candidate_order),
+            start=1,
+        ):
+            support = (
+                f" ({candidate.support}/{case.judge.total_trials})"
+                if include_support_counts
+                else ""
+            )
+            lines.append(f"{index}.{support}: {json.dumps(candidate.value, ensure_ascii=False, sort_keys=True)}")
+
+        if field.kind == "array":
+            lines.extend(
+                _array_field_observations(
+                    field,
+                    case.judge.total_trials,
+                    include_support_counts=include_support_counts,
+                )
+            )
+    return "\n".join(lines).rstrip()
+
+
+def build_candidate_verdict_output(
+    judge: JudgeExample,
+    *,
+    candidate_order: CandidateOrder = CandidateOrder.RESOURCE,
+    candidate_layout: VerdictCandidateLayout = "array",
+) -> dict[str, Any]:
+    output: dict[str, Any] = {}
+    for field_name, field in judge.fields.items():
+        candidates = ordered_candidates(field.candidates, candidate_order)
+        if candidate_layout == "slots":
+            rendered_candidates: Any = {
+                str(index): _candidate_output(candidate, field)
+                for index, candidate in enumerate(candidates, start=1)
+            }
+        else:
+            rendered_candidates = [
+                _candidate_output(candidate, field)
+                for candidate in candidates
+            ]
+        verdict: dict[str, Any] = {
+            "field": field.field_description or f"El campo pide `{field_name}`.",
+            "candidates": rendered_candidates,
+        }
+        if field.kind == "single":
+            verdict["value"] = copy.deepcopy(_single_field_value(field))
+        output[field_name] = verdict
+    return output
+
+
+def render_candidate_verdict_pydantic_schema(
+    case: StructuredFspCase,
+    *,
+    candidate_layout: VerdictCandidateLayout = "array",
+) -> str:
+    if case.judge is None:
+        return "Nullable[T] = T | None\n\nclass Output(BaseModel):\n    pass\n"
+
+    lines = [
+        "Nullable[T] = T | None",
+        "",
+        "class SingleCandidate[T](BaseModel):",
+        "    candidate_value: T",
+        "    evidence: str",
+        "",
+        "class ArrayCandidate[T](BaseModel):",
+        "    candidate_value: T",
+        "    evidence: str",
+        "    include: bool",
+        "",
+        "class SingleVerdict[T](BaseModel):",
+        "    field: str",
+        (
+            "    candidates: dict[str, SingleCandidate[T]]"
+            if candidate_layout == "slots"
+            else "    candidates: list[SingleCandidate[T]]"
+        ),
+        "    value: T",
+        "",
+        "class ArrayVerdict[T](BaseModel):",
+        "    field: str",
+        (
+            "    candidates: dict[str, ArrayCandidate[T]]"
+            if candidate_layout == "slots"
+            else "    candidates: list[ArrayCandidate[T]]"
+        ),
+        "",
+        "class Output(BaseModel):",
+    ]
+    for field_name, field in case.judge.fields.items():
+        wrapper = "ArrayVerdict" if field.kind == "array" else "SingleVerdict"
+        lines.append(
+            f"    {safe_name(field_name)}: {wrapper}[{_field_type_for_summary(case.schema, field_name, field)}]"
+        )
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _candidate_output(
+    candidate: JudgeCandidateExample, field: JudgeFieldExample
+) -> dict[str, Any]:
+    output = {
+        "candidate_value": copy.deepcopy(candidate.value),
+        "evidence": candidate.evidence,
+    }
+    if field.kind == "array":
+        output["include"] = _array_candidate_include(candidate, field)
+    return output
+
+
+def _single_field_value(field: JudgeFieldExample) -> Any:
+    if field.reasoned_output is not None and "value" in field.reasoned_output:
+        return copy.deepcopy(field.reasoned_output["value"])
+    return copy.deepcopy(field.value)
+
+
+def _array_candidate_include(
+    candidate: JudgeCandidateExample, field: JudgeFieldExample
+) -> bool:
+    if candidate.include is not None:
+        return candidate.include
+    if not isinstance(field.value, list):
+        return False
+    candidate_key = canonical_json(candidate.value)
+    return any(canonical_json(item) == candidate_key for item in field.value)
+
+
+def _field_type_for_summary(
+    root_schema: JsonDict, field_name: str, field: JudgeFieldExample
+) -> str:
+    field_schema = _field_schema(root_schema, field_name)
+    if field.kind == "array":
+        resolved = deref(field_schema, root_schema)
+        value_schema = (
+            resolved.get("items")
+            if isinstance(resolved.get("items"), dict)
+            else {}
+        )
+    else:
+        value_schema = field_schema
+    return _type_hint(value_schema, root_schema)
+
+
+def _field_schema(root_schema: JsonDict, field_name: str) -> JsonDict:
+    resolved = deref(root_schema, root_schema)
+    properties = (
+        resolved.get("properties")
+        if isinstance(resolved.get("properties"), dict)
+        else {}
+    )
+    field_schema = properties.get(field_name)
+    return field_schema if isinstance(field_schema, dict) else {}
+
+
+def _type_hint(schema: JsonDict, root_schema: JsonDict) -> str:
+    ref = schema.get("$ref")
+    if isinstance(ref, str) and ref.startswith("#/$defs/"):
+        return ref.rsplit("/", 1)[-1]
+
+    unwrapped, nullable = unwrap_nullable_anyof(schema, root_schema)
+    resolved = deref(unwrapped, root_schema)
+    enum = resolved.get("enum")
+    if isinstance(enum, list):
+        base = "Literal[" + ", ".join(json.dumps(value, ensure_ascii=False) for value in enum) + "]"
+    else:
+        current_type = schema_type(resolved)
+        if current_type == "string":
+            base = "str"
+        elif current_type == "integer":
+            base = "int"
+        elif current_type == "number":
+            base = "float"
+        elif current_type == "boolean":
+            base = "bool"
+        elif current_type == "array":
+            item_schema = (
+                resolved.get("items")
+                if isinstance(resolved.get("items"), dict)
+                else {}
+            )
+            base = f"list[{_type_hint(item_schema, root_schema)}]"
+        elif current_type == "object":
+            base = "dict[str, Any]"
+        elif current_type == "null":
+            base = "None"
+        else:
+            base = "Any"
+    return f"Nullable[{base}]" if nullable else base
+
+
+def _array_field_observations(
+    field: JudgeFieldExample,
+    total_trials: int,
+    *,
+    include_support_counts: bool,
+) -> list[str]:
+    lines: list[str] = []
+    if field.empty_trial_count:
+        lines.append(
+            f"Observación: lista vacía en {field.empty_trial_count}/{total_trials} trials."
+            if include_support_counts
+            else "Observación: lista vacía."
+        )
+    if field.null_trial_count:
+        lines.append(
+            f"Observación: valor null en {field.null_trial_count}/{total_trials} trials."
+            if include_support_counts
+            else "Observación: valor null."
+        )
+    if field.invalid_value_count:
+        lines.append(
+            f"Observación: valor no-lista inválido en {field.invalid_value_count}/{total_trials} trials."
+            if include_support_counts
+            else "Observación: valor no-lista inválido."
+        )
+    return lines
+
+
+def _render_stable_fields(stable_fields: dict[str, Any]) -> str:
+    if not stable_fields:
+        return "CAMPOS YA CONSENSUADOS:\n- Ningún campo consensuado.\n\n"
+    lines = [
+        f"- {field_name}: {json.dumps(value, ensure_ascii=False, sort_keys=True)}"
+        for field_name, value in stable_fields.items()
+    ]
+    return "CAMPOS YA CONSENSUADOS:\n" + "\n".join(lines) + "\n\n"

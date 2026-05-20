@@ -1,3 +1,6 @@
+from gensie.aggregation.verdict_fsp import RagVerdictJudgeFspProvider
+from gensie.aggregation import build_judge_scope
+from gensie.aggregation.verdict_schema import build_verdict_plan
 from gensie.fsp.cases import quijote_cultural_literature_case
 from gensie.fsp.examples import (
     CandidateOrder,
@@ -14,11 +17,13 @@ from gensie.fsp.render_extraction import (
 )
 from gensie.fsp.render_judge import render_judge_candidate_summary
 from gensie.pipeline import (
+    ExtractionResult,
     ExtractionSpec,
     FewShotMode,
     PipelineContext,
     ReasoningMode,
     SchemaPromptMode,
+    TrialRecord,
 )
 from gensie.task import Task
 from gensie.usage import UsageTracker
@@ -435,3 +440,86 @@ def test_structured_fsp_case_projection_can_keep_judge_stable_fields():
     assert projected.judge is not None
     assert projected.judge.stable_fields == {"author": "Miguel de Cervantes Saavedra"}
     assert set(projected.judge.fields) == {"title"}
+
+
+def test_rag_verdict_judge_provider_renders_candidate_verdict_example():
+    provider = RagVerdictJudgeFspProvider(cases=[quijote_cultural_literature_case()])
+
+    prompt = provider.build(include_stable_fields=True, include_support_counts=True)
+
+    assert "Caso RAG: cultural_literature_quijote" in prompt
+    assert "SCHEMA PYDANTIC DE VEREDICTOS:" in prompt
+    assert "title: SingleVerdict[str]" in prompt
+    assert "genres: ArrayVerdict[str]" in prompt
+    assert "CAMPOS YA CONSENSUADOS:" in prompt
+    assert "- author: \"Miguel de Cervantes Saavedra\"" in prompt
+    assert "1. (3/4): \"Don Quijote de la Mancha\"" in prompt
+    assert "1. (4/4): \"novela\"" in prompt
+    assert "Observación: lista vacía en 1/4 trials." in prompt
+    assert '"candidate_value": "Don Quijote de la Mancha"' in prompt
+    assert '"candidate_value": "tradición caballeresca"' in prompt
+    assert '"include": false' in prompt
+    assert '"value": "Don Quijote de la Mancha"' in prompt
+
+
+def test_rag_verdict_judge_provider_projects_overlapping_disputed_fields():
+    schema = {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "genres": {"type": "array", "items": {"type": "string"}},
+        },
+        "required": ["genres"],
+    }
+    task = Task(
+        id="sample",
+        input_text="Texto sobre una novela.",
+        instruction="Extrae los géneros literarios.",
+        target_schema=schema,
+    )
+    records = [
+        TrialRecord(
+            index=0,
+            group_name="a",
+            extraction=ExtractionSpec(name="a"),
+            result=ExtractionResult(output={"genres": ["novela"]}),
+        ),
+        TrialRecord(
+            index=1,
+            group_name="b",
+            extraction=ExtractionSpec(name="b"),
+            result=ExtractionResult(output={"genres": ["realismo"]}),
+        ),
+    ]
+    scope = build_judge_scope(records, schema)
+    plan = build_verdict_plan(task, records, scope)
+    provider = RagVerdictJudgeFspProvider(cases=[quijote_cultural_literature_case()])
+
+    prompt = provider.build(task=task, plan=plan)
+
+    assert "genres: ArrayVerdict[str]" in prompt
+    assert "CAMPO `genres`" in prompt
+    assert "title: SingleVerdict[str]" not in prompt
+    assert "CAMPO `title`" not in prompt
+
+
+def test_rag_verdict_judge_provider_can_hide_support_counts():
+    provider = RagVerdictJudgeFspProvider(cases=[quijote_cultural_literature_case()])
+
+    prompt = provider.build(include_support_counts=False)
+
+    assert "Trials válidos:" not in prompt
+    assert "(3/4)" not in prompt
+    assert "1.: \"Don Quijote de la Mancha\"" in prompt
+    assert "Observación: lista vacía." in prompt
+
+
+def test_rag_verdict_judge_provider_can_render_candidate_slots():
+    provider = RagVerdictJudgeFspProvider(cases=[quijote_cultural_literature_case()])
+
+    prompt = provider.build(candidate_layout="slots")
+
+    assert "candidates: dict[str, ArrayCandidate[T]]" in prompt
+    assert '"candidates": {' in prompt
+    assert '"1": {' in prompt
+    assert '"candidate_value": "novela"' in prompt

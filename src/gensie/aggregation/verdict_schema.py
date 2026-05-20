@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import unicodedata
 from dataclasses import dataclass, field
 from typing import Any, Literal, Mapping, Sequence
 
@@ -13,12 +14,19 @@ from gensie.aggregation.schema_utils import (
     schema_type,
     unwrap_nullable_schema,
 )
+from gensie.config import env_bool
 from gensie.pipeline.records import TrialRecord
+from gensie.runtime.unicode import normalize_model_output_strings
 from gensie.schemas.inspect import deref
 from gensie.task import Task
 
 
 VerdictKind = Literal["single", "array"]
+VerdictCandidateLayout = Literal["array", "slots"]
+VERDICT_EVIDENCE_MAX_LENGTH = 240
+VERDICT_EVIDENCE_MAX_LENGTH_SCHEMA_ENV = (
+    "GENSIE_SC_VERDICT_JUDGE_USE_EVIDENCE_MAX_LENGTH"
+)
 
 
 @dataclass(frozen=True)
@@ -112,46 +120,93 @@ def build_verdict_plan(
 
 
 def build_verdict_response_format(
-    task: Task, plan: VerdictPlan, *, name: str = "self_consistency_verdict_judge"
+    task: Task,
+    plan: VerdictPlan,
+    *,
+    name: str = "self_consistency_verdict_judge",
+    include_evidence_max_length: bool | None = None,
+    candidate_layout: VerdictCandidateLayout = "array",
 ) -> dict[str, Any]:
+    if include_evidence_max_length is None:
+        include_evidence_max_length = env_bool(
+            VERDICT_EVIDENCE_MAX_LENGTH_SCHEMA_ENV, False
+        )
+    candidate_layout = normalize_candidate_layout(candidate_layout)
     return {
         "type": "json_schema",
         "json_schema": {
             "name": name,
-            "schema": build_verdict_generation_schema(task.target_schema, plan),
+            "schema": build_verdict_generation_schema(
+                task.target_schema,
+                plan,
+                include_evidence_max_length=include_evidence_max_length,
+                candidate_layout=candidate_layout,
+            ),
             "strict": True,
         },
     }
 
 
-def build_verdict_generation_schema(root_schema: JsonDict, plan: VerdictPlan) -> JsonDict:
+def build_verdict_generation_schema(
+    root_schema: JsonDict,
+    plan: VerdictPlan,
+    *,
+    include_evidence_max_length: bool = False,
+    candidate_layout: VerdictCandidateLayout = "array",
+) -> JsonDict:
+    candidate_layout = normalize_candidate_layout(candidate_layout)
     properties: JsonDict = {}
     defs: JsonDict = {}
     original_defs = root_schema.get("$defs")
     if isinstance(original_defs, dict):
         defs.update(_compact_schema_for_generation({"$defs": original_defs}, root_schema).get("$defs", {}))
 
-    signature_names: dict[str, tuple[str, str]] = {}
+    candidate_names: dict[str, str] = {}
+    verdict_names: dict[str, str] = {}
     used_names: set[str] = set(defs)
 
     for field in plan.fields:
-        signature = field.kind + ":" + canonical_json(field.value_schema)
-        if signature not in signature_names:
+        candidate_signature = field.kind + ":" + canonical_json(field.value_schema)
+        if candidate_signature not in candidate_names:
             base = _definition_base_name(field.value_schema)
-            candidate_name = _unique_name(
-                f"Verdict{base}{'Array' if field.kind == 'array' else 'Single'}Candidate",
+            candidate_name = _candidate_definition_name(
+                field.kind,
+                base,
                 used_names,
+                candidate_layout=candidate_layout,
             )
-            verdict_name = _unique_name(
-                f"Verdict{base}{'Array' if field.kind == 'array' else 'Single'}",
+            defs[candidate_name] = _candidate_schema(
+                field.kind,
+                field.value_schema,
+                include_evidence_max_length=include_evidence_max_length,
+            )
+            candidate_names[candidate_signature] = candidate_name
+        candidate_name = candidate_names[candidate_signature]
+
+        verdict_signature = ":".join(
+            (
+                candidate_signature,
+                candidate_layout,
+                str(len(field.candidates)) if candidate_layout == "slots" else "*",
+            )
+        )
+        if verdict_signature not in verdict_names:
+            base = _definition_base_name(field.value_schema)
+            verdict_name = _verdict_definition_name(
+                field.kind,
+                base,
                 used_names,
+                candidate_layout=candidate_layout,
             )
-            defs[candidate_name] = _candidate_schema(field.kind, field.value_schema)
             defs[verdict_name] = _verdict_schema(
-                field.kind, field.value_schema, candidate_name
+                field.kind,
+                field.value_schema,
+                candidate_name,
+                candidate_count=len(field.candidates),
+                candidate_layout=candidate_layout,
             )
-            signature_names[signature] = (candidate_name, verdict_name)
-        properties[field.name] = {"$ref": f"#/$defs/{signature_names[signature][1]}"}
+            verdict_names[verdict_signature] = verdict_name
+        properties[field.name] = {"$ref": f"#/$defs/{verdict_names[verdict_signature]}"}
 
     schema: JsonDict = {
         "type": "object",
@@ -165,7 +220,11 @@ def build_verdict_generation_schema(root_schema: JsonDict, plan: VerdictPlan) ->
 
 
 def reconstruct_verdict_output(
-    plan: VerdictPlan, scope: JudgeScope, raw_output: Any
+    plan: VerdictPlan,
+    scope: JudgeScope,
+    raw_output: Any,
+    *,
+    candidate_layout: VerdictCandidateLayout = "array",
 ) -> JsonDict:
     return reconstruct_verdict_output_with_report(
         plan,
@@ -173,6 +232,7 @@ def reconstruct_verdict_output(
         raw_output,
         enforce_validation=True,
         report_validation=False,
+        candidate_layout=candidate_layout,
     ).output
 
 
@@ -184,9 +244,11 @@ def reconstruct_verdict_output_with_report(
     enforce_validation: bool = True,
     report_validation: bool = True,
     fallback_output: Mapping[str, Any] | None = None,
+    candidate_layout: VerdictCandidateLayout = "array",
 ) -> VerdictReconstruction:
     if not isinstance(raw_output, dict):
         raise ValueError("verdict judge output must be a JSON object")
+    candidate_layout = normalize_candidate_layout(candidate_layout)
 
     fallback = dict(fallback_output or {})
     validation_issues: list[JsonDict] = []
@@ -205,33 +267,17 @@ def reconstruct_verdict_output_with_report(
             )
             _use_fallback_field(judge_values, fallback, field.name)
             continue
-        candidates = verdict.get("candidates")
-        if not isinstance(candidates, list):
-            _validation_issue(
-                validation_issues,
-                enforce_validation=enforce_validation,
-                report_validation=report_validation,
-                field=field.name,
-                code="candidates_not_list",
-                message=f"verdict candidates must be a list: {field.name}",
-                actual=candidates,
-            )
+        candidate_entries = _candidate_entries(
+            field,
+            verdict.get("candidates"),
+            candidate_layout=candidate_layout,
+            issues=validation_issues,
+            enforce_validation=enforce_validation,
+            report_validation=report_validation,
+        )
+        if candidate_entries is None:
             _use_fallback_field(judge_values, fallback, field.name)
             continue
-        if len(candidates) != len(field.candidates):
-            _validation_issue(
-                validation_issues,
-                enforce_validation=enforce_validation,
-                report_validation=report_validation,
-                field=field.name,
-                code="candidate_count_mismatch",
-                message=(
-                    f"candidate count mismatch for {field.name}: "
-                    f"expected {len(field.candidates)}, got {len(candidates)}"
-                ),
-                expected=len(field.candidates),
-                actual=len(candidates),
-            )
 
         expected_keys = [
             canonical_json(candidate.value) for candidate in field.candidates
@@ -239,7 +285,7 @@ def reconstruct_verdict_output_with_report(
         expected_by_key = {
             canonical_json(candidate.value): candidate for candidate in field.candidates
         }
-        for index, actual in enumerate(candidates, start=1):
+        for index, actual in candidate_entries:
             if not isinstance(actual, dict):
                 _validation_issue(
                     validation_issues,
@@ -296,7 +342,8 @@ def reconstruct_verdict_output_with_report(
                 _use_fallback_field(judge_values, fallback, field.name)
                 continue
             value = verdict.get("value")
-            if canonical_json(value) not in expected_keys:
+            value_key = canonical_json(value)
+            if value_key not in expected_keys:
                 _validation_issue(
                     validation_issues,
                     enforce_validation=enforce_validation,
@@ -307,14 +354,29 @@ def reconstruct_verdict_output_with_report(
                     expected=[candidate.value for candidate in field.candidates],
                     actual=value,
                 )
+                if candidate_layout == "slots":
+                    slot_value = _slot_expected_value_for_returned_value(
+                        field,
+                        candidate_entries,
+                        value,
+                    )
+                    if slot_value is not _NO_SLOT_VALUE:
+                        value = slot_value
+            else:
+                value = expected_by_key[value_key].value
             judge_values[field.name] = copy.deepcopy(value)
         else:
             selected_keys: set[str] = set()
             selected_unexpected: list[Any] = []
-            for index, actual in enumerate(candidates, start=1):
+            for index, actual in candidate_entries:
                 if not isinstance(actual, dict):
                     continue
                 if actual.get("include") is True:
+                    if candidate_layout == "slots" and index <= len(field.candidates):
+                        selected_keys.add(
+                            canonical_json(field.candidates[index - 1].value)
+                        )
+                        continue
                     if "candidate_value" not in actual:
                         _validation_issue(
                             validation_issues,
@@ -359,9 +421,109 @@ def reconstruct_verdict_output_with_report(
             judge_values[field.name] = selected
 
     return VerdictReconstruction(
-        output=merge_judge_output(scope, judge_values),
+        output=normalize_model_output_strings(merge_judge_output(scope, judge_values)),
         validation_issues=tuple(validation_issues),
     )
+
+
+_NO_SLOT_VALUE = object()
+
+
+def _slot_expected_value_for_returned_value(
+    field: VerdictField,
+    candidate_entries: Sequence[tuple[int, Any]],
+    value: Any,
+) -> Any:
+    value_key = canonical_json(value)
+    for index, actual in candidate_entries:
+        if index > len(field.candidates) or not isinstance(actual, dict):
+            continue
+        if canonical_json(actual.get("candidate_value")) == value_key:
+            return copy.deepcopy(field.candidates[index - 1].value)
+    return _NO_SLOT_VALUE
+
+
+def normalize_candidate_layout(value: str | None) -> VerdictCandidateLayout:
+    return "slots" if value == "slots" else "array"
+
+
+def _candidate_entries(
+    field: VerdictField,
+    candidates: Any,
+    *,
+    candidate_layout: VerdictCandidateLayout,
+    issues: list[JsonDict],
+    enforce_validation: bool,
+    report_validation: bool,
+) -> list[tuple[int, Any]] | None:
+    if candidate_layout == "array":
+        if not isinstance(candidates, list):
+            _validation_issue(
+                issues,
+                enforce_validation=enforce_validation,
+                report_validation=report_validation,
+                field=field.name,
+                code="candidates_not_list",
+                message=f"verdict candidates must be a list: {field.name}",
+                actual=candidates,
+            )
+            return None
+        if len(candidates) != len(field.candidates):
+            _validation_issue(
+                issues,
+                enforce_validation=enforce_validation,
+                report_validation=report_validation,
+                field=field.name,
+                code="candidate_count_mismatch",
+                message=(
+                    f"candidate count mismatch for {field.name}: "
+                    f"expected {len(field.candidates)}, got {len(candidates)}"
+                ),
+                expected=len(field.candidates),
+                actual=len(candidates),
+            )
+        return list(enumerate(candidates, start=1))
+
+    if not isinstance(candidates, dict):
+        _validation_issue(
+            issues,
+            enforce_validation=enforce_validation,
+            report_validation=report_validation,
+            field=field.name,
+            code="candidates_not_object",
+            message=f"verdict candidates must be an object: {field.name}",
+            actual=candidates,
+        )
+        return None
+
+    expected_slots = {str(index) for index in range(1, len(field.candidates) + 1)}
+    for key in sorted(set(candidates) - expected_slots):
+        _validation_issue(
+            issues,
+            enforce_validation=enforce_validation,
+            report_validation=report_validation,
+            field=field.name,
+            code="extra_candidate_slot",
+            message=f"unexpected candidate slot for {field.name}: {key}",
+            actual=key,
+        )
+
+    entries: list[tuple[int, Any]] = []
+    for index in range(1, len(field.candidates) + 1):
+        key = str(index)
+        if key not in candidates:
+            _validation_issue(
+                issues,
+                enforce_validation=enforce_validation,
+                report_validation=report_validation,
+                field=field.name,
+                code="missing_candidate_slot",
+                message=f"missing candidate slot for {field.name}: {key}",
+                position=index,
+            )
+            continue
+        entries.append((index, candidates[key]))
+    return entries
 
 
 def _validation_issue(
@@ -420,7 +582,9 @@ def _scalar_candidates(
             },
         )
         _add_candidate_observation(entry, record)
-    return _sorted_candidates(groups.values())
+    return _sorted_candidates(
+        _merge_normalized_string_entries(groups.values(), total_trials=len(records))
+    )
 
 
 def _array_candidates(
@@ -448,7 +612,9 @@ def _array_candidates(
                 },
             )
             _add_candidate_observation(entry, record)
-    return _sorted_candidates(groups.values())
+    return _sorted_candidates(
+        _merge_normalized_string_entries(groups.values(), total_trials=len(records))
+    )
 
 
 def _add_candidate_observation(entry: dict[str, Any], record: TrialRecord) -> None:
@@ -456,6 +622,85 @@ def _add_candidate_observation(entry: dict[str, Any], record: TrialRecord) -> No
     entry["trial_indices"].append(record.index + 1)
     groups = entry["groups"]
     groups[record.group_name] = groups.get(record.group_name, 0) + 1
+
+
+def _merge_normalized_string_entries(
+    entries: Sequence[dict[str, Any]], *, total_trials: int
+) -> list[dict[str, Any]]:
+    string_groups: dict[str, list[dict[str, Any]]] = {}
+    merged: list[dict[str, Any]] = []
+    for entry in entries:
+        key = _normalized_string_candidate_key(entry.get("value"))
+        if key is None:
+            merged.append(entry)
+            continue
+        string_groups.setdefault(key, []).append(entry)
+
+    for group_entries in string_groups.values():
+        if len(group_entries) == 1:
+            merged.append(_entry_with_normalized_string_value(group_entries[0]))
+            continue
+        representative = sorted(
+            group_entries,
+            key=lambda entry: (
+                -int(entry["count"]),
+                entry["trial_indices"][0] if entry["trial_indices"] else 10**9,
+                canonical_json(entry["value"]),
+            ),
+        )[0]
+        merged_groups: dict[str, int] = {}
+        trial_indices = sorted(
+            {
+                int(index)
+                for entry in group_entries
+                for index in entry["trial_indices"]
+            }
+        )
+        for entry in group_entries:
+            for group_name, count in entry["groups"].items():
+                merged_groups[group_name] = merged_groups.get(group_name, 0) + int(count)
+        merged.append(
+            {
+                "value": _normalized_candidate_value(representative["value"]),
+                "count": min(
+                    total_trials,
+                    sum(int(entry["count"]) for entry in group_entries),
+                ),
+                "trial_indices": trial_indices,
+                "groups": merged_groups,
+            }
+        )
+    return merged
+
+
+def _entry_with_normalized_string_value(entry: dict[str, Any]) -> dict[str, Any]:
+    normalized = _normalized_candidate_value(entry["value"])
+    if normalized == entry["value"]:
+        return entry
+    return {
+        **entry,
+        "value": normalized,
+    }
+
+
+def _normalized_candidate_value(value: Any) -> Any:
+    if isinstance(value, str):
+        return normalize_model_output_strings(value)
+    return copy.deepcopy(value)
+
+
+def _normalized_string_candidate_key(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    normalized = normalize_model_output_strings(value).strip()
+    decomposed = unicodedata.normalize("NFD", normalized)
+    without_marks = "".join(
+        character
+        for character in decomposed
+        if unicodedata.category(character) != "Mn"
+    )
+    collapsed = " ".join(without_marks.split())
+    return collapsed.casefold()
 
 
 def _sorted_candidates(entries: Sequence[dict[str, Any]]) -> tuple[VerdictCandidate, ...]:
@@ -478,10 +723,18 @@ def _sorted_candidates(entries: Sequence[dict[str, Any]]) -> tuple[VerdictCandid
     )
 
 
-def _candidate_schema(kind: VerdictKind, value_schema: JsonDict) -> JsonDict:
+def _candidate_schema(
+    kind: VerdictKind,
+    value_schema: JsonDict,
+    *,
+    include_evidence_max_length: bool,
+) -> JsonDict:
+    evidence_schema: JsonDict = {"type": "string"}
+    if include_evidence_max_length:
+        evidence_schema["maxLength"] = VERDICT_EVIDENCE_MAX_LENGTH
     properties: JsonDict = {
         "candidate_value": copy.deepcopy(value_schema),
-        "evidence": {"type": "string"},
+        "evidence": evidence_schema,
     }
     required = ["candidate_value", "evidence"]
     if kind == "array":
@@ -496,14 +749,32 @@ def _candidate_schema(kind: VerdictKind, value_schema: JsonDict) -> JsonDict:
 
 
 def _verdict_schema(
-    kind: VerdictKind, value_schema: JsonDict, candidate_def_name: str
+    kind: VerdictKind,
+    value_schema: JsonDict,
+    candidate_def_name: str,
+    *,
+    candidate_count: int,
+    candidate_layout: VerdictCandidateLayout,
 ) -> JsonDict:
-    properties: JsonDict = {
-        "field": {"type": "string"},
-        "candidates": {
+    if candidate_layout == "slots":
+        candidate_keys = [str(index) for index in range(1, candidate_count + 1)]
+        candidates_schema: JsonDict = {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                key: {"$ref": f"#/$defs/{candidate_def_name}"}
+                for key in candidate_keys
+            },
+            "required": candidate_keys,
+        }
+    else:
+        candidates_schema = {
             "type": "array",
             "items": {"$ref": f"#/$defs/{candidate_def_name}"},
-        },
+        }
+    properties: JsonDict = {
+        "field": {"type": "string"},
+        "candidates": candidates_schema,
     }
     required = ["field", "candidates"]
     if kind == "single":
@@ -576,6 +847,44 @@ def _definition_base_name(schema: JsonDict) -> str:
     else:
         base = "Value"
     return f"Nullable{base}" if nullable else base
+
+
+def _candidate_definition_name(
+    kind: VerdictKind,
+    base: str,
+    used: set[str],
+    *,
+    candidate_layout: VerdictCandidateLayout,
+) -> str:
+    if candidate_layout == "slots":
+        return _short_definition_name(used)
+    return _unique_name(
+        f"Verdict{base}{'Array' if kind == 'array' else 'Single'}Candidate",
+        used,
+    )
+
+
+def _verdict_definition_name(
+    kind: VerdictKind,
+    base: str,
+    used: set[str],
+    *,
+    candidate_layout: VerdictCandidateLayout,
+) -> str:
+    if candidate_layout == "slots":
+        return _short_definition_name(used)
+    return _unique_name(
+        f"Verdict{base}{'Array' if kind == 'array' else 'Single'}",
+        used,
+    )
+
+
+def _short_definition_name(used: set[str]) -> str:
+    for name in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz":
+        if name not in used:
+            used.add(name)
+            return name
+    return _unique_name("D", used)
 
 
 def _unique_name(base: str, used: set[str]) -> str:

@@ -12,6 +12,7 @@ from gensie.aggregation import (
     VerdictJudgeAggregator,
 )
 from gensie.aggregation.base import Aggregator
+from gensie.aggregation.verdict_fsp import RagVerdictJudgeFspProvider
 from gensie.pipeline.context import PipelineContext
 from gensie.pipeline.records import AggregationResult, TrialRecord
 from gensie.pipeline.specs import (
@@ -165,9 +166,20 @@ class PipelineExecutionRunner:
             return HeuristicSelfConsistencyAggregator()
         if spec.aggregation.mode is AggregationMode.JUDGE:
             if spec.aggregation.options.get("variant") == "candidate_verdicts":
+                candidate_layout = str(
+                    spec.aggregation.options.get("candidate_layout") or "array"
+                )
+                if spec.aggregation.options.get("judge_fsp") == "rag":
+                    return VerdictJudgeAggregator(
+                        self.chat_client,
+                        judge_model=spec.aggregation.judge_model,
+                        fsp_provider=RagVerdictJudgeFspProvider(),
+                        candidate_layout=candidate_layout,
+                    )
                 return VerdictJudgeAggregator(
                     self.chat_client,
                     judge_model=spec.aggregation.judge_model,
+                    candidate_layout=candidate_layout,
                 )
             return JudgeAggregator(
                 self.chat_client,

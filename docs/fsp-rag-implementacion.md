@@ -24,6 +24,8 @@ Archivos principales:
   tags derivados, fingerprints y metadata de recuperación.
 - `rag.py`: `RagExtractionFspProvider`, provider inicial para `FewShotMode.RAG`,
   usando el ranker local en vez de devolver el primer recurso.
+- `aggregation/verdict_fsp.py`: `RagVerdictJudgeFspProvider` para FSP RAG del
+  juez `candidate_verdicts`, renderizado desde casos estructurados.
 - `schemas/projection.py`: helper común `build_reduced_schema()` para recortar
   schemas por campos de primer nivel.
 - `fsp/projection.py`: `project_structured_fsp_case()` para proyectar un caso
@@ -64,6 +66,18 @@ el `OfficialParticipant` y el CLI normal.
   RAG no mezcle instrucciones inglesas con prompts españoles.
 - En campos array del juez, `empty_trial_count` se renderiza como observación
   del campo, no como candidato.
+- `AggregationSpec.options["judge_fsp"] == "rag"` activa
+  `RagVerdictJudgeFspProvider` cuando la variante del juez es
+  `candidate_verdicts`.
+- El pipeline público `mixed-extractors-self-consistency-verdict-judge-rag`
+  reutiliza los extractores mixtos y usa el FSP RAG en el juez de veredictos.
+- El pipeline público `mixed-extractors-self-consistency-verdict-judge-rag-slots`
+  conserva el mismo juez RAG, pero usa `candidate_layout="slots"` para forzar
+  la cantidad de candidatos con propiedades requeridas `"1"`, `"2"`, ... dentro
+  de `candidates`.
+- El FSP RAG de `candidate_verdicts` renderiza instrucción, schema Pydantic de
+  veredictos, texto fuente, campos estables opcionales, candidatos y `SALIDA`
+  desde el mismo caso estructurado.
 - Los `evidence` de candidatos array deben mencionar fragmentos verbatim
   concretos del texto fuente, con `[...]` si hace falta abreviar; no deben ser
   conclusiones genéricas del estilo "el texto respalda explícitamente...".
@@ -80,7 +94,7 @@ el `OfficialParticipant` y el CLI normal.
 .venv\Scripts\python.exe -m pytest tests\test_fsp_rag_examples.py tests\test_schema_prompt_modules.py tests\test_single_extraction_pipeline.py tests\test_multi_trial_runner.py tests\test_judge_aggregation.py -p no:cacheprovider
 ```
 
-Resultado más reciente: `58 passed` en la suite amplia tocada; `14 passed` en
+Resultado más reciente: `56 passed` en la suite amplia tocada; `16 passed` en
 `tests/test_fsp_rag_examples.py`.
 
 ## Pendiente
@@ -114,16 +128,10 @@ Resultado más reciente: `58 passed` en la suite amplia tocada; `14 passed` en
 ### Juez RAG
 
 - Implementar `RagJudgeFspProvider` para `reasoned_output`.
-- Implementar `RagVerdictJudgeFspProvider` para `candidate_verdicts`.
-- Conectar `AggregationSpec.options["judge_fsp"] == "rag"` en la factory del
-  agregador.
-- Usar `project_structured_fsp_case()` para renderizar solo los campos
-  disputados cuando el caso recuperado tenga el mismo schema.
-- Renderizar el FSP completo del juez, no solo `VALORES CANDIDATOS POR CAMPO`:
-  instrucción, schema reducido, texto fuente, campos estables opcionales,
-  candidatos y `SALIDA`.
-- Respetar `GENSIE_SC_JUDGE_INCLUDE_STABLE_FIELDS` y
-  `GENSIE_SC_JUDGE_INCLUDE_SUPPORT_COUNTS`.
+- Conectar `AggregationSpec.options["judge_fsp"] == "rag"` para
+  `reasoned_output`.
+- Mejorar la proyección/ranking del FSP de juez cuando el schema recuperado no
+  coincida exactamente, sin fingir nombres de campos del task real.
 - Dejar fuera inicialmente los reasonings de trials aunque
   `GENSIE_SC_JUDGE_INCLUDE_SCALAR_REASONINGS` y
   `GENSIE_SC_JUDGE_INCLUDE_ARRAY_REASONINGS` afecten el prompt real.
