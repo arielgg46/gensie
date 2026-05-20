@@ -3,6 +3,7 @@ from __future__ import annotations
 from gensie.fsp import (
     FSPProvider,
     NoFSPProvider,
+    RagExtractionFspProvider,
     fixed_reasoning_provider,
     super_static_provider,
 )
@@ -50,6 +51,16 @@ def default_pipeline_specs() -> tuple[PipelineSpec, ...]:
                 reasoning=ReasoningMode.TOP_LEVEL,
                 schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
                 few_shot=FewShotMode.FIXED,
+            ),
+        ),
+        PipelineSpec(
+            name="enriched-inline-reasoning-rag",
+            description="Top-level reasoning/value wrappers with a reasoned Pydantic schema prompt and retrieved structured FSP.",
+            extraction=ExtractionSpec(
+                name="enriched-inline-reasoning-rag",
+                reasoning=ReasoningMode.TOP_LEVEL,
+                schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+                few_shot=FewShotMode.RAG,
             ),
         ),
         PipelineSpec(
@@ -269,4 +280,6 @@ def default_fsp_provider_for(spec: PipelineSpec) -> FSPProvider:
         return fixed_reasoning_provider(spec.extraction.reasoning)
     if few_shot is FewShotMode.SUPER_STATIC:
         return super_static_provider()
+    if few_shot is FewShotMode.RAG:
+        return RagExtractionFspProvider()
     return NoFSPProvider()

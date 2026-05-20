@@ -8,16 +8,24 @@ from gensie.fsp.fixed import (
     build_enriched_inline_reasoning_few_shot_example,
     build_inline_reasoning_few_shot_example,
 )
+from gensie.fsp.rag import RagExtractionFspProvider
 from gensie.fsp.super import build_super_fsp_example
 from gensie.pipeline.context import PipelineContext
-from gensie.pipeline.specs import ExtractionSpec, PhaseKind, ReasoningMode
+from gensie.pipeline.specs import (
+    ExtractionSpec,
+    FewShotMode,
+    PhaseKind,
+    ReasoningMode,
+)
 from gensie.prompts.base import PromptBundle, PromptBuilder
+from gensie.prompts.extraction import ExtractionPromptBuilder
 from gensie.prompts.system import (
     BASE_EXTRACTION_SYSTEM_PROMPT,
     DEEP_INLINE_REASONING_SYSTEM_PROMPT,
     ENRICHED_SCHEMA_SYSTEM_PROMPT,
     ENRICHED_INLINE_REASONING_SYSTEM_PROMPT,
     INLINE_REASONING_SYSTEM_PROMPT,
+    STRICT_ANCHORING_RULE,
 )
 from gensie.schemas.clean import clean_schema_for_prompt
 from gensie.schemas.pydantic_render import (
@@ -35,6 +43,11 @@ class ReferenceExtractionPromptBuilder(PromptBuilder):
         self, context: PipelineContext, extraction: ExtractionSpec
     ) -> PromptBundle:
         task = context.task
+        if extraction.few_shot is FewShotMode.RAG:
+            return ExtractionPromptBuilder(
+                fsp_provider=RagExtractionFspProvider()
+            ).build(context, extraction)
+
         if extraction.name == "enriched-schema":
             return PromptBundle(
                 system=ENRICHED_SCHEMA_SYSTEM_PROMPT,
@@ -87,7 +100,7 @@ class ReferenceExtractionPromptBuilder(PromptBuilder):
 
 def build_inline_reasoning_prompt(task: Task) -> str:
     _, root_description = clean_schema_for_prompt(task.target_schema)
-    schema_description = root_description or "No root schema description provided."
+    schema_description = root_description or "El schema no proporciona descripción raíz."
     prompt_schema = build_inline_reasoning_prompt_schema(task.target_schema)
     schema_json = json.dumps(prompt_schema, ensure_ascii=False, indent=2)
     few_shot_example = build_inline_reasoning_few_shot_example() + "\n"
@@ -106,6 +119,7 @@ def build_inline_reasoning_prompt(task: Task) -> str:
         "- value contiene solo la respuesta final, sin explicaciones.\n"
         "- En objetos, arrays de objetos y arrays de simples, haz un único reasoning para todo el campo y luego rellena value completo. No repitas elementos.\n"
         "- Si un string pide verbatim, usa el span relevante completo cuando sea posible.\n\n"
+        f"{STRICT_ANCHORING_RULE}\n\n"
         "SCHEMA:\n"
         f"{schema_json}\n\n"
         "TEXTO FUENTE:\n"
@@ -127,7 +141,7 @@ def build_enriched_inline_reasoning_prompt(
 
 def build_enriched_schema_prompt(task: Task) -> str:
     _, root_description = clean_schema_for_prompt(task.target_schema)
-    schema_description = root_description or "No root schema description provided."
+    schema_description = root_description or "El schema no proporciona descripción raíz."
     schema_code = render_plain_pydantic_schema(task.target_schema)
 
     return (
@@ -139,7 +153,7 @@ def build_enriched_schema_prompt(task: Task) -> str:
         "- No incluyas campos `reasoning`, `value` ni explicaciones dentro del JSON.\n"
         "- Si no hay evidencia suficiente y el campo permite null, usa null.\n"
         "- Si un array no tiene elementos apoyados por el texto, usa [].\n"
-        "- Si un campo pide fragmento verbatim/source text/evidence, copia el fragmento mínimo completo del texto que responde la pregunta; no devuelvas solo la entidad o respuesta normalizada.\n"
+        "- Si un campo pide fragmento verbatim/texto fuente/evidencia, copia el fragmento mínimo completo del texto que responde la pregunta; no devuelvas solo la entidad o respuesta normalizada.\n"
         "- En enums, el valor debe coincidir exactamente con una opción del schema.\n"
         "- No uses conocimiento externo.\n\n"
         "INSTRUCCIÓN:\n"
@@ -162,7 +176,7 @@ def build_enriched_inline_reasoning_super_fsp_prompt(task: Task) -> str:
 
 def build_enriched_deep_inline_reasoning_prompt(task: Task) -> str:
     _, root_description = clean_schema_for_prompt(task.target_schema)
-    schema_description = root_description or "No root schema description provided."
+    schema_description = root_description or "El schema no proporciona descripción raíz."
     schema_code = render_deep_reasoned_pydantic_schema(task.target_schema)
     few_shot_example = build_enriched_deep_inline_reasoning_few_shot_example() + "\n"
 
@@ -178,10 +192,11 @@ def build_enriched_deep_inline_reasoning_prompt(task: Task) -> str:
         "- reasoning debe citar texto exacto del TEXTO FUENTE cuando exista evidencia.\n"
         "- Si no hay evidencia suficiente y value permite null, usa null y explica por qué.\n"
         "- value contiene solo la respuesta final de ese campo, subcampo o elemento, sin explicaciones.\n"
-        "- Si un campo pide fragmento verbatim/source text/evidence, copia el fragmento mínimo completo del texto que responde la pregunta; no devuelvas solo la entidad o respuesta normalizada.\n"
+        "- Si un campo pide fragmento verbatim/texto fuente/evidencia, copia el fragmento mínimo completo del texto que responde la pregunta; no devuelvas solo la entidad o respuesta normalizada.\n"
         "- Reasoned[T] significa que ese nodo se genera como {\"reasoning\": str, \"value\": T}.\n"
         "- La description de un campo Reasoned[T] describe su value.\n"
         "- Nullable[T] significa que value puede ser null, pero el campo Reasoned[T] no se puede omitir.\n\n"
+        f"{STRICT_ANCHORING_RULE}\n\n"
         f"{few_shot_example}"
         "INSTRUCCIÓN:\n"
         f"{task.instruction}\n"
@@ -200,7 +215,7 @@ def _build_enriched_inline_reasoning_prompt(
     verbatim_entity_list: list[str] | None,
 ) -> str:
     _, root_description = clean_schema_for_prompt(task.target_schema)
-    schema_description = root_description or "No root schema description provided."
+    schema_description = root_description or "El schema no proporciona descripción raíz."
     schema_code = render_reasoned_pydantic_schema(task.target_schema)
     verbatim_entity_block = _build_verbatim_entity_list_prompt_block(verbatim_entity_list)
 
@@ -214,12 +229,13 @@ def _build_enriched_inline_reasoning_prompt(
         "- reasoning debe citar texto exacto del TEXTO FUENTE cuando exista evidencia.\n"
         "- Si no hay evidencia suficiente y value permite null, usa null y explica por qué.\n"
         "- value contiene solo la respuesta final, sin explicaciones.\n"
-        "- Si un campo pide fragmento verbatim/source text/evidence, copia el fragmento mínimo completo del texto que responde la pregunta; no devuelvas solo la entidad o respuesta normalizada.\n"
+        "- Si un campo pide fragmento verbatim/texto fuente/evidencia, copia el fragmento mínimo completo del texto que responde la pregunta; no devuelvas solo la entidad o respuesta normalizada.\n"
         "- Reasoned[T] significa que el campo se genera como {\"reasoning\": str, \"value\": T}.\n"
         "- La description de un campo Reasoned[T] describe su value.\n"
         "- Nullable[T] significa que value puede ser null, pero el campo no se puede omitir.\n"
         "- En objetos, arrays de objetos y arrays de simples, haz un único reasoning para todo el campo y luego rellena value completo. Razona sobre cada campo de cada elemento. No repitas elementos.\n"
         "- En enums razona explícitamente sobre la pertenencia a cada una de las categorías.\n\n"
+        f"{STRICT_ANCHORING_RULE}\n\n"
         f"{few_shot_example}"
         "INSTRUCCIÓN:\n"
         f"{task.instruction}\n"

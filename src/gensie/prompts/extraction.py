@@ -13,6 +13,7 @@ from gensie.prompts.system import (
     BASE_EXTRACTION_SYSTEM_PROMPT,
     DEEP_INLINE_REASONING_SYSTEM_PROMPT,
     INLINE_REASONING_SYSTEM_PROMPT,
+    STRICT_ANCHORING_RULE,
 )
 
 
@@ -56,18 +57,18 @@ def build_extraction_prompt(
 ) -> str:
     task = context.task
     sections: list[str] = [
-        "TASK:",
-        "Extract structured information from the SOURCE TEXT.",
+        "TAREA:",
+        "Extrae información estructurada del TEXTO FUENTE.",
         "",
-        "INSTRUCTION:",
+        "INSTRUCCIÓN:",
         task.instruction,
     ]
 
     if schema_view.root_description:
-        sections.extend(["", "SCHEMA DESCRIPTION:", schema_view.root_description])
+        sections.extend(["", "DESCRIPCIÓN DEL SCHEMA:", schema_view.root_description])
 
     if include_default_rules:
-        sections.extend(["", "RULES:", *_rules_for_reasoning(extraction.reasoning)])
+        sections.extend(["", "REGLAS:", *_rules_for_reasoning(extraction.reasoning)])
 
     fsp_block = _render_fsp_examples(context, extraction, fsp_provider)
     if fsp_block:
@@ -83,7 +84,7 @@ def build_extraction_prompt(
             f"{schema_view.heading}:",
             schema_view.content.rstrip(),
             "",
-            "SOURCE TEXT:",
+            "TEXTO FUENTE:",
             task.input_text,
         ]
     )
@@ -101,24 +102,26 @@ def system_prompt_for_reasoning(reasoning: ReasoningMode | str) -> str:
 
 def _rules_for_reasoning(reasoning: ReasoningMode) -> list[str]:
     common = [
-        "- Ground every non-null value in the source text.",
-        "- Use null only when the schema allows it and evidence is absent.",
-        "- Use [] for arrays when no supported items are found.",
-        "- Do not add external facts.",
+        "- Fundamenta cada value no nulo en el texto fuente.",
+        "- Usa null solo cuando el schema lo permita y no haya evidencia suficiente.",
+        "- Usa [] para arrays cuando no encuentres elementos respaldados por el texto.",
+        "- No añadas hechos externos.",
     ]
     if reasoning is ReasoningMode.TOP_LEVEL:
         return [
-            "- For each top-level field, fill reasoning before value.",
-            "- reasoning should cite exact evidence or explain why evidence is absent.",
-            "- value contains only the final answer.",
+            "- Para cada campo de primer nivel, escribe reasoning antes de value.",
+            "- reasoning debe citar evidencia exacta o explicar por qué no hay evidencia suficiente.",
+            "- value contiene solo la respuesta final.",
             *common,
+            STRICT_ANCHORING_RULE,
         ]
     if reasoning is ReasoningMode.DEEP:
         return [
-            "- For every field, nested field, and array item, fill reasoning before value.",
-            "- reasoning should cite exact evidence or explain why evidence is absent.",
-            "- value contains only the final answer for that wrapper.",
+            "- Para cada campo, subcampo y elemento de array, escribe reasoning antes de value.",
+            "- reasoning debe citar evidencia exacta o explicar por qué no hay evidencia suficiente.",
+            "- value contiene solo la respuesta final de ese nodo.",
             *common,
+            STRICT_ANCHORING_RULE,
         ]
     return common
 
@@ -132,12 +135,12 @@ def _render_fsp_examples(
     if not examples:
         return ""
 
-    blocks = ["FEW-SHOT EXAMPLES:"]
+    blocks = ["EJEMPLOS FEW-SHOT:"]
     for index, example in enumerate(examples, start=1):
-        blocks.append(f"Example {index}: {example.name}")
+        blocks.append(f"Ejemplo {index}: {example.name}")
         blocks.append(example.prompt.rstrip())
         if example.output:
-            blocks.append("OUTPUT:")
+            blocks.append("SALIDA:")
             blocks.append(json.dumps(example.output, ensure_ascii=False, indent=2))
     return "\n".join(blocks)
 
@@ -148,8 +151,8 @@ def _render_phase_context(value: Any) -> str:
     if isinstance(value, Mapping):
         serializable = value
     else:
-        serializable = {"items": value}
+        serializable = {"elementos": value}
     return (
-        "PRE-EXTRACTION CONTEXT:\n"
+        "CONTEXTO PREVIO A LA EXTRACCIÓN:\n"
         + json.dumps(serializable, ensure_ascii=False, indent=2)
     )

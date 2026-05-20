@@ -7,6 +7,7 @@ from typing import Any, Sequence
 from gensie.aggregation.schema_utils import JsonDict, canonical_json, schema_type
 from gensie.pipeline.records import TrialRecord
 from gensie.schemas.inspect import deref
+from gensie.schemas.projection import build_reduced_schema
 
 
 MISSING = object()
@@ -74,25 +75,6 @@ def build_judge_scope(records: Sequence[TrialRecord], schema: JsonDict) -> Judge
         reduced_schema=build_reduced_schema(schema, disputed_fields),
         stable_sources=stable_sources,
     )
-
-
-def build_reduced_schema(schema: JsonDict, field_names: Sequence[str]) -> JsonDict:
-    field_set = set(field_names)
-    reduced = copy.deepcopy(schema)
-    properties = reduced.get("properties")
-    if isinstance(properties, dict):
-        reduced["properties"] = {
-            name: value for name, value in properties.items() if name in field_set
-        }
-    else:
-        reduced["properties"] = {}
-
-    required = reduced.get("required")
-    if isinstance(required, list):
-        reduced["required"] = [name for name in required if name in field_set]
-    else:
-        reduced["required"] = list(field_names)
-    return reduced
 
 
 def merge_judge_output(scope: JudgeScope, judge_output: JsonDict) -> JsonDict:

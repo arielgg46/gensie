@@ -16,6 +16,7 @@ from gensie.schemas.pydantic_render import (
     render_plain_pydantic_schema,
     render_reasoned_pydantic_schema,
 )
+from gensie.schemas.projection import build_reduced_schema
 from gensie.schemas.reasoning import (
     build_deep_inline_reasoning_schema,
     build_inline_reasoning_prompt_schema,
@@ -33,6 +34,7 @@ __all__ = [
     "build_deep_inline_reasoning_schema",
     "build_inline_reasoning_prompt_schema",
     "build_inline_reasoning_schema",
+    "build_reduced_schema",
     "clean_schema_for_prompt",
     "deref",
     "extract_reasoning_view",

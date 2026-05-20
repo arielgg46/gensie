@@ -249,7 +249,7 @@ def build_super_fsp_example() -> str:
         f"{schema_code}\n"
         "TEXTO FUENTE DEL EJEMPLO:\n"
         f"{SUPER_FSP_INPUT_TEXT}\n\n"
-        "OUTPUT DEL EJEMPLO:\n"
+        "SALIDA DEL EJEMPLO:\n"
         f"{output_json}\n\n"
         "FIN DEL EJEMPLO.\n"
     )

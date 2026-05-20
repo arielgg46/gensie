@@ -44,40 +44,40 @@ _VERBATIM_ENTITY_SCHEMA: JsonDict = {
         "personas": {
             "type": "array",
             "description": (
-                "Person names, fictional characters, or named human groups copied "
-                "verbatim from the source text."
+                "Nombres de personas, personajes ficticios o grupos humanos "
+                "nombrados copiados verbatim del texto fuente."
             ),
             "items": {"type": "string"},
         },
         "organizaciones": {
             "type": "array",
             "description": (
-                "Organizations, institutions, companies, agencies, parties, teams, "
-                "or named collectives copied verbatim from the source text."
+                "Organizaciones, instituciones, empresas, agencias, partidos, equipos "
+                "o colectivos nombrados copiados verbatim del texto fuente."
             ),
             "items": {"type": "string"},
         },
         "fechas": {
             "type": "array",
             "description": (
-                "Dates, years, and periods copied verbatim "
-                "from the source text; do not normalize them."
+                "Fechas, años y periodos copiados verbatim del texto fuente; "
+                "no los normalices."
             ),
             "items": {"type": "string"},
         },
         "lugares": {
             "type": "array",
             "description": (
-                "Places, cities, countries, regions, facilities, geographic names, "
-                "or location mentions copied verbatim from the source text."
+                "Lugares, ciudades, países, regiones, instalaciones, nombres "
+                "geográficos o menciones de ubicación copiadas verbatim del texto fuente."
             ),
             "items": {"type": "string"},
         },
         "otros": {
             "type": "array",
             "description": (
-                "Other named or salient entities copied verbatim from the source "
-                "text that are not persons, organizations, dates, or places."
+                "Otras entidades nombradas o salientes copiadas verbatim del texto "
+                "fuente que no sean personas, organizaciones, fechas ni lugares."
             ),
             "items": {"type": "string"},
         },

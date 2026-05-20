@@ -76,8 +76,7 @@
       "novela polifónica"
     ],
     "key_themes": [
-      "tradición caballeresca",
-      "tradición cortés",
+      "tradición caballeresca y cortés",
       "tratamiento burlesco"
     ],
     "original_language": null
@@ -87,5 +86,5 @@
     "domain": "cultural",
     "subdomain": "literature"
   },
-  "golden_note": "El title queda 'Don Quijote de la Mancha', porque es el nombre con el que se presenta la obra descrita en el fragmento, mientras que 'El ingenioso hidalgo...' aparece como título de la primera parte de 1605. En genres mantengo solo etiquetas apoyadas por el propio texto y evito añadir clasificaciones literarias externas. También dejo original_language en null: que sea una obra central de la literatura española no explicita de forma suficiente la lengua original de redacción para un benchmark con grounding estricto."
+  "golden_note": "El title queda 'Don Quijote de la Mancha', porque es el nombre con el que se presenta la obra descrita en el fragmento, mientras que 'El ingenioso hidalgo...' aparece como título de la primera parte de 1605. En genres mantengo solo etiquetas apoyadas por el propio texto y evito añadir clasificaciones literarias externas. También dejo original_language en null: que sea una obra central de la literatura española no explicita de forma suficiente la lengua original de redacción para un benchmark con grounding estricto. Junté 'tradición caballeresca y cortés' porque parece ser una sola cosa que no conviene separar en 'tradición caballeresca' y 'tradición cortés'"
 }

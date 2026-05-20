@@ -11,6 +11,7 @@ from gensie.pipeline import (
     SchemaPromptMode,
 )
 from gensie.prompts import ExtractionPromptBuilder, render_schema_view
+from gensie.prompts.system import STRICT_ANCHORING_RULE
 from gensie.schemas import (
     build_deep_inline_reasoning_schema,
     build_inline_reasoning_prompt_schema,
@@ -95,9 +96,9 @@ def test_field_parser_and_cards_walk_nested_refs_and_nullable_fields():
     assert by_name["mentions"].items.properties[0].path == "mentions[].text"
 
     cards = render_field_cards(_schema())
-    assert "person :: string (required)" in cards
-    assert "year :: nullable[integer] (optional)" in cards
-    assert "mentions[].label :: string (required)" in cards
+    assert "person :: string (requerido)" in cards
+    assert "year :: nullable[integer] (opcional)" in cards
+    assert "mentions[].label :: string (requerido)" in cards
 
 
 def test_pydantic_renderers_cover_final_top_level_and_deep_reasoning():
@@ -260,10 +261,12 @@ def test_extraction_prompt_builder_keeps_fsp_separate_from_schema_view():
 
     assert "Eres un motor experto de extracción de información en español" in bundle.system
     assert "razonamiento antes del valor final" in bundle.system
-    assert "FEW-SHOT EXAMPLES:" in bundle.user
-    assert "Example 1: mini" in bundle.user
+    assert STRICT_ANCHORING_RULE in bundle.system
+    assert "EJEMPLOS FEW-SHOT:" in bundle.user
+    assert "Ejemplo 1: mini" in bundle.user
+    assert STRICT_ANCHORING_RULE in bundle.user
     assert "SCHEMA PYDANTIC:" in bundle.user
     assert "person: Reasoned[str]" in bundle.user
-    assert "SOURCE TEXT:" in bundle.user
+    assert "TEXTO FUENTE:" in bundle.user
     assert "Ada Lovelace published notes" in bundle.user
     assert bundle.metadata["reasoning"] == "top_level"

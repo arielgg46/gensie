@@ -72,48 +72,61 @@ CULTURAL_LITERATURE_FEW_SHOT_SCHEMA: JsonDict = {
 CULTURAL_LITERATURE_FEW_SHOT_OUTPUT: JsonDict = {
     "title": {
         "reasoning": (
-            "EL CAMPO PIDE el título oficial de la obra literaria. "
-            "FRAGMENTOS RELEVANTES: el texto abre con \"# Don Quijote de la Mancha\" "
-            "y luego repite \"Don Quijote de la Mancha es una novela\". "
-            "POR TANTO EL VALOR FINAL debe ser el título principal usado para la obra completa."
+            "EL CAMPO PIDE: el título oficial de la obra literaria.\n"
+            
+            "FRAGMENTOS RELEVANTES: el texto abre con \"# Don Quijote de la Mancha\" y luego repite \"Don Quijote de la Mancha es una novela\". Luego dice \"Publicada su primera parte con el título de El ingenioso hidalgo don Quijote de la Mancha\" y \"En 1615 apareció su continuación con el título de Segunda parte del ingenioso caballero don Quijote de la Mancha\".\n"
+            
+            "VALOR FINAL: los dos últimos fragmentos mencionan títulos de partes independientes, pero como se pide el título oficial este debe ser el principal usado para la obra completa: Don Quijote de la Mancha."
         ),
         "value": "Don Quijote de la Mancha",
     },
     "author": {
         "reasoning": (
-            "EL CAMPO PIDE el autor principal. FRAGMENTOS RELEVANTES: "
-            "\"es una novela escrita por el español Miguel de Cervantes Saavedra\". "
-            "POR TANTO EL VALOR FINAL es el nombre completo del autor."
+            "EL CAMPO PIDE: el autor principal de la obra.\n"
+            
+            "FRAGMENTOS RELEVANTES: \"Don Quijote de la Mancha es una novela escrita por el español Miguel de Cervantes Saavedra\".\n"
+            
+            "VALOR FINAL: es el nombre completo del autor: Miguel de Cervantes Saavedra."
         ),
         "value": "Miguel de Cervantes Saavedra",
     },
     "publication_year": {
         "reasoning": (
-            "EL CAMPO PIDE el año de primera publicación. FRAGMENTOS RELEVANTES: "
-            "\"a comienzos de 1605\"; 1615 corresponde a la continuación. "
-            "POR TANTO EL VALOR FINAL es 1605."
+            "EL CAMPO PIDE: el año de la primera publicación de la obra (null si no hay suficiente evidencia en el texto).\n"
+            
+            "FRAGMENTOS RELEVANTES: \"Publicada su primera parte [...] a comienzos de 1605\" y \"En 1615 apareció su continuación\"\n"
+            
+            "VALOR FINAL: es el año de publicación de la primera parte: 1605."
         ),
         "value": 1605,
     },
     "genres": {
         "reasoning": (
-            "EL CAMPO PIDE géneros literarios. FRAGMENTOS RELEVANTES: "
-            "\"es una novela\", \"primera novela moderna\" y \"primera novela polifónica\"."
+            "EL CAMPO PIDE: géneros literarios asociados con la obra.\n"
+            
+            "FRAGMENTOS RELEVANTES: \"Don Quijote de la Mancha es una novela\", \"Representa la primera novela moderna y la primera novela polifónica\".\n"
+            
+            "VALOR FINAL: lista con los géneros mencionados: novela, novela moderna, novela polifónica"
         ),
         "value": ["novela", "novela moderna", "novela polifónica"],
     },
     "key_themes": {
         "reasoning": (
-            "EL CAMPO PIDE temas principales. FRAGMENTOS RELEVANTES: "
-            "\"tradición caballeresca y cortés\" y \"tratamiento burlesco\"."
+            "EL CAMPO PIDE: tópicos o temas principales explorados en la obra.\n"
+            
+            "FRAGMENTOS RELEVANTES: \"Es la primera obra genuinamente desmitificadora de la tradición caballeresca y cortés por su tratamiento burlesco\".\n"
+
+            "VALOR FINAL: lista con los elementos mencionados: tradición caballeresca y cortés, tratamiento burlesco."
         ),
-        "value": ["tradición caballeresca", "tradición cortés", "tratamiento burlesco"],
+        "value": ["tradición caballeresca y cortés", "tratamiento burlesco"],
     },
     "original_language": {
         "reasoning": (
-            "EL CAMPO PIDE la lengua original. El texto habla de literatura española, "
-            "pero no afirma explícitamente la lengua original. Como el schema permite null, "
-            "POR TANTO EL VALOR FINAL debe ser null."
+            "EL CAMPO PIDE: el lenguaje en que la obra fue escrita originalmente (null si no hay suficiente evidencia en el texto).\n"
+            
+            "FRAGMENTOS RELEVANTES: \"escrita por el español Miguel de Cervantes\" y \"es la obra más destacada de la literatura española\".\n"
+            
+            "VALOR FINAL: se menciona la nacionalidad del autor y se asocia la obra a la literatura española, pero no se afirma explícitamente que su lenguaje original sea el español, por tanto debe ser: null."
         ),
         "value": None,
     },
@@ -138,12 +151,12 @@ def build_inline_reasoning_few_shot_example() -> str:
         "Este ejemplo muestra cómo razonar dentro de cada campo antes de escribir value.\n\n"
         "INSTRUCCIÓN DEL EJEMPLO:\n"
         f"{CULTURAL_LITERATURE_FEW_SHOT_INSTRUCTION}\n"
-        f"{schema_description or 'No root schema description provided.'}\n\n"
+        f"{schema_description or 'El schema no proporciona descripción raíz.'}\n\n"
         "SCHEMA DEL EJEMPLO:\n"
         f"{schema_json}\n\n"
         "TEXTO FUENTE DEL EJEMPLO:\n"
         f"{CULTURAL_LITERATURE_FEW_SHOT_INPUT_TEXT}\n\n"
-        "OUTPUT DEL EJEMPLO:\n"
+        "SALIDA DEL EJEMPLO:\n"
         f"{output_json}\n\n"
         "FIN DEL EJEMPLO.\n"
     )
@@ -157,16 +170,15 @@ def build_enriched_inline_reasoning_few_shot_example() -> str:
     output_json = json.dumps(output, ensure_ascii=False, indent=2)
     return (
         "EJEMPLO:\n"
-        "Este ejemplo muestra cómo citar evidencia, razonar antes de escribir value "
-        "y copiar fragmentos verbatim largos cuando un campo lo pide.\n\n"
+        "Este ejemplo muestra cómo razonar antes de escribir value: determinar precisamente qué se requiere (EL CAMPO PIDE), citar TODA la evidencia textual relacionada (FRAGMENTOS RELEVANTES) y luego razonar sobre el value (VALOR FINAL).\n\n"
         "INSTRUCCIÓN DEL EJEMPLO:\n"
         f"{CULTURAL_LITERATURE_FEW_SHOT_INSTRUCTION} Incluye también el fragmento verbatim completo que evidencia su importancia literaria.\n"
-        f"{schema_description or 'No root schema description provided.'}\n\n"
+        f"{schema_description or 'El schema no proporciona descripción raíz.'}\n\n"
         "SCHEMA PYDANTIC DEL EJEMPLO:\n"
         f"{schema_code}\n"
         "TEXTO FUENTE DEL EJEMPLO:\n"
         f"{CULTURAL_LITERATURE_FEW_SHOT_INPUT_TEXT}\n\n"
-        "OUTPUT DEL EJEMPLO:\n"
+        "SALIDA DEL EJEMPLO:\n"
         f"{output_json}\n\n"
         "FIN DEL EJEMPLO.\n"
     )
@@ -184,12 +196,12 @@ def build_enriched_deep_inline_reasoning_few_shot_example() -> str:
         "elementos de arrays usan reasoning y value.\n\n"
         "INSTRUCCIÓN DEL EJEMPLO:\n"
         f"{CULTURAL_LITERATURE_FEW_SHOT_INSTRUCTION} Incluye también el fragmento verbatim completo que evidencia su importancia literaria.\n"
-        f"{schema_description or 'No root schema description provided.'}\n\n"
+        f"{schema_description or 'El schema no proporciona descripción raíz.'}\n\n"
         "SCHEMA PYDANTIC DEL EJEMPLO:\n"
         f"{schema_code}\n"
         "TEXTO FUENTE DEL EJEMPLO:\n"
         f"{CULTURAL_LITERATURE_FEW_SHOT_INPUT_TEXT}\n\n"
-        "OUTPUT DEL EJEMPLO:\n"
+        "SALIDA DEL EJEMPLO:\n"
         f"{output_json}\n\n"
         "FIN DEL EJEMPLO.\n"
     )

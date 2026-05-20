@@ -7,7 +7,7 @@ from gensie.schemas.clean import clean_schema_for_prompt
 from gensie.schemas.inspect import JsonDict, deref, schema_type, unwrap_nullable_anyof
 
 REASONING_FIELD_DESCRIPTION = (
-    "Reason about the field using source-text evidence, then put the final answer in value."
+    "Razona sobre el campo usando evidencia del texto fuente y coloca la respuesta final en value."
 )
 
 

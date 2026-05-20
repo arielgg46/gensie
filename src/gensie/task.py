@@ -32,7 +32,7 @@ class Task(BaseModel):
         schema_class: Type[GenSIESchema],
         output: Optional[Dict[str, Any]] = None,
         task_id: str = "",
-        instruction: str = "Extract the structured data from the text following the provided schema.",
+        instruction: str = "Extrae los datos estructurados del texto siguiendo el schema proporcionado.",
         metadata: Optional[Dict[str, Any]] = None,
     ) -> "Task":
         """
@@ -70,5 +70,5 @@ class Task(BaseModel):
         return (
             f"{self.instruction}\n\n"
             f"SCHEMA:\n{json.dumps(self.target_schema, indent=2)}\n\n"
-            f"TEXT:\n{self.input_text}"
+            f"TEXTO:\n{self.input_text}"
         )

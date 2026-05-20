@@ -1,0 +1,239 @@
+{
+  "id": "cultural_literature_quijote",
+  "domain": "cultural_literature",
+  "language": "es",
+  "tags": [
+    "direct_string",
+    "numeric_normalization",
+    "simple_array",
+    "grounded_null"
+  ],
+  "source_text": "# Don Quijote de la Mancha\n\n## Introducción\nDon Quijote de la Mancha es una novela escrita por el español Miguel de Cervantes Saavedra. Publicada su primera parte con el título de El ingenioso hidalgo don Quijote de la Mancha a comienzos de 1605, es la obra más destacada de la literatura española y una de las principales de la literatura universal. En 1615 apareció su continuación con el título de Segunda parte del ingenioso caballero don Quijote de la Mancha. El Quijote de 1605 se publicó dividido en cuatro partes; pero al aparecer el Quijote de 1615 en calidad de Segunda parte de la obra, quedó revocada de hecho la partición en cuatro secciones del volumen publicado diez años antes por Cervantes.\nEs la primera obra genuinamente desmitificadora de la tradición caballeresca y cortés por su tratamiento burlesco. Representa la primera novela moderna y la primera novela polifónica; como tal, ejerció un enorme influjo en toda la narrativa europea. Por considerarse \"el mejor trabajo literario jamás escrito\", encabezó la lista de las mejores obras literarias de la historia, que se estableció con las votaciones de cien grandes escritores de 54 nacionalidades a petición del Club Noruego del Libro y Bokklubben World Library en 2002; así, fue la única excepción en el estricto orden alfabético que se había dispuesto.",
+  "instruction": "Extrae los metadatos bibliográficos y temas principales de la obra literaria descrita.",
+  "schema": {
+    "additionalProperties": false,
+    "description": "Extracts basic bibliographic metadata and key themes from a book description or encyclopedia entry.\nComplexity: L2 (Explicit Information Retrieval).",
+    "properties": {
+      "title": {
+        "description": "The official title of the literary work",
+        "title": "Title",
+        "type": "string"
+      },
+      "author": {
+        "description": "The primary author or creator of the work",
+        "title": "Author",
+        "type": "string"
+      },
+      "publication_year": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The year the work was first published",
+        "title": "Publication Year"
+      },
+      "genres": {
+        "description": "Literary genres associated with the work",
+        "items": {
+          "type": "string"
+        },
+        "title": "Genres",
+        "type": "array"
+      },
+      "key_themes": {
+        "description": "Main topics or themes explored in the work",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key Themes",
+        "type": "array"
+      },
+      "original_language": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The language in which the work was originally written",
+        "title": "Original Language"
+      }
+    },
+    "required": [
+      "title",
+      "author"
+    ],
+    "title": "LiteraryWork",
+    "type": "object"
+  },
+  "field_examples": {
+    "title": {
+      "value": "Don Quijote de la Mancha",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el título oficial de la obra literaria.",
+        "relevant_fragments": "el texto abre con \"# Don Quijote de la Mancha\" y luego repite \"Don Quijote de la Mancha es una novela\". Luego dice \"Publicada su primera parte con el título de El ingenioso hidalgo don Quijote de la Mancha\" y \"En 1615 apareció su continuación con el título de Segunda parte del ingenioso caballero don Quijote de la Mancha\".",
+        "final_value": "los dos últimos fragmentos mencionan títulos de partes independientes, pero como se pide el título oficial este debe ser el principal usado para la obra completa: Don Quijote de la Mancha."
+      }
+    },
+    "author": {
+      "value": "Miguel de Cervantes Saavedra",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el autor principal de la obra.",
+        "relevant_fragments": "\"Don Quijote de la Mancha es una novela escrita por el español Miguel de Cervantes Saavedra\".",
+        "final_value": "es el nombre completo del autor: Miguel de Cervantes Saavedra."
+      }
+    },
+    "publication_year": {
+      "value": 1605,
+      "tags": [
+        "date_normalization",
+        "numeric_normalization",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "el año de la primera publicación de la obra (null si no hay suficiente evidencia en el texto).",
+        "relevant_fragments": "\"Publicada su primera parte [...] a comienzos de 1605\" y \"En 1615 apareció su continuación\"",
+        "final_value": "es el año de publicación de la primera parte: 1605."
+      }
+    },
+    "genres": {
+      "value": [
+        "novela",
+        "novela moderna",
+        "novela polifónica"
+      ],
+      "tags": [
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "géneros literarios asociados con la obra.",
+        "relevant_fragments": "\"Don Quijote de la Mancha es una novela\", \"Representa la primera novela moderna y la primera novela polifónica\".",
+        "final_value": "lista con los géneros mencionados: novela, novela moderna, novela polifónica"
+      }
+    },
+    "key_themes": {
+      "value": [
+        "tradición caballeresca y cortés",
+        "tratamiento burlesco"
+      ],
+      "tags": [
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "tópicos o temas principales explorados en la obra.",
+        "relevant_fragments": "\"Es la primera obra genuinamente desmitificadora de la tradición caballeresca y cortés por su tratamiento burlesco\".",
+        "final_value": "lista con los elementos mencionados: tradición caballeresca y cortés, tratamiento burlesco."
+      }
+    },
+    "original_language": {
+      "value": null,
+      "tags": [
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "el lenguaje en que la obra fue escrita originalmente (null si no hay suficiente evidencia en el texto).",
+        "relevant_fragments": "\"escrita por el español Miguel de Cervantes\" y \"es la obra más destacada de la literatura española\".",
+        "final_value": "se menciona la nacionalidad del autor y se asocia la obra a la literatura española, pero no se afirma explícitamente que su lenguaje original sea el español, por tanto debe ser: null."
+      }
+    }
+  },
+  "judge": {
+    "total_trials": 4,
+    "stable_fields": {
+      "author": "Miguel de Cervantes Saavedra"
+    },
+    "fields": {
+      "title": {
+        "kind": "single",
+        "field_description": "El campo pide el título principal de la obra literaria descrita.",
+        "tags": [
+          "direct_string"
+        ],
+        "candidates": [
+          {
+            "value": "Don Quijote de la Mancha",
+            "support": 3,
+            "first_seen": 1,
+            "evidence": "Fragmentos: \"# Don Quijote de la Mancha\" y \"Don Quijote de la Mancha es una novela\". El literal identifica la obra completa y debe ser el valor final."
+          },
+          {
+            "value": "El ingenioso hidalgo don Quijote de la Mancha",
+            "support": 1,
+            "first_seen": 2,
+            "evidence": "Fragmento: \"Publicada su primera parte [...] con el título de El ingenioso hidalgo don Quijote de la Mancha\". El literal corresponde a la primera parte, no al título general."
+          }
+        ],
+        "value": "Don Quijote de la Mancha",
+        "reasoned_output": {
+          "reasoning": "El candidato con mayor soporte coincide con el encabezado y la oración principal. El segundo candidato corresponde solo a una parte de la obra. Por tanto el valor final es Don Quijote de la Mancha.",
+          "value": "Don Quijote de la Mancha"
+        }
+      },
+      "genres": {
+        "kind": "array",
+        "field_description": "El campo pide los géneros literarios asociados explícitamente con la obra.",
+        "tags": [
+          "simple_array"
+        ],
+        "empty_trial_count": 1,
+        "candidates": [
+          {
+            "value": "novela",
+            "support": 4,
+            "first_seen": 1,
+            "include": true,
+            "evidence": "Fragmento: \"Don Quijote de la Mancha es una novela escrita por el español Miguel de Cervantes Saavedra\". La frase define la obra como una novela, así que este item pertenece al array final."
+          },
+          {
+            "value": "novela moderna",
+            "support": 3,
+            "first_seen": 2,
+            "include": true,
+            "evidence": "Fragmento: \"Representa la primera novela moderna y la primera novela polifónica\". El texto clasifica explícitamente la obra como novela moderna, por lo que debe incluirse."
+          },
+          {
+            "value": "novela polifónica",
+            "support": 2,
+            "first_seen": 3,
+            "include": true,
+            "evidence": "Fragmento: \"Representa la primera novela moderna y la primera novela polifónica\". La expresión aparece como clasificación literaria de la obra, así que este item debe incluirse."
+          },
+          {
+            "value": "tradición caballeresca",
+            "support": 1,
+            "first_seen": 4,
+            "include": false,
+            "evidence": "Fragmento: \"desmitificadora de la tradición caballeresca y cortés por su tratamiento burlesco\". El contexto presenta la tradición caballeresca como tradición desmitificada, no como género formal de la obra."
+          }
+        ],
+        "value": [
+          "novela",
+          "novela moderna",
+          "novela polifónica"
+        ],
+        "reasoned_output": {
+          "reasoning": "Novela, novela moderna y novela polifónica están explícitamente respaldadas como géneros o formas literarias. Tradición caballeresca aparece como tema o tradición desmitificada, no como género.",
+          "value": [
+            "novela",
+            "novela moderna",
+            "novela polifónica"
+          ]
+        }
+      }
+    }
+  }
+}

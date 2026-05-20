@@ -50,6 +50,10 @@ class EnrichedInlineReasoningAgent(_DefaultPipelineAgent):
     pipeline_name = "enriched-inline-reasoning"
 
 
+class EnrichedInlineReasoningRagAgent(_DefaultPipelineAgent):
+    pipeline_name = "enriched-inline-reasoning-rag"
+
+
 class EnrichedSchemaAgent(_DefaultPipelineAgent):
     pipeline_name = "enriched-schema"
 

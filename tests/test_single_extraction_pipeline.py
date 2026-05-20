@@ -4,6 +4,7 @@ from gensie.baseline import (
     BasicAgent,
     EnrichedDeepInlineReasoningAgent,
     EnrichedInlineReasoningAgent,
+    EnrichedInlineReasoningRagAgent,
     EnrichedSchemaAgent,
     EnrichedInlineReasoningSuperFspAgent,
     InlineReasoningAgent,
@@ -22,6 +23,7 @@ from gensie.pipeline import (
 )
 from gensie.runtime import ChatResponse, OpenAIChatClient
 from gensie.sampling import SingleExtractionRunner
+from gensie.prompts.system import STRICT_ANCHORING_RULE
 from gensie.task import Task
 
 
@@ -101,6 +103,8 @@ def test_basic_agent_uses_original_schema_and_tracks_usage():
     assert request.model == "demo-model"
     generation_schema = request.response_format["json_schema"]["schema"]
     assert generation_schema == _task().target_schema
+    assert STRICT_ANCHORING_RULE not in request.messages[0].content
+    assert STRICT_ANCHORING_RULE not in request.messages[1].content
     assert agent.usage.snapshot() == {
         "input_tokens": 11,
         "output_tokens": 7,
@@ -134,6 +138,8 @@ def test_single_extraction_runner_unwraps_top_level_reasoning_output():
     assert "reasoning" in generation_schema["properties"]["person"]["properties"]
     assert "FORMATO DE RAZONAMIENTO:" in request.messages[1].content
     assert "Eres un extractor de información estructurada" in request.messages[1].content
+    assert STRICT_ANCHORING_RULE in request.messages[0].content
+    assert STRICT_ANCHORING_RULE in request.messages[1].content
 
 
 def test_inline_agent_uses_reference_spanish_prompt_and_don_quijote_fsp():
@@ -152,6 +158,8 @@ def test_inline_agent_uses_reference_spanish_prompt_and_don_quijote_fsp():
     assert "SCHEMA DEL EJEMPLO:" in prompt
     assert "TAREA:" in prompt
     assert "Extrae información estructurada del TEXTO FUENTE en español." in prompt
+    assert STRICT_ANCHORING_RULE in fake.requests[0].messages[0].content
+    assert STRICT_ANCHORING_RULE in prompt
     assert "Extract structured information from the SOURCE TEXT" not in prompt
 
 
@@ -171,7 +179,35 @@ def test_enriched_agent_uses_reference_pydantic_prompt_and_don_quijote_fsp():
     assert "Don Quijote de la Mancha" in prompt
     assert "literary_impact_evidence" in prompt
     assert "Reasoned[T] significa" in prompt
+    assert STRICT_ANCHORING_RULE in fake.requests[0].messages[0].content
+    assert STRICT_ANCHORING_RULE in prompt
     assert "Extract structured information from the SOURCE TEXT" not in prompt
+
+
+def test_enriched_rag_agent_uses_registered_rag_fsp_pipeline():
+    fake = FakeChatClient(
+        '{"person":{"reasoning":"Named directly.","value":"Ada Lovelace"},'
+        '"year":{"reasoning":"The text states 1843.","value":1843},'
+        '"mentions":{"reasoning":"The person is mentioned.","value":[{"text":"Ada Lovelace","label":"PERSON"}]}}'
+    )
+    agent = EnrichedInlineReasoningRagAgent(chat_client=fake)
+
+    output = agent.run(_task(), model="demo")
+
+    request = fake.requests[0]
+    prompt = request.messages[1].content
+    assert output["person"] == "Ada Lovelace"
+    assert request.metadata["pipeline"] == "enriched-inline-reasoning-rag"
+    assert request.metadata["extraction"] == "enriched-inline-reasoning-rag"
+    assert request.metadata["reasoning"] == "top_level"
+    assert "EJEMPLOS FEW-SHOT:" in prompt
+    assert "Ejemplo 1: cultural_literature_quijote" in prompt
+    assert "SCHEMA PYDANTIC DEL EJEMPLO:" in prompt
+    assert "Don Quijote de la Mancha" in prompt
+    assert "literary_impact_evidence" not in prompt
+    assert "SCHEMA PYDANTIC:" in prompt
+    assert STRICT_ANCHORING_RULE in request.messages[0].content
+    assert STRICT_ANCHORING_RULE in prompt
 
 
 def test_enriched_schema_agent_uses_plain_pydantic_prompt_without_reasoning_or_fsp():
@@ -200,6 +236,8 @@ def test_enriched_schema_agent_uses_plain_pydantic_prompt_without_reasoning_or_f
     assert "class Reasoned" not in prompt
     assert "SCHEMA PYDANTIC DEL EJEMPLO:" not in prompt
     assert "Don Quijote de la Mancha" not in prompt
+    assert STRICT_ANCHORING_RULE not in request.messages[0].content
+    assert STRICT_ANCHORING_RULE not in prompt
 
 
 def test_verbatim_entities_enriched_agent_runs_phase_and_injects_entities():
@@ -236,6 +274,8 @@ def test_verbatim_entities_enriched_agent_runs_phase_and_injects_entities():
     assert '"Ada Lovelace"' in prompt
     assert '"1843"' in prompt
     assert '"Analytical Engine"' in prompt
+    assert STRICT_ANCHORING_RULE in extraction_request.messages[0].content
+    assert STRICT_ANCHORING_RULE in prompt
     assert agent.usage.snapshot() == {
         "input_tokens": 16,
         "output_tokens": 10,
@@ -266,6 +306,8 @@ def test_deep_agent_unwraps_recursive_reasoning_output():
     mention_def = generation_schema["$defs"]["Mention"]
     assert "reasoning" in mention_def["properties"]["text"]["properties"]
     assert "text: Reasoned[str]" in fake.requests[0].messages[1].content
+    assert STRICT_ANCHORING_RULE in fake.requests[0].messages[0].content
+    assert STRICT_ANCHORING_RULE in fake.requests[0].messages[1].content
 
 
 def test_super_fsp_agent_includes_static_super_example():
@@ -291,6 +333,8 @@ def test_super_fsp_agent_includes_static_super_example():
     assert "registry_code: Reasoned[Nullable[str]]" in prompt
     assert "Don Quijote de la Mancha" not in prompt
     assert "SCHEMA PYDANTIC:" in prompt
+    assert STRICT_ANCHORING_RULE in fake.requests[0].messages[0].content
+    assert STRICT_ANCHORING_RULE in prompt
 
 
 def test_official_participant_exposes_default_specs_and_fallback_agent():
@@ -302,6 +346,7 @@ def test_official_participant_exposes_default_specs_and_fallback_agent():
         "baseline",
         "inline-reasoning",
         "enriched-inline-reasoning",
+        "enriched-inline-reasoning-rag",
         "enriched-schema",
         "verbatim-entities-enriched-inline-reasoning",
         "enriched-inline-reasoning-deep",

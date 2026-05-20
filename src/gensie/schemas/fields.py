@@ -116,7 +116,7 @@ def render_field_cards(schema: JsonDict, *, enum_preview: int = 20) -> str:
 
     def emit(field: FieldInfo, indent: int = 0) -> None:
         prefix = "  " * indent
-        required = "required" if field.required else "optional"
+        required = "requerido" if field.required else "opcional"
         lines.append(f"{prefix}- {field.path} :: {_type_repr(field)} ({required})")
 
         constraints: list[str] = []
@@ -125,7 +125,7 @@ def render_field_cards(schema: JsonDict, *, enum_preview: int = 20) -> str:
         if field.maximum is not None:
             constraints.append(f"max={_number_repr(field.maximum)}")
         if constraints:
-            lines.append(f"{prefix}  constraints: {', '.join(constraints)}")
+            lines.append(f"{prefix}  restricciones: {', '.join(constraints)}")
 
         if field.enum is not None:
             preview = field.enum[:enum_preview]
@@ -134,15 +134,15 @@ def render_field_cards(schema: JsonDict, *, enum_preview: int = 20) -> str:
             lines.append(f"{prefix}  enum: {preview_text}{suffix}")
 
         if field.description:
-            lines.append(f"{prefix}  desc: {field.description.strip()}")
+            lines.append(f"{prefix}  descripción: {field.description.strip()}")
 
         if not field.required:
             if field.nullable:
-                lines.append(f"{prefix}  rule: if not in TEXT => null")
+                lines.append(f"{prefix}  regla: si no está en el TEXTO => null")
             else:
-                lines.append(f"{prefix}  rule: if not in TEXT => omit field")
+                lines.append(f"{prefix}  regla: si no está en el TEXTO => omitir campo")
         elif field.nullable:
-            lines.append(f"{prefix}  rule: if not in TEXT => null (nullable)")
+            lines.append(f"{prefix}  regla: si no está en el TEXTO => null (nullable)")
 
         if field.json_type == "object" and field.properties:
             for child in field.properties:
