@@ -11,6 +11,7 @@ from gensie.fsp.examples import (
     StructuredFspCase,
 )
 from gensie.fsp.retrieval import FspRetrievalResult, rank_fsp_cases
+from gensie.fsp.selection import FspSelection, SelectedFspCase
 from gensie.fsp.render_extraction import render_extraction_fsp_example
 from gensie.pipeline.context import PipelineContext
 from gensie.pipeline.specs import ExtractionSpec, ReasoningMode
@@ -47,41 +48,60 @@ class RagExtractionFspProvider(FSPProvider):
     def examples(
         self, context: PipelineContext, extraction: ExtractionSpec
     ) -> tuple[FSPExample, ...]:
+        selection = self.select(context, extraction)
+        examples: list[FSPExample] = []
+        for selected in selection.cases:
+            prompt = render_extraction_fsp_example(
+                selected.case,
+                extraction,
+                labels=self.labels,
+            )
+            examples.append(
+                FSPExample(
+                    name=selected.case.id,
+                    prompt=prompt,
+                    output={},
+                    metadata=selected.metadata,
+                )
+            )
+        return tuple(examples)
+
+    def select(
+        self, context: PipelineContext, extraction: ExtractionSpec
+    ) -> FspSelection:
         if extraction.reasoning is ReasoningMode.DEEP:
-            return ()
+            return FspSelection(labels=self.labels)
 
         candidate_limit = (
             len(self.cases) if self.max_prompt_chars is not None else self.top_k
         )
         selected = self.retrieve(context, top_k=candidate_limit)
-        examples: list[FSPExample] = []
+        cases: list[SelectedFspCase] = []
         for result in selected:
             prompt = render_extraction_fsp_example(
                 result.case,
                 extraction,
                 labels=self.labels,
             )
+            prompt_chars = len(prompt)
             if (
                 self.max_prompt_chars is not None
-                and len(prompt) > self.max_prompt_chars
+                and prompt_chars > self.max_prompt_chars
             ):
                 continue
-            examples.append(
-                FSPExample(
-                    name=result.case.id,
-                    prompt=prompt,
-                    output={},
-                    metadata={
-                        "format": "structured-rag",
-                        "case_id": result.case.id,
-                        "reasoning": extraction.reasoning.value,
-                        "retrieval": result.metadata(),
-                    },
+            cases.append(
+                SelectedFspCase(
+                    case=result.case,
+                    metadata=_metadata_for_result(
+                        result,
+                        extraction=extraction,
+                        prompt_chars=prompt_chars,
+                    ),
                 )
             )
-            if len(examples) >= self.top_k:
+            if len(cases) >= self.top_k:
                 break
-        return tuple(examples)
+        return FspSelection(cases=tuple(cases), labels=self.labels)
 
     def retrieve(
         self, context: PipelineContext, *, top_k: int | None = None
@@ -100,3 +120,18 @@ class RagExtractionFspProvider(FSPProvider):
             cases=self.cases,
             top_k=self.top_k if top_k is None else top_k,
         )
+
+
+def _metadata_for_result(
+    result: FspRetrievalResult,
+    *,
+    extraction: ExtractionSpec,
+    prompt_chars: int,
+) -> dict[str, object]:
+    return {
+        "format": "structured-rag",
+        "case_id": result.case.id,
+        "reasoning": extraction.reasoning.value,
+        "retrieval": result.metadata(),
+        "prompt_chars": prompt_chars,
+    }

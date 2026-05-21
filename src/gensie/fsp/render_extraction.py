@@ -49,6 +49,15 @@ def render_extraction_fsp_example(
     *,
     labels: ReasoningSectionLabels = DEFAULT_REASONING_SECTION_LABELS,
 ) -> str:
+    return render_full_extraction_fsp_example(case, extraction, labels=labels)
+
+
+def render_full_extraction_fsp_example(
+    case: StructuredFspCase,
+    extraction: ExtractionSpec,
+    *,
+    labels: ReasoningSectionLabels = DEFAULT_REASONING_SECTION_LABELS,
+) -> str:
     schema_heading, schema_content = _render_example_schema(case, extraction)
     output = build_extraction_output(case, extraction.reasoning, labels=labels)
     output_json = json.dumps(output, ensure_ascii=False, indent=2)
@@ -63,6 +72,23 @@ def render_extraction_fsp_example(
         f"{description}\n\n"
         f"{schema_heading}:\n"
         f"{schema_content.rstrip()}\n\n"
+        "TEXTO FUENTE DEL EJEMPLO:\n"
+        f"{case.source_text}\n\n"
+        "SALIDA DEL EJEMPLO:\n"
+        f"{output_json}\n\n"
+        "FIN DEL EJEMPLO.\n"
+    )
+
+
+def render_same_schema_extraction_fsp_example(
+    case: StructuredFspCase,
+    extraction: ExtractionSpec,
+    *,
+    labels: ReasoningSectionLabels = DEFAULT_REASONING_SECTION_LABELS,
+) -> str:
+    output = build_extraction_output(case, extraction.reasoning, labels=labels)
+    output_json = json.dumps(output, ensure_ascii=False, indent=2)
+    return (
         "TEXTO FUENTE DEL EJEMPLO:\n"
         f"{case.source_text}\n\n"
         "SALIDA DEL EJEMPLO:\n"

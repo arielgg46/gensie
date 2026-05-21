@@ -14,6 +14,7 @@ from gensie.fsp.projection import project_structured_fsp_case
 from gensie.fsp.providers import NoFSPProvider, StaticFSPProvider, TextFSPProvider
 from gensie.fsp.rag import RagExtractionFspProvider
 from gensie.fsp.retrieval import FspRetrievalResult, SchemaProfile
+from gensie.fsp.selection import FspSelection, SelectedFspCase
 from gensie.fsp.super import super_static_provider
 
 __all__ = [
@@ -23,6 +24,7 @@ __all__ = [
     "FSPExample",
     "FSPProvider",
     "FspRetrievalResult",
+    "FspSelection",
     "JudgeCandidateExample",
     "JudgeExample",
     "JudgeFieldExample",
@@ -30,6 +32,7 @@ __all__ = [
     "RagExtractionFspProvider",
     "ReasoningSectionLabels",
     "SchemaProfile",
+    "SelectedFspCase",
     "StaticFSPProvider",
     "StructuredFspCase",
     "TextFSPProvider",

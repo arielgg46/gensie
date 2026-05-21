@@ -2,7 +2,14 @@ import copy
 
 import pytest
 
-from gensie.fsp import FSPExample, StaticFSPProvider
+from gensie.fsp import (
+    FSPExample,
+    FieldExample,
+    FieldReasoning,
+    RagExtractionFspProvider,
+    StaticFSPProvider,
+    StructuredFspCase,
+)
 from gensie.pipeline import (
     ExtractionSpec,
     FewShotMode,
@@ -73,6 +80,36 @@ def _task() -> Task:
         input_text="Ada Lovelace published notes about the Analytical Engine in 1843.",
         instruction="Extract the person, year, and labels.",
         target_schema=_schema(),
+    )
+
+
+def _same_schema_case(case_id: str, source_text: str) -> StructuredFspCase:
+    values = {
+        "person": "Ada Lovelace",
+        "year": 1843,
+        "tags": ["SCIENCE"],
+        "mentions": [{"text": "Ada Lovelace", "label": "PERSON"}],
+    }
+    return StructuredFspCase(
+        id=case_id,
+        domain="technical_entities",
+        language="es",
+        source_text=source_text,
+        instruction="Extract the person, year, and labels.",
+        schema=_schema(),
+        field_examples={
+            field_name: FieldExample(
+                value=value,
+                reasoning=FieldReasoning(
+                    field_asks=f"el valor del campo `{field_name}`.",
+                    relevant_fragments=(
+                        f"El texto del ejemplo aporta evidencia para `{field_name}`."
+                    ),
+                    final_value=f"se usa el valor respaldado para `{field_name}`.",
+                ),
+            )
+            for field_name, value in values.items()
+        },
     )
 
 
@@ -270,3 +307,100 @@ def test_extraction_prompt_builder_keeps_fsp_separate_from_schema_view():
     assert "TEXTO FUENTE:" in bundle.user
     assert "Ada Lovelace published notes" in bundle.user
     assert bundle.metadata["reasoning"] == "top_level"
+
+
+def test_same_schema_rag_prompt_moves_common_contract_to_system():
+    builder = ExtractionPromptBuilder(
+        fsp_provider=RagExtractionFspProvider(
+            cases=[
+                _same_schema_case(
+                    "same_schema_one",
+                    "Ada Lovelace published notes in 1843.",
+                ),
+                _same_schema_case(
+                    "same_schema_two",
+                    "Grace Hopper documented a compiler note.",
+                ),
+            ],
+            top_k=2,
+        )
+    )
+    context = PipelineContext(task=_task(), model="demo", usage=UsageTracker())
+    extraction = ExtractionSpec(
+        name="enriched-inline-reasoning-rag",
+        reasoning=ReasoningMode.TOP_LEVEL,
+        schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+        few_shot=FewShotMode.RAG,
+    )
+
+    bundle = builder.build(context, extraction)
+    combined = f"{bundle.system}\n{bundle.user}"
+
+    assert bundle.metadata["layout"] == "same_schema_rag_compact"
+    assert bundle.metadata["prompt_layout"] == "same_schema_rag_compact"
+    assert combined.count(STRICT_ANCHORING_RULE) == 1
+    assert "INSTRUCCI" in bundle.system
+    assert "SCHEMA PYDANTIC:" in bundle.system
+    assert "person: Reasoned[str]" in bundle.system
+    assert "EJEMPLOS FEW-SHOT:" in bundle.user
+    assert "TEXTO FUENTE DEL EJEMPLO:" in bundle.user
+    assert "SALIDA DEL EJEMPLO:" in bundle.user
+    assert "SCHEMA PYDANTIC:" not in bundle.user
+    assert "SCHEMA PYDANTIC DEL EJEMPLO:" not in bundle.user
+    assert "INSTRUCCI" not in bundle.user
+    assert "TEXTO FUENTE:\nAda Lovelace published notes" in bundle.user
+    assert len(bundle.metadata["fsp_examples"]) == 2
+    assert all(
+        item["retrieval"]["schema_match"] is True
+        for item in bundle.metadata["fsp_examples"]
+    )
+
+
+def test_rag_prompt_keeps_default_layout_when_any_selected_case_differs():
+    other_schema = {
+        "type": "object",
+        "properties": {"year": {"type": "string"}},
+    }
+    builder = ExtractionPromptBuilder(
+        fsp_provider=RagExtractionFspProvider(
+            cases=[
+                _same_schema_case(
+                    "same_schema_one",
+                    "Ada Lovelace published notes in 1843.",
+                ),
+                StructuredFspCase(
+                    id="other_schema",
+                    domain="technical_entities",
+                    language="es",
+                    source_text="Otra fuente.",
+                    instruction="Extrae otro campo.",
+                    schema=other_schema,
+                    field_examples={
+                        "year": FieldExample(
+                            value="valor",
+                            reasoning=FieldReasoning(
+                                field_asks="el valor de `year`.",
+                                relevant_fragments='"Otra fuente".',
+                                final_value="el valor es valor.",
+                            ),
+                        )
+                    },
+                ),
+            ],
+            top_k=2,
+        )
+    )
+    context = PipelineContext(task=_task(), model="demo", usage=UsageTracker())
+    extraction = ExtractionSpec(
+        name="enriched-inline-reasoning-rag",
+        reasoning=ReasoningMode.TOP_LEVEL,
+        schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+        few_shot=FewShotMode.RAG,
+    )
+
+    bundle = builder.build(context, extraction)
+
+    assert bundle.metadata["layout"] == "default"
+    assert "SCHEMA PYDANTIC DEL EJEMPLO:" in bundle.user
+    assert "SCHEMA PYDANTIC:" in bundle.user
+    assert STRICT_ANCHORING_RULE in bundle.user

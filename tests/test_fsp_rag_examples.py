@@ -9,6 +9,7 @@ from gensie.fsp.cases import (
 from gensie.fsp.examples import (
     CandidateOrder,
     FieldExample,
+    FieldReasoning,
     ReasoningSectionLabels,
     StructuredFspCase,
 )
@@ -18,6 +19,7 @@ from gensie.fsp.rag import RagExtractionFspProvider
 from gensie.fsp.render_extraction import (
     build_extraction_output,
     render_extraction_fsp_example,
+    render_same_schema_extraction_fsp_example,
 )
 from gensie.fsp.render_judge import render_judge_candidate_summary
 from gensie.pipeline import (
@@ -80,6 +82,13 @@ def _minimal_case(
             field_name: FieldExample(
                 value=_example_value(field_schema),
                 tags=field_tags,
+                reasoning=FieldReasoning(
+                    field_asks=f"el valor del campo `{field_name}`.",
+                    relevant_fragments=(
+                        f"Texto fuente del caso {case_id} contiene el valor de `{field_name}`."
+                    ),
+                    final_value=f"el valor final de `{field_name}` queda respaldado por el texto.",
+                ),
             )
             for field_name, field_schema in schema.get("properties", {}).items()
             if isinstance(field_name, str) and isinstance(field_schema, dict)
@@ -243,6 +252,63 @@ def test_rag_extraction_provider_prefers_same_schema_over_resource_order():
     assert examples[0].name == "same_schema"
     assert examples[0].metadata["retrieval"]["schema_match"] is True
     assert examples[0].metadata["retrieval"]["score"] > 100
+
+
+def test_rag_extraction_provider_exposes_structured_selection():
+    target_schema = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "year": {"anyOf": [{"type": "integer"}, {"type": "null"}]},
+        },
+    }
+    provider = RagExtractionFspProvider(
+        cases=[
+            _minimal_case("same_schema_one", target_schema),
+            _minimal_case("same_schema_two", target_schema),
+        ],
+        top_k=2,
+    )
+
+    selection = provider.select(
+        _context_for_schema(target_schema, instruction="Extrae nombre y año."),
+        ExtractionSpec(
+            name="enriched-inline-reasoning-rag-fsp",
+            reasoning=ReasoningMode.TOP_LEVEL,
+            schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+            few_shot=FewShotMode.RAG,
+        ),
+    )
+
+    assert [case.name for case in selection.cases] == [
+        "same_schema_one",
+        "same_schema_two",
+    ]
+    assert selection.all_schema_match is True
+    assert selection.metadata()[0]["retrieval"]["schema_match"] is True
+    assert selection.metadata()[0]["prompt_chars"] > 0
+
+
+def test_same_schema_extraction_fsp_renderer_omits_repeated_schema_contract():
+    schema = {
+        "type": "object",
+        "properties": {"name": {"type": "string"}},
+    }
+    case = _minimal_case("same_schema", schema)
+    extraction = ExtractionSpec(
+        name="enriched-inline-reasoning-rag-fsp",
+        reasoning=ReasoningMode.TOP_LEVEL,
+        schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+        few_shot=FewShotMode.RAG,
+    )
+
+    rendered = render_same_schema_extraction_fsp_example(case, extraction)
+
+    assert "TEXTO FUENTE DEL EJEMPLO:" in rendered
+    assert "SALIDA DEL EJEMPLO:" in rendered
+    assert '"reasoning": "EL CAMPO PIDE:' in rendered
+    assert "INSTRUCCI" not in rendered
+    assert "SCHEMA" not in rendered
 
 
 def test_rag_extraction_provider_uses_schema_tags_when_schema_differs():
