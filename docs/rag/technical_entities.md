@@ -16,6 +16,14 @@ Los tasks `technical_entities` son extracciones L5 de entidades nombradas en tex
 | `entities[].text` | Requerido, `string`, debe ser una mención verbatim del texto. Dualidad entre nombre completo, sigla, versión, protocolo o alias; se debe evitar normalizar, traducir o fusionar menciones diferentes. |
 | `entities[].label` | Enum requerido. Debe mapear a uno de estos valores: `PERSON`, `ORGANIZATION`, `LOCATION`, `DATE`, `EVENT` o `MISCELLANEOUS`. En textos técnicos, software, formatos, motores, protocolos, versiones y nombres de módulos suelen caer en `MISCELLANEOUS`, mientras proyectos o fundaciones pueden ser `ORGANIZATION`. |
 
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `entities` | Lista de entidades nombradas presentes en el texto técnico. Extrae menciones concretas y propias; no incluyas términos genéricos como “biblioteca”, “formato”, “repositorio”, “sistema operativo” o “motor” salvo que formen parte de un nombre propio. |
+| `entities[].text` | Mención verbatim tal como aparece en el texto. Conserva mayúsculas, tildes, números, versiones, guiones y siglas; no traduzcas, normalices, expandas ni fusiones menciones distintas como nombre completo y alias si aparecen separadas. |
+| `entities[].label` | Etiqueta de la entidad; enum completo: `PERSON`, `ORGANIZATION`, `LOCATION`, `DATE`, `EVENT` o `MISCELLANEOUS`. Personas individuales son `PERSON`; proyectos, fundaciones y empresas son `ORGANIZATION`; ciudades o lugares son `LOCATION`; fechas explícitas son `DATE`; conferencias o eventos nombrados son `EVENT`; software, protocolos, formatos, motores, módulos, versiones y algoritmos suelen ser `MISCELLANEOUS`. |
+
 ## Propuesta de los dos ejemplos
 
 | Campo | Ejemplo 1 | Ejemplo 2 |

@@ -7,6 +7,8 @@ Los tasks `legal_legislation` son extracciones L7 de metadatos dispersos sobre n
 - `data/dev_rev/legal_legislation_001.json`
 - `data/dev_rev/legal_legislation_002.json`
 - `data/dev/legal_legislation_003.json`
+- `data/dev/legal_legislation_004.json`
+- `data/dev/legal_legislation_005.json`
 
 ## Dualidad por campo
 
@@ -18,6 +20,17 @@ Los tasks `legal_legislation` son extracciones L7 de metadatos dispersos sobre n
 | `jurisdiction` | Enum requerido. Debe mapear a uno de estos valores: `NACIONAL`, `AUTONÓMICO`, `LOCAL` o `EUROPEO`. Dualidad principal entre normas estatales y autonómicas; los ejemplos revisados incluyen ambas, y las referencias a la Unión Europea o a municipios no deberían arrastrar el valor si la norma principal es estatal o autonómica. |
 | `is_repealed` | `boolean`. En los ejemplos revisados aparece siempre `false`, pero para FSP conviene un caso `true` cuando el texto diga que la norma fue derogada, sustituida o perdió vigencia por otra. No basta con que haya recursos, suspensiones parciales, reformas o debates de derogación. |
 | `affected_articles` | `[]` vs lista poblada. Dualidad entre artículos o disposiciones concretas mencionadas como modificadas/relevantes y textos que solo describen objeto, exposición de motivos o debate político sin citar artículos específicos. Debe preservar formas como `artículo 2`, `artículo 9.3` o `Disposición Transitoria Segunda` cuando aparecen con valor jurídico. |
+
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `official_title` | Título oficial completo de la norma principal, aunque el encabezado use un nombre popular. Prefiere la formulación formal en la introducción; no confundas reformas, normas citadas como contexto, leyes futuras ni títulos de secciones con la norma principal. |
+| `law_range` | Rango jurídico de la norma principal; enum completo: `LEY ORGÁNICA`, `LEY ORDINARIA`, `REAL DECRETO`, `REAL DECRETO-LEY`, `CONSTITUCIÓN` u `OTRA`. Usa el tipo explícito del título formal y no arrastres el rango de reglamentos, decretos, artículos constitucionales o normas supletorias citadas. |
+| `sanction_date` | Fecha de sanción, promulgación o aprobación formal de la norma, normalizada como `YYYY-MM-DD`. No uses la fecha de publicación, entrada en vigor, recursos, suspensiones o reformas si el texto no las identifica como fecha formal de la norma principal. |
+| `jurisdiction` | Ámbito de la norma principal; enum completo: `NACIONAL`, `AUTONÓMICO`, `LOCAL` o `EUROPEO`. Decide por la institución que aprueba la norma y su ámbito, no por referencias a Constitución, Unión Europea, ayuntamientos o administraciones citadas como contexto. |
+| `is_repealed` | `true` solo si el texto dice que la norma fue derogada, anulada íntegramente, sustituida o perdió vigencia. Suspensiones parciales, recursos, modificaciones, propuestas de derogación o artículos inconstitucionales no bastan por sí solos. |
+| `affected_articles` | Artículos, disposiciones o apartados concretos citados como relevantes, modificados, desarrollados o anulados. Conserva la forma del texto (`artículo 92`, `artículo 149.1.32`, `Disposición Transitoria Segunda`) y no incluyas leyes completas, secciones genéricas ni referencias históricas sin función normativa directa. |
 
 ## Propuesta de los dos ejemplos
 
@@ -39,7 +52,7 @@ Los tasks `legal_legislation` son extracciones L7 de metadatos dispersos sobre n
 ```text
 # Real decreto-ley de ahorro energético de 2022
 
-Source: Boletín Oficial del Estado
+Source: https://es.wikipedia.org/wiki/Real_Decreto-ley_14/2022
 
 El Real Decreto-ley 14/2022, de 1 de agosto, de medidas de sostenibilidad económica en el ámbito del transporte, en materia de becas y ayudas al estudio, así como de medidas de ahorro, eficiencia energética y de reducción de la dependencia energética del gas natural, fue aprobado por el Consejo de Ministros el 1 de agosto de 2022. La norma se dictó con alcance estatal tras la subida del precio del gas y fue convalidada semanas después por el Congreso de los Diputados.
 
@@ -116,7 +129,7 @@ Extrae el resumen del contrato o acto legislativo.
 ```text
 # Ley de patios verdes valenciana
 
-Source: Diario Oficial de la Generalitat Valenciana
+Source: https://es.wikipedia.org/wiki/Ley_de_patios_verdes_valenciana
 
 La llamada ley de patios verdes fue citada en prensa durante años como una iniciativa escolar de la Generalitat. En la ficha consolidada aparece con su título formal, Ley 6/2009, de huertos escolares y educación ambiental de la Comunitat Valenciana, una ley autonómica ordinaria tramitada por Les Corts tras varias campañas municipales de compostaje. La crónica parlamentaria sitúa su aprobación en la primavera de 2009, mientras que la publicación oficial se produjo el 14 de julio de ese año.
 

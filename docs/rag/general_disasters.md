@@ -7,6 +7,8 @@ Los tasks `general_disasters` usan el schema general de noticias L4 para fenóme
 - `data/dev_rev/general_disasters_001.json`
 - `data/dev_rev/general_disasters_002.json`
 - `data/dev/general_disasters_003.json`
+- `data/dev/general_disasters_009.json`
+- `data/dev/general_disasters_010.json`
 
 ## Dualidad por campo
 
@@ -22,6 +24,21 @@ Los tasks `general_disasters` usan el schema general de noticias L4 para fenóme
 | `casualties` | `integer` vs `null`. Debe ser muertes humanas explícitas, no animales muertos, viviendas destruidas ni desaparecidos si no se reportan como fallecidos. |
 | `injured` | `integer` vs `null`. Debe ser personas heridas o atendidas por lesiones, no personas evacuadas o expuestas. |
 | `affected_count` | `integer` vs `null`. Debe ser personas evacuadas, damnificadas o desplazadas; no velocidades, distancias, barrios, viviendas o hectáreas. |
+
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `headline` | Titular principal de la noticia, normalmente el encabezado `#`. Cópialo sin el marcador Markdown y no añadas contexto del cuerpo ni cifras que no estén en el titular. |
+| `summary` | Resumen breve en 1-3 oraciones con fenómeno, ubicación, consecuencias humanas y respuesta cuando aparezcan. No conviertas listas largas de velocidades, distancias o daños materiales en el foco si las víctimas o afectados son el hecho central. |
+| `category` | Categoría temática del enum completo: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. Para huracanes, temporales, aludes, terremotos, inundaciones y emergencias similares usa `DISASTER`, aunque el texto cite gobiernos, policía o centros meteorológicos. |
+| `location` | Lugar principal del evento o impacto. Extrae ciudad, región, país o zona marítima concreta si está grounded; devuelve `null` si solo hay aguas abiertas, direcciones, puertos genéricos o referencias demasiado amplias sin lugar nombrado. |
+| `date` | Fecha explícita del hecho o periodo cuando el texto la da. Devuelve `null` para `este jueves`, `en las próximas horas`, `temporada`, duración del temporal o fechas de boletines si no son una fecha absoluta del evento. |
+| `key_people` | Personas individuales nombradas y relevantes. No incluyas cargos sin nombre, grupos, equipos de rescate ni organismos; sí incluye autoridades, especialistas o testigos con nombre propio. |
+| `key_organizations` | Organizaciones, gobiernos, centros meteorológicos, medios, hospitales o agencias nombradas. No incluyas instalaciones genéricas, equipos sin nombre propio, países donantes como si fueran organizaciones ni fenómenos meteorológicos. |
+| `casualties` | Número de muertes humanas reportadas. No uses desaparecidos, animales muertos, viviendas destruidas, balances aproximados del titular si el cuerpo da una cifra más precisa, ni muertes no confirmadas. |
+| `injured` | Número de personas heridas o lesionadas. No uses evacuados, damnificados, personas expuestas, desaparecidos ni atendidos preventivamente si no se describen como heridos. |
+| `affected_count` | Número de personas afectadas, damnificadas, evacuadas o desplazadas. No uses velocidades del viento, kilómetros, alturas de oleaje, casas, rutas, toneladas, dinero ni familias si el schema espera personas y no hay conversión segura. |
 
 ## Propuesta de los dos ejemplos
 

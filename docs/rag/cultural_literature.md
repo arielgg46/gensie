@@ -6,7 +6,9 @@ Los tasks `cultural_literature` son extracciones L2 de metadatos bibliográficos
 
 - `data/dev_rev/cultural_literature_001.json`
 - `data/dev_rev/cultural_literature_002.json`
-- `data/dev/cultural_literature_006.json`
+- `data/dev_rev/cultural_literature_006.json`
+- `data/dev_rev/cultural_literature_009.json`
+- `data/dev_rev/cultural_literature_010.json`
 
 ## Dualidad por campo
 
@@ -29,6 +31,17 @@ Los tasks `cultural_literature` son extracciones L2 de metadatos bibliográficos
 | `genres` | Lista poblada con uno o dos géneros verbatim o casi verbatim. | `[]`: el texto describe recepción, lengua y temas, pero no nombra géneros literarios explícitos. |
 | `key_themes` | `[]`: el texto da metadatos y género, pero no temas principales explícitos. | Lista poblada con temas textuales, por ejemplo `exilio`, `memoria familiar` o `pobreza urbana`, no interpretaciones amplias. |
 | `original_language` | `null`: el texto habla de país, literatura nacional o autora, pero no afirma lengua original. | Valor no null: lengua original mencionada de forma explícita, por ejemplo `gallego`, `catalán` o `español`. |
+
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `title` | Título oficial de la obra descrita. Prioriza el título presentado como obra principal; no confundas encabezados populares, alias, títulos de partes, continuaciones, ediciones o estudios críticos con el título oficial esperado. |
+| `author` | Autor o creador principal explícitamente atribuido a la obra. Si el texto dice `Anónimo`, usa ese valor; no confundas copistas, editores, traductores, críticos, personajes o autores de obras comparadas con autoría. |
+| `publication_year` | Año exacto de primera publicación de la obra. Devuelve `null` si solo hay siglo, fecha de composición, éxito editorial, premio, reedición, continuación, edición escolar o estudio posterior. |
+| `genres` | Géneros o clasificaciones literarias explícitas en el texto, como `novela`, `tragicomedia` o `comedia humanística`. Usa `[]` si solo aparecen forma material, argumento, recepción o temas sin etiqueta de género clara. |
+| `key_themes` | Temas principales nombrados por el texto, no interpretaciones externas. Extrae conceptos como injusticia social, tradición caballeresca, pobreza o memoria solo cuando el fragmento los presenta como asuntos de la obra. |
+| `original_language` | Lengua original de redacción, solo si el texto la afirma o da evidencia textual fuerte sobre la lengua de la obra. Nacionalidad del autor, país, literatura nacional o traducciones no bastan por sí solos. |
 
 ## Input, output y reasoning propuestos
 
@@ -177,4 +190,4 @@ Extrae los metadatos bibliográficos y temas principales de la obra literaria de
 
 ## Estructura de los input_text
 
-Los `input_text` revisados siguen una entrada enciclopédica breve en Markdown: encabezado con `# <obra>`, sección `## Introducción`, una primera oración que define la obra y autoría, varias frases con publicación/composición/recepción, y después una descripción de géneros, forma literaria, temas o impacto. Suelen contener distractores fuertes: títulos alternativos o populares, títulos de partes, fechas de continuación, premios o ediciones posteriores, y datos de literatura nacional que no siempre prueban la lengua original. Los nuevos ejemplos deben mantener esa estructura, con textos de menos de 1600 caracteres y evidencia natural para cada campo.
+Los `input_text` revisados siguen una entrada enciclopédica en Markdown: encabezado con `# <obra>`, sección `## Introducción`, una primera oración que define la obra y autoría, varias frases con publicación/composición/recepción, y a veces una sección `## Argumento` extensa con personajes, trama y temas. Pueden ser breves, como `La Celestina`, o muy largos, como `Cien años de soledad`; para FSP conviene mantenerlos compactos pero con la misma textura enciclopédica. Suelen contener distractores fuertes: títulos alternativos o populares, títulos de partes, fechas de continuación, premios o ediciones posteriores, estudios críticos, argumento detallado y datos de literatura nacional que no siempre prueban la lengua original. Los nuevos ejemplos deben mantener esa estructura, con textos de menos de 1600 caracteres y evidencia natural para cada campo.

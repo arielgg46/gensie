@@ -254,8 +254,9 @@ compatibilidad con la implementación actual de `gensie.fsp`.
 
 Estado al 21 de mayo de 2026. Esta tabla distingue los prefijos que ya llegaron
 a JSON tras revisión iterativa o corrección posterior con el usuario, los
-prefijos que solo tienen propuesta `.md` pendiente de revisión final, y los
-prefijos que todavía faltan por trabajar.
+prefijos que solo tienen propuesta `.md` pendiente de revisión final, y confirma
+que todos los prefijos detectados en `data/dev` y `data/dev_rev` tienen ya un
+`.md` correspondiente en `docs/rag`.
 
 ### Generados con revisión humana
 
@@ -299,16 +300,81 @@ pero fueron generados de forma autónoma y deben revisarse antes de crear JSONs:
 | 14 | `legal_judicial` | `.md` generado solo; pendiente de revisión. |
 | 15 | `medical_health_news` | `.md` generado solo; pendiente de revisión. |
 | 16 | `technical_extraction` | `.md` generado solo; pendiente de revisión. |
+| 17 | `cultural_extraction` | `.md` generado solo; pendiente de revisión. |
+| 18 | `legal_extraction` | `.md` generado solo; pendiente de revisión. |
+| 19 | `cultural_entities` | `.md` generado solo; pendiente de revisión. |
+| 20 | `medical_entities` | `.md` generado solo; pendiente de revisión. |
+| 21 | `legal_entities` | `.md` generado solo; pendiente de revisión. |
 
 ### Faltan por trabajar
 
-Estos prefijos no tienen todavía `.md` nuevo en `docs/rag` y deben abordarse en
-este orden:
+No quedan prefijos sin `.md` en `docs/rag`. Verificación por nombres: 22
+prefijos detectados en `data/dev` y `data/dev_rev`, 22 documentos `.md` en
+`docs/rag`, sin faltantes ni extras.
 
-| Orden | Prefijo | Familia |
+### Pasada actual: revisión de estilo y descriptions enriquecidas
+
+Esta pasada no genera ni modifica JSONs. Para cada prefijo, revisa su `.md`,
+completa fuentes de referencia hasta 5 cuando sea posible, ajusta solo los
+`input_text` sintéticos si no imitan bien el estilo real, verifica después los
+`output` y `reasoning.relevant_fragments`, y añade una tabla breve de
+descriptions enriquecidas por campo para uso en prompt/RAG.
+
+| Orden | Prefijo | Estado |
 | --- | --- | --- |
-| 17 | `cultural_extraction` | Extracción literal verbatim L1. |
-| 18 | `legal_extraction` | Extracción literal verbatim L1. |
-| 19 | `cultural_entities` | Entidades categorizadas L5. |
-| 20 | `medical_entities` | Entidades categorizadas L5. |
-| 21 | `legal_entities` | Entidades categorizadas L5. |
+| 0 | `cultural_media` | Revisado con 5 fuentes; `input_text` sintéticos ajustados al estilo de recorte con `[...]`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida. |
+| 1 | `medical_extraction` | Revisado con las 3 fuentes disponibles; no hay más ejemplos del prefijo en `dev`; no requirió ajuste de `input_text`; `output` y fragmentos clave verificados; tabla de descriptions enriquecidas añadida. |
+| 2 | `cultural_literature` | Revisado con 5 fuentes, incluyendo ejemplos finales del prefijo; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida. |
+| 3 | `cultural_monuments` | Revisado con 5 fuentes, incluyendo ejemplos finales del prefijo; `input_text` sintéticos ajustados al estilo de ficha BIC corta con campos desplazados; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida. |
+| 4 | `environmental_ecology` | Revisado con 5 fuentes, incluyendo ejemplos finales del prefijo; `input_text` sintéticos ajustados a noticia Markdown breve; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enum completo. |
+| 5 | `legal_legislation` | Revisado con 5 fuentes, incluyendo los últimos ejemplos disponibles; `input_text` sintéticos mantenidos en estilo enciclopédico con ajuste menor de `Source`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enums completos. |
+| 6 | `medical_drug` | Revisado con 5 rutas disponibles; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enums completos. |
+| 7 | `technical_software` | Revisado con 5 fuentes; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enum completo. |
+| 8 | `lifestyle_recipes` | Revisado con 5 fuentes; `input_text` sintéticos ajustados levemente hacia estilo enciclopédico/procedimental; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enums completos. |
+| 9 | `stem_astronomy_detailed` | Revisado con 5 fuentes, incluyendo ejemplos finales del prefijo; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enum completo. |
+| 10 | `medical_diseases` | Revisado con 5 fuentes; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enum completo de etiología y severidades esperadas. |
+| 11 | `legal_contracts` | Revisado con 5 fuentes, incluyendo los últimos ejemplos disponibles; `input_text` sintéticos ajustados al estilo contractual con comparecencias y cláusulas en negrita; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enum completo. |
+| 12 | `technical_entities` | Revisado con las 3 fuentes disponibles; no hay más ejemplos del prefijo en `dev`; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enum completo. |
+| 13 | `general_disasters` | Revisado con 5 fuentes, incluyendo los últimos ejemplos disponibles; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enum completo. |
+| 14 | `legal_judicial` | Revisado con 5 fuentes, incluyendo los últimos ejemplos disponibles; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enum completo. |
+| 15 | `medical_health_news` | Revisado con 5 fuentes, incluyendo los últimos ejemplos disponibles; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enum completo. |
+| 16 | `technical_extraction` | Revisado con las 3 fuentes disponibles; no hay más ejemplos del prefijo en `dev`; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de description enriquecida añadida. |
+| 17 | `cultural_extraction` | Revisado con las 2 fuentes únicas disponibles; los duplicados en `dev` no añaden ejemplos nuevos; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de description enriquecida añadida. |
+| 18 | `legal_extraction` | Revisado con la única fuente disponible; el duplicado en `dev` no añade ejemplo nuevo; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de description enriquecida añadida. |
+| 19 | `cultural_entities` | Revisado con las 2 fuentes únicas disponibles; los duplicados en `dev` no añaden ejemplos nuevos; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enum completo. |
+| 20 | `medical_entities` | Revisado con las 2 fuentes únicas disponibles; los duplicados en `dev` no añaden ejemplos nuevos; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enum completo. |
+| 21 | `legal_entities` | Revisado con la única fuente disponible; el duplicado en `dev` no añade ejemplo nuevo; no requirió ajuste de `input_text`; `output` y `relevant_fragments` verificados; tabla de descriptions enriquecidas añadida con enum completo. |
+
+Siguiente prefijo pendiente de esta pasada: ninguno; la pasada de prefijos queda completa.
+
+## Algoritmo para revisión de estilo y descriptions enriquecidas
+
+Esta pasada se hace prefijo por prefijo, uno a la vez, sin modificar los JSONs
+finales de `src/gensie/fsp/resources/cases`.
+
+1. Revisar el `.md` existente del prefijo en `docs/rag`.
+2. Si el `.md` tiene menos de 5 fuentes revisadas, mirar solo los nombres de
+   archivos disponibles en `data/dev_rev` y `data/dev` para ese prefijo y
+   seleccionar fuentes adicionales hasta llegar a 5 o al máximo posible. En esta
+   selección no se leen todavía las fuentes.
+3. Al completar fuentes desde `data/dev`, no elegir siempre solo las siguientes
+   por orden inicial: incluir algunos ejemplos finales del prefijo, porque a
+   veces los últimos archivos tienen estructuras, estilos o trampas distintas.
+4. Revisar todas las fuentes seleccionadas, tanto las que ya estaban en el `.md`
+   como las nuevas.
+5. Comparar finamente los `input_text` sintéticos contra los revisados:
+   encabezados, presencia o ausencia de `Source:`, uso de `[...]`, secciones,
+   longitud, estilo narrativo/descriptivo, densidad de ruido, distractores y
+   forma natural de expresar ausencias.
+6. Si los `input_text` sintéticos no imitan bien el estilo del prefijo,
+   modificarlos en el `.md` sin tocar JSONs.
+7. Después de cualquier cambio en `input_text`, revisar y corregir si hace falta
+   el `output` esperado y todos los `reasoning.relevant_fragments`, para asegurar
+   que cada valor siga estando grounded en el texto final.
+8. Añadir en el `.md` una tabla `Descriptions enriquecidas para RAG` con una
+   fila por campo del schema. Cada description debe estar en español, ser breve
+   y útil para prompt: debe explicar cómo extraer el campo y advertir trampas
+   típicas observadas, sin volverse una explicación larga.
+9. Validar que los bloques JSON embebidos en el `.md` sigan parseando y que los
+   `input_text` sintéticos respeten el límite acordado de longitud, salvo
+   excepción explícita.

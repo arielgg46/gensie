@@ -23,6 +23,19 @@ Los tasks `lifestyle_recipes` son extracciones L10 de recetas o descripciones cu
 | `technique_sequence` | Array requerido con valores `SOFREÍR`, `HERVIR`, `HORNEAR`, `FREÍR`, `VAPOR` o `COCCIÓN LENTA`. Dualidad entre técnica única y varias técnicas cronológicas. Si el texto no describe cocción aplicable, puede quedar vacío, como en adobo. |
 | `total_time_minutes` | `integer` vs `null`. Dualidad entre tiempo total explícito o sumable y tiempos vagos como "hasta que esté tierno", "toda la tarde" o ausencia de duración. |
 
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `dish_name` | Nombre del plato, técnica o preparación principal, normalmente el encabezado `#`. Si el encabezado es genérico, usa el nombre de receta que el cuerpo presenta como preparación central; no elijas variantes, guarniciones ni platos listados en “véase también”. |
+| `servings` | Número de raciones o porciones si aparece explícito. Devuelve `null` en entradas enciclopédicas sin cantidad de servicio; no infieras raciones desde número de ingredientes, tamaño de cazuela o costumbre familiar. |
+| `ingredients` | Ingredientes de la preparación básica, con `amount` y `unit` cuando existan. No incluyas variantes opcionales, acompañamientos, platos derivados, notas históricas ni ingredientes de otras acepciones regionales si el texto los separa de la receta principal. |
+| `ingredients[].unit` | Unidad normalizada; enum completo: `g`, `ml`, `kg`, `unidad`, `pizca`, `cucharada` u `otro`, además de `null` cuando no haya unidad. Usa `otro` para unidades textuales no incluidas como vaso o taza; no inventes unidades cuando el texto solo nombra el ingrediente. |
+| `complexity_score` | Dificultad inferida de 1 a 10 según número de fases, control de textura, técnicas, precisión y tiempo. Una técnica o ingrediente básico puede ser 1-2; guisos con sofrito y hervor 5-6; preparaciones con marinado, reducción, horno o varias fases tienden a 7 o más. |
+| `dietary_tags` | Etiquetas dietéticas inferidas del enum completo: `VEGANO`, `VEGETARIANO`, `SIN GLUTEN`, `SIN LÁCTEOS` o `BAJO EN CARBOHIDRATOS`. Evalúa la preparación básica, no acompañamientos opcionales; carne/pescado bloquea vegano/vegetariano, harina/pan/cerveza bloquea sin gluten, lácteos bloquean sin lácteos. |
+| `technique_sequence` | Secuencia cronológica de técnicas del enum completo: `SOFREÍR`, `HERVIR`, `HORNEAR`, `FREÍR`, `VAPOR` o `COCCIÓN LENTA`. Extrae solo técnicas descritas como preparación del plato; adobo, macerado, reposo o servicio no se fuerzan a un enum si no corresponden. |
+| `total_time_minutes` | Tiempo total en minutos cuando el texto da tiempos explícitos sumables. Devuelve `null` con expresiones vagas como “hasta que esté tierno”, “a fuego bajo”, “calor residual” o ausencia de duración. |
+
 ## Propuesta de los dos ejemplos
 
 | Campo | Ejemplo 1 | Ejemplo 2 |
@@ -44,7 +57,7 @@ Los tasks `lifestyle_recipes` son extracciones L10 de recetas o descripciones cu
 ```text
 # Berenjenas al vapor con tahini
 
-Source: https://ejemplo.org/wiki/Berenjenas_al_vapor_con_tahini
+Source: https://es.wikipedia.org/wiki/Berenjenas_al_vapor_con_tahini
 
 Las berenjenas al vapor con tahini son una preparación vegetal de servicio templado, habitual como entrante. Para 2 raciones se usan 2 berenjenas pequeñas, 2 cucharadas de tahini, 30 ml de zumo de limón, 1 cucharada de aceite de oliva, 1 pizca de sal y hojas de perejil picadas.
 
@@ -164,9 +177,12 @@ Extrae la receta.
 ```text
 # Costillas con cerveza negra
 
-Source: https://ejemplo.org/wiki/Costillas_con_cerveza_negra
+Source: https://es.wikipedia.org/wiki/Costillas_con_cerveza_negra
 
 Las costillas con cerveza negra son una preparación de carne guisada y acabada al horno, habitual en recetarios domésticos de invierno.
+
+== Historia ==
+La receta se documenta en cuadernos familiares de cocina centroeuropea y se adaptó en bares españoles como plato de temporada. Suele relacionarse con comidas de domingo y con el aprovechamiento de cortes con hueso que necesitan una cocción prolongada.
 
 == Preparación ==
 Las costillas con cerveza negra se preparan frotando la carne con sal, pimienta y pimentón. En una cazuela amplia se sofríen cebolla y ajo con mantequilla hasta que toman color; después se añade la carne, un vaso de cerveza negra, miel y laurel. La cazuela queda a fuego muy bajo hasta que la salsa se vuelve espesa y la carne empieza a separarse del hueso.

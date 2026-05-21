@@ -14,6 +14,12 @@ Los tasks `technical_extraction` son extracciones L1 de un único fragmento verb
 | --- | --- |
 | `answer` | Requerido, `string`, no nullable. La dualidad útil es fragmento de oración frente a oración completa; en ambos casos debe ser verbatim. Conviene incluir distractores con tecnologías del mismo dominio para enseñar que la respuesta sale del contexto semántico pedido, no de cualquier término técnico destacado. |
 
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `answer` | Fragmento único y verbatim que responde exactamente la pregunta. Copia la oración o subfrase mínima suficiente, sin resumir, normalizar, traducir ni añadir puntuación ausente; descarta frases cercanas con tecnologías, licencias, versiones o desarrolladores que no correspondan al aspecto preguntado. |
+
 ## Propuesta de los dos ejemplos
 
 | Campo | Ejemplo 1 | Ejemplo 2 |

@@ -7,6 +7,8 @@ Los tasks `legal_judicial` usan el schema general de noticias L4 para procesos j
 - `data/dev_rev/legal_judicial_001.json`
 - `data/dev_rev/legal_judicial_002.json`
 - `data/dev/legal_judicial_003.json`
+- `data/dev/legal_judicial_009.json`
+- `data/dev/legal_judicial_010.json`
 
 ## Dualidad por campo
 
@@ -22,6 +24,21 @@ Los tasks `legal_judicial` usan el schema general de noticias L4 para procesos j
 | `casualties` | `integer` vs `null`. Solo muertes humanas del hecho narrado; no años de cárcel, condenados, fallecidos históricos no ligados al evento o bajas hipotéticas. |
 | `injured` | `integer` vs `null`. Solo personas heridas; no detenidos, imputados, evacuados ni perjudicados económicos. |
 | `affected_count` | `integer` vs `null`. Puede poblarse con víctimas o perjudicados si el texto los cuantifica; no debe usarse para años de condena, armas, detenidos o sospechosos. |
+
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `headline` | Titular principal de la noticia, normalmente el encabezado `#`. Cópialo sin alterar comillas, alias o nombres propios; no resumas ni limpies titulares largos. |
+| `summary` | Resumen breve en 1-3 oraciones con decisión judicial, operativo, acusación, personas clave y consecuencias. Prioriza el hecho procesal o policial central y no conviertas la crónica en una lista exhaustiva de nombres. |
+| `category` | Categoría temática del enum completo: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. Usa `JUDICIAL` para sentencias, investigaciones, operativos, procesos penales, fiscalías, tribunales, detenciones o actuaciones policiales. |
+| `location` | Lugar principal del proceso, operativo o hecho investigado. Extrae tribunal, ciudad, distrito, región o país cuando estén grounded; devuelve `null` si solo hay instituciones nacionales o referencias vagas sin ubicación suficiente. |
+| `date` | Fecha explícita de la sentencia, operativo o hecho. Devuelve `null` para `hoy`, `esta madrugada`, `ayer`, aniversarios o referencias procesales sin fecha absoluta suficiente, salvo que el dataset preserve una fecha parcial claramente usada en el texto. |
+| `key_people` | Personas individuales nombradas: acusados, condenados, jueces, fiscales, víctimas, autoridades o testigos. No incluyas cargos sin nombre, grupos, alias sin persona asociada cuando el texto no los individualiza, ni organizaciones criminales como personas. |
+| `key_organizations` | Tribunales, fiscalías, policías, fuerzas armadas, bandas, medios, empresas, clubes o instituciones nombradas. Conserva nombres oficiales y alias organizacionales; no incluyas cargos, delitos ni lugares solos como organizaciones. |
+| `casualties` | Número de muertes humanas vinculadas al hecho narrado. No uses años de prisión, condenados, detenidos, desaparecidos, fallecidos históricos no cuantificados como saldo actual o muertes hipotéticas. |
+| `injured` | Número de personas heridas. No uses detenidos, imputados, absueltos, perjudicados económicos, personas desaparecidas ni agentes movilizados. |
+| `affected_count` | Número de personas afectadas, perjudicadas, víctimas o involucradas cuando el texto las cuantifica como tal. No uses años de condena, armas, vehículos, líneas telefónicas, registros, sospechosos o detenidos salvo que el texto los trate explícitamente como personas afectadas. |
 
 ## Propuesta de los dos ejemplos
 

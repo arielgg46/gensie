@@ -22,6 +22,19 @@ Los tasks `medical_diseases` son extracciones L5 de perfiles patológicos: el mo
 | `diagnosis_methods` | `[]` vs lista poblada. Debe contener pruebas o métodos clínicos nombrados, no secciones genéricas de diagnóstico sin método concreto. |
 | `is_chronic` | `boolean` vs `null`. `true` cuando el texto define enfermedad crónica o persistente; `false` cuando define cuadro agudo/autolimitado; `null` si no caracteriza duración. |
 
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `pathology_name` | Nombre médico principal de la patología. Usa el encabezado o el sinónimo formal de la primera frase; no elijas categorías amplias, ejemplos secundarios ni complicaciones como si fueran la enfermedad principal. |
+| `etiology_type` | Tipo etiológico principal; enum completo: `INFECTIOUS`, `GENETIC`, `AUTOIMMUNE`, `DEGENERATIVE`, `UNKNOWN` u `OTHER`. Usa `INFECTIOUS` para infecciones, `GENETIC` para origen hereditario dominante, `AUTOIMMUNE` para autoinmunidad explícita, `DEGENERATIVE` para deterioro progresivo, `UNKNOWN` cuando no haya causa demostrada y `OTHER` para reacciones, cánceres, tóxicos o mecanismos no cubiertos. |
+| `etiology_description` | Resumen breve de la causa si el texto la explica. Devuelve `null` si solo hay hipótesis, factores asociados, mecanismos no concluyentes o epidemiología sin causa directa. |
+| `symptoms` | Manifestaciones clínicas mencionadas. Separa síntomas definitorios de complicaciones o signos tardíos; no incluyas tratamientos, factores de riesgo, pruebas diagnósticas ni consecuencias epidemiológicas como síntomas. |
+| `symptoms[].severity_level` | Severidad textual cuando esté explícita o sea muy clara; valores esperados: `Mild`, `Moderate` o `Severe`, además de `null` si no se puede justificar. No conviertas cualquier síntoma molesto en severo salvo que el texto hable de alarma, gravedad, incapacidad o riesgo vital. |
+| `symptoms[].is_primary` | `true` para síntomas centrales del cuadro; `false` para complicaciones, manifestaciones secundarias, signos de alarma, afectación por extensión o síntomas que solo aparecen en algunos casos. |
+| `diagnosis_methods` | Pruebas, escalas o métodos clínicos concretos usados para diagnosticar. Incluye radiografía, TAC, broncoscopía, test rápido, cultivo, escala clínica, etc.; no incluyas secciones llamadas “Diagnóstico” si no nombran un método. |
+| `is_chronic` | `true` si el texto define la enfermedad como crónica, persistente o de larga duración; `false` si la define como aguda, autolimitada o de pocos días; `null` si no caracteriza duración. |
+
 ## Propuesta de los dos ejemplos
 
 | Campo | Ejemplo 1 | Ejemplo 2 |

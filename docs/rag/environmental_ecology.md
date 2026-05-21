@@ -6,7 +6,9 @@ Los tasks `environmental_ecology` usan el schema general de noticias L4 para art
 
 - `data/dev_rev/environmental_ecology_001.json`
 - `data/dev_rev/environmental_ecology_002.json`
+- `data/dev_rev/environmental_ecology_006.json`
 - `data/dev/environmental_ecology_007.json`
+- `data/dev/environmental_ecology_010.json`
 
 ## Dualidad por campo
 
@@ -22,6 +24,21 @@ Los tasks `environmental_ecology` usan el schema general de noticias L4 para art
 | `casualties` | `integer` vs `null`. Normalmente `null` en ecología; conviene un ejemplo con muertes humanas explícitas para enseñar que no se infiere desde animales muertos, daños ecológicos o riesgos. |
 | `injured` | `integer` vs `null`. Dualidad entre heridos humanos explícitos y ausencia de lesionados. Debe ignorar animales enfermos, especies afectadas o formulaciones hipotéticas. |
 | `affected_count` | `integer` vs `null`. Dualidad entre número de personas afectadas, desplazadas o evacuadas y números ecológicos no humanos, como animales, kilómetros, hectáreas o concentraciones, que no deberían poblar este campo salvo que el texto lo formule como personas afectadas. |
+
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `headline` | Titular principal del artículo, normalmente el encabezado `#`. Cópialo sin el marcador Markdown y no incorpores subtítulos, primeras frases ni nombres secundarios que aparezcan después. |
+| `summary` | Resumen breve en 1-3 oraciones de los hechos principales. Debe sintetizar evento, causa, actores y consecuencias cuando estén en el texto, sin copiar todo ni inventar contexto ambiental no mencionado. |
+| `category` | Categoría temática del enum: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. En este prefijo suele ser `ENVIRONMENT`, pero usa `SPORTS` para competencias, `SCIENCE` para estudios como foco central, y no fuerces ambiente si la noticia trata principalmente otro ámbito. |
+| `location` | Lugar principal del hecho noticioso. Extrae ciudad, región o país cuando el evento esté ubicado; devuelve `null` ante declaraciones globales o listados de lugares secundarios sin un sitio central. |
+| `date` | Fecha explícita del hecho o rango claramente fechado. Devuelve `null` para referencias relativas como `este jueves`, `recientemente`, `últimos días` o periodos históricos sin fecha absoluta suficiente. |
+| `key_people` | Nombres propios de personas individuales mencionadas, aunque aparezcan en párrafos laterales. No incluyas cargos, equipos, comunidades, animales ni grupos anónimos. |
+| `key_organizations` | Organizaciones, instituciones, empresas, gobiernos, medios o equipos con nombre propio. No confundas lugares, fenómenos naturales, especies, cargos genéricos o descripciones como `un laboratorio universitario` con organizaciones nombradas. |
+| `casualties` | Número de muertes humanas mencionadas. Devuelve `null` si solo hay animales muertos, daños ecológicos, riesgos o cifras de especies. |
+| `injured` | Número de personas heridas o lesionadas. Devuelve `null` si el texto solo menciona enfermedades animales, exposición ambiental sin lesión cuantificada o medidas preventivas. |
+| `affected_count` | Número de personas afectadas, evacuadas, atendidas o sin servicios. No uses cifras ambientales, animales, hectáreas, kilómetros, muestras, focos o toneladas salvo que el texto las formule como personas afectadas. |
 
 ## Propuesta de los dos ejemplos
 
@@ -47,11 +64,12 @@ Los tasks `environmental_ecology` usan el schema general de noticias L4 para art
 ```text
 # Declaran alerta ambiental por derrame de relaves en la cuenca del río San Juan
 
-El Ministerio del Ambiente declaró el 18 de abril de 2026 una alerta ambiental en la cuenca del río San Juan, en Pasco, Perú, después de que una poza de relaves de la mina Santa Isidora cediera durante lluvias intensas y tiñera de gris varios tramos del cauce. Técnicos de la Autoridad Nacional del Agua midieron alta turbidez en doce kilómetros del río y recomendaron suspender el uso de las acequias hasta recibir nuevos análisis.
+El Ministerio del Ambiente declaró el 18 de abril de 2026 una alerta ambiental en la cuenca del río San Juan, en Pasco, Perú, después de que una poza de relaves de la mina Santa Isidora cediera durante las lluvias y tiñera de gris varios tramos del cauce.
+Técnicos de la Autoridad Nacional del Agua midieron alta turbidez en doce kilómetros del río y recomendaron suspender el uso de las acequias hasta recibir nuevos análisis.
 
-Brigadas de la Municipalidad Provincial de Pasco repartieron bidones y pastillas potabilizadoras a 1 200 vecinos de Huayllay, Rancas y San Miguel. La Cooperativa Río Claro, operadora de la mina, informó que instaló tres barreras de contención y retiró sedimentos de la ribera, mientras comuneros reclamaron que el olor metálico llegó a los canales de riego antes del amanecer. En la tarde, camiones cisterna reemplazaron la toma habitual de agua y se señalizaron los accesos al río para impedir que el ganado bebiera en las orillas.
+Brigadas de la Municipalidad Provincial de Pasco repartieron bidones y pastillas potabilizadoras a 1 200 vecinos de Huayllay, Rancas y San Miguel. La Cooperativa Río Claro, operadora de la mina, informó que instaló tres barreras de contención, mientras comuneros reclamaron que el olor metálico llegó a los canales de riego antes del amanecer.
 
-La Universidad Nacional Daniel Alcides Carrión tomó muestras de agua, suelo y peces para comparar los resultados con registros de 2023. El reporte preliminar también menciona la mortandad de truchas en dos criaderos familiares y la presencia de lodo rojizo cerca de una bocatoma. El gobierno regional pidió ampliar el monitoreo a los manantiales usados por las escuelas rurales y anunció que la restricción al riego se revisará el próximo lunes.
+La Universidad Nacional Daniel Alcides Carrión tomó muestras de agua, suelo y peces para comparar los resultados con registros de 2023. El reporte preliminar también menciona la mortandad de truchas en dos criaderos familiares y lodo rojizo cerca de una bocatoma.
 ```
 
 `instruction`:
@@ -65,7 +83,7 @@ Extrae la información estructurada de este artículo de noticias sobre un event
 ```json
 {
   "headline": "Declaran alerta ambiental por derrame de relaves en la cuenca del río San Juan",
-  "summary": "El Ministerio del Ambiente declaró una alerta ambiental en la cuenca del río San Juan, en Pasco, Perú, tras el derrame de relaves de la mina Santa Isidora durante lluvias intensas. Autoridades ambientales detectaron alta turbidez, suspendieron el uso de acequias y distribuyeron agua y pastillas potabilizadoras a 1 200 vecinos de tres comunidades. La Cooperativa Río Claro instaló barreras de contención y la Universidad Nacional Daniel Alcides Carrión tomó muestras para comparar el daño con registros previos.",
+  "summary": "El Ministerio del Ambiente declaró una alerta ambiental en la cuenca del río San Juan, en Pasco, Perú, tras el derrame de relaves de la mina Santa Isidora durante lluvias. Autoridades ambientales detectaron alta turbidez, suspendieron el uso de acequias y distribuyeron agua y pastillas potabilizadoras a 1 200 vecinos de tres comunidades. La Cooperativa Río Claro instaló barreras de contención y la Universidad Nacional Daniel Alcides Carrión tomó muestras para comparar el daño con registros previos.",
   "category": "ENVIRONMENT",
   "location": "cuenca del río San Juan, Pasco, Perú",
   "date": "18 de abril de 2026",
@@ -147,11 +165,11 @@ Extrae la información estructurada de este artículo de noticias sobre un event
 ```text
 # Científicos vinculan incendios de turberas con daños respiratorios duraderos
 
-La investigadora Lara Méndez presentó este martes un estudio sobre incendios de turberas ante una red internacional de salud ambiental. El trabajo, coordinado con Rui Tanaka y difundido como preprint revisado por pares, comparó 3 400 muestras de humo y suelo tomadas en humedales boreales y tropicales durante los últimos cinco años. Los mapas agrupan casos de varias latitudes sin destacar un foco como origen de la investigación.
+La investigadora Lara Méndez presentó este martes un estudio sobre incendios de turberas ante una red internacional de salud ambiental. El trabajo, coordinado con Rui Tanaka y difundido como preprint revisado por pares, comparó 3 400 muestras de humo y suelo tomadas en humedales boreales y tropicales durante los últimos cinco años.
 
-El equipo revisó partes médicos, sensores de partículas finas y registros de viento asociados a 620 focos de combustión lenta. Según la base consolidada, esos episodios estuvieron vinculados con 18 muertes y 146 personas heridas por inhalación de humo denso, sobre todo en turnos de extinción y traslados de emergencia. Méndez dijo que el peligro de las turberas no está en la llama visible, sino en columnas bajas que permanecen activas durante semanas.
+El equipo revisó partes médicos, sensores de partículas finas y registros de viento asociados a 620 focos de combustión lenta. Según la base consolidada, esos episodios estuvieron vinculados con 18 muertes y 146 personas heridas por inhalación de humo denso, sobre todo en turnos de extinción y traslados de emergencia.
 
-Un laboratorio universitario aportó modelos de dispersión para separar el humo de turberas del producido por incendios forestales de superficie. Los autores calculan que una hectárea de turba seca puede liberar hasta tres veces más carbono que un bosque joven, pero advierten que la cifra cambia con la profundidad del suelo y la humedad previa. El artículo recomienda restaurar canales de agua y prohibir drenajes agrícolas en zonas degradadas, medidas que serán discutidas en una reunión técnica de especialistas en restauración de humedales.
+Un laboratorio universitario aportó modelos de dispersión para separar el humo de turberas del producido por incendios forestales de superficie. Los autores calculan que una hectárea de turba seca puede liberar hasta tres veces más carbono que un bosque joven, pero advierten que la cifra cambia con la profundidad del suelo y la humedad previa.
 ```
 
 `instruction`:
@@ -165,7 +183,7 @@ Extrae la información estructurada de este artículo de noticias sobre medio am
 ```json
 {
   "headline": "Científicos vinculan incendios de turberas con daños respiratorios duraderos",
-  "summary": "Lara Méndez presentó un estudio sobre incendios de turberas coordinado con Rui Tanaka y difundido como preprint revisado por pares. El equipo analizó 3 400 muestras, registros médicos, sensores de partículas y datos de viento asociados a 620 focos de combustión lenta, vinculando esos episodios con 18 muertes y 146 personas heridas por inhalación de humo. El artículo distingue el humo de turberas del de incendios forestales de superficie y recomienda restaurar canales de agua y limitar drenajes agrícolas en zonas degradadas.",
+  "summary": "Lara Méndez presentó un estudio sobre incendios de turberas coordinado con Rui Tanaka y difundido como preprint revisado por pares. El equipo analizó 3 400 muestras, registros médicos, sensores de partículas y datos de viento asociados a 620 focos de combustión lenta, vinculando esos episodios con 18 muertes y 146 personas heridas por inhalación de humo. El artículo distingue el humo de turberas del de incendios forestales de superficie y explica que una hectárea de turba seca puede liberar hasta tres veces más carbono que un bosque joven.",
   "category": "SCIENCE",
   "location": null,
   "date": null,
@@ -191,8 +209,8 @@ Extrae la información estructurada de este artículo de noticias sobre medio am
   },
   "summary": {
     "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
-    "relevant_fragments": "\"presentó este martes un estudio sobre incendios de turberas\", \"comparó 3 400 muestras de humo y suelo\", \"18 muertes y 146 personas heridas\" y \"recomienda restaurar canales de agua y prohibir drenajes agrícolas\".",
-    "final_value": "Como los fragmentos relevantes cubren autoría del estudio, método, consecuencias humanas y recomendaciones, el resumen debe sintetizar esos hechos en tres oraciones."
+    "relevant_fragments": "\"presentó este martes un estudio sobre incendios de turberas\", \"comparó 3 400 muestras de humo y suelo\", \"18 muertes y 146 personas heridas\" y \"una hectárea de turba seca puede liberar hasta tres veces más carbono que un bosque joven\".",
+    "final_value": "Como los fragmentos relevantes cubren autoría del estudio, método, consecuencias humanas y hallazgos técnicos, el resumen debe sintetizar esos hechos en tres oraciones."
   },
   "category": {
     "field_asks": "la categoría temática de la noticia, mapeada a uno de estos valores: JUDICIAL, DISASTER, HEALTH, ENVIRONMENT, POLITICS, ECONOMY, SCIENCE, CULTURE, SPORTS u OTHER.",
@@ -201,8 +219,8 @@ Extrae la información estructurada de este artículo de noticias sobre medio am
   },
   "location": {
     "field_asks": "la ubicación geográfica donde ocurrió el evento, o null si no hay evidencia suficiente.",
-    "relevant_fragments": "\"humedales boreales y tropicales\", \"Los mapas agrupan casos de varias latitudes\" y \"zonas degradadas\".",
-    "final_value": "Los fragmentos relevantes describen ámbitos de estudio amplios y genéricos, pero no una ubicación concreta del evento noticioso; el valor debe ser null."
+    "relevant_fragments": "\"humedales boreales y tropicales\".",
+    "final_value": "El fragmento relevante describe un ámbito de estudio amplio y genérico, pero no una ubicación concreta del evento noticioso; el valor debe ser null."
   },
   "date": {
     "field_asks": "la fecha mencionada en el artículo, o null si no hay evidencia suficiente.",
@@ -216,7 +234,7 @@ Extrae la información estructurada de este artículo de noticias sobre medio am
   },
   "key_organizations": {
     "field_asks": "nombres de organizaciones, empresas, instituciones o gobiernos mencionados.",
-    "relevant_fragments": "\"una red internacional de salud ambiental\", \"preprint revisado por pares\", \"Un laboratorio universitario\" y \"una reunión técnica de especialistas\".",
+    "relevant_fragments": "\"una red internacional de salud ambiental\", \"preprint revisado por pares\" y \"Un laboratorio universitario\".",
     "final_value": "Los fragmentos relevantes describen espacios o tipos institucionales, pero no dan nombres propios de organizaciones, empresas, instituciones o gobiernos; la lista debe ser vacía."
   },
   "casualties": {

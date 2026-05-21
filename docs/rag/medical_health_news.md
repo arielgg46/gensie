@@ -7,6 +7,8 @@ Los tasks `medical_health_news` usan el schema general de noticias L4 para notas
 - `data/dev_rev/medical_health_news_001.json`
 - `data/dev/medical_health_news_002.json`
 - `data/dev/medical_health_news_003.json`
+- `data/dev/medical_health_news_009.json`
+- `data/dev/medical_health_news_010.json`
 
 ## Dualidad por campo
 
@@ -22,6 +24,21 @@ Los tasks `medical_health_news` usan el schema general de noticias L4 para notas
 | `casualties` | `integer` vs `null`. Debe ser muertes humanas explícitas; no ventas, dosis, años, pacientes estudiados o casos sin desenlace fatal. |
 | `injured` | `integer` vs `null`. Puede usarse para personas hospitalizadas, intoxicadas o lesionadas cuando el texto las cuantifica como afectadas clínicamente; no para participantes de un estudio. |
 | `affected_count` | `integer` vs `null`. Debe poblarse con personas afectadas, desplazadas o perjudicadas; no con frascos, muestras, hospitales, municipios o participantes analizados si no se presentan como afectados. |
+
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `headline` | Titular principal de la noticia, normalmente el encabezado `#`. Cópialo de forma literal, conservando nombres de enfermedades, organismos y cifras si aparecen en el titular. |
+| `summary` | Resumen breve en 1-3 oraciones con alerta, hallazgo, medida sanitaria, organismos y cifras humanas relevantes. No conviertas detalles secundarios como ventas, dosis, vuelos o contratos en el centro si no son el hecho principal. |
+| `category` | Categoría temática del enum completo: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. Usa `HEALTH` para alertas sanitarias, brotes, estudios clínicos, programas médicos, medicamentos, vacunas o decisiones de salud pública, aunque haya elementos políticos o económicos. |
+| `location` | Lugar principal de la alerta, estudio o evento sanitario. Extrae país, ciudad o región cuando el texto lo sitúe; devuelve `null` si solo hay muestras multicéntricas, instituciones genéricas o contexto internacional sin ubicación del evento. |
+| `date` | Fecha explícita de la alerta, medida sanitaria, publicación o evento. Devuelve `null` para `este martes`, `ayer`, periodos de seguimiento, años de programas o aniversarios si no hay fecha absoluta suficiente. |
+| `key_people` | Personas individuales nombradas: médicos, investigadores, ministros, directores o autoridades sanitarias. No incluyas pacientes anónimos, grupos de trabajadores, cargos sin nombre ni autores colectivos. |
+| `key_organizations` | Organizaciones sanitarias, ministerios, hospitales, revistas, farmacéuticas, programas o medios nombrados. No incluyas grupos genéricos como “el equipo”, “centros de salud” o “autoridades” si no tienen nombre propio. |
+| `casualties` | Número de muertes humanas mencionadas por el evento sanitario. No uses ventas, dosis, contratos, muestras, participantes, infectados o muertes históricas si no son el balance relevante de la noticia. |
+| `injured` | Número de personas heridas, intoxicadas, hospitalizadas o clínicamente afectadas de forma aguda cuando el texto lo cuantifica. No uses participantes de estudio, personas vacunadas, médicos desplazados o infectados si el campo se reserva para hospitalizados/lesionados y no hay equivalencia clara. |
+| `affected_count` | Número de personas afectadas, infectadas, damnificadas, desplazadas o perjudicadas si el texto las presenta como tal. No uses frascos, dosis, ventas, municipios, vuelos, hospitales, muestras o participantes analizados si no se describen como afectados. |
 
 ## Propuesta de los dos ejemplos
 

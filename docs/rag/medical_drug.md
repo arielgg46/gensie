@@ -25,6 +25,21 @@ Los tasks `medical_drug` son extracciones L8 desde fichas técnicas de medicamen
 | `side_effects[].probability` | Enum requerido. Debe mapear a uno de estos valores: `HIGH`, `MEDIUM`, `LOW` o `UNKNOWN`. Dualidad importante: `Raras`/`Muy raras` suelen ir a `LOW`; `Frecuentes` a `HIGH`; `Poco frecuentes` o algunos usos del dataset pueden ir a `MEDIUM`; `Frecuencia no conocida` debe ir a `UNKNOWN`. |
 | `side_effects[].impact` | Enum requerido. Debe mapear a uno de estos valores: `MILD`, `MODERATE`, `SEVERE` o `CRITICAL`. Dualidad entre reacciones leves como malestar/náuseas, moderadas como transaminasas o hipotensión, severas como hepatotoxicidad o reacciones cutáneas graves, y críticas como shock anafiláctico o depresión respiratoria. |
 
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `common_name` | Principio activo o combinación de principios activos. Extráelo del nombre o de la composición; normaliza combinaciones como `Paracetamol / Codeína` y no uses indicaciones terapéuticas ni excipientes. |
+| `official_name` | Nombre completo de la presentación en `# 1. NOMBRE DEL MEDICAMENTO`. Si aparecen varias presentaciones, conserva la presentación principal del recorte y no mezcles dosis de otras fichas. |
+| `pharmaceutical_format` | Forma farmacéutica literal de `# 3. FORMA FARMACÉUTICA`, por ejemplo `Comprimido`, `Comprimido recubierto con película`, `Solución oral` o `Solución para perfusión`. No la infieras desde la vía ni desde la posología si la sección 3 está presente. |
+| `standard_doses` | Lista de concentraciones o dosis estándar de la composición y del nombre oficial. Incluye unidades y principio activo cuando haya combinación; no conviertas pautas de administración, máximos diarios ni intervalos horarios en dosis estándar. |
+| `is_pediatric` | `true` si el texto permite uso o da pauta para niños/adolescentes concretos; `false` si contraindica menores o solo menciona población pediátrica para advertir restricciones. Distingue adolescentes permitidos de niños excluidos cuando el medicamento no es apto para la población pediátrica general. |
+| `side_effects` | Lista de reacciones adversas de `## 4.8. Reacciones adversas`, preferiblemente todas las del recorte. No extraigas efectos desde indicaciones, advertencias, sobredosis o composición; conserva clase de órgano, frecuencia e impacto por cada reacción. |
+| `side_effects[].reaction` | Nombre de la reacción adversa, literal o muy fiel al texto. Divide listas separadas por comas cuando sean reacciones distintas (`Trombocitopenia`, `agranulocitosis`) y conserva expresiones clínicas compuestas cuando forman una entidad. |
+| `side_effects[].system_organ_class` | Clase de órgano o sistema bajo la que aparece la reacción; usa `null` si la reacción se menciona en una frase general sin encabezado claro. No confundas principio activo (`Paracetamol`, `Codeína`) con clase de órgano. |
+| `side_effects[].probability` | Frecuencia mapeada al enum completo: `HIGH`, `MEDIUM`, `LOW` o `UNKNOWN`. `Frecuentes` suele ser `HIGH`, `Poco frecuentes` `MEDIUM`, `Raras`/`Muy raras` `LOW`, y `Frecuencia no conocida` o casos aislados sin frecuencia tabulada `UNKNOWN`. |
+| `side_effects[].impact` | Impacto clínico inferido y mapeado al enum completo: `MILD`, `MODERATE`, `SEVERE` o `CRITICAL`. Síntomas leves como malestar o náuseas son `MILD`; alteraciones que requieren valoración suelen ser `MODERATE`; hepatotoxicidad, broncoespasmo o reacciones cutáneas graves son `SEVERE`; shock anafiláctico, depresión respiratoria o agranulocitosis pueden ser `CRITICAL`. |
+
 ## Propuesta de los dos ejemplos
 
 | Campo | Ejemplo 1 | Ejemplo 2 |

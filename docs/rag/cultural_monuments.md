@@ -5,8 +5,10 @@ Los tasks `cultural_monuments` son extracciones L3 de fichas breves del registro
 ## Ejemplos revisados
 
 - `data/dev_rev/cultural_monuments_1.json`
+- `data/dev/cultural_monuments_2.json`
 - `data/dev/cultural_monuments_3.json`
 - `data/dev/cultural_monuments_4.json`
+- `data/dev/cultural_monuments_5.json`
 
 ## Dualidad por campo
 
@@ -32,6 +34,17 @@ Los tasks `cultural_monuments` son extracciones L3 de fichas breves del registro
 
 En este schema la alternancia de `null` solo aplica directamente a `declaration_date`; `registration_code` no acepta `null`, así que el contraste equivalente es código válido frente a `NONE` cuando el texto solo ofrece coordenadas o deja el campo sin código registral.
 
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `official_name` | Nombre del bien protegido, normalmente el encabezado `#`. Si aparece `Official Name`, úsalo como nombre oficial; no mezcles coordenadas, alias entre paréntesis ni líneas de fuente. |
+| `municipality` | Municipio o localidad del bien. En estos registros los campos pueden estar desplazados: a veces `Municipality` contiene la categoría y `Category` contiene el municipio; elige el valor que sea lugar, aunque esté en otra línea. |
+| `bic_category` | Categoría legal mapeada al enum. `Monumento` -> `MONUMENTO`; `Arte Rupestre` o etiquetas fuera del enum -> `OTRO`; no uses municipios, coordenadas ni códigos como categoría. |
+| `registration_code` | Código registral BIC con patrón de mayúsculas, números y guiones, por ejemplo `RI-51-0009449`. Si solo hay coordenadas, campo vacío o nada que cumpla el patrón, usa `NONE`; si el código aparece desplazado en `Declaration Date`, extráelo igualmente. |
+| `declaration_date` | Fecha legal de declaración normalizada a `YYYY-MM-DD`. Devuelve `null` si el campo está vacío, contiene coordenadas, contiene un código BIC o solo hay líneas de relleno sin fecha. |
+| `is_declared` | `true` si el estado es declarado o si el registro solo muestra ficha BIC sin indicio de incoación. `false` solo cuando aparezca `Incoado`, pendiente u otra señal explícita de no declarado. |
+
 ## Input, output y reasoning propuestos
 
 ### Ejemplo 1
@@ -41,16 +54,18 @@ En este schema la alternancia de `null` solo aplica directamente a `declaration_
 ```text
 # Puente de San Miguel
 
-Official Name: Puente de San Miguel
 Municipality: Teruel
 Category: Monumento
 Registration Code: RI-51-0012386
 Declaration Date: 12 de marzo de 1998
 Status: Declarado
-Coordinates: 40°20′45″N 1°06′22″O / 40.3458, -1.1061 (Puente Viejo)
 Source: Wikipedia Annex List
 
-Ficha revisada en la edición de 2024. El entorno de protección se describe junto al cauce del Alfambra y el puente aparece citado en algunas notas locales como Puente Viejo. No detailed article available.
+No detailed article available.
+Additional detail line 1.
+Additional detail line 2.
+Additional detail line 3.
+Coordinates: 40°20′45″N 1°06′22″O / 40.3458, -1.1061 (Puente Viejo)
 ```
 
 `instruction`:
@@ -78,13 +93,13 @@ Extrae la información del monumento o bien de interés cultural a partir del te
 {
   "official_name": {
     "field_asks": "el nombre oficial del monumento o sitio protegido.",
-    "relevant_fragments": "\"Official Name: Puente de San Miguel\" y \"el puente aparece citado en algunas notas locales como Puente Viejo\".",
-    "final_value": "Como el fragmento relevante da \"Puente de San Miguel\" como nombre oficial y \"Puente Viejo\" solo como cita local, el valor debe ser \"Puente de San Miguel\"."
+    "relevant_fragments": "\"# Puente de San Miguel\" y \"Coordinates: 40°20′45″N 1°06′22″O / 40.3458, -1.1061 (Puente Viejo)\".",
+    "final_value": "Como el encabezado da \"Puente de San Miguel\" como bien principal y \"Puente Viejo\" aparece solo entre paréntesis dentro de las coordenadas, el valor debe ser \"Puente de San Miguel\"."
   },
   "municipality": {
     "field_asks": "el municipio o ciudad donde se encuentra el bien.",
-    "relevant_fragments": "\"Municipality: Teruel\" y \"junto al cauce del Alfambra\".",
-    "final_value": "Como el fragmento relevante etiqueta \"Teruel\" como municipio y el cauce solo describe el entorno, el valor debe ser \"Teruel\"."
+    "relevant_fragments": "\"Municipality: Teruel\".",
+    "final_value": "Como el fragmento relevante etiqueta \"Teruel\" como municipio, el valor debe ser \"Teruel\"."
   },
   "bic_category": {
     "field_asks": "la categoría legal de protección, mapeada a uno de estos valores: MONUMENTO, JARDÍN HISTÓRICO, CONJUNTO HISTÓRICO, SITIO HISTÓRICO, ZONA ARQUEOLÓGICA u OTRO.",
@@ -93,7 +108,7 @@ Extrae la información del monumento o bien de interés cultural a partir del te
   },
   "registration_code": {
     "field_asks": "el código oficial de registro con patrón de mayúsculas, números y guiones; si no hay código válido extraíble, usar NONE.",
-    "relevant_fragments": "\"Registration Code: RI-51-0012386\" y \"Coordinates: 40°20′45″N 1°06′22″O / 40.3458, -1.1061\".",
+    "relevant_fragments": "\"Registration Code: RI-51-0012386\" y \"Coordinates: 40°20′45″N 1°06′22″O / 40.3458, -1.1061 (Puente Viejo)\".",
     "final_value": "Como el fragmento relevante contiene el código registral válido y las coordenadas están en otro campo, el valor debe ser \"RI-51-0012386\"."
   },
   "declaration_date": {
@@ -116,7 +131,6 @@ Extrae la información del monumento o bien de interés cultural a partir del te
 ```text
 # Abrigos de la Solana
 
-Official Name: Abrigos rupestres de la Solana del Molino
 Municipality: Ares del Maestrat
 Type: Arte Rupestre
 Location: Barranco de la Gasulla; Mas de la Solana
@@ -125,7 +139,10 @@ Declaration Date:
 Status: Incoado
 Source: Wikipedia Annex List
 
-El anexo conserva la denominación abreviada del encabezado, mientras la ficha administrativa usa el nombre completo. La revisión de 2022 añade una nota sobre paneles pintados y acceso por senda rural. No detailed article available.
+No detailed article available.
+Additional detail line 1.
+Additional detail line 2.
+Official Name: Abrigos rupestres de la Solana del Molino
 ```
 
 `instruction`:
@@ -154,7 +171,7 @@ Extrae la información del monumento o bien de interés cultural a partir del te
   "official_name": {
     "field_asks": "el nombre oficial del monumento o sitio protegido.",
     "relevant_fragments": "\"# Abrigos de la Solana\" y \"Official Name: Abrigos rupestres de la Solana del Molino\".",
-    "final_value": "Como el fragmento relevante diferencia el encabezado abreviado del nombre oficial de la ficha, el valor debe ser \"Abrigos rupestres de la Solana del Molino\"."
+    "final_value": "Como el fragmento relevante diferencia el encabezado abreviado del nombre oficial añadido en la ficha, el valor debe ser \"Abrigos rupestres de la Solana del Molino\"."
   },
   "municipality": {
     "field_asks": "el municipio o ciudad donde se encuentra el bien.",
@@ -186,4 +203,4 @@ Extrae la información del monumento o bien de interés cultural a partir del te
 
 ## Estructura de los input_text
 
-Los `input_text` revisados tienen forma de ficha Markdown muy corta: encabezado `# <bien>`, varias líneas clave-valor (`Municipality`, `Category` o `Type`, `Location`, `Registration Code`, `Declaration Date`, `Source`) y después una cola genérica como `No detailed article available.` con líneas adicionales. Para los nuevos ejemplos conviene mantener esa estructura de anexo o registro, añadir como máximo una línea `Status:` para hacer observable `is_declared`, y meter ruido realista alrededor de coordenadas, parajes, ediciones del registro o líneas de fuente, sin escribir frases que expliquen artificialmente qué campo falta.
+Los `input_text` revisados tienen forma de ficha Markdown muy corta: encabezado `# <bien>`, varias líneas clave-valor (`Municipality`, `Category` o `Type`, `Location`, `Registration Code`, `Declaration Date`, `Source`) y después una cola genérica como `No detailed article available.` con `Additional detail line N`. El rasgo más importante es el ruido de extracción: a veces `Municipality` contiene la categoría, `Category` contiene el municipio fusionado con un paraje, `Registration Code` contiene coordenadas y `Declaration Date` contiene un código BIC. Para los nuevos ejemplos conviene mantener esa estructura de anexo o registro, añadir como máximo una línea `Status:` para hacer observable `is_declared`, y meter ruido realista alrededor de coordenadas, parajes o líneas de fuente, sin escribir frases que expliquen artificialmente qué campo falta.

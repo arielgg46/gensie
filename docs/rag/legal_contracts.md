@@ -7,6 +7,8 @@ Los tasks `legal_contracts` son extracciones L5 de acuerdos jurídicos: el model
 - `data/dev_rev/legal_contracts_001.json`
 - `data/dev_rev/legal_contracts_002.json`
 - `data/dev/legal_contracts_003.json`
+- `data/dev/legal_contracts_004.json`
+- `data/dev/legal_contracts_005.json`
 
 ## Dualidad por campo
 
@@ -21,6 +23,20 @@ Los tasks `legal_contracts` son extracciones L5 de acuerdos jurídicos: el model
 | `has_nda_clause` | `true` vs `false`. `true` si hay confidencialidad, reserva de información o no divulgación; `false` si el texto solo habla de documentación, entrega o propiedad sin deber de secreto. |
 | `has_liability_limitation` | `true` vs `false`. `true` si una cláusula limita, excluye o topa responsabilidad; `false` si solo regula garantías, penalizaciones o incumplimientos sin exención o límite explícito. |
 | `monetary_amount` | `number` vs `null`. Valor si se indica una cuantía total del contrato; `null` si solo hay depósitos, gastos, penalizaciones, precios unitarios sin total o referencias no contractuales. |
+
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `contract_title` | Título formal del contrato, normalmente el encabezado `#`. Copia el título del acuerdo principal y no subtítulos de secciones, nombres comerciales, anexos ni denominaciones de roles. |
+| `contract_type` | Tipo legal del acuerdo; enum completo: `PRESTACIÓN DE SERVICIOS`, `COMPRAVENTA`, `LABORAL`, `CONFIDENCIALIDAD`, `ACUERDO MARCO` u `OTRO`. Decide por el objeto principal: servicios, venta de bien, relación laboral, reserva de información, marco general; usa `OTRO` para licencias, arrendamientos u operaciones que no encajen. |
+| `effective_date` | Fecha de entrada en vigor, normalizada como `YYYY-MM-DD` si hay fecha completa; si la vigencia se expresa de forma relativa, conserva el texto relevante. No confundas fecha de firma, lugar de reunión, entrega, anexos o duración de obligaciones con vigencia. |
+| `parties` | Entidades o personas que celebran el acuerdo. Incluye firmantes principales y, si el texto las trata conjuntamente como parte, marcas/filiales/matrices; no sustituyas la parte por representantes, cargos, apoderados o nombres de fantasía que solo sean alias secundarios. |
+| `total_clauses` | Número de cláusulas numeradas o nombradas. Cuenta `PRIMERA`, `SEGUNDA`, `1.`, etc.; no cuentes comparecencias, exposiciones, anexos, listas internas o párrafos introductorios. |
+| `governing_law_jurisdiction` | Ley aplicable, fuero o tribunal pactado. Devuelve `null` si solo hay domicilios, sedes, lugar de firma o lugares de entrega; si hay fueros alternativos, conserva ambos en una forma compacta. |
+| `has_nda_clause` | `true` cuando haya confidencialidad, reserva, secreto comercial, no divulgación o prohibición de revelar información. `false` si el texto solo habla de documentos, propiedad intelectual, entrega o acceso sin deber de secreto. |
+| `has_liability_limitation` | `true` cuando una cláusula limite, excluya, tope o exonere responsabilidad. No basta con multas, garantías, incumplimientos, devolución de soportes o sanciones si no hay límite/exclusión explícita. |
+| `monetary_amount` | Importe total del contrato como número. Devuelve `null` para multas, penalizaciones, depósitos, precios parciales, impuestos, presupuestos no totales o cuantías accesorias que no sean el valor contractual principal. |
 
 ## Propuesta de los dos ejemplos
 
@@ -45,20 +61,28 @@ Los tasks `legal_contracts` son extracciones L5 de acuerdos jurídicos: el model
 ```text
 # CONTRATO DE COMPRAVENTA DE MAQUINARIA AGRÍCOLA
 
-En Barcelona, a 2 de mayo de 2026, comparecen Talleres Montseny S.L., representada por Clara Vidal, como parte vendedora, y Cooperativa Vall del Segre, representada por Joan Riera, como parte compradora. Ambas partes manifiestan interés en formalizar la transmisión de una cosechadora modelo Aurum 420, con sus accesorios descritos en el inventario anexo.
+En Barcelona, a 2 de mayo de 2026.
 
-CLÁUSULAS
+**REUNIDOS**
 
-PRIMERA. Objeto.
+De una parte, Talleres Montseny S.L., representada por Clara Vidal, como parte vendedora.
+
+De otra parte, Cooperativa Vall del Segre, representada por Joan Riera, como parte compradora.
+
+Ambas partes manifiestan interés en formalizar la transmisión de una cosechadora modelo Aurum 420, con sus accesorios descritos en el inventario anexo y revisados por el perito mecánico de la cooperativa.
+
+**CLÁUSULAS**
+
+**PRIMERA - Objeto:**
 La vendedora transmite a la compradora la propiedad de la cosechadora Aurum 420 y de dos cabezales de corte revisados el mes anterior.
 
-SEGUNDA. Precio y pago.
+**SEGUNDA - Precio y pago:**
 El precio total de la compraventa se fija en 125.000 euros, pagaderos en dos transferencias bancarias: una al firmar y otra contra entrega de la máquina.
 
-TERCERA. Entrada en vigor y entrega.
+**TERCERA - Entrada en vigor y entrega:**
 El contrato entrará en vigor el 2 de mayo de 2026. La entrega se realizará antes del 20 de mayo en la finca de Bellpuig.
 
-CUARTA. Responsabilidad, ley aplicable y fuero.
+**CUARTA - Responsabilidad, ley aplicable y fuero:**
 La responsabilidad de la vendedora por defectos ocultos quedará limitada al importe efectivamente pagado por la compradora. El contrato se regirá por las leyes de España y las partes se someten a los juzgados y tribunales de Barcelona.
 ```
 
@@ -113,7 +137,7 @@ Extrae el resumen del contrato o acto legislativo
   },
   "total_clauses": {
     "field_asks": "el número total de cláusulas numeradas o nombradas del contrato.",
-    "relevant_fragments": "\"PRIMERA. Objeto.\", \"SEGUNDA. Precio y pago.\", \"TERCERA. Entrada en vigor y entrega.\" y \"CUARTA. Responsabilidad, ley aplicable y fuero.\".",
+    "relevant_fragments": "\"PRIMERA - Objeto:\", \"SEGUNDA - Precio y pago:\", \"TERCERA - Entrada en vigor y entrega:\" y \"CUARTA - Responsabilidad, ley aplicable y fuero:\".",
     "final_value": "Como los fragmentos relevantes muestran cuatro cláusulas numeradas, el total debe ser 4."
   },
   "governing_law_jurisdiction": {
@@ -146,19 +170,23 @@ Extrae el resumen del contrato o acto legislativo
 ```text
 # ACUERDO DE CONFIDENCIALIDAD PARA PROTOTIPO AURORA
 
-REUNIDOS
+Documento preparado tras la reunión de validación del prototipo Aurora en una sala segura del hospital.
 
-Atlas BioData S.L., titular de varios informes preliminares sobre el prototipo Aurora, actúa como parte reveladora. Clínica Norte S.A., interesada en evaluar la viabilidad de una prueba piloto con pacientes simulados, actúa como parte receptora. Las personas firmantes comparecen en nombre de sus entidades y dejan constancia de que el material será entregado en una sala segura del hospital.
+**COMPARECEN**
 
-CLÁUSULAS
+De una parte, Atlas BioData S.L., titular de varios informes preliminares sobre el prototipo Aurora, actuando como parte reveladora y representada por su directora técnica.
 
-PRIMERA. Objeto.
+De otra parte, Clínica Norte S.A., interesada en evaluar la viabilidad de una prueba piloto con pacientes simulados, actuando como parte receptora.
+
+**CLÁUSULAS**
+
+**PRIMERA - Objeto:**
 La parte reveladora facilitará memorias técnicas, esquemas de sensores y resultados agregados de laboratorio para que la receptora valore una colaboración futura.
 
-SEGUNDA. Confidencialidad y no divulgación.
+**SEGUNDA - Confidencialidad y no divulgación:**
 La receptora tratará toda la información recibida como confidencial, no la comunicará a terceros y limitará su acceso al equipo médico autorizado para la revisión del prototipo.
 
-TERCERA. Conservación y devolución.
+**TERCERA - Conservación y devolución:**
 Las obligaciones de reserva se mantendrán durante dos años desde la entrega de cada lote documental. Los soportes físicos deberán devolverse o destruirse cuando finalice la evaluación interna.
 ```
 
@@ -203,8 +231,8 @@ Extrae el resumen del contrato o acto legislativo
   },
   "effective_date": {
     "field_asks": "la fecha en que el contrato entra en vigor, en formato YYYY-MM-DD si es normalizable o verbatim si solo aparece de forma relativa.",
-    "relevant_fragments": "\"el material será entregado en una sala segura del hospital\" y \"Las obligaciones de reserva se mantendrán durante dos años desde la entrega de cada lote documental\".",
-    "final_value": "Los fragmentos relevantes hablan de entrega de materiales y duración de las obligaciones, pero no fijan una fecha de entrada en vigor del acuerdo; el valor debe ser null."
+    "relevant_fragments": "\"Documento preparado tras la reunión de validación del prototipo Aurora\" y \"Las obligaciones de reserva se mantendrán durante dos años desde la entrega de cada lote documental\".",
+    "final_value": "Los fragmentos relevantes hablan de una reunión de validación y de duración de las obligaciones desde entregas documentales, pero no fijan una fecha de entrada en vigor del acuerdo; el valor debe ser null."
   },
   "parties": {
     "field_asks": "los nombres de las personas u organizaciones que celebran el acuerdo.",
@@ -213,12 +241,12 @@ Extrae el resumen del contrato o acto legislativo
   },
   "total_clauses": {
     "field_asks": "el número total de cláusulas numeradas o nombradas del contrato.",
-    "relevant_fragments": "\"PRIMERA. Objeto.\", \"SEGUNDA. Confidencialidad y no divulgación.\" y \"TERCERA. Conservación y devolución.\".",
+    "relevant_fragments": "\"PRIMERA - Objeto:\", \"SEGUNDA - Confidencialidad y no divulgación:\" y \"TERCERA - Conservación y devolución:\".",
     "final_value": "Como los fragmentos relevantes muestran tres cláusulas numeradas, el total debe ser 3."
   },
   "governing_law_jurisdiction": {
     "field_asks": "el país, estado o jurisdicción cuya ley o tribunales gobiernan el contrato, o null si no hay pacto de ley aplicable o fuero.",
-    "relevant_fragments": "\"PRIMERA. Objeto.\", \"SEGUNDA. Confidencialidad y no divulgación.\" y \"TERCERA. Conservación y devolución.\".",
+    "relevant_fragments": "\"PRIMERA - Objeto:\", \"SEGUNDA - Confidencialidad y no divulgación:\" y \"TERCERA - Conservación y devolución:\".",
     "final_value": "Los fragmentos relevantes delimitan las tres cláusulas sustantivas del acuerdo y ninguna fija ley aplicable, fuero o jurisdicción; el valor debe ser null."
   },
   "has_nda_clause": {

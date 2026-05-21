@@ -24,6 +24,20 @@ Los tasks `stem_astronomy_detailed` son extracciones L5 de propiedades físicas 
 | `discovery_date` | `string` `YYYY-MM-DD` vs `null`. Para cuerpos conocidos desde la antigüedad o sin fecha explícita queda `null`; para objetos con hallazgo documentado se normaliza desde fecha completa. |
 | `discoverer` | `string` vs `null`. Dualidad entre descubridor nombrado y objetos sin descubridor individual en el texto. No basta con mencionar astrónomos que estudiaron órbitas o misiones que exploraron el cuerpo. |
 
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `official_name` | Nombre o designación científica principal del cuerpo celeste. Usa el encabezado si es el nombre formal; si el cuerpo tiene designación numerada o científica explícita, prefiérela sobre el nombre popular cuando el schema pida nombre oficial. |
+| `body_type` | Clasificación del cuerpo; enum completo: `ASTEROIDE`, `COMETA`, `PLANETA`, `LUNA`, `PLANETA ENANO`, `OBJETO INTERESTELAR` u `OTRO`. Decide por la clasificación astronómica explícita y no por historia antigua, reclasificaciones pasadas o comparaciones con otros cuerpos. |
+| `mass_kg` | Masa del cuerpo en kilogramos. Devuelve `null` si el texto solo da masas relativas, rankings, masa de muestras, masa de rocas, masa de otro cuerpo o comparaciones sin conversión directa a kg. |
+| `diameter_km` | Diámetro medio en kilómetros. No uses radios, alturas de montañas, resolución telescópica, distancia orbital o comparaciones de tamaño si no dan un diámetro normalizable. |
+| `eccentricity` | Excentricidad orbital como número decimal. Devuelve `null` ante descripciones como “órbita excéntrica”, “alta excentricidad” o porcentajes vagos sin valor extraíble. |
+| `orbital_period_days` | Periodo de traslación alrededor del primario, en días terrestres. No lo confundas con periodo de rotación, duración del día, ciclos estacionales, fechas de misión ni periodos de nubes o atmósfera. |
+| `semi_major_axis_au` | Semieje mayor o distancia orbital media al Sol en unidades astronómicas. Extrae valores en `ua`/`UA`; no uses orden de distancia al Sol, perihelio, afelio o referencias geométricas si no son el semieje/distancia media pedida. |
+| `discovery_date` | Fecha de descubrimiento normalizada como `YYYY-MM-DD`. Devuelve `null` para cuerpos conocidos desde la antigüedad, observaciones prehistóricas o menciones de misiones/estudios que no sean el descubrimiento. |
+| `discoverer` | Persona u observatorio presentado como descubridor. No uses astrónomos que midieron órbitas, formularon leyes, exploraron con sondas o predijeron posiciones salvo que el texto los identifique como descubridores. |
+
 ## Propuesta de los dos ejemplos
 
 | Campo | Ejemplo 1 | Ejemplo 2 |

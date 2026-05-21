@@ -7,6 +7,8 @@ Los tasks `cultural_media` piden extraer metadatos y crítica subjetiva desde un
 - `data/dev_rev/cultural_media_001.json`
 - `data/dev_rev/cultural_media_002.json`
 - `data/dev/cultural_media_003.json`
+- `data/dev/cultural_media_004.json`
+- `data/dev/cultural_media_005.json`
 
 ## Dualidad por campo
 
@@ -38,6 +40,21 @@ Los tasks `cultural_media` piden extraer metadatos y crítica subjetiva desde un
 | `cons` | Lista poblada con fragmentos preferiblemente verbatim: defectos explícitos como explicaciones torpes, falta de tensión, humor tardío o clímax mecánico. | Lista poblada con fragmentos preferiblemente verbatim: tramo central estirado, subtramas abiertas, repetición o pérdida de ligereza. |
 | `key_verdict` | Veredicto casi verbatim desde una frase final contundente, por ejemplo `un intento fallido sin pulso ni personalidad`. | Síntesis breve de balance mixto, por ejemplo `una serie notable en sus personajes, pero irregular en su desarrollo`. |
 
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `work_title` | Título de la obra reseñada, no de las comparaciones. Prioriza el título del encabezado y las menciones repetidas como foco del artículo; ignora obras citadas como referentes, plagios, homenajes o distractores. |
+| `medium` | Tipo de medio de la obra principal: `MOVIE`, `BOOK`, `TV_SERIES` o `VIDEO_GAME`. Usa pistas como "película", "serie", "episodios", "temporada", "novela" o plataforma, pero no clasifiques por obras mencionadas alrededor. |
+| `director` | Persona que dirige la obra, solo si el texto usa evidencia de dirección o "tras las cámaras" para esa obra. No sustituyas por creador, showrunner, guionista, productor ejecutivo, fotografía, plataforma o autor de la novela adaptada. |
+| `main_cast` | Actores o intérpretes nombrados como reparto, protagonistas o presencia actoral de la obra reseñada. No incluyas personajes ficticios, directores, creadores, autores ni nombres de otras obras; usa `[]` si el reparto se menciona sin nombres. |
+| `release_year` | Año de estreno o lanzamiento de la obra principal. Devuelve `null` si solo hay fechas de otras obras, época en que transcurre la trama, fecha futura ambigua, plataforma actual o contexto histórico sin vínculo explícito al estreno. |
+| `rating` | Puntuación explícita del crítico normalizada a 0-10. No inventes nota a partir de adjetivos; si aparece `3/10` usa `3.0`, si aparece una escala distinta conviértela solo cuando la escala esté clara. |
+| `sentiment` | Tono global de la reseña: `POSITIVE`, `NEUTRAL` o `NEGATIVE`. Decide por el balance final, no por una frase aislada: elogios con reservas fuertes suelen ser `NEUTRAL`; condena dominante es `NEGATIVE`; recomendación clara es `POSITIVE`. |
+| `pros` | Aspectos positivos concretos destacados por el crítico, preferiblemente fragmentos verbatim o casi verbatim. No conviertas premisas atractivas en pros si el texto las presenta como fallidas o insuficientes. |
+| `cons` | Defectos concretos mencionados por el crítico, con formulación cercana al texto. Evita críticas genéricas no citadas y separa defectos distintos cuando el texto los enumera claramente. |
+| `key_verdict` | Juicio final conciso de la reseña. Suele salir del titular o cierre; puede ser casi verbatim si resume el balance, pero no debe copiar una frase larga con detalles secundarios. |
+
 ## Input y output propuestos
 
 ### Ejemplo 1
@@ -47,15 +64,7 @@ Los tasks `cultural_media` piden extraer metadatos y crítica subjetiva desde un
 ```text
 # 'La noche de los mapas' se estrella como thriller de ciencia ficción: mucho decorado y cero pulso
 
-La noche de los mapas parecía tener todos los ingredientes para levantar una película de intriga espacial: estaciones abandonadas, conspiraciones cartográficas y una ciudad subterránea llena de secretos. También carga con la sombra de mejores aventuras de ciencia ficción, pero esas comparaciones solo dejan más claro lo poco que esta obra encuentra una voz propia. [...]
-
-## Un viaje sin rumbo
-
-Clara Varela dirige una película empeñada en parecer enorme, aunque casi nunca consigue que sus piezas encajen. El guion anuncia misterios y luego los resuelve con explicaciones torpes, y cada persecución llega sin tensión. La puesta en escena intenta vender urgencia con luces rojas y música insistente, pero todo parece una maqueta de algo que nunca arranca.
-
-El reparto se pierde entre frases solemnes y órdenes gritadas, siempre tratado como un bloque sin presencia individual. La película se compara con modas antiguas del género y con sagas conocidas, pero ninguna fecha queda ligada a su lanzamiento. Lo único rotundo es la nota: después de dos horas de ruido, apenas merece un 3 sobre 10.
-
-Ni siquiera sus ideas más llamativas funcionan. La ciudad subterránea no tiene personalidad, el humor cae siempre tarde y el clímax final convierte la conspiración en una sucesión de puertas que se abren solas. Al salir queda una sensación simple: La noche de los mapas es un intento fallido sin pulso ni personalidad.
+La noche de los mapas parecía tener todos los ingredientes para levantar una película de intriga espacial: estaciones abandonadas, conspiraciones cartográficas y una ciudad subterránea llena de secretos. También carga con la sombra de mejores aventuras de ciencia ficción, pero esas comparaciones solo dejan más claro lo poco que esta obra encuentra una voz propia. [...] Clara Varela dirige una película empeñada en parecer enorme, aunque casi nunca consigue que sus piezas encajen. El guion anuncia misterios y luego los resuelve con explicaciones torpes, y cada persecución llega sin tensión. La puesta en escena intenta vender urgencia con luces rojas y música insistente, pero todo parece una maqueta de algo que nunca arranca. [...] El reparto se pierde entre frases solemnes y órdenes gritadas, siempre tratado como un bloque sin presencia individual. La película se compara con modas antiguas del género y con sagas conocidas, pero ninguna fecha queda ligada a su lanzamiento. Lo único rotundo es la nota: después de dos horas de ruido, apenas merece un 3 sobre 10. [...] Ni siquiera sus ideas más llamativas funcionan. La ciudad subterránea no tiene personalidad, el humor cae siempre tarde y el clímax final convierte la conspiración en una sucesión de puertas que se abren solas. Al salir queda una sensación simple: La noche de los mapas es un intento fallido sin pulso ni personalidad.
 ```
 
 `output`:
@@ -144,15 +153,7 @@ Ni siquiera sus ideas más llamativas funcionan. La ciudad subterránea no tiene
 ```text
 # 'Los días de la estación' confirma a sus protagonistas como un hallazgo, aunque la serie no siempre sabe cerrar lo que abre
 
-Cada temporada aparece una serie pequeña que no pretende cambiar la televisión, pero sí encontrar un tono propio. 'Los días de la estación', estrenada en 2025 en Horizonte Play, pertenece a esa familia: seis episodios sobre una vieja estación de tren convertida en refugio vecinal, con una mirada cálida hacia sus personajes. [...]
-
-## Una pausa luminosa
-
-La serie fue creada por Irene Salvatierra y escrita junto a Pablo León para Horizonte Play. Entre el reparto, Nadia Ríos sostiene la historia con una interpretación contenida, Bruno Castañeda aporta una comicidad seca que evita el sentimentalismo y Laura Otero convierte una subtrama mínima en el momento más delicado de la temporada.
-
-Cuando 'Los días de la estación' se concentra en la convivencia, funciona de maravilla. Hay diálogos precisos, una atmósfera melancólica que nunca se vuelve postal y un uso muy bonito del espacio de la estación como memoria compartida.
-
-El problema es que el tramo central se estira más de la cuenta. Algunas subtramas familiares quedan abiertas sin verdadera consecuencia y el quinto episodio repite información que ya estaba clara. La serie no se hunde por eso, pero sí pierde parte de la ligereza que había construido. El balance queda en una zona intermedia: una serie notable en sus personajes, pero irregular en su desarrollo.
+Cada temporada aparece una serie pequeña que no pretende cambiar la televisión, pero sí encontrar un tono propio. 'Los días de la estación', estrenada en 2025 en Horizonte Play, pertenece a esa familia: seis episodios sobre una vieja estación de tren convertida en refugio vecinal, con una mirada cálida hacia sus personajes. [...] La serie fue creada por Irene Salvatierra y escrita junto a Pablo León para Horizonte Play. Entre el reparto, Nadia Ríos sostiene la historia con una interpretación contenida, Bruno Castañeda aporta una comicidad seca que evita el sentimentalismo y Laura Otero convierte una subtrama mínima en el momento más delicado de la temporada. [...] Cuando 'Los días de la estación' se concentra en la convivencia, funciona de maravilla. Hay diálogos precisos, una atmósfera melancólica que nunca se vuelve postal y un uso muy bonito del espacio de la estación como memoria compartida. [...] El problema es que el tramo central se estira más de la cuenta. Algunas subtramas familiares quedan abiertas sin verdadera consecuencia y el quinto episodio repite información que ya estaba clara. La serie no se hunde por eso, pero sí pierde parte de la ligereza que había construido. El balance queda en una zona intermedia: una serie notable en sus personajes, pero irregular en su desarrollo.
 ```
 
 `output`:

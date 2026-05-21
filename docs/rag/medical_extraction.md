@@ -6,7 +6,11 @@ Los tasks `medical_extraction` son extracciones literales L1 sobre fragmentos de
 
 - `data/dev_rev/medical_extraction_001.json`
 - `data/dev_rev/medical_extraction_002.json`
-- `data/dev/medical_extraction_003.json`
+- `data/dev_rev/medical_extraction_003.json`
+
+Solo existen tres ejemplos del prefijo en `dev_rev` y `data/dev` contiene las
+mismas instancias; no hay más fuentes disponibles del prefijo para llegar a
+cinco.
 
 ## Dualidad por campo
 
@@ -19,6 +23,12 @@ Los tasks `medical_extraction` son extracciones literales L1 sobre fragmentos de
 | Campo | Ejemplo 1 | Ejemplo 2 |
 | --- | --- | --- |
 | `answer` | Frase introductoria corta que termina en dos puntos, por ejemplo una línea tipo `Cada ampolla de 2 ml contiene:`. El texto debería incluir otra línea parecida para otra presentación o concentración, de modo que el modelo tenga que seleccionar la frase exacta pedida. | Oración completa con cantidad, unidad y punto final, por ejemplo una línea de excipiente tipo `Cada comprimido contiene 18 mg de lactosa monohidrato.`. El texto debería incluir cantidades de principio activo cercanas para evitar que el modelo devuelva solo el número o la sustancia equivocada. |
+
+## Descriptions enriquecidas para RAG
+
+| Campo | Description enriquecida |
+| --- | --- |
+| `answer` | Fragmento literal que responde la pregunta. Copia la línea completa y exacta, incluyendo dos puntos, punto final, coma decimal, unidad y nombre de la presentación o sustancia; no normalices cantidades, no devuelvas solo el número y no confundas presentaciones cercanas como 500 mg vs 650 mg o principio activo vs excipiente. |
 
 ## Input, output y reasoning propuestos
 
