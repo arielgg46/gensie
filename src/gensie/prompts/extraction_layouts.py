@@ -130,6 +130,7 @@ def _build_same_schema_rag_compact_layout(
 ) -> ExtractionPromptLayoutResult:
     system = _build_same_schema_system_prompt(
         context=context,
+        extraction=extraction,
         schema_view=schema_view,
         default_system=default_system,
         default_rules=default_rules,
@@ -201,6 +202,7 @@ def _build_default_user_prompt(
 def _build_same_schema_system_prompt(
     *,
     context: PipelineContext,
+    extraction: ExtractionSpec,
     schema_view: SchemaView,
     default_system: str,
     default_rules: Sequence[str],
@@ -225,17 +227,25 @@ def _build_same_schema_system_prompt(
     if schema_view.root_description:
         sections.extend(["", "DESCRIPCIÓN DEL SCHEMA:", schema_view.root_description])
 
+    example_guidance = (
+        "Los ejemplos del mensaje de usuario usan este mismo schema. "
+        "Úsalos para interpretar campos, nulls, listas, enums y el formato "
+        "de salida; no copies sus valores al nuevo TEXTO FUENTE."
+    )
+    if extraction.reasoning is not ReasoningMode.NONE:
+        example_guidance = (
+            "Los ejemplos del mensaje de usuario usan este mismo schema. "
+            "Úsalos para interpretar campos, nulls, listas, enums y el estilo "
+            "de reasoning; no copies sus valores al nuevo TEXTO FUENTE."
+        )
+
     sections.extend(
         [
             "",
             f"{schema_view.heading}:",
             schema_view.content.rstrip(),
             "",
-            (
-                "Los ejemplos del mensaje de usuario usan este mismo schema. "
-                "Úsalos para interpretar campos, nulls, listas, enums y el estilo "
-                "de reasoning; no copies sus valores al nuevo TEXTO FUENTE."
-            ),
+            example_guidance,
         ]
     )
     return "\n".join(sections)
@@ -349,10 +359,15 @@ def _should_use_same_schema_layout(
     extraction: ExtractionSpec,
     selection: FspSelection | None,
 ) -> bool:
+    supported_reasoning = {ReasoningMode.NONE, ReasoningMode.TOP_LEVEL}
+    supported_schema_prompts = {
+        SchemaPromptMode.PYDANTIC,
+        SchemaPromptMode.REASONED_PYDANTIC,
+    }
     return (
         extraction.few_shot is FewShotMode.RAG
-        and extraction.reasoning is ReasoningMode.TOP_LEVEL
-        and extraction.schema_prompt is SchemaPromptMode.REASONED_PYDANTIC
+        and extraction.reasoning in supported_reasoning
+        and extraction.schema_prompt in supported_schema_prompts
         and selection is not None
         and selection.all_schema_match
     )

@@ -17,6 +17,7 @@ from gensie.prompts.system import (
     DEEP_INLINE_REASONING_SYSTEM_PROMPT,
     EXTRACTION_RULES,
     INLINE_REASONING_SYSTEM_PROMPT,
+    REASONING_EXTRACTION_RULES,
     STRICT_ANCHORING_RULE,
 )
 
@@ -107,8 +108,12 @@ def system_prompt_for_reasoning(reasoning: ReasoningMode | str) -> str:
 
 
 def _rules_for_reasoning(reasoning: ReasoningMode) -> list[str]:
-    del reasoning
-    return [*EXTRACTION_RULES, STRICT_ANCHORING_RULE]
+    mode = ReasoningMode(reasoning)
+    rules = [*EXTRACTION_RULES]
+    if mode is not ReasoningMode.NONE:
+        rules.extend(REASONING_EXTRACTION_RULES)
+    rules.append(STRICT_ANCHORING_RULE)
+    return rules
 
 
 def _select_fsp_examples(

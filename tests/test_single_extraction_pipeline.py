@@ -6,6 +6,7 @@ from gensie.baseline import (
     EnrichedInlineReasoningAgent,
     EnrichedInlineReasoningRagAgent,
     EnrichedSchemaAgent,
+    EnrichedSchemaRagAgent,
     EnrichedInlineReasoningSuperFspAgent,
     InlineReasoningAgent,
     MixedExtractorsJudgeSelfConsistencyAgent,
@@ -248,6 +249,37 @@ def test_enriched_schema_agent_uses_plain_pydantic_prompt_without_reasoning_or_f
     assert STRICT_ANCHORING_RULE not in prompt
 
 
+def test_enriched_schema_rag_agent_uses_plain_pydantic_prompt_with_two_rag_fsp():
+    fake = FakeChatClient(
+        '{"person":"Ada Lovelace","year":1843,'
+        '"mentions":[{"text":"Ada Lovelace","label":"PERSON"}]}'
+    )
+    agent = EnrichedSchemaRagAgent(chat_client=fake)
+
+    output = agent.run(_task(), model="demo")
+
+    assert output["person"] == "Ada Lovelace"
+    request = fake.requests[0]
+    prompt = request.messages[1].content
+    assert request.metadata["pipeline"] == "enriched-schema-rag"
+    assert request.metadata["extraction"] == "enriched-schema-rag"
+    assert request.metadata["reasoning"] == "none"
+    assert request.metadata["layout"] == "default"
+    assert "EJEMPLOS FEW-SHOT:" in prompt
+    assert "Ejemplo 1:" in prompt
+    assert "Ejemplo 2:" in prompt
+    assert "SCHEMA PYDANTIC DEL EJEMPLO:" in prompt
+    assert "SALIDA DEL EJEMPLO:" in prompt
+    assert '"reasoning":' not in prompt
+    assert "El `reasoning` debe" not in prompt
+    assert "No cites fragmentos irrelevantes" not in prompt
+    assert "Reasoned[" not in prompt
+    assert "class Reasoned" not in prompt
+    assert "SCHEMA PYDANTIC:" in prompt
+    assert "person: str" in prompt
+    assert len(request.metadata["fsp_examples"]) == 2
+
+
 def test_verbatim_entities_enriched_agent_runs_phase_and_injects_entities():
     fake = QueueChatClient(
         [
@@ -356,6 +388,7 @@ def test_official_participant_exposes_default_specs_and_fallback_agent():
         "enriched-inline-reasoning",
         "enriched-inline-reasoning-rag",
         "enriched-schema",
+        "enriched-schema-rag",
         "verbatim-entities-enriched-inline-reasoning",
         "enriched-inline-reasoning-deep",
         "enriched-inline-reasoning-super-fsp",
@@ -367,8 +400,10 @@ def test_official_participant_exposes_default_specs_and_fallback_agent():
         "mixed-extractors-self-consistency-verdict-judge",
         "mixed-extractors-self-consistency-verdict-judge-rag",
         "mixed-extractors-self-consistency-verdict-judge-rag-slots",
+        "parse",
     ]
     assert participant.get_agent("missing") is participant.get_agent("baseline")
+    assert EnrichedSchemaRagAgent.pipeline_name == "enriched-schema-rag"
     assert (
         MixedExtractorsJudgeSelfConsistencyAgent.pipeline_name
         == "mixed-extractors-self-consistency-judge"

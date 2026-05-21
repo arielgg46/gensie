@@ -354,6 +354,53 @@ def test_same_schema_rag_prompt_moves_common_contract_to_system():
         item["retrieval"]["schema_match"] is True
         for item in bundle.metadata["fsp_examples"]
     )
+    assert "No cites fragmentos irrelevantes" in bundle.system
+    assert "estilo de reasoning" in bundle.system
+
+
+def test_same_schema_plain_pydantic_rag_prompt_uses_compact_layout_without_reasoning_rules():
+    builder = ExtractionPromptBuilder(
+        fsp_provider=RagExtractionFspProvider(
+            cases=[
+                _same_schema_case(
+                    "same_schema_one",
+                    "Ada Lovelace published notes in 1843.",
+                ),
+                _same_schema_case(
+                    "same_schema_two",
+                    "Grace Hopper documented a compiler note.",
+                ),
+            ],
+            top_k=2,
+        )
+    )
+    context = PipelineContext(task=_task(), model="demo", usage=UsageTracker())
+    extraction = ExtractionSpec(
+        name="enriched-schema-rag",
+        reasoning=ReasoningMode.NONE,
+        schema_prompt=SchemaPromptMode.PYDANTIC,
+        few_shot=FewShotMode.RAG,
+    )
+
+    bundle = builder.build(context, extraction)
+    combined = f"{bundle.system}\n{bundle.user}"
+
+    assert bundle.metadata["layout"] == "same_schema_rag_compact"
+    assert bundle.metadata["prompt_layout"] == "same_schema_rag_compact"
+    assert combined.count(STRICT_ANCHORING_RULE) == 1
+    assert "SCHEMA PYDANTIC:" in bundle.system
+    assert "person: str" in bundle.system
+    assert "Reasoned[" not in combined
+    assert '"reasoning":' not in combined
+    assert "El `reasoning` debe" not in combined
+    assert "No cites fragmentos irrelevantes" not in combined
+    assert "formato de salida" in bundle.system
+    assert "estilo de reasoning" not in combined
+    assert "EJEMPLOS FEW-SHOT:" in bundle.user
+    assert '"person": "Ada Lovelace"' in bundle.user
+    assert "SCHEMA PYDANTIC:" not in bundle.user
+    assert "SCHEMA PYDANTIC DEL EJEMPLO:" not in bundle.user
+    assert len(bundle.metadata["fsp_examples"]) == 2
 
 
 def test_rag_prompt_keeps_default_layout_when_any_selected_case_differs():

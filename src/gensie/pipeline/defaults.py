@@ -74,6 +74,16 @@ def default_pipeline_specs() -> tuple[PipelineSpec, ...]:
             ),
         ),
         PipelineSpec(
+            name="enriched-schema-rag",
+            description="Spanish enriched extraction prompt with a plain Pydantic schema and two retrieved structured FSP examples.",
+            extraction=ExtractionSpec(
+                name="enriched-schema-rag",
+                reasoning=ReasoningMode.NONE,
+                schema_prompt=SchemaPromptMode.PYDANTIC,
+                few_shot=FewShotMode.RAG,
+            ),
+        ),
+        PipelineSpec(
             name="verbatim-entities-enriched-inline-reasoning",
             description="Two-call enriched inline reasoning: extract verbatim entities first, then inject the flat entity list into the extraction prompt.",
             extraction=ExtractionSpec(

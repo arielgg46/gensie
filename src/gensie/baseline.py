@@ -111,6 +111,10 @@ class EnrichedSchemaAgent(_DefaultPipelineAgent):
     pipeline_name = "enriched-schema"
 
 
+class EnrichedSchemaRagAgent(_DefaultPipelineAgent):
+    pipeline_name = "enriched-schema-rag"
+
+
 class VerbatimEntitiesEnrichedInlineReasoningAgent(_DefaultPipelineAgent):
     pipeline_name = "verbatim-entities-enriched-inline-reasoning"
 

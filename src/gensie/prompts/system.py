@@ -1,29 +1,36 @@
 STRICT_ANCHORING_RULE = (
     "REGLA DE ANCLAJE ESTRICTO:\n"
     "\n"
-    "Cada value debe provenir del TEXTO FUENTE: copia textual, selección de enum "
+    "Cada valor final debe provenir del TEXTO FUENTE: copia textual, selección de enum "
     "justificada por el texto, o normalización directa de un dato explícito. No "
     "completes información ausente con conocimiento externo, no transformes "
     "pistas débiles en hechos exactos y no cambies una categoría semántica por "
     "otra.\n"
     "\n"
-    "Si el schema obliga un valor y la evidencia es limitada, dilo en el "
-    "reasoning y elige la opción menos especulativa compatible con el schema."
+    "Si el schema obliga un valor y la evidencia es limitada, elige la opción "
+    "menos especulativa compatible con el schema."
 )
 
 EXTRACTION_RULES_HEADER = "REGLAS DE EXTRACCIÓN, OBLIGATORIAS, NO NEGOCIABLES:"
 
 EXTRACTION_RULES = (
     "- Devuelve solo el JSON requerido y completa todos los campos del schema. No agregues campos, notas ni texto fuera del JSON.",
-    '- `value` contiene solo la respuesta final: nunca explicaciones, dudas, frases de ausencia ni el string "null". Si corresponde ausencia y el schema permite null, usa JSON null.',
+    '- Cada valor final contiene solo la respuesta final: nunca explicaciones, dudas, frases de ausencia ni el string "null". Si el schema usa wrappers con `value`, esta regla aplica al subcampo `value`. Si corresponde ausencia y el schema permite null, usa JSON null.',
     "- Decide cada campo por su nombre, tipo, enum y description. No sustituyas el tipo pedido por uno parecido: persona no es organización, país no es organización, lugar no es evento, rol/descripción no es nombre propio.",
-    "- Todo `value` no nulo debe apoyarse en el TEXTO FUENTE. Los ejemplos few-shot enseñan formato y criterio; nunca son evidencia para el task actual.",
-    "- El `reasoning` debe citar solo los fragmentos mínimos que deciden el valor. Cada fragmento citado debe aportar identidad, tipo, fecha, cantidad, condición, negación o contexto necesario.",
+    "- Todo valor final no nulo debe apoyarse en el TEXTO FUENTE. Los ejemplos few-shot enseñan formato y criterio; nunca son evidencia para el task actual.",
     "- Si el campo pide string extraído o lista de strings y no pide normalización, prefiere fragmentos verbatim o casi verbatim. No parafrasees una formulación clara del texto.",
     "- En arrays, incluye todos los elementos explícitamente respaldados del tipo pedido y excluye elementos de otro tipo aunque aparezcan cerca. Usa [] solo si no hay ningún elemento válido.",
-    "- En enums, `value` debe ser exactamente una opción permitida y el `reasoning` debe conectar el texto con esa opción; no elijas por conocimiento externo.",
+    "- En enums, el valor final debe ser exactamente una opción permitida por el schema; no elijas por conocimiento externo.",
     "- Para fechas, cantidades, unidades y formatos, normaliza solo datos presentes en el texto. Puedes combinar fragmentos conectados, pero no completar partes ausentes.",
     "- Si el texto da una pista parcial, aproximada, relativa, comparativa o cualitativa y el schema pide un valor exacto, usa null cuando esté permitido.",
+)
+
+REASONING_EXTRACTION_RULES = (
+    "- Cuando el schema incluya `reasoning`, completa ese razonamiento antes de escribir el valor final del campo.",
+    "- El `reasoning` debe citar solo los fragmentos mínimos que deciden el valor. Cada fragmento citado debe aportar identidad, tipo, fecha, cantidad, condición, negación o contexto necesario.",
+    "- No cites fragmentos irrelevantes: si un fragmento podría eliminarse sin cambiar la decisión del campo, no debe aparecer en el `reasoning`.",
+    "- En enums, el `reasoning` debe conectar explícitamente el fragmento textual con la opción elegida.",
+    "- Si el schema obliga un valor y la evidencia es limitada, decláralo en el `reasoning` y elige la opción menos especulativa compatible con el schema.",
 )
 
 BASE_EXTRACTION_SYSTEM_PROMPT = (
