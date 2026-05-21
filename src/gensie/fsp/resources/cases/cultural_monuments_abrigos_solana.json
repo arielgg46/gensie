@@ -1,0 +1,154 @@
+{
+  "id": "cultural_monuments_abrigos_solana",
+  "domain": "cultural_monuments",
+  "language": "es",
+  "tags": [
+    "alias_disambiguation",
+    "enum_classification",
+    "fallback_none",
+    "grounded_null",
+    "boolean_status"
+  ],
+  "source_text": "# Abrigos de la Solana\n\nOfficial Name: Abrigos rupestres de la Solana del Molino\nMunicipality: Ares del Maestrat\nType: Arte Rupestre\nLocation: Barranco de la Gasulla; Mas de la Solana\nRegistration Code: 40°27′11″N 0°06′52″O / 40.4531, -0.1144 (Abrigos de la Solana)\nDeclaration Date:\nStatus: Incoado\nSource: Wikipedia Annex List\n\nEl anexo conserva la denominación abreviada del encabezado, mientras la ficha administrativa usa el nombre completo. La revisión de 2022 añade una nota sobre paneles pintados y acceso por senda rural. No detailed article available.",
+  "instruction": "Extrae la información del monumento o bien de interés cultural a partir del texto proporcionado, siguiendo el esquema indicado.",
+  "schema": {
+    "$defs": {
+      "BICCategory": {
+        "enum": [
+          "MONUMENTO",
+          "JARDÍN HISTÓRICO",
+          "CONJUNTO HISTÓRICO",
+          "SITIO HISTÓRICO",
+          "ZONA ARQUEOLÓGICA",
+          "OTRO"
+        ],
+        "title": "BICCategory",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Normalizes registration codes, dates, and identifiers from the Spanish BIC Registry.\nComplexity: L3 (Standard Normalization).",
+    "properties": {
+      "official_name": {
+        "description": "The official name of the monument or protected site",
+        "title": "Official Name",
+        "type": "string"
+      },
+      "municipality": {
+        "description": "The municipality or city where the monument is located",
+        "title": "Municipality",
+        "type": "string"
+      },
+      "bic_category": {
+        "$ref": "#/$defs/BICCategory",
+        "description": "The legal category of protection (e.g., Monumento, Jardín Histórico)"
+      },
+      "registration_code": {
+        "description": "The official registration ID (e.g., 'RI-51-0001091'). Must strictly follow the pattern.",
+        "pattern": "^[A-Z\\-0-9]+$",
+        "title": "Registration Code",
+        "type": "string"
+      },
+      "declaration_date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The date of the legal declaration in YYYY-MM-DD format (normalize from text)",
+        "title": "Declaration Date"
+      },
+      "is_declared": {
+        "default": true,
+        "description": "True if the status is 'Declarado'; False if it is 'Incoado' (pending)",
+        "title": "Is Declared",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "official_name",
+      "municipality",
+      "bic_category",
+      "registration_code"
+    ],
+    "title": "MonumentBIC",
+    "type": "object"
+  },
+  "field_examples": {
+    "official_name": {
+      "value": "Abrigos rupestres de la Solana del Molino",
+      "tags": [
+        "direct_string",
+        "alias_disambiguation"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre oficial del monumento o sitio protegido.",
+        "relevant_fragments": "\"# Abrigos de la Solana\" y \"Official Name: Abrigos rupestres de la Solana del Molino\".",
+        "final_value": "Como el fragmento relevante diferencia el encabezado abreviado del nombre oficial de la ficha, el valor debe ser \"Abrigos rupestres de la Solana del Molino\"."
+      }
+    },
+    "municipality": {
+      "value": "Ares del Maestrat",
+      "tags": [
+        "direct_string",
+        "location_disambiguation"
+      ],
+      "reasoning": {
+        "field_asks": "el municipio o ciudad donde se encuentra el bien.",
+        "relevant_fragments": "\"Municipality: Ares del Maestrat\" y \"Location: Barranco de la Gasulla; Mas de la Solana\".",
+        "final_value": "Como el fragmento relevante etiqueta \"Ares del Maestrat\" como municipio y deja barranco y masía como localización, el valor debe ser \"Ares del Maestrat\"."
+      }
+    },
+    "bic_category": {
+      "value": "OTRO",
+      "tags": [
+        "enum_classification",
+        "other_mapping"
+      ],
+      "reasoning": {
+        "field_asks": "la categoría legal de protección, mapeada a uno de estos valores: MONUMENTO, JARDÍN HISTÓRICO, CONJUNTO HISTÓRICO, SITIO HISTÓRICO, ZONA ARQUEOLÓGICA u OTRO.",
+        "relevant_fragments": "\"Type: Arte Rupestre\".",
+        "final_value": "Como \"Arte Rupestre\" no coincide con las categorías legales enumeradas, el valor del enum debe ser \"OTRO\"."
+      }
+    },
+    "registration_code": {
+      "value": "NONE",
+      "tags": [
+        "fallback_none",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "el código oficial de registro con patrón de mayúsculas, números y guiones; si no hay código válido extraíble, usar NONE.",
+        "relevant_fragments": "\"Registration Code: 40°27′11″N 0°06′52″O / 40.4531, -0.1144 (Abrigos de la Solana)\".",
+        "final_value": "Como el fragmento relevante contiene coordenadas y no un código registral válido, el valor debe ser \"NONE\"."
+      }
+    },
+    "declaration_date": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "date_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "la fecha de declaración legal normalizada en formato YYYY-MM-DD, o null si no hay fecha suficiente.",
+        "relevant_fragments": "\"Declaration Date:\" y \"Status: Incoado\".",
+        "final_value": "Como el fragmento relevante deja la fecha vacía y solo aporta un estado pendiente, el valor debe ser null."
+      }
+    },
+    "is_declared": {
+      "value": false,
+      "tags": [
+        "boolean_status"
+      ],
+      "reasoning": {
+        "field_asks": "true si el estado es Declarado; false si el estado es Incoado o pendiente.",
+        "relevant_fragments": "\"Status: Incoado\".",
+        "final_value": "Como el fragmento relevante indica estado \"Incoado\", el valor debe ser false."
+      }
+    }
+  }
+}

@@ -1,0 +1,255 @@
+{
+  "id": "cultural_media_negative_film",
+  "domain": "cultural_media",
+  "language": "es",
+  "tags": [
+    "direct_string",
+    "enum_classification",
+    "grounded_null",
+    "empty_array",
+    "numeric_normalization",
+    "bounded_score",
+    "summary_string",
+    "simple_array"
+  ],
+  "source_text": "# 'La noche de los mapas' se estrella como thriller de ciencia ficción: mucho decorado y cero pulso\n\nLa noche de los mapas parecía tener todos los ingredientes para levantar una película de intriga espacial: estaciones abandonadas, conspiraciones cartográficas y una ciudad subterránea llena de secretos. También carga con la sombra de mejores aventuras de ciencia ficción, pero esas comparaciones solo dejan más claro lo poco que esta obra encuentra una voz propia. [...]\n\n## Un viaje sin rumbo\n\nClara Varela dirige una película empeñada en parecer enorme, aunque casi nunca consigue que sus piezas encajen. El guion anuncia misterios y luego los resuelve con explicaciones torpes, y cada persecución llega sin tensión. La puesta en escena intenta vender urgencia con luces rojas y música insistente, pero todo parece una maqueta de algo que nunca arranca.\n\nEl reparto se pierde entre frases solemnes y órdenes gritadas, siempre tratado como un bloque sin presencia individual. La película se compara con modas antiguas del género y con sagas conocidas, pero ninguna fecha queda ligada a su lanzamiento. Lo único rotundo es la nota: después de dos horas de ruido, apenas merece un 3 sobre 10.\n\nNi siquiera sus ideas más llamativas funcionan. La ciudad subterránea no tiene personalidad, el humor cae siempre tarde y el clímax final convierte la conspiración en una sucesión de puertas que se abren solas. Al salir queda una sensación simple: La noche de los mapas es un intento fallido sin pulso ni personalidad.",
+  "instruction": "Extrae la información de la crítica cultural, identificando la obra, medio, dirección, reparto, año, puntuación, valoración y veredicto final.",
+  "schema": {
+    "$defs": {
+      "MediumType": {
+        "enum": [
+          "MOVIE",
+          "BOOK",
+          "TV_SERIES",
+          "VIDEO_GAME"
+        ],
+        "title": "MediumType",
+        "type": "string"
+      },
+      "Sentiment": {
+        "enum": [
+          "POSITIVE",
+          "NEUTRAL",
+          "NEGATIVE"
+        ],
+        "title": "Sentiment",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts comprehensive metadata and subjective critique from a cultural review.\nComplexity: L5 (Opinion Distillation & Fact Aggregation).",
+    "properties": {
+      "work_title": {
+        "description": "The name of the movie, book, or series",
+        "title": "Work Title",
+        "type": "string"
+      },
+      "medium": {
+        "$ref": "#/$defs/MediumType",
+        "description": "The type of media being reviewed"
+      },
+      "director": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The person who directed the film or series",
+        "title": "Director"
+      },
+      "main_cast": {
+        "description": "Key actors or performers mentioned in the review",
+        "items": {
+          "type": "string"
+        },
+        "title": "Main Cast",
+        "type": "array"
+      },
+      "release_year": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The year the work was released",
+        "title": "Release Year"
+      },
+      "rating": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The score given by the reviewer, normalized to a 0-10 scale",
+        "title": "Rating"
+      },
+      "sentiment": {
+        "$ref": "#/$defs/Sentiment",
+        "description": "Overall tone of the review"
+      },
+      "pros": {
+        "description": "Specific positive aspects highlighted by the critic",
+        "items": {
+          "type": "string"
+        },
+        "title": "Pros",
+        "type": "array"
+      },
+      "cons": {
+        "description": "Specific negative aspects or flaws mentioned",
+        "items": {
+          "type": "string"
+        },
+        "title": "Cons",
+        "type": "array"
+      },
+      "key_verdict": {
+        "description": "A concise summary of the final judgment (e.g., 'Una copia barata', 'Fascinante rareza')",
+        "title": "Key Verdict",
+        "type": "string"
+      }
+    },
+    "required": [
+      "work_title",
+      "medium",
+      "sentiment",
+      "key_verdict"
+    ],
+    "title": "MediaReview",
+    "type": "object"
+  },
+  "field_examples": {
+    "work_title": {
+      "value": "La noche de los mapas",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre de la película, libro o serie reseñada.",
+        "relevant_fragments": "\"# 'La noche de los mapas' se estrella como thriller de ciencia ficción\" y \"La noche de los mapas parecía tener todos los ingredientes\".",
+        "final_value": "La obra principal reseñada es \"La noche de los mapas\"."
+      }
+    },
+    "medium": {
+      "value": "MOVIE",
+      "tags": [
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "el tipo de medio reseñado, mapeado a uno de estos valores: MOVIE, BOOK, TV_SERIES o VIDEO_GAME.",
+        "relevant_fragments": "\"levantar una película de intriga espacial\" y \"Clara Varela dirige una película\".",
+        "final_value": "Como los fragmentos relevantes describen la obra como \"película\", el valor del enum debe ser \"MOVIE\"."
+      }
+    },
+    "director": {
+      "value": "Clara Varela",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "la persona que dirigió la película o serie, o null si no aparece.",
+        "relevant_fragments": "\"Clara Varela dirige una película empeñada en parecer enorme\".",
+        "final_value": "El texto identifica explícitamente a Clara Varela como directora."
+      }
+    },
+    "main_cast": {
+      "value": [],
+      "tags": [
+        "empty_array"
+      ],
+      "reasoning": {
+        "field_asks": "los actores o intérpretes principales mencionados en la reseña.",
+        "relevant_fragments": "\"El reparto se pierde entre frases solemnes y órdenes gritadas, siempre tratado como un bloque sin presencia individual\".",
+        "final_value": "El contexto más cercano habla del reparto como bloque, pero no da nombres de intérpretes; la lista debe ser vacía."
+      }
+    },
+    "release_year": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "date_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "el año de estreno o lanzamiento de la obra, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"La película se compara con modas antiguas del género y con sagas conocidas, pero ninguna fecha queda ligada a su lanzamiento\".",
+        "final_value": "El texto menciona referencias temporales ajenas, pero no un año de estreno o lanzamiento de la película; el valor debe ser null."
+      }
+    },
+    "rating": {
+      "value": 3.0,
+      "tags": [
+        "numeric_normalization",
+        "bounded_score"
+      ],
+      "reasoning": {
+        "field_asks": "la puntuación dada por el crítico, normalizada a escala 0-10.",
+        "relevant_fragments": "\"después de dos horas de ruido, apenas merece un 3 sobre 10\".",
+        "final_value": "La nota ya está expresada sobre 10, así que el valor normalizado es 3.0."
+      }
+    },
+    "sentiment": {
+      "value": "NEGATIVE",
+      "tags": [
+        "enum_classification",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "el tono global de la reseña, mapeado a uno de estos valores: POSITIVE, NEUTRAL o NEGATIVE.",
+        "relevant_fragments": "\"se estrella\", \"cero pulso\" y \"un intento fallido sin pulso ni personalidad\".",
+        "final_value": "Como los fragmentos relevantes expresan una valoración claramente desfavorable, el valor del enum debe ser \"NEGATIVE\"."
+      }
+    },
+    "pros": {
+      "value": [],
+      "tags": [
+        "empty_array"
+      ],
+      "reasoning": {
+        "field_asks": "aspectos positivos concretos destacados por la crítica.",
+        "relevant_fragments": "\"lo poco que esta obra encuentra una voz propia\", \"todo parece una maqueta\" y \"Ni siquiera sus ideas más llamativas funcionan\".",
+        "final_value": "El texto revisa los posibles méritos y los formula como fallos; no hay aspectos positivos concretos suficientemente grounded, así que la lista es vacía."
+      }
+    },
+    "cons": {
+      "value": [
+        "explicaciones torpes",
+        "cada persecución llega sin tensión",
+        "el humor cae siempre tarde",
+        "el clímax final convierte la conspiración en una sucesión de puertas que se abren solas"
+      ],
+      "tags": [
+        "simple_array",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "defectos o aspectos negativos mencionados en la reseña.",
+        "relevant_fragments": "\"explicaciones torpes\", \"cada persecución llega sin tensión\", \"el humor cae siempre tarde\" y \"el clímax final convierte la conspiración en una sucesión de puertas que se abren solas\".",
+        "final_value": "Los defectos deben conservarse como fragmentos verbatim o casi verbatim del texto."
+      }
+    },
+    "key_verdict": {
+      "value": "un intento fallido sin pulso ni personalidad",
+      "tags": [
+        "summary_string",
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "un resumen conciso del juicio final de la reseña.",
+        "relevant_fragments": "\"La noche de los mapas es un intento fallido sin pulso ni personalidad\".",
+        "final_value": "El veredicto puede copiarse casi verbatim como \"un intento fallido sin pulso ni personalidad\"."
+      }
+    }
+  }
+}

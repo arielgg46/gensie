@@ -1,0 +1,155 @@
+{
+  "id": "cultural_literature_libro_niebla",
+  "domain": "cultural_literature",
+  "language": "es",
+  "tags": [
+    "alias_title",
+    "normalized_author",
+    "grounded_null",
+    "empty_array",
+    "simple_array",
+    "language_disambiguation"
+  ],
+  "source_text": "# La balada del puerto\n\n## Introducción\n\nLa balada del puerto es el nombre con que se conoce popularmente el Libro de la niebla, obra anónima conservada en tres manuscritos de finales del siglo XIV. La tradición manuscrita más antigua lo transmite en gallego, con rúbricas latinas añadidas al margen y una nota de copista firmada por Xil Pérez. Sus pasajes centrales tratan el exilio, la memoria familiar y la pobreza urbana de los barrios portuarios; otras secciones reúnen plegarias, listas de deudas y nombres de embarcaciones. La copia más citada lleva una miniatura añadida en el siglo XV. Un estudio de 1923 la difundió con su alias moderno, pero los catálogos conservan el título Libro de la niebla.",
+  "instruction": "Extrae los metadatos bibliográficos y temas principales de la obra literaria descrita.",
+  "schema": {
+    "additionalProperties": false,
+    "description": "Extracts basic bibliographic metadata and key themes from a book description or encyclopedia entry.\nComplexity: L2 (Explicit Information Retrieval).",
+    "properties": {
+      "title": {
+        "description": "The official title of the literary work",
+        "title": "Title",
+        "type": "string"
+      },
+      "author": {
+        "description": "The primary author or creator of the work",
+        "title": "Author",
+        "type": "string"
+      },
+      "publication_year": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The year the work was first published",
+        "title": "Publication Year"
+      },
+      "genres": {
+        "description": "Literary genres associated with the work",
+        "items": {
+          "type": "string"
+        },
+        "title": "Genres",
+        "type": "array"
+      },
+      "key_themes": {
+        "description": "Main topics or themes explored in the work",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key Themes",
+        "type": "array"
+      },
+      "original_language": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The language in which the work was originally written",
+        "title": "Original Language"
+      }
+    },
+    "required": [
+      "title",
+      "author"
+    ],
+    "title": "LiteraryWork",
+    "type": "object"
+  },
+  "field_examples": {
+    "title": {
+      "value": "Libro de la niebla",
+      "tags": [
+        "alias_title",
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el título oficial de la obra literaria.",
+        "relevant_fragments": "\"La balada del puerto es el nombre con que se conoce popularmente el Libro de la niebla\" y \"los catálogos conservan el título Libro de la niebla\".",
+        "final_value": "Como los fragmentos relevantes distinguen el alias popular del título conservado en catálogos, el título debe ser \"Libro de la niebla\"."
+      }
+    },
+    "author": {
+      "value": "Anónimo",
+      "tags": [
+        "normalized_author"
+      ],
+      "reasoning": {
+        "field_asks": "el autor o creador principal de la obra.",
+        "relevant_fragments": "\"Libro de la niebla, obra anónima\" y \"una nota de copista firmada por Xil Pérez\".",
+        "final_value": "Como los fragmentos relevantes identifican la obra como anónima y presentan a Xil Pérez solo como copista, el autor debe ser \"Anónimo\"."
+      }
+    },
+    "publication_year": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "date_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "el año en que la obra fue publicada por primera vez, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"conservada en tres manuscritos de finales del siglo XIV\" y \"Un estudio de 1923 la difundió con su alias moderno\".",
+        "final_value": "Los fragmentos relevantes dan un periodo de transmisión y un estudio moderno, pero no un año exacto de primera publicación; el valor debe ser null."
+      }
+    },
+    "genres": {
+      "value": [],
+      "tags": [
+        "empty_array",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "los géneros literarios asociados con la obra, como lista vacía si no hay géneros explícitos.",
+        "relevant_fragments": "\"obra anónima conservada en tres manuscritos\" y \"otras secciones reúnen plegarias, listas de deudas y nombres de embarcaciones\".",
+        "final_value": "Los fragmentos relevantes aportan soporte material y contenido interno, pero no nombran géneros literarios explícitos; la lista debe ser vacía."
+      }
+    },
+    "key_themes": {
+      "value": [
+        "exilio",
+        "memoria familiar",
+        "pobreza urbana"
+      ],
+      "tags": [
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "los temas principales explorados en la obra, como lista vacía si el texto no los menciona explícitamente.",
+        "relevant_fragments": "\"Sus pasajes centrales tratan el exilio, la memoria familiar y la pobreza urbana de los barrios portuarios\".",
+        "final_value": "Como el fragmento relevante enumera temas centrales, la lista debe incluir \"exilio\", \"memoria familiar\" y \"pobreza urbana\"."
+      }
+    },
+    "original_language": {
+      "value": "gallego",
+      "tags": [
+        "direct_string",
+        "language_disambiguation"
+      ],
+      "reasoning": {
+        "field_asks": "la lengua en que la obra fue escrita originalmente, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"La tradición manuscrita más antigua lo transmite en gallego, con rúbricas latinas añadidas al margen\".",
+        "final_value": "Como el fragmento relevante sitúa el texto principal de la tradición más antigua en gallego y deja el latín para rúbricas marginales, la lengua original debe ser \"gallego\"."
+      }
+    }
+  }
+}

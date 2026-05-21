@@ -1,0 +1,262 @@
+{
+  "id": "cultural_media_mixed_series",
+  "domain": "cultural_media",
+  "language": "es",
+  "tags": [
+    "direct_string",
+    "enum_classification",
+    "grounded_null",
+    "simple_array",
+    "date_normalization",
+    "summary_string"
+  ],
+  "source_text": "# 'Los días de la estación' confirma a sus protagonistas como un hallazgo, aunque la serie no siempre sabe cerrar lo que abre\n\nCada temporada aparece una serie pequeña que no pretende cambiar la televisión, pero sí encontrar un tono propio. 'Los días de la estación', estrenada en 2025 en Horizonte Play, pertenece a esa familia: seis episodios sobre una vieja estación de tren convertida en refugio vecinal, con una mirada cálida hacia sus personajes. [...]\n\n## Una pausa luminosa\n\nLa serie fue creada por Irene Salvatierra y escrita junto a Pablo León para Horizonte Play. Entre el reparto, Nadia Ríos sostiene la historia con una interpretación contenida, Bruno Castañeda aporta una comicidad seca que evita el sentimentalismo y Laura Otero convierte una subtrama mínima en el momento más delicado de la temporada.\n\nCuando 'Los días de la estación' se concentra en la convivencia, funciona de maravilla. Hay diálogos precisos, una atmósfera melancólica que nunca se vuelve postal y un uso muy bonito del espacio de la estación como memoria compartida.\n\nEl problema es que el tramo central se estira más de la cuenta. Algunas subtramas familiares quedan abiertas sin verdadera consecuencia y el quinto episodio repite información que ya estaba clara. La serie no se hunde por eso, pero sí pierde parte de la ligereza que había construido. El balance queda en una zona intermedia: una serie notable en sus personajes, pero irregular en su desarrollo.",
+  "instruction": "Extrae la información de la crítica cultural, identificando la obra, medio, dirección, reparto, año, puntuación, valoración y veredicto final.",
+  "schema": {
+    "$defs": {
+      "MediumType": {
+        "enum": [
+          "MOVIE",
+          "BOOK",
+          "TV_SERIES",
+          "VIDEO_GAME"
+        ],
+        "title": "MediumType",
+        "type": "string"
+      },
+      "Sentiment": {
+        "enum": [
+          "POSITIVE",
+          "NEUTRAL",
+          "NEGATIVE"
+        ],
+        "title": "Sentiment",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts comprehensive metadata and subjective critique from a cultural review.\nComplexity: L5 (Opinion Distillation & Fact Aggregation).",
+    "properties": {
+      "work_title": {
+        "description": "The name of the movie, book, or series",
+        "title": "Work Title",
+        "type": "string"
+      },
+      "medium": {
+        "$ref": "#/$defs/MediumType",
+        "description": "The type of media being reviewed"
+      },
+      "director": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The person who directed the film or series",
+        "title": "Director"
+      },
+      "main_cast": {
+        "description": "Key actors or performers mentioned in the review",
+        "items": {
+          "type": "string"
+        },
+        "title": "Main Cast",
+        "type": "array"
+      },
+      "release_year": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The year the work was released",
+        "title": "Release Year"
+      },
+      "rating": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The score given by the reviewer, normalized to a 0-10 scale",
+        "title": "Rating"
+      },
+      "sentiment": {
+        "$ref": "#/$defs/Sentiment",
+        "description": "Overall tone of the review"
+      },
+      "pros": {
+        "description": "Specific positive aspects highlighted by the critic",
+        "items": {
+          "type": "string"
+        },
+        "title": "Pros",
+        "type": "array"
+      },
+      "cons": {
+        "description": "Specific negative aspects or flaws mentioned",
+        "items": {
+          "type": "string"
+        },
+        "title": "Cons",
+        "type": "array"
+      },
+      "key_verdict": {
+        "description": "A concise summary of the final judgment (e.g., 'Una copia barata', 'Fascinante rareza')",
+        "title": "Key Verdict",
+        "type": "string"
+      }
+    },
+    "required": [
+      "work_title",
+      "medium",
+      "sentiment",
+      "key_verdict"
+    ],
+    "title": "MediaReview",
+    "type": "object"
+  },
+  "field_examples": {
+    "work_title": {
+      "value": "Los días de la estación",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre de la película, libro o serie reseñada.",
+        "relevant_fragments": "\"# 'Los días de la estación' confirma a sus protagonistas\" y \"'Los días de la estación', estrenada en 2025 en Horizonte Play\".",
+        "final_value": "La obra principal reseñada es \"Los días de la estación\"."
+      }
+    },
+    "medium": {
+      "value": "TV_SERIES",
+      "tags": [
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "el tipo de medio reseñado, mapeado a uno de estos valores: MOVIE, BOOK, TV_SERIES o VIDEO_GAME.",
+        "relevant_fragments": "\"Cada temporada aparece una serie pequeña\" y \"seis episodios sobre una vieja estación de tren\".",
+        "final_value": "Como los fragmentos relevantes presentan la obra como una serie con episodios, el valor del enum debe ser \"TV_SERIES\"."
+      }
+    },
+    "director": {
+      "value": null,
+      "tags": [
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "la persona que dirigió la película o serie, o null si no aparece.",
+        "relevant_fragments": "\"La serie fue creada por Irene Salvatierra y escrita junto a Pablo León para Horizonte Play\".",
+        "final_value": "El contexto más cercano menciona creación y escritura, pero no dirección; por grounding estricto el valor debe ser null."
+      }
+    },
+    "main_cast": {
+      "value": [
+        "Nadia Ríos",
+        "Bruno Castañeda",
+        "Laura Otero"
+      ],
+      "tags": [
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "los actores o intérpretes principales mencionados en la reseña.",
+        "relevant_fragments": "\"Entre el reparto, Nadia Ríos sostiene la historia\", \"Bruno Castañeda aporta una comicidad seca\" y \"Laura Otero convierte una subtrama mínima\".",
+        "final_value": "Los nombres mencionados como reparto son Nadia Ríos, Bruno Castañeda y Laura Otero."
+      }
+    },
+    "release_year": {
+      "value": 2025,
+      "tags": [
+        "date_normalization",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "el año de estreno o lanzamiento de la obra, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"'Los días de la estación', estrenada en 2025 en Horizonte Play\".",
+        "final_value": "El año de estreno indicado para la serie es 2025."
+      }
+    },
+    "rating": {
+      "value": null,
+      "tags": [
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "la puntuación dada por el crítico, normalizada a escala 0-10, o null si no hay puntuación.",
+        "relevant_fragments": "\"El balance queda en una zona intermedia: una serie notable en sus personajes, pero irregular en su desarrollo\".",
+        "final_value": "El cierre da una valoración verbal, pero no una nota numérica; el valor debe ser null."
+      }
+    },
+    "sentiment": {
+      "value": "NEUTRAL",
+      "tags": [
+        "enum_classification",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "el tono global de la reseña, mapeado a uno de estos valores: POSITIVE, NEUTRAL o NEGATIVE.",
+        "relevant_fragments": "\"funciona de maravilla\", \"El problema es que el tramo central se estira más de la cuenta\" y \"una zona intermedia\".",
+        "final_value": "Como los fragmentos relevantes combinan elogios claros con reservas relevantes y un balance intermedio, el valor del enum debe ser \"NEUTRAL\"."
+      }
+    },
+    "pros": {
+      "value": [
+        "Nadia Ríos sostiene la historia con una interpretación contenida",
+        "Bruno Castañeda aporta una comicidad seca que evita el sentimentalismo",
+        "Hay diálogos precisos",
+        "un uso muy bonito del espacio de la estación como memoria compartida"
+      ],
+      "tags": [
+        "simple_array",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "aspectos positivos concretos destacados por la crítica.",
+        "relevant_fragments": "\"Nadia Ríos sostiene la historia con una interpretación contenida\", \"Bruno Castañeda aporta una comicidad seca\", \"Hay diálogos precisos\" y \"un uso muy bonito del espacio de la estación como memoria compartida\".",
+        "final_value": "Los pros deben conservarse como fragmentos verbatim o casi verbatim del texto."
+      }
+    },
+    "cons": {
+      "value": [
+        "el tramo central se estira más de la cuenta",
+        "Algunas subtramas familiares quedan abiertas sin verdadera consecuencia",
+        "el quinto episodio repite información que ya estaba clara",
+        "pierde parte de la ligereza que había construido"
+      ],
+      "tags": [
+        "simple_array",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "defectos o aspectos negativos mencionados en la reseña.",
+        "relevant_fragments": "\"el tramo central se estira más de la cuenta\", \"Algunas subtramas familiares quedan abiertas sin verdadera consecuencia\", \"el quinto episodio repite información que ya estaba clara\" y \"pierde parte de la ligereza que había construido\".",
+        "final_value": "Los cons deben conservarse como fragmentos verbatim o casi verbatim del texto."
+      }
+    },
+    "key_verdict": {
+      "value": "una serie notable en sus personajes, pero irregular en su desarrollo",
+      "tags": [
+        "summary_string",
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "un resumen conciso del juicio final de la reseña.",
+        "relevant_fragments": "\"una serie notable en sus personajes, pero irregular en su desarrollo\".",
+        "final_value": "El veredicto final puede copiarse verbatim."
+      }
+    }
+  }
+}

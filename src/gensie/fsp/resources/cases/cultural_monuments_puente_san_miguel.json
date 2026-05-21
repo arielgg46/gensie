@@ -1,0 +1,151 @@
+{
+  "id": "cultural_monuments_puente_san_miguel",
+  "domain": "cultural_monuments",
+  "language": "es",
+  "tags": [
+    "direct_string",
+    "enum_classification",
+    "registration_code",
+    "date_normalization",
+    "boolean_status"
+  ],
+  "source_text": "# Puente de San Miguel\n\nOfficial Name: Puente de San Miguel\nMunicipality: Teruel\nCategory: Monumento\nRegistration Code: RI-51-0012386\nDeclaration Date: 12 de marzo de 1998\nStatus: Declarado\nCoordinates: 40°20′45″N 1°06′22″O / 40.3458, -1.1061 (Puente Viejo)\nSource: Wikipedia Annex List\n\nFicha revisada en la edición de 2024. El entorno de protección se describe junto al cauce del Alfambra y el puente aparece citado en algunas notas locales como Puente Viejo. No detailed article available.",
+  "instruction": "Extrae la información del monumento o bien de interés cultural a partir del texto proporcionado, siguiendo el esquema indicado.",
+  "schema": {
+    "$defs": {
+      "BICCategory": {
+        "enum": [
+          "MONUMENTO",
+          "JARDÍN HISTÓRICO",
+          "CONJUNTO HISTÓRICO",
+          "SITIO HISTÓRICO",
+          "ZONA ARQUEOLÓGICA",
+          "OTRO"
+        ],
+        "title": "BICCategory",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Normalizes registration codes, dates, and identifiers from the Spanish BIC Registry.\nComplexity: L3 (Standard Normalization).",
+    "properties": {
+      "official_name": {
+        "description": "The official name of the monument or protected site",
+        "title": "Official Name",
+        "type": "string"
+      },
+      "municipality": {
+        "description": "The municipality or city where the monument is located",
+        "title": "Municipality",
+        "type": "string"
+      },
+      "bic_category": {
+        "$ref": "#/$defs/BICCategory",
+        "description": "The legal category of protection (e.g., Monumento, Jardín Histórico)"
+      },
+      "registration_code": {
+        "description": "The official registration ID (e.g., 'RI-51-0001091'). Must strictly follow the pattern.",
+        "pattern": "^[A-Z\\-0-9]+$",
+        "title": "Registration Code",
+        "type": "string"
+      },
+      "declaration_date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The date of the legal declaration in YYYY-MM-DD format (normalize from text)",
+        "title": "Declaration Date"
+      },
+      "is_declared": {
+        "default": true,
+        "description": "True if the status is 'Declarado'; False if it is 'Incoado' (pending)",
+        "title": "Is Declared",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "official_name",
+      "municipality",
+      "bic_category",
+      "registration_code"
+    ],
+    "title": "MonumentBIC",
+    "type": "object"
+  },
+  "field_examples": {
+    "official_name": {
+      "value": "Puente de San Miguel",
+      "tags": [
+        "direct_string",
+        "alias_disambiguation"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre oficial del monumento o sitio protegido.",
+        "relevant_fragments": "\"Official Name: Puente de San Miguel\" y \"el puente aparece citado en algunas notas locales como Puente Viejo\".",
+        "final_value": "Como el fragmento relevante da \"Puente de San Miguel\" como nombre oficial y \"Puente Viejo\" solo como cita local, el valor debe ser \"Puente de San Miguel\"."
+      }
+    },
+    "municipality": {
+      "value": "Teruel",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el municipio o ciudad donde se encuentra el bien.",
+        "relevant_fragments": "\"Municipality: Teruel\" y \"junto al cauce del Alfambra\".",
+        "final_value": "Como el fragmento relevante etiqueta \"Teruel\" como municipio y el cauce solo describe el entorno, el valor debe ser \"Teruel\"."
+      }
+    },
+    "bic_category": {
+      "value": "MONUMENTO",
+      "tags": [
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "la categoría legal de protección, mapeada a uno de estos valores: MONUMENTO, JARDÍN HISTÓRICO, CONJUNTO HISTÓRICO, SITIO HISTÓRICO, ZONA ARQUEOLÓGICA u OTRO.",
+        "relevant_fragments": "\"Category: Monumento\".",
+        "final_value": "Como el fragmento relevante da la categoría \"Monumento\", el valor del enum debe ser \"MONUMENTO\"."
+      }
+    },
+    "registration_code": {
+      "value": "RI-51-0012386",
+      "tags": [
+        "registration_code",
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el código oficial de registro con patrón de mayúsculas, números y guiones; si no hay código válido extraíble, usar NONE.",
+        "relevant_fragments": "\"Registration Code: RI-51-0012386\" y \"Coordinates: 40°20′45″N 1°06′22″O / 40.3458, -1.1061\".",
+        "final_value": "Como el fragmento relevante contiene el código registral válido y las coordenadas están en otro campo, el valor debe ser \"RI-51-0012386\"."
+      }
+    },
+    "declaration_date": {
+      "value": "1998-03-12",
+      "tags": [
+        "date_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "la fecha de declaración legal normalizada en formato YYYY-MM-DD, o null si no hay fecha suficiente.",
+        "relevant_fragments": "\"Declaration Date: 12 de marzo de 1998\".",
+        "final_value": "Como el fragmento relevante da una fecha completa, debe normalizarse a \"1998-03-12\"."
+      }
+    },
+    "is_declared": {
+      "value": true,
+      "tags": [
+        "boolean_status"
+      ],
+      "reasoning": {
+        "field_asks": "true si el estado es Declarado; false si el estado es Incoado o pendiente.",
+        "relevant_fragments": "\"Status: Declarado\".",
+        "final_value": "Como el fragmento relevante indica estado \"Declarado\", el valor debe ser true."
+      }
+    }
+  }
+}

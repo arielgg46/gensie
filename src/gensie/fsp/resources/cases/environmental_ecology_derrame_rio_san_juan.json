@@ -1,0 +1,264 @@
+{
+  "id": "environmental_ecology_derrame_rio_san_juan",
+  "domain": "environmental_ecology",
+  "language": "es",
+  "tags": [
+    "news_article",
+    "summary_string",
+    "enum_classification",
+    "direct_string",
+    "simple_array",
+    "empty_array",
+    "grounded_null",
+    "numeric_normalization"
+  ],
+  "source_text": "# Declaran alerta ambiental por derrame de relaves en la cuenca del río San Juan\n\nEl Ministerio del Ambiente declaró el 18 de abril de 2026 una alerta ambiental en la cuenca del río San Juan, en Pasco, Perú, después de que una poza de relaves de la mina Santa Isidora cediera durante lluvias intensas y tiñera de gris varios tramos del cauce. Técnicos de la Autoridad Nacional del Agua midieron alta turbidez en doce kilómetros del río y recomendaron suspender el uso de las acequias hasta recibir nuevos análisis.\n\nBrigadas de la Municipalidad Provincial de Pasco repartieron bidones y pastillas potabilizadoras a 1 200 vecinos de Huayllay, Rancas y San Miguel. La Cooperativa Río Claro, operadora de la mina, informó que instaló tres barreras de contención y retiró sedimentos de la ribera, mientras comuneros reclamaron que el olor metálico llegó a los canales de riego antes del amanecer. En la tarde, camiones cisterna reemplazaron la toma habitual de agua y se señalizaron los accesos al río para impedir que el ganado bebiera en las orillas.\n\nLa Universidad Nacional Daniel Alcides Carrión tomó muestras de agua, suelo y peces para comparar los resultados con registros de 2023. El reporte preliminar también menciona la mortandad de truchas en dos criaderos familiares y la presencia de lodo rojizo cerca de una bocatoma. El gobierno regional pidió ampliar el monitoreo a los manantiales usados por las escuelas rurales y anunció que la restricción al riego se revisará el próximo lunes.",
+  "instruction": "Extrae la información estructurada de este artículo de noticias sobre un evento medioambiental, incluyendo el titular, resumen, categoría, ubicación, personas y organizaciones clave mencionadas, y cualquier cifra de víctimas o afectados si se menciona.",
+  "schema": {
+    "$defs": {
+      "NewsCategory": {
+        "enum": [
+          "JUDICIAL",
+          "DISASTER",
+          "HEALTH",
+          "ENVIRONMENT",
+          "POLITICS",
+          "ECONOMY",
+          "SCIENCE",
+          "CULTURE",
+          "SPORTS",
+          "OTHER"
+        ],
+        "title": "NewsCategory",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts structured information from general news articles.\nComplexity: L4 (Sparse Extraction) - Some fields may be null/missing.",
+    "properties": {
+      "headline": {
+        "description": "The main headline or title of the news article",
+        "title": "Headline",
+        "type": "string"
+      },
+      "summary": {
+        "description": "A brief summary of the main facts reported (1-3 sentences)",
+        "title": "Summary",
+        "type": "string"
+      },
+      "category": {
+        "$ref": "#/$defs/NewsCategory",
+        "description": "The thematic category of the news story"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Geographic location where the event occurred (city, country, or region)",
+        "title": "Location"
+      },
+      "date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Date mentioned in the article (may be implicit or explicit)",
+        "title": "Date"
+      },
+      "key_people": {
+        "description": "Names of key individuals mentioned in the article",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key People",
+        "type": "array"
+      },
+      "key_organizations": {
+        "description": "Names of organizations, companies, or governments mentioned",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key Organizations",
+        "type": "array"
+      },
+      "casualties": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of deaths mentioned, if any",
+        "title": "Casualties"
+      },
+      "injured": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of people injured, if any",
+        "title": "Injured"
+      },
+      "affected_count": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of people affected or displaced, if applicable",
+        "title": "Affected Count"
+      }
+    },
+    "required": [
+      "headline",
+      "summary",
+      "category"
+    ],
+    "title": "NewsArticle",
+    "type": "object"
+  },
+  "field_examples": {
+    "headline": {
+      "value": "Declaran alerta ambiental por derrame de relaves en la cuenca del río San Juan",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el titular principal del artículo de noticias.",
+        "relevant_fragments": "\"# Declaran alerta ambiental por derrame de relaves en la cuenca del río San Juan\".",
+        "final_value": "Como el fragmento relevante es el encabezado principal, el titular debe ser \"Declaran alerta ambiental por derrame de relaves en la cuenca del río San Juan\"."
+      }
+    },
+    "summary": {
+      "value": "El Ministerio del Ambiente declaró una alerta ambiental en la cuenca del río San Juan, en Pasco, Perú, tras el derrame de relaves de la mina Santa Isidora durante lluvias intensas. Autoridades ambientales detectaron alta turbidez, suspendieron el uso de acequias y distribuyeron agua y pastillas potabilizadoras a 1 200 vecinos de tres comunidades. La Cooperativa Río Claro instaló barreras de contención y la Universidad Nacional Daniel Alcides Carrión tomó muestras para comparar el daño con registros previos.",
+      "tags": [
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
+        "relevant_fragments": "\"declaró el 18 de abril de 2026 una alerta ambiental [...] después de que una poza de relaves de la mina Santa Isidora cediera\", \"Brigadas [...] repartieron bidones y pastillas potabilizadoras a 1 200 vecinos\" y \"La Universidad Nacional Daniel Alcides Carrión tomó muestras de agua, suelo y peces\".",
+        "final_value": "Como los fragmentos relevantes cubren el hecho principal, las medidas inmediatas, la población afectada y el monitoreo, el resumen debe condensarlos en tres oraciones."
+      }
+    },
+    "category": {
+      "value": "ENVIRONMENT",
+      "tags": [
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "la categoría temática de la noticia, mapeada a uno de estos valores: JUDICIAL, DISASTER, HEALTH, ENVIRONMENT, POLITICS, ECONOMY, SCIENCE, CULTURE, SPORTS u OTHER.",
+        "relevant_fragments": "\"alerta ambiental\", \"derrame de relaves\" y \"alta turbidez en doce kilómetros del río\".",
+        "final_value": "Como los fragmentos relevantes tratan contaminación y respuesta ambiental, el valor del enum debe ser \"ENVIRONMENT\"."
+      }
+    },
+    "location": {
+      "value": "cuenca del río San Juan, Pasco, Perú",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "la ubicación geográfica donde ocurrió el evento, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"en la cuenca del río San Juan, en Pasco, Perú\".",
+        "final_value": "Como el fragmento relevante ubica el evento en la cuenca del río San Juan, Pasco, Perú, el valor debe ser \"cuenca del río San Juan, Pasco, Perú\"."
+      }
+    },
+    "date": {
+      "value": "18 de abril de 2026",
+      "tags": [
+        "direct_string",
+        "date_extraction"
+      ],
+      "reasoning": {
+        "field_asks": "la fecha mencionada en el artículo, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"declaró el 18 de abril de 2026 una alerta ambiental\".",
+        "final_value": "Como el fragmento relevante da una fecha completa para la declaración de alerta, el valor debe ser \"18 de abril de 2026\"."
+      }
+    },
+    "key_people": {
+      "value": [],
+      "tags": [
+        "empty_array",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "nombres de personas individuales clave mencionadas en el artículo.",
+        "relevant_fragments": "\"Técnicos de la Autoridad Nacional del Agua\", \"Brigadas de la Municipalidad Provincial de Pasco\" y \"comuneros reclamaron\".",
+        "final_value": "Los fragmentos relevantes mencionan cargos, brigadas y grupos, pero no nombres de personas individuales; la lista debe ser vacía."
+      }
+    },
+    "key_organizations": {
+      "value": [
+        "Ministerio del Ambiente",
+        "Autoridad Nacional del Agua",
+        "Municipalidad Provincial de Pasco",
+        "Cooperativa Río Claro",
+        "Universidad Nacional Daniel Alcides Carrión"
+      ],
+      "tags": [
+        "simple_array",
+        "named_entities"
+      ],
+      "reasoning": {
+        "field_asks": "nombres de organizaciones, empresas, instituciones o gobiernos mencionados.",
+        "relevant_fragments": "\"Ministerio del Ambiente\", \"Autoridad Nacional del Agua\", \"Municipalidad Provincial de Pasco\", \"Cooperativa Río Claro\" y \"Universidad Nacional Daniel Alcides Carrión\".",
+        "final_value": "Como los fragmentos relevantes nombran instituciones y una empresa operadora, la lista debe incluir esas cinco organizaciones."
+      }
+    },
+    "casualties": {
+      "value": null,
+      "tags": [
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "número de muertes mencionadas, o null si no se menciona ninguna cifra de muertes humanas.",
+        "relevant_fragments": "\"1 200 vecinos\" y \"mortandad de truchas en dos criaderos familiares\".",
+        "final_value": "Los fragmentos relevantes dan población atendida y muerte de peces, pero no muertes humanas; el valor debe ser null."
+      }
+    },
+    "injured": {
+      "value": null,
+      "tags": [
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "número de personas heridas mencionadas, o null si no se menciona ninguna cifra de heridos humanos.",
+        "relevant_fragments": "\"repartieron bidones y pastillas potabilizadoras a 1 200 vecinos\" y \"suspender el uso de las acequias\".",
+        "final_value": "Los fragmentos relevantes describen prevención y asistencia, pero no personas heridas; el valor debe ser null."
+      }
+    },
+    "affected_count": {
+      "value": 1200,
+      "tags": [
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de personas afectadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
+        "relevant_fragments": "\"repartieron bidones y pastillas potabilizadoras a 1 200 vecinos de Huayllay, Rancas y San Miguel\".",
+        "final_value": "Como el fragmento relevante cuantifica a los vecinos atendidos por el evento, el valor debe ser 1200."
+      }
+    }
+  }
+}

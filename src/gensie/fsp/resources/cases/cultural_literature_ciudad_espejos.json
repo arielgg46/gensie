@@ -1,0 +1,153 @@
+{
+  "id": "cultural_literature_ciudad_espejos",
+  "domain": "cultural_literature",
+  "language": "es",
+  "tags": [
+    "direct_string",
+    "distractor_title",
+    "numeric_normalization",
+    "simple_array",
+    "empty_array",
+    "grounded_null"
+  ],
+  "source_text": "# La ciudad de los espejos\n\n## Introducción\n\nLa ciudad de los espejos es una novela breve de la escritora argentina Elena Márquez. Fue publicada por primera vez en 1978 por Editorial Sur. El volumen salió dividido en dos partes, \"El barrio de la lluvia\" y \"Las habitaciones repetidas\"; la edición escolar de 1991 añadió una nota de la autora y un apéndice crítico. En reseñas de la época se la situó entre la narrativa fantástica rioplatense, aunque también se subrayó su tono urbano y su prosa contenida. Recibió el Premio Municipal de Literatura en 1980 y volvió a circular en una colección dedicada a escritoras del Cono Sur. La ficha de esa colección la presentaba como novela breve; otros paratextos destacaban sus cambios de narrador y su estructura de episodios encadenados.",
+  "instruction": "Extrae los metadatos bibliográficos y temas principales de la obra literaria descrita.",
+  "schema": {
+    "additionalProperties": false,
+    "description": "Extracts basic bibliographic metadata and key themes from a book description or encyclopedia entry.\nComplexity: L2 (Explicit Information Retrieval).",
+    "properties": {
+      "title": {
+        "description": "The official title of the literary work",
+        "title": "Title",
+        "type": "string"
+      },
+      "author": {
+        "description": "The primary author or creator of the work",
+        "title": "Author",
+        "type": "string"
+      },
+      "publication_year": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The year the work was first published",
+        "title": "Publication Year"
+      },
+      "genres": {
+        "description": "Literary genres associated with the work",
+        "items": {
+          "type": "string"
+        },
+        "title": "Genres",
+        "type": "array"
+      },
+      "key_themes": {
+        "description": "Main topics or themes explored in the work",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key Themes",
+        "type": "array"
+      },
+      "original_language": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The language in which the work was originally written",
+        "title": "Original Language"
+      }
+    },
+    "required": [
+      "title",
+      "author"
+    ],
+    "title": "LiteraryWork",
+    "type": "object"
+  },
+  "field_examples": {
+    "title": {
+      "value": "La ciudad de los espejos",
+      "tags": [
+        "direct_string",
+        "distractor_title"
+      ],
+      "reasoning": {
+        "field_asks": "el título oficial de la obra literaria.",
+        "relevant_fragments": "\"# La ciudad de los espejos\" y \"El volumen salió dividido en dos partes, \\\"El barrio de la lluvia\\\" y \\\"Las habitaciones repetidas\\\"\".",
+        "final_value": "Como los fragmentos relevantes presentan \"La ciudad de los espejos\" como obra principal y los otros títulos solo como partes internas del volumen, el título debe ser \"La ciudad de los espejos\"."
+      }
+    },
+    "author": {
+      "value": "Elena Márquez",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el autor o creador principal de la obra.",
+        "relevant_fragments": "\"La ciudad de los espejos es una novela breve de la escritora argentina Elena Márquez\".",
+        "final_value": "Como el fragmento relevante atribuye la obra a Elena Márquez, el autor debe ser \"Elena Márquez\"."
+      }
+    },
+    "publication_year": {
+      "value": 1978,
+      "tags": [
+        "date_normalization",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "el año en que la obra fue publicada por primera vez, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"Fue publicada por primera vez en 1978 por Editorial Sur\" y \"la edición escolar de 1991 añadió una nota de la autora\".",
+        "final_value": "Como el fragmento relevante afirma la primera publicación en 1978, el valor debe ser 1978."
+      }
+    },
+    "genres": {
+      "value": [
+        "novela breve",
+        "narrativa fantástica rioplatense"
+      ],
+      "tags": [
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "los géneros literarios asociados con la obra, como lista vacía si no hay géneros explícitos.",
+        "relevant_fragments": "\"La ficha de esa colección la presentaba como novela breve\" y \"se la situó entre la narrativa fantástica rioplatense\".",
+        "final_value": "Como los fragmentos relevantes nombran géneros o clasificaciones literarias explícitas, la lista debe incluir \"novela breve\" y \"narrativa fantástica rioplatense\"."
+      }
+    },
+    "key_themes": {
+      "value": [],
+      "tags": [
+        "empty_array",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "los temas principales explorados en la obra, como lista vacía si el texto no los menciona explícitamente.",
+        "relevant_fragments": "\"se subrayó su tono urbano y su prosa contenida\" y \"otros paratextos destacaban sus cambios de narrador y su estructura de episodios encadenados\".",
+        "final_value": "Los fragmentos relevantes describen tono, prosa, narrador y estructura, pero no enumeran temas principales de la obra; la lista debe ser vacía."
+      }
+    },
+    "original_language": {
+      "value": null,
+      "tags": [
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "la lengua en que la obra fue escrita originalmente, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"escritora argentina Elena Márquez\" y \"escritoras del Cono Sur\".",
+        "final_value": "Los fragmentos relevantes indican nacionalidad y región literaria, pero no afirman la lengua original; el valor debe ser null."
+      }
+    }
+  }
+}

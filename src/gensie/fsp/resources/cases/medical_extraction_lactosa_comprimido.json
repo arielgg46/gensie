@@ -1,0 +1,44 @@
+{
+  "id": "medical_extraction_lactosa_comprimido",
+  "domain": "medical_extraction",
+  "language": "es",
+  "tags": [
+    "verbatim_answer",
+    "direct_string",
+    "long_verbatim_evidence",
+    "numeric_normalization"
+  ],
+  "source_text": "# 2. COMPOSICIÓN CUALITATIVA Y CUANTITATIVA\n\nCada comprimido recubierto contiene 500 mg de metamizol magnésico.\n\nExcipientes con efecto conocido\n\nCada comprimido contiene 18 mg de lactosa monohidrato.\n\nCada comprimido contiene 0,45 mg de amarillo anaranjado S (E-110).\n\nPara consultar la lista completa de excipientes, ver sección 6.1.\n\n# 3. FORMA FARMACÉUTICA\n\nComprimido recubierto con película.\n\nComprimidos redondos, biconvexos, de color amarillo pálido y con ranura por una cara.",
+  "instruction": "¿Cuánta lactosa monohidrato contiene cada comprimido?",
+  "schema": {
+    "additionalProperties": false,
+    "description": "Extracts a single verbatim fragment that answers the provided instruction.\nComplexity: L1 (Literal Extraction).",
+    "properties": {
+      "answer": {
+        "description": "The verbatim fragment from the source text that answers the question",
+        "title": "Answer",
+        "type": "string"
+      }
+    },
+    "required": [
+      "answer"
+    ],
+    "title": "TextAnswer",
+    "type": "object"
+  },
+  "field_examples": {
+    "answer": {
+      "value": "Cada comprimido contiene 18 mg de lactosa monohidrato.",
+      "tags": [
+        "verbatim_answer",
+        "direct_string",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "el fragmento verbatim del texto que responde a la pregunta.",
+        "relevant_fragments": "\"# 2. COMPOSICIÓN CUALITATIVA Y CUANTITATIVA [...] Cada comprimido contiene 18 mg de lactosa monohidrato.\"",
+        "final_value": "Como el fragmento relevante da la cantidad de lactosa monohidrato pedida, debe copiarse la oración completa verbatim: \"Cada comprimido contiene 18 mg de lactosa monohidrato.\"."
+      }
+    }
+  }
+}

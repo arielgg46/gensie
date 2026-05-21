@@ -1,0 +1,163 @@
+{
+  "id": "legal_legislation_patios_verdes_valenciana",
+  "domain": "legal_legislation",
+  "language": "es",
+  "tags": [
+    "legal_metadata",
+    "enum_classification",
+    "grounded_null",
+    "empty_array",
+    "repealed",
+    "alias_title"
+  ],
+  "source_text": "# Ley de patios verdes valenciana\n\nSource: Diario Oficial de la Generalitat Valenciana\n\nLa llamada ley de patios verdes fue citada en prensa durante años como una iniciativa escolar de la Generalitat. En la ficha consolidada aparece con su título formal, Ley 6/2009, de huertos escolares y educación ambiental de la Comunitat Valenciana, una ley autonómica ordinaria tramitada por Les Corts tras varias campañas municipales de compostaje. La crónica parlamentaria sitúa su aprobación en la primavera de 2009, mientras que la publicación oficial se produjo el 14 de julio de ese año.\n\nObjeto y aplicación\nEl texto creó una red de huertos escolares, reguló convenios con ayuntamientos y encargó a la conselleria educativa preparar guías para centros públicos y concertados. También citaba programas europeos de sostenibilidad urbana y una orden estatal sobre residuos orgánicos, pero esas referencias funcionaban como contexto técnico, no como rango de la norma.\n\nVigencia\nLa Ley 3/2018, de educación ambiental y sostenibilidad escolar, derogó íntegramente la ley de patios verdes y sustituyó sus programas por planes de centro. La exposición de motivos de la norma nueva conservó la memoria de los huertos piloto, aunque los expedientes pasaron a tramitarse bajo el marco de 2018.",
+  "instruction": "Extrae el resumen del contrato o acto legislativo.",
+  "schema": {
+    "$defs": {
+      "JurisdictionScope": {
+        "enum": [
+          "NACIONAL",
+          "AUTONÓMICO",
+          "LOCAL",
+          "EUROPEO"
+        ],
+        "title": "JurisdictionScope",
+        "type": "string"
+      },
+      "LawRange": {
+        "enum": [
+          "LEY ORGÁNICA",
+          "LEY ORDINARIA",
+          "REAL DECRETO",
+          "REAL DECRETO-LEY",
+          "CONSTITUCIÓN",
+          "OTRA"
+        ],
+        "title": "LawRange",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Aggregates dispersed metadata and status of a Spanish law.\nComplexity: L7 (Dispersed Aggregation).",
+    "properties": {
+      "official_title": {
+        "description": "Full official title of the law",
+        "title": "Official Title",
+        "type": "string"
+      },
+      "law_range": {
+        "$ref": "#/$defs/LawRange",
+        "description": "The legal rank of the norm"
+      },
+      "sanction_date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Date of sanction in YYYY-MM-DD",
+        "title": "Sanction Date"
+      },
+      "jurisdiction": {
+        "$ref": "#/$defs/JurisdictionScope",
+        "description": "The scope of application"
+      },
+      "is_repealed": {
+        "description": "True if the text mentions the law is no longer in effect or has been replaced",
+        "title": "Is Repealed",
+        "type": "boolean"
+      },
+      "affected_articles": {
+        "description": "List of specific articles mentioned as modified or relevant",
+        "items": {
+          "type": "string"
+        },
+        "title": "Affected Articles",
+        "type": "array"
+      }
+    },
+    "required": [
+      "official_title",
+      "law_range",
+      "jurisdiction",
+      "is_repealed"
+    ],
+    "title": "LegislativeAct",
+    "type": "object"
+  },
+  "field_examples": {
+    "official_title": {
+      "value": "Ley 6/2009, de huertos escolares y educación ambiental de la Comunitat Valenciana",
+      "tags": [
+        "direct_string",
+        "alias_title"
+      ],
+      "reasoning": {
+        "field_asks": "el título oficial completo de la norma.",
+        "relevant_fragments": "\"La llamada ley de patios verdes\" y \"aparece con su título formal, Ley 6/2009, de huertos escolares y educación ambiental de la Comunitat Valenciana\".",
+        "final_value": "Como los fragmentos relevantes distinguen el nombre periodístico del título formal, el valor debe ser \"Ley 6/2009, de huertos escolares y educación ambiental de la Comunitat Valenciana\"."
+      }
+    },
+    "law_range": {
+      "value": "LEY ORDINARIA",
+      "tags": [
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "el rango jurídico de la norma, mapeado a uno de estos valores: LEY ORGÁNICA, LEY ORDINARIA, REAL DECRETO, REAL DECRETO-LEY, CONSTITUCIÓN u OTRA.",
+        "relevant_fragments": "\"Ley 6/2009\" y \"una ley autonómica ordinaria tramitada por Les Corts\".",
+        "final_value": "Como los fragmentos relevantes la describen como ley ordinaria, el valor del enum debe ser \"LEY ORDINARIA\"."
+      }
+    },
+    "sanction_date": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "date_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "la fecha de sanción o aprobación de la norma en formato YYYY-MM-DD, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"sitúa su aprobación en la primavera de 2009\" y \"la publicación oficial se produjo el 14 de julio de ese año\".",
+        "final_value": "Los fragmentos relevantes dan una estación aproximada para la aprobación y una fecha de publicación, pero no una fecha completa de sanción o aprobación; el valor debe ser null."
+      }
+    },
+    "jurisdiction": {
+      "value": "AUTONÓMICO",
+      "tags": [
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "el ámbito de aplicación, mapeado a uno de estos valores: NACIONAL, AUTONÓMICO, LOCAL o EUROPEO.",
+        "relevant_fragments": "\"iniciativa escolar de la Generalitat\", \"Comunitat Valenciana\" y \"ley autonómica ordinaria tramitada por Les Corts\".",
+        "final_value": "Como los fragmentos relevantes sitúan la norma en instituciones y ámbito valencianos, el valor del enum debe ser \"AUTONÓMICO\"."
+      }
+    },
+    "is_repealed": {
+      "value": true,
+      "tags": [
+        "repealed"
+      ],
+      "reasoning": {
+        "field_asks": "true si el texto menciona que la norma ya no está en vigor, fue derogada o fue sustituida; false en caso contrario.",
+        "relevant_fragments": "\"La Ley 3/2018, de educación ambiental y sostenibilidad escolar, derogó íntegramente la ley de patios verdes\" y \"sustituyó sus programas por planes de centro\".",
+        "final_value": "Como los fragmentos relevantes afirman derogación íntegra y sustitución por una norma posterior, el valor debe ser true."
+      }
+    },
+    "affected_articles": {
+      "value": [],
+      "tags": [
+        "empty_array",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "lista de artículos, disposiciones o apartados concretos mencionados como modificados o relevantes.",
+        "relevant_fragments": "\"creó una red de huertos escolares\", \"reguló convenios con ayuntamientos\" y \"encargó a la conselleria educativa preparar guías\".",
+        "final_value": "Los fragmentos relevantes describen contenidos de la norma, pero no citan artículos, disposiciones o apartados concretos; la lista debe ser vacía."
+      }
+    }
+  }
+}

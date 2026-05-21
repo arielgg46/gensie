@@ -1,0 +1,44 @@
+{
+  "id": "medical_extraction_glucosal_ampolla",
+  "domain": "medical_extraction",
+  "language": "es",
+  "tags": [
+    "verbatim_answer",
+    "direct_string",
+    "long_verbatim_evidence",
+    "sentinel_pattern"
+  ],
+  "source_text": "# 1. NOMBRE DEL MEDICAMENTO\n\nGlucosal 50 mg/ml solución inyectable\n\nGlucosal 100 mg/ml solución inyectable\n\n# 2. COMPOSICIÓN CUALITATIVA Y CUANTITATIVA\n\nCada ampolla de 2 ml de Glucosal 50 mg/ml contiene:\n\nGlucosa monohidrato ............... 110 mg (equivalentes a 100 mg de glucosa).\n\nCada ampolla de 5 ml de Glucosal 100 mg/ml contiene:\n\nGlucosa monohidrato ............... 550 mg (equivalentes a 500 mg de glucosa).\n\nExcipientes: cloruro de sodio, agua para preparaciones inyectables y ácido clorhídrico para ajuste de pH.\n\nPara consultar la lista completa de excipientes, ver sección 6.1.",
+  "instruction": "¿Qué frase inicia la composición de la ampolla de 5 ml de Glucosal 100 mg/ml?",
+  "schema": {
+    "additionalProperties": false,
+    "description": "Extracts a single verbatim fragment that answers the provided instruction.\nComplexity: L1 (Literal Extraction).",
+    "properties": {
+      "answer": {
+        "description": "The verbatim fragment from the source text that answers the question",
+        "title": "Answer",
+        "type": "string"
+      }
+    },
+    "required": [
+      "answer"
+    ],
+    "title": "TextAnswer",
+    "type": "object"
+  },
+  "field_examples": {
+    "answer": {
+      "value": "Cada ampolla de 5 ml de Glucosal 100 mg/ml contiene:",
+      "tags": [
+        "verbatim_answer",
+        "direct_string",
+        "sentinel_pattern"
+      ],
+      "reasoning": {
+        "field_asks": "el fragmento verbatim del texto que responde a la pregunta.",
+        "relevant_fragments": "\"Cada ampolla de 5 ml de Glucosal 100 mg/ml contiene:\"",
+        "final_value": "Como el fragmento relevante coincide con la presentación preguntada, debe copiarse verbatim: \"Cada ampolla de 5 ml de Glucosal 100 mg/ml contiene:\"."
+      }
+    }
+  }
+}
