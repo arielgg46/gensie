@@ -107,28 +107,45 @@ Estos criterios aplican tanto a `docs/rag/<prefijo>.md` como a los JSON finales:
 
 Para cada `PREFIJO` se sigue este flujo:
 
-1. Revisar hasta 2 tasks de ese prefijo en `data/dev_rev`.
-2. Si en `data/dev_rev` hay menos de 3 ejemplos revisables, completar con tasks
-   del mismo prefijo en `data/dev` hasta tener 3 ejemplos de referencia.
+1. Revisar hasta 2 tasks de ese prefijo en `data/dev_rev`, porque esos son los
+   ejemplos curados.
+2. Completar con tasks del mismo prefijo en `data/dev` hasta tener 3 ejemplos
+   de referencia como mínimo y, cuando haya dudas de estilo, dualidades o
+   extracción correcta, ampliar la revisión hasta 5 ejemplos en total. Los
+   ejemplos de `data/dev` no deben asumirse como gold perfecto: se usan sobre
+   todo para comparar estructura, longitud, tono y distribución de ruido del
+   `input_text`, y hay que ser crítico con sus outputs.
 3. Crear `docs/rag/<prefijo>.md`.
 4. En ese `.md`, escribir primero una versión breve y revisable con:
    - un solo párrafo describiendo el tipo de task;
-   - los paths de los 3 ejemplos revisados;
+   - los paths de los 3 a 5 ejemplos revisados;
    - la opinión sobre la dualidad de cada campo del schema;
    - una tabla `Propuesta de los dos ejemplos`, campo por campo;
-   - una descripción aproximada de la estructura común de los `input_text`.
+   - una descripción aproximada de la estructura común de los `input_text`,
+     incluyendo una comparación fina con los ejemplos reales de `dev_rev` y
+     `dev`: encabezados, presencia o ausencia de `Source:`, longitud,
+     secciones, estilo narrativo/descriptivo, densidad de ruido y forma de
+     mencionar ausencias sin frases benchmark-aware.
 5. El usuario revisa ese `.md` y corrige la propuesta.
 6. Revisar las modificaciones del usuario y, en el mismo `.md`, añadir una
    sección con el `input_text`, el `output` esperado y los `reasoning` de los dos
-   cases. Los `reasoning` deben escribirse ya con la estructura final:
-   `field_asks`, `relevant_fragments` y `final_value`.
+   cases. Antes de escribir el texto final, comprobar que los dos ejemplos
+   cubren las dualidades de los campos del schema de forma complementaria. Esta
+   cobertura de dualidades es más estricta que imitar perfectamente el estilo
+   superficial del `input_text`: el estilo debe alinearse finamente con `dev`,
+   pero no a costa de dejar campos sin contraste `null`/no `null`, lista
+   vacía/lista poblada, enum alternativo, cantidad explícita/ausente u otras
+   variaciones importantes. Los `reasoning` deben escribirse ya con la
+   estructura final: `field_asks`, `relevant_fragments` y `final_value`.
 7. El usuario revisa esos `input_text`, `output` y `reasoning`, y vuelve a
    indicar cambios si hacen falta.
 8. Solo después de esa aprobación, generar los JSON finales en
    `src/gensie/fsp/resources/cases`.
 9. Al generar los JSON, añadir `field_examples`, `tags` y `reasoning` por campo,
-   validarlos con el loader de `gensie.fsp.resources`, y no registrar los cases
-   en `default_fsp_cases()` salvo que se pida explícitamente.
+   validarlos con el loader de `gensie.fsp.resources` o con una validación
+   estructural equivalente, y dejarlos en `src/gensie/fsp/resources/cases`. El
+   RAG de extracción carga automáticamente los cases de esa carpeta, excluyendo
+   el case fijo `cultural_literature_quijote.json`.
 
 Este flujo mantiene pequeñas las revisiones humanas: primero se valida la
 intención, luego los textos y outputs, y al final se produce el recurso
@@ -236,32 +253,38 @@ compatibilidad con la implementación actual de `gensie.fsp`.
 ## Estado Actual
 
 Estado al 21 de mayo de 2026. Esta tabla distingue los prefijos que ya llegaron
-a JSON tras revisión iterativa con el usuario, los prefijos que solo tienen
-propuesta `.md` pendiente de revisión, y los prefijos que todavía faltan por
-trabajar.
+a JSON tras revisión iterativa o corrección posterior con el usuario, los
+prefijos que solo tienen propuesta `.md` pendiente de revisión final, y los
+prefijos que todavía faltan por trabajar.
 
 ### Generados con revisión humana
 
 Estos prefijos ya tienen `.md` en `docs/rag` y JSONs generados en
-`src/gensie/fsp/resources/cases` después de revisión iterativa:
+`src/gensie/fsp/resources/cases` después de revisión iterativa o de una ronda de
+correcciones señaladas por el usuario:
 
 | Orden | Prefijo | Estado |
 | --- | --- | --- |
 | 0 | `cultural_media` | JSONs generados tras revisión humana. |
 | 1 | `medical_extraction` | JSONs generados tras revisión humana. |
-| 2 | `cultural_literature` | JSONs generados tras revisión humana; además existe el case base del Quijote. |
+| 2 | `cultural_literature` | JSONs generados tras revisión humana; además existe el case base del Quijote, que se conserva como recurso fijo pero queda excluido del RAG de extracción. |
 | 3 | `cultural_monuments` | JSONs generados tras revisión humana. |
 | 4 | `environmental_ecology` | JSONs generados tras revisión humana. |
 | 5 | `legal_legislation` | JSONs generados tras revisión humana. |
+| 6 | `medical_drug` | JSONs generados tras revisión humana. |
+| 7 | `technical_software` | JSONs generados tras revisión/corrección humana. |
+| 8 | `lifestyle_recipes` | JSONs generados tras revisión/corrección humana. |
+| 9 | `stem_astronomy_detailed` | JSONs generados tras revisión/corrección humana. |
 
 ### Revisados humana, pendientes de JSON
 
 Estos prefijos se trabajaron en conversación hasta `input_text`, `output` y
-`reasoning`, pero aún no tienen JSONs nuevos generados:
+`reasoning`, y recibieron revisión/corrección humana, pero aún no tienen JSONs
+nuevos generados:
 
 | Orden | Prefijo | Estado |
 | --- | --- | --- |
-| 6 | `medical_drug` | `.md` generado con revisión humana; pendiente de revisión final y generación de JSONs. |
+| 10 | `medical_diseases` | `.md` actualizado tras revisión fina contra 5 ejemplos; pendiente de revisión final y generación de JSONs. |
 
 ### Hechos solo, pendientes de revisión
 
@@ -270,10 +293,6 @@ pero fueron generados de forma autónoma y deben revisarse antes de crear JSONs:
 
 | Orden | Prefijo | Estado |
 | --- | --- | --- |
-| 7 | `technical_software` | `.md` generado solo; pendiente de revisión. |
-| 8 | `lifestyle_recipes` | `.md` generado solo; pendiente de revisión. |
-| 9 | `stem_astronomy_detailed` | `.md` generado solo; pendiente de revisión. |
-| 10 | `medical_diseases` | `.md` generado solo; pendiente de revisión. |
 | 11 | `legal_contracts` | `.md` generado solo; pendiente de revisión. |
 | 12 | `technical_entities` | `.md` generado solo; pendiente de revisión. |
 | 13 | `general_disasters` | `.md` generado solo; pendiente de revisión. |

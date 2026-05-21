@@ -1,0 +1,248 @@
+{
+  "id": "stem_astronomy_detailed_pluton",
+  "domain": "stem_astronomy_detailed",
+  "language": "es",
+  "tags": [
+    "stem_astronomy_detailed",
+    "numeric_normalization",
+    "enum_classification",
+    "grounded_null",
+    "date_normalization",
+    "scientific_notation"
+  ],
+  "source_text": "# Plutón (planeta enano)\n\nPlutón, designado (134340) Pluto, es un planeta enano del sistema solar ubicado en el cinturón de Kuiper, situado a continuación de la órbita de Neptuno. Fue descubierto por Clyde William Tombaugh el 18 de febrero de 1930 y recibió su nombre del dios mitológico romano Plutón.\n\nDurante décadas fue considerado el noveno planeta, hasta que la Unión Astronómica Internacional redefinió la categoría de planeta en 2006. Desde entonces se clasifica como planeta enano y plutoide. Su trayectoria es inclinada y excéntrica, y en la ficha orbital resumida se conserva una distancia media al Sol de 39.5 ua.\n\nLa descripción histórica comenta su recatalogación, la existencia de Caronte y otras lunas menores, y comparaciones generales de tamaño con la Luna y con otros objetos transneptunianos. También recuerda que las primeras imágenes eran puntos débiles en placas fotográficas, por lo que su naturaleza se discutió durante años antes de quedar integrada en el estudio del cinturón de Kuiper.\n\nLas campañas fotográficas de Lowell sirvieron de base para el hallazgo de Tombaugh. Más tarde, las observaciones de ocultaciones estelares y la visita de una sonda permitieron estudiar su atmósfera tenue y su geología helada, pero la reseña se centra sobre todo en su descubrimiento y reclasificación.",
+  "instruction": "Extrae las propiedades físicas y orbitales del cuerpo celeste descrito en el texto, incluyendo su nombre oficial, clasificación, distancia orbital media y datos de descubrimiento.",
+  "schema": {
+    "$defs": {
+      "CelestialBodyType": {
+        "enum": [
+          "ASTEROIDE",
+          "COMETA",
+          "PLANETA",
+          "LUNA",
+          "PLANETA ENANO",
+          "OBJETO INTERESTELAR",
+          "OTRO"
+        ],
+        "title": "CelestialBodyType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts physical and orbital parameters of celestial bodies.\nComplexity: L5 (Precision Extraction & Normalization).",
+    "properties": {
+      "official_name": {
+        "description": "The primary scientific designation or name",
+        "title": "Official Name",
+        "type": "string"
+      },
+      "body_type": {
+        "$ref": "#/$defs/CelestialBodyType",
+        "description": "The classification of the celestial object"
+      },
+      "mass_kg": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Mass in kilograms (scientific notation or float)",
+        "title": "Mass Kg"
+      },
+      "diameter_km": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Mean diameter in kilometers",
+        "title": "Diameter Km"
+      },
+      "eccentricity": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Orbital eccentricity (e.g., 1.199)",
+        "title": "Eccentricity"
+      },
+      "orbital_period_days": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Time to complete one orbit in Earth days",
+        "title": "Orbital Period Days"
+      },
+      "semi_major_axis_au": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Average distance from the sun in AU",
+        "title": "Semi Major Axis Au"
+      },
+      "discovery_date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Date of discovery in YYYY-MM-DD format",
+        "title": "Discovery Date"
+      },
+      "discoverer": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Name of the person or observatory that found the object",
+        "title": "Discoverer"
+      }
+    },
+    "required": [
+      "official_name",
+      "body_type"
+    ],
+    "title": "CelestialObjectProperties",
+    "type": "object"
+  },
+  "field_examples": {
+    "official_name": {
+      "value": "(134340) Pluto",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre o designación científica principal del cuerpo celeste.",
+        "relevant_fragments": "\"Plutón, designado (134340) Pluto\".",
+        "final_value": "Como el fragmento relevante da la designación científica junto al nombre común, el nombre oficial debe ser \"(134340) Pluto\"."
+      }
+    },
+    "body_type": {
+      "value": "PLANETA ENANO",
+      "tags": [
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "la clasificación del cuerpo celeste, mapeada a uno de estos valores: ASTEROIDE, COMETA, PLANETA, LUNA, PLANETA ENANO, OBJETO INTERESTELAR u OTRO.",
+        "relevant_fragments": "\"es un planeta enano\" y \"se clasifica como planeta enano y plutoide\".",
+        "final_value": "Como los fragmentos relevantes clasifican Plutón como planeta enano, el valor del enum debe ser \"PLANETA ENANO\"."
+      }
+    },
+    "mass_kg": {
+      "value": null,
+      "tags": [
+        "numeric_normalization",
+        "scientific_notation",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "masa en kilogramos, o null si el texto no da masa en kg o una cantidad directamente normalizable a kg.",
+        "relevant_fragments": "\"comparaciones generales de tamaño con la Luna y con otros objetos transneptunianos\".",
+        "final_value": "Como el fragmento relevante solo alude a comparaciones generales y no da masa en kilogramos, el valor debe ser null."
+      }
+    },
+    "diameter_km": {
+      "value": null,
+      "tags": [
+        "numeric_normalization",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "diámetro medio en kilómetros, o null si no hay dato numérico suficiente.",
+        "relevant_fragments": "\"comparaciones generales de tamaño con la Luna y con otros objetos transneptunianos\".",
+        "final_value": "Como el fragmento relevante no proporciona diámetro medio en km, el valor debe ser null."
+      }
+    },
+    "eccentricity": {
+      "value": null,
+      "tags": [
+        "numeric_normalization",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "excentricidad orbital, o null si no hay valor numérico suficiente.",
+        "relevant_fragments": "\"Su trayectoria es inclinada y excéntrica\".",
+        "final_value": "Como el fragmento relevante describe la órbita como excéntrica pero no da un valor numérico, el valor debe ser null."
+      }
+    },
+    "orbital_period_days": {
+      "value": null,
+      "tags": [
+        "numeric_normalization",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "tiempo que tarda el cuerpo en completar una órbita alrededor de su primario, expresado en días terrestres; no debe confundirse con periodo de rotación, duración del día, fecha de misión ni ciclo estacional.",
+        "relevant_fragments": "\"Su trayectoria es inclinada y excéntrica\" y \"se conserva una distancia media al Sol de 39.5 ua\".",
+        "final_value": "Como los fragmentos relevantes describen rasgos orbitales y distancia media, pero no duración de una revolución en días terrestres, el valor debe ser null."
+      }
+    },
+    "semi_major_axis_au": {
+      "value": 39.5,
+      "tags": [
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "semieje mayor o distancia orbital media al Sol en unidades astronómicas, o null si no hay dato en UA suficiente.",
+        "relevant_fragments": "\"se conserva una distancia media al Sol de 39.5 ua\".",
+        "final_value": "Como el fragmento relevante da distancia orbital media en unidades astronómicas, el valor debe ser 39.5."
+      }
+    },
+    "discovery_date": {
+      "value": "1930-02-18",
+      "tags": [
+        "date_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "fecha de descubrimiento en formato YYYY-MM-DD, o null si no hay fecha completa de descubrimiento.",
+        "relevant_fragments": "\"Fue descubierto por Clyde William Tombaugh el 18 de febrero de 1930\".",
+        "final_value": "Como el fragmento relevante da una fecha completa de descubrimiento, debe normalizarse a \"1930-02-18\"."
+      }
+    },
+    "discoverer": {
+      "value": "Clyde William Tombaugh",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "persona u observatorio que descubrió el objeto, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"Fue descubierto por Clyde William Tombaugh\" y \"base para el hallazgo de Tombaugh\".",
+        "final_value": "Como los fragmentos relevantes identifican a Clyde William Tombaugh como descubridor, el valor debe ser \"Clyde William Tombaugh\"."
+      }
+    }
+  }
+}

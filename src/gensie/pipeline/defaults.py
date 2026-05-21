@@ -395,5 +395,5 @@ def default_fsp_provider_for(spec: PipelineSpec) -> FSPProvider:
     if few_shot is FewShotMode.SUPER_STATIC:
         return super_static_provider()
     if few_shot is FewShotMode.RAG:
-        return RagExtractionFspProvider()
+        return RagExtractionFspProvider(top_k=2)
     return NoFSPProvider()

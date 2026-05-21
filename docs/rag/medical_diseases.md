@@ -7,6 +7,8 @@ Los tasks `medical_diseases` son extracciones L5 de perfiles patológicos: el mo
 - `data/dev_rev/medical_diseases_01.json`
 - `data/dev_rev/medical_diseases_02.json`
 - `data/dev/medical_diseases_03.json`
+- `data/dev/medical_diseases_05.json`
+- `data/dev/medical_diseases_08.json`
 
 ## Dualidad por campo
 
@@ -15,7 +17,7 @@ Los tasks `medical_diseases` son extracciones L5 de perfiles patológicos: el mo
 | `pathology_name` | Requerido, `string`, no nullable. Dualidad entre nombre directo en encabezado y sinónimo en primera frase. |
 | `etiology_type` | Enum requerido. Debe mapear a `INFECTIOUS`, `GENETIC`, `AUTOIMMUNE`, `DEGENERATIVE`, `UNKNOWN` u `OTHER`. Conviene alternar infecciosa, degenerativa/desconocida y reacciones inmunológicas que caen en `OTHER` o `AUTOIMMUNE` según el texto. |
 | `etiology_description` | `string` vs `null`. Debe resumir causa si el texto la explica; si solo describe hipótesis o factores asociados sin causa clara, `null`. |
-| `symptoms` | Array de objetos. Dualidad entre lista amplia con síntomas primarios/secundarios y lista corta; `severity_level` puede ser `null` o una severidad textual si el texto la califica. |
+| `symptoms` | Array de objetos. Dualidad entre lista amplia con síntomas primarios/secundarios y lista corta; `severity_level` puede ser `null` o una severidad textual si el texto la califica o la deja inferir con claridad (`Mild`, `Moderate`, `Severe`). |
 | `symptoms[].is_primary` | `true` vs `false`. Síntomas de definición clínica van `true`; complicaciones, signos tardíos o manifestaciones por extensión pueden ir `false`. |
 | `diagnosis_methods` | `[]` vs lista poblada. Debe contener pruebas o métodos clínicos nombrados, no secciones genéricas de diagnóstico sin método concreto. |
 | `is_chronic` | `boolean` vs `null`. `true` cuando el texto define enfermedad crónica o persistente; `false` cuando define cuadro agudo/autolimitado; `null` si no caracteriza duración. |
@@ -40,9 +42,21 @@ Los tasks `medical_diseases` son extracciones L5 de perfiles patológicos: el mo
 ```text
 # Faringitis estreptocócica
 
-La faringitis estreptocócica es una infección aguda de la faringe causada con mayor frecuencia por Streptococcus pyogenes del grupo A. Suele comenzar de forma brusca con dolor de garganta, fiebre, amígdalas con exudado y ganglios cervicales dolorosos. La tos y la rinorrea orientan más a cuadros virales, pero pueden coexistir en niños.
+Source: https://es.wikipedia.org/wiki/Faringitis_estreptocócica
 
-El diagnóstico se apoya en la exploración clínica y se confirma con test rápido de antígeno o cultivo faríngeo cuando la sospecha es alta. La dificultad para tragar saliva y la desviación de la úvula se describen como signos de alarma por posible absceso periamigdalino, no como manifestaciones habituales del cuadro simple.
+La faringitis estreptocócica es una infección aguda de la faringe causada con mayor frecuencia por Streptococcus pyogenes del grupo A. Afecta sobre todo a niños en edad escolar y aparece con más frecuencia en los meses fríos.
+
+Etiopatogenia
+El microorganismo se transmite por secreciones respiratorias y coloniza la mucosa faríngea. La inflamación local explica el dolor al tragar, mientras que la respuesta sistémica se manifiesta con fiebre y malestar.
+
+Síntomas
+El inicio suele ser brusco, con dolor de garganta, fiebre, amígdalas con exudado y ganglios cervicales dolorosos. La tos y la rinorrea orientan más a cuadros virales, aunque pueden coexistir en niños pequeños.
+
+Complicaciones
+La dificultad para tragar saliva y la desviación de la úvula se describen como signos de alarma de formas graves por posible absceso periamigdalino.
+
+Diagnóstico
+El diagnóstico se apoya en la exploración clínica y se confirma con test rápido de antígeno o cultivo faríngeo cuando la sospecha es alta.
 ```
 
 `instruction`:
@@ -119,9 +133,9 @@ Extrae el perfil de la enfermedad.
     "final_value": "Como el fragmento relevante explica la causa, la descripción debe resumir esa infección por Streptococcus pyogenes."
   },
   "symptoms": {
-    "field_asks": "lista estructurada de síntomas, con severidad si se menciona y marca de si son definitorios o secundarios.",
-    "relevant_fragments": "\"dolor de garganta, fiebre, amígdalas con exudado y ganglios cervicales dolorosos\" y \"signos de alarma por posible absceso periamigdalino\".",
-    "final_value": "Como el primer fragmento enumera manifestaciones habituales, esos síntomas son primarios; dificultad para tragar saliva y desviación de la úvula se tratan como secundarios y severos por aparecer como signos de alarma."
+    "field_asks": "lista estructurada de síntomas, con severidad si se menciona o se infiere claramente como Mild, Moderate o Severe, y marca de si son definitorios o secundarios.",
+    "relevant_fragments": "\"dolor de garganta, fiebre, amígdalas con exudado y ganglios cervicales dolorosos\" y \"La dificultad para tragar saliva y la desviación de la úvula se describen como signos de alarma de formas graves\".",
+    "final_value": "Como el primer fragmento enumera manifestaciones habituales, esos síntomas son primarios y sin severidad explícita. Dificultad para tragar saliva y desviación de la úvula se tratan como secundarios y Severe porque el segundo fragmento los sitúa como signos de alarma de formas graves."
   },
   "diagnosis_methods": {
     "field_asks": "pruebas clínicas o métodos mencionados para identificar la patología.",
@@ -143,9 +157,18 @@ Extrae el perfil de la enfermedad.
 ```text
 # Migraña crónica
 
-La migraña crónica es un trastorno neurológico persistente en el que la cefalea aparece durante muchos días al mes y limita la actividad cotidiana. Sus mecanismos se relacionan con sensibilización del sistema trigeminovascular, predisposición individual y cambios en circuitos de dolor, aunque no se atribuye a una causa única demostrada.
+Source: https://es.wikipedia.org/wiki/Migraña_crónica
 
-Los pacientes describen cefalea pulsátil intensa, náuseas, fotofobia y fonofobia. Algunas crisis se acompañan de aura visual o dificultad para concentrarse, y en los periodos de mayor carga el dolor se califica como incapacitante. El texto revisa medidas preventivas y hábitos de sueño, pero no enumera pruebas concretas.
+La migraña crónica es un trastorno neurológico persistente en el que la cefalea ocupa muchos días del mes y limita la actividad cotidiana. Se usa el término cuando el patrón se mantiene durante meses, con crisis que alternan intensidad variable y periodos de mayor carga.
+
+Etiopatogenia
+Sus mecanismos se relacionan con sensibilización del sistema trigeminovascular, predisposición individual y cambios en circuitos de dolor. También se mencionan sueño irregular, estrés y abuso de analgésicos como factores que pueden favorecer la cronificación, aunque no se atribuye a una causa única demostrada.
+
+Cuadro clínico
+Los pacientes describen cefalea pulsátil intensa, náuseas, fotofobia y fonofobia. Algunas crisis se acompañan de aura visual o dificultad para concentrarse; en los periodos de mayor carga el dolor se califica como incapacitante.
+
+Tratamiento y evolución
+La reseña comenta medidas preventivas, higiene del sueño, reducción de desencadenantes y ajustes del tratamiento cuando las crisis se repiten con frecuencia.
 ```
 
 `instruction`:
@@ -214,18 +237,18 @@ Extrae el perfil de la enfermedad.
   },
   "etiology_description": {
     "field_asks": "resumen breve de cómo se causa la enfermedad, o null si no hay causa explicada.",
-    "relevant_fragments": "\"no se atribuye a una causa única demostrada\".",
-    "final_value": "Como el fragmento relevante niega una causa demostrada, no hay descripción etiológica cerrada; el valor debe ser null."
+    "relevant_fragments": "\"se relacionan con sensibilización del sistema trigeminovascular, predisposición individual y cambios en circuitos de dolor\" y \"no se atribuye a una causa única demostrada\".",
+    "final_value": "Aunque los fragmentos relevantes mencionan mecanismos y factores asociados, también niegan una causa demostrada de la enfermedad; por eso no hay una descripción etiológica cerrada y el valor debe ser null."
   },
   "symptoms": {
-    "field_asks": "lista estructurada de síntomas, con severidad si se menciona y marca de si son definitorios o secundarios.",
-    "relevant_fragments": "\"cefalea pulsátil intensa, náuseas, fotofobia y fonofobia\" y \"Algunas crisis se acompañan de aura visual o dificultad para concentrarse\".",
-    "final_value": "Como el primer fragmento da síntomas centrales, esos son primarios; aura visual y dificultad para concentrarse se marcan como secundarios por aparecer solo en algunas crisis."
+    "field_asks": "lista estructurada de síntomas, con severidad si se menciona o se infiere claramente como Mild, Moderate o Severe, y marca de si son definitorios o secundarios.",
+    "relevant_fragments": "\"cefalea pulsátil intensa, náuseas, fotofobia y fonofobia\", \"Algunas crisis se acompañan de aura visual o dificultad para concentrarse\" y \"el dolor se califica como incapacitante\".",
+    "final_value": "Como el primer fragmento da síntomas centrales, esos son primarios; la cefalea queda con severidad Severe porque se describe como intensa e incapacitante. Aura visual y dificultad para concentrarse se marcan como secundarios por aparecer solo en algunas crisis."
   },
   "diagnosis_methods": {
     "field_asks": "pruebas clínicas o métodos mencionados para identificar la patología.",
-    "relevant_fragments": "\"El texto revisa medidas preventivas y hábitos de sueño\".",
-    "final_value": "El fragmento relevante describe manejo preventivo y hábitos, pero no pruebas ni métodos diagnósticos concretos; la lista debe ser vacía."
+    "relevant_fragments": "\"medidas preventivas, higiene del sueño, reducción de desencadenantes y ajustes del tratamiento\".",
+    "final_value": "El fragmento relevante describe manejo, prevención y tratamiento, pero no pruebas clínicas ni métodos para identificar la patología; la lista debe ser vacía."
   },
   "is_chronic": {
     "field_asks": "true si el texto define la enfermedad como crónica o de larga duración; false si la define como aguda; null si no se especifica.",
@@ -237,4 +260,4 @@ Extrae el perfil de la enfermedad.
 
 ## Estructura de los input_text
 
-Los `input_text` revisados son perfiles médicos en Markdown con encabezado, fuente, definición, etiopatogenia, síntomas, diagnóstico y tratamiento. Para FSP conviene sintetizar esa estructura en textos compactos que separen causa, manifestaciones principales, complicaciones o signos secundarios, y métodos diagnósticos concretos; las ausencias deben surgir del foco clínico del texto, no de frases fabricadas para el benchmark.
+Los `input_text` revisados son perfiles médicos de estilo Wikipedia: normalmente empiezan con encabezado `# <patología>` y línea `Source:`, aunque algunos de `data/dev` vienen como fragmentos continuos con `[...]` y secciones incrustadas. Suelen alternar definición inicial, etiopatogenia o causa, síntomas, diagnóstico, tratamiento y referencias, con encabezados simples como `Etiopatogenia`, `Síntomas`, `Diagnóstico` o `Tratamiento`. Para FSP conviene sintetizar esa estructura en textos compactos, cercanos a 1200-1600 caracteres cuando el campo lo necesite, separando causa, manifestaciones principales, complicaciones o signos secundarios, y métodos diagnósticos concretos; las ausencias deben surgir del foco clínico del texto, no de frases fabricadas para el benchmark.

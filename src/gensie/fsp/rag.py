@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Sequence
 
 from gensie.fsp.base import FSPExample, FSPProvider
-from gensie.fsp.cases import default_fsp_cases
+from gensie.fsp.cases import default_extraction_fsp_cases
 from gensie.fsp.examples import (
     DEFAULT_REASONING_SECTION_LABELS,
     ReasoningSectionLabels,
@@ -18,7 +18,9 @@ from gensie.pipeline.specs import ExtractionSpec, ReasoningMode
 
 @dataclass(frozen=True)
 class RagExtractionFspProvider(FSPProvider):
-    cases: tuple[StructuredFspCase, ...] = field(default_factory=default_fsp_cases)
+    cases: tuple[StructuredFspCase, ...] = field(
+        default_factory=default_extraction_fsp_cases
+    )
     top_k: int = 1
     labels: ReasoningSectionLabels = DEFAULT_REASONING_SECTION_LABELS
     max_prompt_chars: int | None = None
@@ -34,7 +36,7 @@ class RagExtractionFspProvider(FSPProvider):
         object.__setattr__(
             self,
             "cases",
-            tuple(cases) if cases is not None else default_fsp_cases(),
+            tuple(cases) if cases is not None else default_extraction_fsp_cases(),
         )
         object.__setattr__(self, "top_k", max(1, top_k))
         object.__setattr__(self, "labels", labels)

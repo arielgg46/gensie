@@ -1,0 +1,248 @@
+{
+  "id": "medical_drug_paracetamol_codeina_nova",
+  "domain": "medical_drug",
+  "language": "es",
+  "tags": [
+    "medical_safety",
+    "nested_array",
+    "enum_classification",
+    "numeric_normalization",
+    "grounded_null"
+  ],
+  "source_text": "FICHA TÉCNICA PARACETAMOL/ CODEÍNA NOVA 24mg/ml +2,40mg/ml SOLUCIÓN ORAL\n\nPulse aquí\n                        \n                        para ver el documento en formato PDF.\n\n# 1. NOMBRE DEL MEDICAMENTO\n\nParacetamol/codeína Nova 24 mg/ml + 2,40 mg/ml solución oral. [...] \n\n# 2. COMPOSICIÓN CUALITATIVA Y CUANTITATIVA\n\nCada ml de solución contiene 24 mg de paracetamol y 2,40 mg de codeína fosfato hemihidrato. [...] \n\n# 3. FORMA FARMACÉUTICA\n\nSolución oral. Líquido transparente de color rojo con aroma a fresa. [...] \n\n## 4.1. Indicaciones terapéuticas\n\nIndicado en pacientes mayores de 12 años para dolor agudo moderado no aliviado por otros analgésicos. [...] \n\n## 4.2. Posología y forma de administración\n\nPoblación pediátrica:\n\n- Adolescentes de 12 a 18 años: de 10 a 15 ml cada 6 horas.\n\n- Niños menores de 12 años: no se debe utilizar codeína debido al riesgo de toxicidad opioide por metabolismo variable a morfina. [...] \n\n## 4.8. Reacciones adversas\n\nLas reacciones adversas son raras, muy raras o de frecuencia no conocida.\n\nParacetamol\nTrastornos del metabolismo y de la nutrición:\nMuy raras: Hipoglucemia.\nFrecuencia no conocida: Acidosis metabólica con déficit aniónico elevado.\n\nCodeína\nTrastornos del sistema nervioso:\nRaras: Somnolencia.\n\nTrastornos gastrointestinales:\nRaras: Estreñimiento, náuseas.\n\nTrastornos respiratorios:\nRaras: Broncoespasmo, depresión respiratoria.\n\nTrastornos del sistema inmunológico:\nMuy raras: Reacciones de hipersensibilidad que pueden llegar a shock anafiláctico.",
+  "instruction": "Extrae la información completa del medicamento, incluyendo nombre, indicación pediátrica y efectos adversos con su frecuencia e impacto.",
+  "schema": {
+    "$defs": {
+      "FrequencyLevel": {
+        "enum": [
+          "HIGH",
+          "MEDIUM",
+          "LOW",
+          "UNKNOWN"
+        ],
+        "title": "FrequencyLevel",
+        "type": "string"
+      },
+      "ImpactLevel": {
+        "enum": [
+          "MILD",
+          "MODERATE",
+          "SEVERE",
+          "CRITICAL"
+        ],
+        "title": "ImpactLevel",
+        "type": "string"
+      },
+      "SideEffect": {
+        "additionalProperties": false,
+        "description": "Detailed description of an adverse reaction.",
+        "properties": {
+          "reaction": {
+            "description": "Name of the adverse effect in Spanish",
+            "title": "Reaction",
+            "type": "string"
+          },
+          "system_organ_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Affected body system (e.g., Trastornos vasculares)",
+            "title": "System Organ Class"
+          },
+          "probability": {
+            "$ref": "#/$defs/FrequencyLevel",
+            "description": "Frequency based on text: Raras/Muy raras -> LOW, Frecuentes -> HIGH"
+          },
+          "impact": {
+            "$ref": "#/$defs/ImpactLevel",
+            "description": "Inferred clinical severity of the reaction"
+          }
+        },
+        "required": [
+          "reaction",
+          "probability",
+          "impact"
+        ],
+        "title": "SideEffect",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Comprehensive structured description of a medication.\nComplexity: L8 (Nested Lists & Semantic Mapping).",
+    "properties": {
+      "common_name": {
+        "description": "The generic name of the active principle",
+        "title": "Common Name",
+        "type": "string"
+      },
+      "official_name": {
+        "description": "The full commercial or official name of the drug",
+        "title": "Official Name",
+        "type": "string"
+      },
+      "pharmaceutical_format": {
+        "description": "The physical form (e.g., Comprimido, Cápsula, Solución)",
+        "title": "Pharmaceutical Format",
+        "type": "string"
+      },
+      "standard_doses": {
+        "description": "List of available strengths or doses mentioned (e.g., ['1 g', '500 mg'])",
+        "items": {
+          "type": "string"
+        },
+        "title": "Standard Doses",
+        "type": "array"
+      },
+      "is_pediatric": {
+        "description": "True if the drug is indicated for children or infants",
+        "title": "Is Pediatric",
+        "type": "boolean"
+      },
+      "side_effects": {
+        "description": "Structured list of all adverse reactions found in section 4.8",
+        "items": {
+          "$ref": "#/$defs/SideEffect"
+        },
+        "title": "Side Effects",
+        "type": "array"
+      }
+    },
+    "required": [
+      "common_name",
+      "official_name",
+      "pharmaceutical_format",
+      "is_pediatric"
+    ],
+    "title": "DrugDescription",
+    "type": "object"
+  },
+  "field_examples": {
+    "common_name": {
+      "value": "Paracetamol / Codeína",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre genérico del principio activo o de los principios activos.",
+        "relevant_fragments": "\"Paracetamol/codeína Nova\" y \"contiene 24 mg de paracetamol y 2,40 mg de codeína fosfato hemihidrato\".",
+        "final_value": "Como los fragmentos relevantes identifican dos principios activos, el nombre común debe ser \"Paracetamol / Codeína\"."
+      }
+    },
+    "official_name": {
+      "value": "Paracetamol/codeína Nova 24 mg/ml + 2,40 mg/ml solución oral",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre comercial u oficial completo del medicamento.",
+        "relevant_fragments": "\"# 1. NOMBRE DEL MEDICAMENTO\" y \"Paracetamol/codeína Nova 24 mg/ml + 2,40 mg/ml solución oral\".",
+        "final_value": "Como el fragmento relevante de la sección 1 da el nombre completo de la presentación, el valor debe ser \"Paracetamol/codeína Nova 24 mg/ml + 2,40 mg/ml solución oral\"."
+      }
+    },
+    "pharmaceutical_format": {
+      "value": "Solución oral",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "la forma farmacéutica física del medicamento.",
+        "relevant_fragments": "\"# 3. FORMA FARMACÉUTICA\" y \"Solución oral\".",
+        "final_value": "Como la sección 3 da la forma farmacéutica, el valor debe ser \"Solución oral\"."
+      }
+    },
+    "standard_doses": {
+      "value": [
+        "24 mg/ml paracetamol",
+        "2,40 mg/ml codeína"
+      ],
+      "tags": [
+        "simple_array",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "lista de dosis o concentraciones estándar mencionadas.",
+        "relevant_fragments": "\"Cada ml de solución contiene 24 mg de paracetamol y 2,40 mg de codeína fosfato hemihidrato\".",
+        "final_value": "Como el fragmento relevante da concentraciones por ml para los dos principios activos, la lista debe incluir \"24 mg/ml paracetamol\" y \"2,40 mg/ml codeína\"."
+      }
+    },
+    "is_pediatric": {
+      "value": false,
+      "tags": [
+        "boolean_inference"
+      ],
+      "reasoning": {
+        "field_asks": "true si el medicamento está indicado o tiene posología para niños o adolescentes; false si no lo está.",
+        "relevant_fragments": "\"Adolescentes de 12 a 18 años\" y \"Niños menores de 12 años: no se debe utilizar codeína debido al riesgo de toxicidad opioide\".",
+        "final_value": "Como los fragmentos relevantes limitan el uso a adolescentes y excluyen a niños menores de 12 años por riesgo opioide, el valor debe ser false."
+      }
+    },
+    "side_effects": {
+      "value": [
+        {
+          "reaction": "Hipoglucemia",
+          "system_organ_class": "Trastornos del metabolismo y de la nutrición",
+          "probability": "LOW",
+          "impact": "MODERATE"
+        },
+        {
+          "reaction": "Acidosis metabólica con déficit aniónico elevado",
+          "system_organ_class": "Trastornos del metabolismo y de la nutrición",
+          "probability": "UNKNOWN",
+          "impact": "MODERATE"
+        },
+        {
+          "reaction": "Somnolencia",
+          "system_organ_class": "Trastornos del sistema nervioso",
+          "probability": "LOW",
+          "impact": "MILD"
+        },
+        {
+          "reaction": "Estreñimiento",
+          "system_organ_class": "Trastornos gastrointestinales",
+          "probability": "LOW",
+          "impact": "MILD"
+        },
+        {
+          "reaction": "náuseas",
+          "system_organ_class": "Trastornos gastrointestinales",
+          "probability": "LOW",
+          "impact": "MILD"
+        },
+        {
+          "reaction": "Broncoespasmo",
+          "system_organ_class": "Trastornos respiratorios",
+          "probability": "LOW",
+          "impact": "SEVERE"
+        },
+        {
+          "reaction": "depresión respiratoria",
+          "system_organ_class": "Trastornos respiratorios",
+          "probability": "LOW",
+          "impact": "CRITICAL"
+        },
+        {
+          "reaction": "Reacciones de hipersensibilidad que pueden llegar a shock anafiláctico",
+          "system_organ_class": "Trastornos del sistema inmunológico",
+          "probability": "LOW",
+          "impact": "CRITICAL"
+        }
+      ],
+      "tags": [
+        "nested_array",
+        "enum_classification",
+        "clinical_severity_inference"
+      ],
+      "reasoning": {
+        "field_asks": "lista estructurada de reacciones adversas de la sección 4.8; cada item debe incluir reacción, clase de órgano o null, probabilidad mapeada a HIGH, MEDIUM, LOW o UNKNOWN, e impacto mapeado a MILD, MODERATE, SEVERE o CRITICAL.",
+        "relevant_fragments": "\"Trastornos del metabolismo y de la nutrición: Muy raras: Hipoglucemia. Frecuencia no conocida: Acidosis metabólica con déficit aniónico elevado\", \"Trastornos gastrointestinales: Raras: Estreñimiento, náuseas\", \"Trastornos respiratorios: Raras: Broncoespasmo, depresión respiratoria\" y \"Trastornos del sistema inmunológico: Muy raras: Reacciones de hipersensibilidad que pueden llegar a shock anafiláctico\".",
+        "final_value": "Como los fragmentos relevantes cubren todo el recorte de la sección 4.8, deben salir las ocho reacciones listadas: \"Muy raras\" y \"Raras\" se mapean a LOW y \"Frecuencia no conocida\" a UNKNOWN. El impacto queda apoyado en la naturaleza clínica de cada reacción: somnolencia, estreñimiento y náuseas son MILD por ser síntomas habitualmente reversibles; hipoglucemia y acidosis metabólica son MODERATE porque implican alteraciones metabólicas que requieren valoración; Broncoespasmo es SEVERE por compromiso respiratorio; depresión respiratoria y las reacciones de hipersensibilidad que pueden llegar a shock anafiláctico son CRITICAL por riesgo vital directo."
+      }
+    }
+  }
+}

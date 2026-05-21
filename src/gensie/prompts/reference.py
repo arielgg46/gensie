@@ -45,7 +45,7 @@ class ReferenceExtractionPromptBuilder(PromptBuilder):
         task = context.task
         if extraction.few_shot is FewShotMode.RAG:
             return ExtractionPromptBuilder(
-                fsp_provider=RagExtractionFspProvider()
+                fsp_provider=RagExtractionFspProvider(top_k=2)
             ).build(context, extraction)
 
         if extraction.name == "enriched-schema":

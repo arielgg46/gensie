@@ -203,10 +203,16 @@ def test_enriched_rag_agent_uses_registered_rag_fsp_pipeline():
     assert request.metadata["extraction"] == "enriched-inline-reasoning-rag"
     assert request.metadata["reasoning"] == "top_level"
     assert "EJEMPLOS FEW-SHOT:" in prompt
-    assert "Ejemplo 1: cultural_literature_quijote" in prompt
+    assert "Ejemplo 1:" in prompt
+    assert "Ejemplo 2:" in prompt
     assert "SCHEMA PYDANTIC DEL EJEMPLO:" in prompt
-    assert "Don Quijote de la Mancha" in prompt
-    assert "literary_impact_evidence" not in prompt
+    assert "cultural_literature_quijote" not in prompt
+    assert "Don Quijote de la Mancha" not in prompt
+    assert len(request.metadata["fsp_examples"]) == 2
+    assert all(
+        item["case_id"] != "cultural_literature_quijote"
+        for item in request.metadata["fsp_examples"]
+    )
     assert "SCHEMA PYDANTIC:" in prompt
     assert STRICT_ANCHORING_RULE in request.messages[0].content
     assert STRICT_ANCHORING_RULE in prompt

@@ -1,7 +1,11 @@
 from gensie.aggregation.verdict_fsp import RagVerdictJudgeFspProvider
 from gensie.aggregation import build_judge_scope
 from gensie.aggregation.verdict_schema import build_verdict_plan
-from gensie.fsp.cases import quijote_cultural_literature_case
+from gensie.fsp.cases import (
+    default_extraction_fsp_cases,
+    default_fsp_cases,
+    quijote_cultural_literature_case,
+)
 from gensie.fsp.examples import (
     CandidateOrder,
     FieldExample,
@@ -115,6 +119,23 @@ def test_quijote_cultural_case_does_not_include_enriched_extra_field():
 
     assert "literary_impact_evidence" not in case.schema["properties"]
     assert "literary_impact_evidence" not in case.field_examples
+
+
+def test_default_fsp_cases_keep_quijote_for_judge_rag():
+    cases = default_fsp_cases()
+    case_ids = {case.id for case in cases}
+
+    assert "cultural_literature_quijote" in case_ids
+
+
+def test_default_extraction_fsp_cases_load_resources_without_quijote_fixed_case():
+    cases = default_extraction_fsp_cases()
+    case_ids = {case.id for case in cases}
+
+    assert len(cases) > 1
+    assert "cultural_literature_quijote" not in case_ids
+    assert "technical_software_lince_editor" in case_ids
+    assert "stem_astronomy_detailed_marte" in case_ids
 
 
 def test_structured_case_renders_none_and_top_level_outputs_from_same_base():

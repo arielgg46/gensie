@@ -1,0 +1,232 @@
+{
+  "id": "technical_software_lince_editor",
+  "domain": "technical_software",
+  "language": "es",
+  "tags": [
+    "technical_software",
+    "enum_classification",
+    "grounded_null",
+    "simple_array",
+    "date_normalization",
+    "checksum_extraction"
+  ],
+  "source_text": "# Lince Editor\n\nLince Editor es un editor de código y entorno ligero de desarrollo creado por la comunidad Lince Tools. El proyecto nació en 2017 como complemento para revisar scripts y las primeras compilaciones públicas circularon al año siguiente en el repositorio de extensiones.\n\nEs software libre distribuido bajo la licencia MPL 2.0 y cuenta con versiones para GNU/Linux, macOS y Microsoft Windows. El sitio de descargas conserva firmas PGP de paquetes antiguos y el identificador de commit 8f4c9e2 de una compilación nightly.\n\n== Características ==\nEntre sus características se citan resaltado de sintaxis, terminal integrada, búsqueda por expresiones regulares y sincronización de espacios de trabajo mediante archivos de configuración.\n\n== Historia ==\nLa página histórica atribuye la idea original a Mateo Salvat, que revisa cambios mayores, y señala que la coordinación cotidiana corresponde al equipo de Lince Tools.",
+  "instruction": "Analiza la descripción del software para extraer detalles técnicos, desarrolladores y licencias.",
+  "schema": {
+    "$defs": {
+      "SoftwareType": {
+        "enum": [
+          "ARCHIVER",
+          "WEB_BROWSER",
+          "OFFICE_SUITE",
+          "IDE_EDITOR",
+          "GRAPHICS_EDITOR",
+          "MEDIA_PLAYER",
+          "SYSTEM_TOOL",
+          "OTHER"
+        ],
+        "title": "SoftwareType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Detailed technical description of a software application.\nComplexity: L9 (Adversarial Null Traps).",
+    "properties": {
+      "official_name": {
+        "description": "The full official name of the software",
+        "title": "Official Name",
+        "type": "string"
+      },
+      "app_category": {
+        "$ref": "#/$defs/SoftwareType",
+        "description": "The primary functional category of the app"
+      },
+      "license": {
+        "description": "The specific license mentioned (e.g., GPL, Proprietary)",
+        "title": "License",
+        "type": "string"
+      },
+      "platforms": {
+        "description": "Operating systems mentioned as supported (e.g., Windows, macOS, Linux)",
+        "items": {
+          "type": "string"
+        },
+        "title": "Platforms",
+        "type": "array"
+      },
+      "primary_developer": {
+        "description": "The individual or organization that developed the software",
+        "title": "Primary Developer",
+        "type": "string"
+      },
+      "features": {
+        "description": "List of specific technical capabilities or features mentioned",
+        "items": {
+          "type": "string"
+        },
+        "title": "Features",
+        "type": "array"
+      },
+      "exact_release_date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The EXACT date (DD/MM/YYYY) of the first release. RETURN NULL IF ONLY THE YEAR IS MENTIONED.",
+        "title": "Exact Release Date"
+      },
+      "latest_stable_version_sha256": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The SHA256 checksum of the latest installer. RETURN NULL IF NOT EXPLICITLY IN THE TEXT.",
+        "title": "Latest Stable Version Sha256"
+      },
+      "current_ceo_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The name of the current CEO of the developing organization. RETURN NULL IF NOT IN TEXT.",
+        "title": "Current Ceo Name"
+      }
+    },
+    "required": [
+      "official_name",
+      "app_category",
+      "license",
+      "primary_developer"
+    ],
+    "title": "SoftwareDescription",
+    "type": "object"
+  },
+  "field_examples": {
+    "official_name": {
+      "value": "Lince Editor",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre oficial completo del software.",
+        "relevant_fragments": "\"# Lince Editor\" y \"Lince Editor es un editor de código\".",
+        "final_value": "Como los fragmentos relevantes presentan \"Lince Editor\" como nombre principal del software, el valor debe ser \"Lince Editor\"."
+      }
+    },
+    "app_category": {
+      "value": "IDE_EDITOR",
+      "tags": [
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "la categoría funcional principal de la aplicación, mapeada a uno de estos valores: ARCHIVER, WEB_BROWSER, OFFICE_SUITE, IDE_EDITOR, GRAPHICS_EDITOR, MEDIA_PLAYER, SYSTEM_TOOL u OTHER.",
+        "relevant_fragments": "\"es un editor de código y entorno ligero de desarrollo\".",
+        "final_value": "Como el fragmento relevante describe un editor de código y entorno de desarrollo, el valor del enum debe ser \"IDE_EDITOR\"."
+      }
+    },
+    "license": {
+      "value": "MPL 2.0",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "la licencia específica mencionada para el software.",
+        "relevant_fragments": "\"Es software libre distribuido bajo la licencia MPL 2.0\".",
+        "final_value": "Como el fragmento relevante nombra explícitamente la licencia, el valor debe ser \"MPL 2.0\"."
+      }
+    },
+    "platforms": {
+      "value": [
+        "GNU/Linux",
+        "macOS",
+        "Microsoft Windows"
+      ],
+      "tags": [
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "sistemas operativos mencionados como soportados.",
+        "relevant_fragments": "\"cuenta con versiones para GNU/Linux, macOS y Microsoft Windows\".",
+        "final_value": "Como el fragmento relevante enumera sistemas operativos soportados, la lista debe incluir \"GNU/Linux\", \"macOS\" y \"Microsoft Windows\"."
+      }
+    },
+    "primary_developer": {
+      "value": "Lince Tools",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "la persona u organización que desarrolló el software.",
+        "relevant_fragments": "\"creado por la comunidad Lince Tools\" y \"la coordinación cotidiana corresponde al equipo de Lince Tools\".",
+        "final_value": "Como los fragmentos relevantes atribuyen el desarrollo a Lince Tools, el desarrollador principal debe ser \"Lince Tools\"."
+      }
+    },
+    "features": {
+      "value": [
+        "resaltado de sintaxis",
+        "terminal integrada",
+        "búsqueda por expresiones regulares",
+        "sincronización de espacios de trabajo mediante archivos de configuración"
+      ],
+      "tags": [
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "capacidades técnicas o funciones específicas mencionadas.",
+        "relevant_fragments": "\"== Características ==\" y \"Entre sus características se citan resaltado de sintaxis, terminal integrada, búsqueda por expresiones regulares y sincronización de espacios de trabajo mediante archivos de configuración\".",
+        "final_value": "Como el fragmento relevante introduce una sección de características y enumera capacidades técnicas concretas, la lista debe conservar los cuatro rasgos verbatim: \"resaltado de sintaxis\", \"terminal integrada\", \"búsqueda por expresiones regulares\" y \"sincronización de espacios de trabajo mediante archivos de configuración\"."
+      }
+    },
+    "exact_release_date": {
+      "value": null,
+      "tags": [
+        "date_normalization",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "la fecha exacta del primer lanzamiento en formato DD/MM/YYYY, o null si solo se menciona el año.",
+        "relevant_fragments": "\"El proyecto nació en 2017\" y \"las primeras compilaciones públicas circularon al año siguiente\".",
+        "final_value": "Como los fragmentos relevantes solo dan un año de inicio y una referencia relativa al año siguiente, sin día y mes del primer lanzamiento, el valor debe ser null."
+      }
+    },
+    "latest_stable_version_sha256": {
+      "value": null,
+      "tags": [
+        "checksum_extraction",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "el checksum SHA256 del instalador estable más reciente, o null si no está explícitamente en el texto.",
+        "relevant_fragments": "\"firmas PGP de paquetes antiguos\" y \"el identificador de commit 8f4c9e2 de una compilación nightly\".",
+        "final_value": "Como los fragmentos relevantes apuntan a firmas PGP antiguas y a un identificador de commit de una compilación nightly, no a un SHA256 del instalador estable más reciente, el valor debe ser null."
+      }
+    },
+    "current_ceo_name": {
+      "value": null,
+      "tags": [
+        "direct_string",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre del CEO actual de la organización desarrolladora, o null si no está explícitamente en el texto.",
+        "relevant_fragments": "\"atribuye la idea original a Mateo Salvat\" y \"la coordinación cotidiana corresponde al equipo de Lince Tools\".",
+        "final_value": "Como los fragmentos relevantes presentan a Mateo Salvat como autor de la idea y al equipo como coordinador, sin nombrar CEO actual de Lince Tools, el valor debe ser null."
+      }
+    }
+  }
+}

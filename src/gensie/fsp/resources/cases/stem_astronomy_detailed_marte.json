@@ -1,0 +1,247 @@
+{
+  "id": "stem_astronomy_detailed_marte",
+  "domain": "stem_astronomy_detailed",
+  "language": "es",
+  "tags": [
+    "stem_astronomy_detailed",
+    "numeric_normalization",
+    "enum_classification",
+    "grounded_null",
+    "date_normalization",
+    "scientific_notation"
+  ],
+  "source_text": "# Marte\n\nMarte es el cuarto planeta en orden de distancia al Sol y el segundo más pequeño del sistema solar, después de Mercurio. Recibió su nombre en homenaje al dios romano de la guerra, y también es conocido como el planeta rojo por el óxido de hierro predominante en su superficie.\n\nLas fichas astronómicas modernas le asignan una masa de 6,4171 × 10^23 kg y un diámetro medio de 6779 km. Su órbita alrededor del Sol tiene una excentricidad de 0,0934. El año marciano dura 686,98 días terrestres, mientras que el periodo de rotación del planeta ronda las 24,6 horas y se cita aparte al hablar de sus ciclos diarios.\n\nMarte se observa fácilmente a simple vista desde la Tierra y aparece en tradiciones astronómicas antiguas. Sus casquetes polares, las tormentas de polvo y el Monte Olimpo han sido temas recurrentes en la exploración mediante sondas. La presencia de Fobos y Deimos se menciona a menudo como posible captura de cuerpos menores, aunque esa hipótesis pertenece a la historia de sus satélites.\n\nTycho Brahe midió con gran precisión su movimiento aparente, y los datos de esos lazos permitieron a Kepler formular sus leyes del movimiento planetario. Las observaciones telescópicas terrestres han estado limitadas por la atmósfera, por lo que varias misiones modernas se centraron en cartografiar la superficie y estudiar su habitabilidad pasada.",
+  "instruction": "Extrae las propiedades físicas y orbitales del cuerpo celeste descrito en el texto, incluyendo su nombre oficial, tipo, y parámetros orbitales disponibles.",
+  "schema": {
+    "$defs": {
+      "CelestialBodyType": {
+        "enum": [
+          "ASTEROIDE",
+          "COMETA",
+          "PLANETA",
+          "LUNA",
+          "PLANETA ENANO",
+          "OBJETO INTERESTELAR",
+          "OTRO"
+        ],
+        "title": "CelestialBodyType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts physical and orbital parameters of celestial bodies.\nComplexity: L5 (Precision Extraction & Normalization).",
+    "properties": {
+      "official_name": {
+        "description": "The primary scientific designation or name",
+        "title": "Official Name",
+        "type": "string"
+      },
+      "body_type": {
+        "$ref": "#/$defs/CelestialBodyType",
+        "description": "The classification of the celestial object"
+      },
+      "mass_kg": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Mass in kilograms (scientific notation or float)",
+        "title": "Mass Kg"
+      },
+      "diameter_km": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Mean diameter in kilometers",
+        "title": "Diameter Km"
+      },
+      "eccentricity": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Orbital eccentricity (e.g., 1.199)",
+        "title": "Eccentricity"
+      },
+      "orbital_period_days": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Time to complete one orbit in Earth days",
+        "title": "Orbital Period Days"
+      },
+      "semi_major_axis_au": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Average distance from the sun in AU",
+        "title": "Semi Major Axis Au"
+      },
+      "discovery_date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Date of discovery in YYYY-MM-DD format",
+        "title": "Discovery Date"
+      },
+      "discoverer": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Name of the person or observatory that found the object",
+        "title": "Discoverer"
+      }
+    },
+    "required": [
+      "official_name",
+      "body_type"
+    ],
+    "title": "CelestialObjectProperties",
+    "type": "object"
+  },
+  "field_examples": {
+    "official_name": {
+      "value": "Marte",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre o designación científica principal del cuerpo celeste.",
+        "relevant_fragments": "\"# Marte\" y \"Marte es el cuarto planeta\".",
+        "final_value": "Como los fragmentos relevantes presentan Marte como el cuerpo descrito, el nombre oficial debe ser \"Marte\"."
+      }
+    },
+    "body_type": {
+      "value": "PLANETA",
+      "tags": [
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "la clasificación del cuerpo celeste, mapeada a uno de estos valores: ASTEROIDE, COMETA, PLANETA, LUNA, PLANETA ENANO, OBJETO INTERESTELAR u OTRO.",
+        "relevant_fragments": "\"Marte es el cuarto planeta en orden de distancia al Sol\".",
+        "final_value": "Como el fragmento relevante clasifica Marte como planeta, el valor del enum debe ser \"PLANETA\"."
+      }
+    },
+    "mass_kg": {
+      "value": 6.4171e+23,
+      "tags": [
+        "numeric_normalization",
+        "scientific_notation"
+      ],
+      "reasoning": {
+        "field_asks": "masa en kilogramos, o null si el texto no da masa en kg o una cantidad directamente normalizable a kg.",
+        "relevant_fragments": "\"una masa de 6,4171 × 10^23 kg\".",
+        "final_value": "Como el fragmento relevante da una masa explícita en kg, el valor debe normalizarse como 6.4171e23."
+      }
+    },
+    "diameter_km": {
+      "value": 6779,
+      "tags": [
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "diámetro medio en kilómetros, o null si no hay dato numérico suficiente.",
+        "relevant_fragments": "\"un diámetro medio de 6779 km\".",
+        "final_value": "Como el fragmento relevante da diámetro medio en km, el valor debe ser 6779."
+      }
+    },
+    "eccentricity": {
+      "value": 0.0934,
+      "tags": [
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "excentricidad orbital, o null si no hay valor numérico suficiente.",
+        "relevant_fragments": "\"Su órbita alrededor del Sol tiene una excentricidad de 0,0934\".",
+        "final_value": "Como el fragmento relevante da excentricidad decimal explícita, el valor debe ser 0.0934."
+      }
+    },
+    "orbital_period_days": {
+      "value": 686.98,
+      "tags": [
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "tiempo que tarda el cuerpo en completar una órbita alrededor de su primario, expresado en días terrestres; no debe confundirse con periodo de rotación, duración del día, fecha de misión ni ciclo estacional.",
+        "relevant_fragments": "\"El año marciano dura 686,98 días terrestres\" y \"el periodo de rotación del planeta ronda las 24,6 horas\".",
+        "final_value": "Como el primer fragmento relevante da la duración de la traslación alrededor del Sol y el segundo separa la rotación diaria, el periodo orbital debe ser 686.98."
+      }
+    },
+    "semi_major_axis_au": {
+      "value": null,
+      "tags": [
+        "numeric_normalization",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "semieje mayor o distancia orbital media al Sol en unidades astronómicas, o null si no hay dato en UA suficiente.",
+        "relevant_fragments": "\"Marte es el cuarto planeta en orden de distancia al Sol\" y \"Su órbita alrededor del Sol tiene una excentricidad de 0,0934\".",
+        "final_value": "Como los fragmentos relevantes hablan de orden orbital y excentricidad, pero no dan semieje mayor ni distancia media en UA, el valor debe ser null."
+      }
+    },
+    "discovery_date": {
+      "value": null,
+      "tags": [
+        "date_normalization",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "fecha de descubrimiento en formato YYYY-MM-DD, o null si no hay fecha completa de descubrimiento.",
+        "relevant_fragments": "\"Marte se observa fácilmente a simple vista desde la Tierra y aparece en tradiciones astronómicas antiguas\".",
+        "final_value": "Como el fragmento relevante sitúa a Marte en observación antigua y no da fecha completa de descubrimiento, el valor debe ser null."
+      }
+    },
+    "discoverer": {
+      "value": null,
+      "tags": [
+        "direct_string",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "persona u observatorio que descubrió el objeto, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"Tycho Brahe midió con gran precisión su movimiento aparente\" y \"permitieron a Kepler formular sus leyes\".",
+        "final_value": "Como los fragmentos relevantes mencionan astrónomos que estudiaron el movimiento de Marte, pero no los presentan como descubridores del planeta, el valor debe ser null."
+      }
+    }
+  }
+}

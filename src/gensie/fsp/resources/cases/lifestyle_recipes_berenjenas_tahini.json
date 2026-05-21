@@ -1,0 +1,293 @@
+{
+  "id": "lifestyle_recipes_berenjenas_tahini",
+  "domain": "lifestyle_recipes",
+  "language": "es",
+  "tags": [
+    "lifestyle_recipes",
+    "holistic_reasoning",
+    "nested_array",
+    "enum_classification",
+    "numeric_normalization",
+    "grounded_null"
+  ],
+  "source_text": "# Berenjenas al vapor con tahini\n\nSource: https://ejemplo.org/wiki/Berenjenas_al_vapor_con_tahini\n\nLas berenjenas al vapor con tahini son una preparación vegetal de servicio templado, habitual como entrante. Para 2 raciones se usan 2 berenjenas pequeñas, 2 cucharadas de tahini, 30 ml de zumo de limón, 1 cucharada de aceite de oliva, 1 pizca de sal y hojas de perejil picadas.\n\n== Contexto ==\nLa receta se asocia a mesas mediterráneas donde las hortalizas cocidas se sirven con salsas de semillas o frutos secos. A diferencia de las berenjenas rebozadas, no emplea harina ni huevo; la grasa procede del tahini y del aceite de oliva.\n\n== Preparación ==\nLas berenjenas se cortan en tiras gruesas y se cocinan al vapor durante 18 minutos, hasta que la pulpa queda tierna pero conserva la forma. Después se colocan en una fuente y reposan 7 minutos antes de cubrirlas con la salsa de tahini, limón, aceite y sal.\n\nEn algunas versiones se espolvorea sésamo tostado o granos de granada; en bares se sirve a veces con pan de pita, aunque esos añadidos no forman parte de la preparación básica.",
+  "instruction": "Extrae la receta.",
+  "schema": {
+    "$defs": {
+      "CookingTechnique": {
+        "enum": [
+          "SOFREÍR",
+          "HERVIR",
+          "HORNEAR",
+          "FREÍR",
+          "VAPOR",
+          "COCCIÓN LENTA"
+        ],
+        "title": "CookingTechnique",
+        "type": "string"
+      },
+      "DietaryTag": {
+        "enum": [
+          "VEGANO",
+          "VEGETARIANO",
+          "SIN GLUTEN",
+          "SIN LÁCTEOS",
+          "BAJO EN CARBOHIDRATOS"
+        ],
+        "title": "DietaryTag",
+        "type": "string"
+      },
+      "RecipeIngredient": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "description": "Verbatim name of the ingredient",
+            "title": "Name",
+            "type": "string"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Numerical quantity",
+            "title": "Amount"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/UnitType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Unit of measurement"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "RecipeIngredient",
+        "type": "object"
+      },
+      "UnitType": {
+        "enum": [
+          "g",
+          "ml",
+          "kg",
+          "unidad",
+          "pizca",
+          "cucharada",
+          "otro"
+        ],
+        "title": "UnitType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Holistic reasoning over a traditional recipe.\nRequires inferring dietary suitability and complexity from steps.\nComplexity: L10 (Holistic Reasoning).",
+    "properties": {
+      "dish_name": {
+        "description": "The name of the recipe",
+        "title": "Dish Name",
+        "type": "string"
+      },
+      "servings": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of portions generated",
+        "title": "Servings"
+      },
+      "ingredients": {
+        "description": "Structured list of ingredients",
+        "items": {
+          "$ref": "#/$defs/RecipeIngredient"
+        },
+        "title": "Ingredients",
+        "type": "array"
+      },
+      "complexity_score": {
+        "description": "Inferred difficulty from 1 (easy) to 10 (pro chef) based on steps and time",
+        "maximum": 10,
+        "minimum": 1,
+        "title": "Complexity Score",
+        "type": "integer"
+      },
+      "dietary_tags": {
+        "description": "Reasoned tags based on the absence of certain ingredient types (e.g., meat, gluten)",
+        "items": {
+          "$ref": "#/$defs/DietaryTag"
+        },
+        "title": "Dietary Tags",
+        "type": "array"
+      },
+      "technique_sequence": {
+        "description": "The chronological sequence of main cooking techniques applied",
+        "items": {
+          "$ref": "#/$defs/CookingTechnique"
+        },
+        "title": "Technique Sequence",
+        "type": "array"
+      },
+      "total_time_minutes": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Normalized total duration in minutes",
+        "title": "Total Time Minutes"
+      }
+    },
+    "required": [
+      "dish_name",
+      "ingredients",
+      "complexity_score",
+      "technique_sequence"
+    ],
+    "title": "RecipeProcedural",
+    "type": "object"
+  },
+  "field_examples": {
+    "dish_name": {
+      "value": "Berenjenas al vapor con tahini",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre de la receta.",
+        "relevant_fragments": "\"# Berenjenas al vapor con tahini\".",
+        "final_value": "Como el fragmento relevante es el encabezado de la receta, el nombre debe ser \"Berenjenas al vapor con tahini\"."
+      }
+    },
+    "servings": {
+      "value": 2,
+      "tags": [
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de raciones o porciones, o null si no se indica.",
+        "relevant_fragments": "\"Para 2 raciones\".",
+        "final_value": "Como el fragmento relevante da el número de raciones, el valor debe ser 2."
+      }
+    },
+    "ingredients": {
+      "value": [
+        {
+          "name": "berenjenas pequeñas",
+          "amount": 2,
+          "unit": "unidad"
+        },
+        {
+          "name": "tahini",
+          "amount": 2,
+          "unit": "cucharada"
+        },
+        {
+          "name": "zumo de limón",
+          "amount": 30,
+          "unit": "ml"
+        },
+        {
+          "name": "aceite de oliva",
+          "amount": 1,
+          "unit": "cucharada"
+        },
+        {
+          "name": "sal",
+          "amount": 1,
+          "unit": "pizca"
+        },
+        {
+          "name": "perejil",
+          "amount": null,
+          "unit": null
+        }
+      ],
+      "tags": [
+        "nested_array",
+        "numeric_normalization",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "lista estructurada de ingredientes; cada unidad debe mapearse a g, ml, kg, unidad, pizca, cucharada, otro o null.",
+        "relevant_fragments": "\"Para 2 raciones se usan 2 berenjenas pequeñas, 2 cucharadas de tahini, 30 ml de zumo de limón, 1 cucharada de aceite de oliva, 1 pizca de sal y hojas de perejil picadas\" y \"En algunas versiones se espolvorea sésamo tostado o granos de granada [...] aunque esos añadidos no forman parte de la preparación básica\".",
+        "final_value": "Como el primer fragmento relevante da los ingredientes de la preparación básica, se extraen las cantidades y unidades explícitas; el perejil queda con amount y unit null porque no tiene cantidad numérica. El segundo fragmento relevante presenta sésamo, granada y pan de pita como variantes o acompañamientos, por lo que no deben añadirse a la lista canónica."
+      }
+    },
+    "complexity_score": {
+      "value": 4,
+      "tags": [
+        "holistic_reasoning",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "dificultad inferida de 1 a 10 según pasos, técnicas y tiempo.",
+        "relevant_fragments": "\"se cortan en tiras gruesas\", \"se cocinan al vapor durante 18 minutos\", \"reposan 7 minutos\" y \"cubrirlas con la salsa de tahini, limón, aceite y sal\".",
+        "final_value": "Como los fragmentos relevantes combinan corte, control de punto al vapor, reposo separado y aliño, la dificultad es medio-baja y no mínima; el valor debe ser 4."
+      }
+    },
+    "dietary_tags": {
+      "value": [
+        "VEGANO",
+        "VEGETARIANO",
+        "SIN GLUTEN",
+        "SIN LÁCTEOS"
+      ],
+      "tags": [
+        "enum_classification",
+        "simple_array",
+        "holistic_reasoning"
+      ],
+      "reasoning": {
+        "field_asks": "etiquetas dietéticas inferidas, usando solo estos valores: VEGANO, VEGETARIANO, SIN GLUTEN, SIN LÁCTEOS o BAJO EN CARBOHIDRATOS.",
+        "relevant_fragments": "\"berenjenas\", \"tahini\", \"zumo de limón\", \"aceite de oliva\", \"sal\", \"no emplea harina ni huevo\" y \"pan de pita [...] no forma parte de la preparación básica\".",
+        "final_value": "Como los fragmentos relevantes de la preparación básica solo contienen ingredientes vegetales, sin lácteos ni harina, la lista debe incluir \"VEGANO\", \"VEGETARIANO\", \"SIN GLUTEN\" y \"SIN LÁCTEOS\". El pan de pita aparece como acompañamiento externo, no como parte canónica del plato, y por eso no bloquea \"SIN GLUTEN\" para la preparación básica."
+      }
+    },
+    "technique_sequence": {
+      "value": [
+        "VAPOR"
+      ],
+      "tags": [
+        "enum_classification",
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "secuencia cronológica de técnicas principales, usando solo estos valores: SOFREÍR, HERVIR, HORNEAR, FREÍR, VAPOR o COCCIÓN LENTA.",
+        "relevant_fragments": "\"se cocinan al vapor durante 18 minutos\".",
+        "final_value": "Como el fragmento relevante solo describe cocción al vapor, la secuencia debe ser [\"VAPOR\"]."
+      }
+    },
+    "total_time_minutes": {
+      "value": 25,
+      "tags": [
+        "numeric_normalization",
+        "holistic_reasoning"
+      ],
+      "reasoning": {
+        "field_asks": "duración total normalizada en minutos, o null si no hay tiempo suficiente.",
+        "relevant_fragments": "\"se cocinan al vapor durante 18 minutos\" y \"reposan 7 minutos antes de cubrirlas con la salsa\".",
+        "final_value": "Como los fragmentos relevantes dan dos fases sucesivas, 18 minutos de vapor y 7 minutos de reposo posterior, la duración total sumable debe ser 25."
+      }
+    }
+  }
+}

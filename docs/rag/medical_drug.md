@@ -6,7 +6,9 @@ Los tasks `medical_drug` son extracciones L8 desde fichas técnicas de medicamen
 
 - `data/dev_rev/medical_drug_001.json`
 - `data/dev_rev/medical_drug_002.json`
+- `data/dev/medical_drug_002.json`
 - `data/dev/medical_drug_003.json`
+- `data/dev/medical_drug_005.json`
 
 ## Dualidad por campo
 
@@ -17,7 +19,7 @@ Los tasks `medical_drug` son extracciones L8 desde fichas técnicas de medicamen
 | `pharmaceutical_format` | Requerido, `string`, no nullable. Dualidad entre forma simple (`Comprimido`, `Solución oral`) y forma más específica (`Comprimido recubierto con película`, `Solución para perfusión`). Conviene copiar el literal de la sección 3 cuando exista. |
 | `standard_doses` | Array no requerido en `required`, pero muy informativo. Dualidad entre una sola dosis/concentración y varias dosis, incluyendo concentraciones por ml o combinaciones con principio activo. Puede ser `[]` si la ficha no da dosis estándar claras, pero en los ejemplos revisados siempre aparece poblado. |
 | `is_pediatric` | `boolean`. Dualidad principal: `true` cuando la ficha da posología pediátrica para niños o adolescentes con uso permitido, frente a `false` cuando restringe o contraindica el uso en menores aunque mencione adolescentes. Hay que distinguir "población pediátrica" como sección de "indicado para niños". |
-| `side_effects` | Array anidado. Puede variar en longitud y granularidad: lista corta de reacciones seleccionadas frente a lista amplia de la sección 4.8. Para cada item, `reaction` debe ser el nombre del efecto adverso, `system_organ_class` puede ser `string` o `null`, `probability` debe mapear frecuencia textual al enum y `impact` se infiere clínicamente. |
+| `side_effects` | Array anidado. Puede variar en longitud y granularidad, pero cuando el input recorta una sección 4.8 pequeña conviene extraer todas las reacciones de ese recorte y no solo una muestra. Para cada item, `reaction` debe ser el nombre del efecto adverso, `system_organ_class` puede ser `string` o `null`, `probability` debe mapear frecuencia textual al enum y `impact` se infiere clínicamente. |
 | `side_effects[].reaction` | Requerido dentro del item. Dualidad entre reacciones simples (`Malestar`, `Hipotensión`) y reacciones complejas o compuestas (`Reacciones de hipersensibilidad`, `Acidosis metabólica con déficit aniónico elevado`). Preferir literal o fragmento fiel del texto. |
 | `side_effects[].system_organ_class` | `string` vs `null`. En los ejemplos revisados casi siempre es `string` porque las reacciones aparecen bajo encabezados de sistema; conviene incluir un caso donde una reacción aparece en una frase general de perfil de seguridad sin clase clara, para enseñar `null`. |
 | `side_effects[].probability` | Enum requerido. Debe mapear a uno de estos valores: `HIGH`, `MEDIUM`, `LOW` o `UNKNOWN`. Dualidad importante: `Raras`/`Muy raras` suelen ir a `LOW`; `Frecuentes` a `HIGH`; `Poco frecuentes` o algunos usos del dataset pueden ir a `MEDIUM`; `Frecuencia no conocida` debe ir a `UNKNOWN`. |
@@ -32,7 +34,7 @@ Los tasks `medical_drug` son extracciones L8 desde fichas técnicas de medicamen
 | `pharmaceutical_format` | Forma específica sólida, por ejemplo `Comprimido recubierto con película`. | Forma líquida, por ejemplo `Solución oral`, para contrastar formato. |
 | `standard_doses` | Lista de un solo elemento, por ejemplo `400 mg`. | Lista de dos elementos con concentración y principio activo, por ejemplo `24 mg/ml paracetamol` y `2,40 mg/ml codeína`. |
 | `is_pediatric` | `true`: posología explícita para niños por peso o edad. | `false`: sección pediátrica menciona adolescentes o menores, pero contraindica menores de 12 años o limita el uso de forma que no es apto para niños. |
-| `side_effects` | Lista corta, 3-4 items, incluyendo una reacción sin clase de órgano clara para usar `system_organ_class: null`. | Lista algo más rica, 5-6 items, con clases de órgano explícitas y una frecuencia `UNKNOWN`. |
+| `side_effects` | Lista corta, 3-4 items, incluyendo una reacción sin clase de órgano clara para usar `system_organ_class: null`. | Lista más rica, 8 items, extrayendo todas las reacciones del recorte de 4.8 y no solo una selección. |
 | `side_effects[].probability` | Mezcla de `HIGH`, `MEDIUM` y `LOW` si el texto tiene frecuentes/poco frecuentes/raras. | `LOW` y `UNKNOWN`, siguiendo el patrón de paracetamol/codeína y frecuencia no conocida. |
 | `side_effects[].impact` | Incluir al menos `MILD`, `MODERATE` y `SEVERE`. | Incluir `CRITICAL` para una reacción como depresión respiratoria o shock anafiláctico. |
 
@@ -45,27 +47,35 @@ Los tasks `medical_drug` son extracciones L8 desde fichas técnicas de medicamen
 ```text
 FICHA TÉCNICA IBUPROFENO LUMEN 400 mg COMPRIMIDOS RECUBIERTOS CON PELÍCULA EFG
 
+Pulse aquí
+                        
+                        para ver el documento en formato PDF.
+
 # 1. NOMBRE DEL MEDICAMENTO
 
-Ibuprofeno Lumen 400 mg comprimidos recubiertos con película EFG.
+Ibuprofeno Lumen 400 mg comprimidos recubiertos con película EFG. [...] 
 
 # 2. COMPOSICIÓN CUALITATIVA Y CUANTITATIVA
 
-Cada comprimido recubierto contiene 400 mg de ibuprofeno.
+Cada comprimido recubierto contiene 400 mg de ibuprofeno. Excipiente con efecto conocido: cada comprimido contiene lactosa monohidrato. [...] 
 
 # 3. FORMA FARMACÉUTICA
 
-Comprimido recubierto con película. Comprimidos blancos, oblongos y ranurados por una cara.
+Comprimido recubierto con película. Comprimidos blancos, oblongos y ranurados por una cara. La ranura no debe utilizarse para fraccionar dosis iguales. [...] 
 
 ## 4.2. Posología y forma de administración
 
+Posología
+
 Adultos: 1 comprimido cada 6-8 horas, si fuera necesario. No superar 1.200 mg al día sin supervisión médica.
 
-Población pediátrica: Niños a partir de 12 años y peso igual o superior a 40 kg: 1 comprimido cada 6-8 horas, con un máximo de 3 comprimidos al día. En menores de 12 años se recomiendan otras presentaciones ajustadas al peso.
+Población pediátrica:
+
+Niños a partir de 12 años y peso igual o superior a 40 kg: 1 comprimido cada 6-8 horas, con un máximo de 3 comprimidos al día. En menores de 12 años se recomiendan otras presentaciones ajustadas al peso. [...] 
 
 ## 4.8. Reacciones adversas
 
-Las reacciones adversas se agrupan por frecuencia y sistema orgánico.
+Las reacciones adversas se agrupan por frecuencia y sistema orgánico. Frecuentes (>=1/100 a <1/10), poco frecuentes (>=1/1.000 a <1/100), raras (>=1/10.000 a <1/1.000).
 
 Trastornos gastrointestinales:
 Frecuentes: Náuseas.
@@ -167,25 +177,39 @@ Extrae la descripción estructurada del medicamento, incluyendo su uso en poblac
 `input_text`:
 
 ```text
-FICHA TÉCNICA PARACETAMOL/CODEÍNA NOVA 24 mg/ml + 2,40 mg/ml SOLUCIÓN ORAL
+FICHA TÉCNICA PARACETAMOL/ CODEÍNA NOVA 24mg/ml +2,40mg/ml SOLUCIÓN ORAL
+
+Pulse aquí
+                        
+                        para ver el documento en formato PDF.
 
 # 1. NOMBRE DEL MEDICAMENTO
 
-Paracetamol/codeína Nova 24 mg/ml + 2,40 mg/ml solución oral.
+Paracetamol/codeína Nova 24 mg/ml + 2,40 mg/ml solución oral. [...] 
 
 # 2. COMPOSICIÓN CUALITATIVA Y CUANTITATIVA
 
-Cada ml de solución contiene 24 mg de paracetamol y 2,40 mg de codeína fosfato hemihidrato.
+Cada ml de solución contiene 24 mg de paracetamol y 2,40 mg de codeína fosfato hemihidrato. [...] 
 
 # 3. FORMA FARMACÉUTICA
 
-Solución oral. Líquido transparente de color rojo con aroma a fresa.
+Solución oral. Líquido transparente de color rojo con aroma a fresa. [...] 
+
+## 4.1. Indicaciones terapéuticas
+
+Indicado en pacientes mayores de 12 años para dolor agudo moderado no aliviado por otros analgésicos. [...] 
 
 ## 4.2. Posología y forma de administración
 
-Adolescentes de 12 a 18 años: de 10 a 15 ml cada 6 horas. Niños menores de 12 años: no se debe utilizar codeína debido al riesgo de toxicidad opioide por metabolismo variable a morfina.
+Población pediátrica:
+
+- Adolescentes de 12 a 18 años: de 10 a 15 ml cada 6 horas.
+
+- Niños menores de 12 años: no se debe utilizar codeína debido al riesgo de toxicidad opioide por metabolismo variable a morfina. [...] 
 
 ## 4.8. Reacciones adversas
+
+Las reacciones adversas son raras, muy raras o de frecuencia no conocida.
 
 Paracetamol
 Trastornos del metabolismo y de la nutrición:
@@ -250,13 +274,25 @@ Extrae la información completa del medicamento, incluyendo nombre, indicación 
       "impact": "MILD"
     },
     {
+      "reaction": "náuseas",
+      "system_organ_class": "Trastornos gastrointestinales",
+      "probability": "LOW",
+      "impact": "MILD"
+    },
+    {
+      "reaction": "Broncoespasmo",
+      "system_organ_class": "Trastornos respiratorios",
+      "probability": "LOW",
+      "impact": "SEVERE"
+    },
+    {
       "reaction": "depresión respiratoria",
       "system_organ_class": "Trastornos respiratorios",
       "probability": "LOW",
       "impact": "CRITICAL"
     },
     {
-      "reaction": "Reacciones de hipersensibilidad",
+      "reaction": "Reacciones de hipersensibilidad que pueden llegar a shock anafiláctico",
       "system_organ_class": "Trastornos del sistema inmunológico",
       "probability": "LOW",
       "impact": "CRITICAL"
@@ -296,8 +332,8 @@ Extrae la información completa del medicamento, incluyendo nombre, indicación 
   },
   "side_effects": {
     "field_asks": "lista estructurada de reacciones adversas de la sección 4.8; cada item debe incluir reacción, clase de órgano o null, probabilidad mapeada a HIGH, MEDIUM, LOW o UNKNOWN, e impacto mapeado a MILD, MODERATE, SEVERE o CRITICAL.",
-    "relevant_fragments": "\"Muy raras: Hipoglucemia\", \"Frecuencia no conocida: Acidosis metabólica con déficit aniónico elevado\", \"Raras: Somnolencia\", \"Raras: Estreñimiento, náuseas\", \"Raras: Broncoespasmo, depresión respiratoria\" y \"Muy raras: Reacciones de hipersensibilidad que pueden llegar a shock anafiláctico\".",
-    "final_value": "Como los fragmentos relevantes dan reacciones y frecuencias, \"Muy raras\" y \"Raras\" se mapean a LOW y \"Frecuencia no conocida\" a UNKNOWN; se seleccionan reacciones representativas de la sección 4.8, con impactos MILD para somnolencia y estreñimiento, MODERATE para hipoglucemia y acidosis metabólica, y CRITICAL para depresión respiratoria e hipersensibilidad con posible shock anafiláctico."
+    "relevant_fragments": "\"Trastornos del metabolismo y de la nutrición: Muy raras: Hipoglucemia. Frecuencia no conocida: Acidosis metabólica con déficit aniónico elevado\", \"Trastornos gastrointestinales: Raras: Estreñimiento, náuseas\", \"Trastornos respiratorios: Raras: Broncoespasmo, depresión respiratoria\" y \"Trastornos del sistema inmunológico: Muy raras: Reacciones de hipersensibilidad que pueden llegar a shock anafiláctico\".",
+    "final_value": "Como los fragmentos relevantes cubren todo el recorte de la sección 4.8, deben salir las ocho reacciones listadas: \"Muy raras\" y \"Raras\" se mapean a LOW y \"Frecuencia no conocida\" a UNKNOWN. El impacto queda apoyado en la naturaleza clínica de cada reacción: somnolencia, estreñimiento y náuseas son MILD por ser síntomas habitualmente reversibles; hipoglucemia y acidosis metabólica son MODERATE porque implican alteraciones metabólicas que requieren valoración; Broncoespasmo es SEVERE por compromiso respiratorio; depresión respiratoria y las reacciones de hipersensibilidad que pueden llegar a shock anafiláctico son CRITICAL por riesgo vital directo."
   }
 }
 ```

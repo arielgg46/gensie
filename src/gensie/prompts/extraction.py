@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass, field
 from typing import Any, Mapping
 
-from gensie.fsp import FSPProvider, NoFSPProvider
+from gensie.fsp import FSPExample, FSPProvider, NoFSPProvider
 from gensie.pipeline.context import PipelineContext
 from gensie.pipeline.specs import ExtractionSpec, FewShotMode, ReasoningMode
 from gensie.prompts.base import PromptBundle, PromptBuilder
@@ -30,12 +30,14 @@ class ExtractionPromptBuilder(PromptBuilder):
             extraction.schema_prompt,
             reasoning=extraction.reasoning,
         )
+        fsp_examples = _select_fsp_examples(context, extraction, self.fsp_provider)
         user = build_extraction_prompt(
             context=context,
             extraction=extraction,
             schema_view=schema_view,
             fsp_provider=self.fsp_provider,
             include_default_rules=self.include_default_rules,
+            fsp_examples=fsp_examples,
         )
         return PromptBundle(
             system=system_prompt_for_reasoning(extraction.reasoning),
@@ -43,6 +45,7 @@ class ExtractionPromptBuilder(PromptBuilder):
             metadata={
                 "schema_view": dict(schema_view.metadata),
                 "reasoning": extraction.reasoning.value,
+                "fsp_examples": _fsp_examples_metadata(fsp_examples),
             },
         )
 
@@ -54,6 +57,7 @@ def build_extraction_prompt(
     schema_view: SchemaView,
     fsp_provider: FSPProvider,
     include_default_rules: bool = True,
+    fsp_examples: tuple[FSPExample, ...] | None = None,
 ) -> str:
     task = context.task
     sections: list[str] = [
@@ -70,7 +74,9 @@ def build_extraction_prompt(
     if include_default_rules:
         sections.extend(["", "REGLAS:", *_rules_for_reasoning(extraction.reasoning)])
 
-    fsp_block = _render_fsp_examples(context, extraction, fsp_provider)
+    if fsp_examples is None:
+        fsp_examples = _select_fsp_examples(context, extraction, fsp_provider)
+    fsp_block = _render_fsp_examples(fsp_examples)
     if fsp_block:
         sections.extend(["", fsp_block])
 
@@ -126,12 +132,15 @@ def _rules_for_reasoning(reasoning: ReasoningMode) -> list[str]:
     return common
 
 
-def _render_fsp_examples(
+def _select_fsp_examples(
     context: PipelineContext, extraction: ExtractionSpec, provider: FSPProvider
-) -> str:
+) -> tuple[FSPExample, ...]:
     if extraction.few_shot is FewShotMode.NONE:
-        return ""
-    examples = provider.examples(context, extraction)
+        return ()
+    return provider.examples(context, extraction)
+
+
+def _render_fsp_examples(examples: tuple[FSPExample, ...]) -> str:
     if not examples:
         return ""
 
@@ -143,6 +152,16 @@ def _render_fsp_examples(
             blocks.append("SALIDA:")
             blocks.append(json.dumps(example.output, ensure_ascii=False, indent=2))
     return "\n".join(blocks)
+
+
+def _fsp_examples_metadata(examples: tuple[FSPExample, ...]) -> list[dict[str, Any]]:
+    return [
+        {
+            "name": example.name,
+            **dict(example.metadata),
+        }
+        for example in examples
+    ]
 
 
 def _render_phase_context(value: Any) -> str:

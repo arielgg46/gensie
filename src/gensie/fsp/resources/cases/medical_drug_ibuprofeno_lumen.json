@@ -1,0 +1,223 @@
+{
+  "id": "medical_drug_ibuprofeno_lumen",
+  "domain": "medical_drug",
+  "language": "es",
+  "tags": [
+    "medical_safety",
+    "nested_array",
+    "enum_classification",
+    "numeric_normalization",
+    "grounded_null"
+  ],
+  "source_text": "FICHA TÉCNICA IBUPROFENO LUMEN 400 mg COMPRIMIDOS RECUBIERTOS CON PELÍCULA EFG\n\nPulse aquí\n                        \n                        para ver el documento en formato PDF.\n\n# 1. NOMBRE DEL MEDICAMENTO\n\nIbuprofeno Lumen 400 mg comprimidos recubiertos con película EFG. [...] \n\n# 2. COMPOSICIÓN CUALITATIVA Y CUANTITATIVA\n\nCada comprimido recubierto contiene 400 mg de ibuprofeno. Excipiente con efecto conocido: cada comprimido contiene lactosa monohidrato. [...] \n\n# 3. FORMA FARMACÉUTICA\n\nComprimido recubierto con película. Comprimidos blancos, oblongos y ranurados por una cara. La ranura no debe utilizarse para fraccionar dosis iguales. [...] \n\n## 4.2. Posología y forma de administración\n\nPosología\n\nAdultos: 1 comprimido cada 6-8 horas, si fuera necesario. No superar 1.200 mg al día sin supervisión médica.\n\nPoblación pediátrica:\n\nNiños a partir de 12 años y peso igual o superior a 40 kg: 1 comprimido cada 6-8 horas, con un máximo de 3 comprimidos al día. En menores de 12 años se recomiendan otras presentaciones ajustadas al peso. [...] \n\n## 4.8. Reacciones adversas\n\nLas reacciones adversas se agrupan por frecuencia y sistema orgánico. Frecuentes (>=1/100 a <1/10), poco frecuentes (>=1/1.000 a <1/100), raras (>=1/10.000 a <1/1.000).\n\nTrastornos gastrointestinales:\nFrecuentes: Náuseas.\n\nTrastornos del sistema nervioso:\nPoco frecuentes: Mareo.\n\nTrastornos de la piel y del tejido subcutáneo:\nRaras: Reacciones cutáneas graves.\n\nTras la comercialización también se han comunicado casos aislados de edema facial.",
+  "instruction": "Extrae la descripción estructurada del medicamento, incluyendo su uso en población pediátrica y la lista detallada de efectos adversos.",
+  "schema": {
+    "$defs": {
+      "FrequencyLevel": {
+        "enum": [
+          "HIGH",
+          "MEDIUM",
+          "LOW",
+          "UNKNOWN"
+        ],
+        "title": "FrequencyLevel",
+        "type": "string"
+      },
+      "ImpactLevel": {
+        "enum": [
+          "MILD",
+          "MODERATE",
+          "SEVERE",
+          "CRITICAL"
+        ],
+        "title": "ImpactLevel",
+        "type": "string"
+      },
+      "SideEffect": {
+        "additionalProperties": false,
+        "description": "Detailed description of an adverse reaction.",
+        "properties": {
+          "reaction": {
+            "description": "Name of the adverse effect in Spanish",
+            "title": "Reaction",
+            "type": "string"
+          },
+          "system_organ_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Affected body system (e.g., Trastornos vasculares)",
+            "title": "System Organ Class"
+          },
+          "probability": {
+            "$ref": "#/$defs/FrequencyLevel",
+            "description": "Frequency based on text: Raras/Muy raras -> LOW, Frecuentes -> HIGH"
+          },
+          "impact": {
+            "$ref": "#/$defs/ImpactLevel",
+            "description": "Inferred clinical severity of the reaction"
+          }
+        },
+        "required": [
+          "reaction",
+          "probability",
+          "impact"
+        ],
+        "title": "SideEffect",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Comprehensive structured description of a medication.\nComplexity: L8 (Nested Lists & Semantic Mapping).",
+    "properties": {
+      "common_name": {
+        "description": "The generic name of the active principle",
+        "title": "Common Name",
+        "type": "string"
+      },
+      "official_name": {
+        "description": "The full commercial or official name of the drug",
+        "title": "Official Name",
+        "type": "string"
+      },
+      "pharmaceutical_format": {
+        "description": "The physical form (e.g., Comprimido, Cápsula, Solución)",
+        "title": "Pharmaceutical Format",
+        "type": "string"
+      },
+      "standard_doses": {
+        "description": "List of available strengths or doses mentioned (e.g., ['1 g', '500 mg'])",
+        "items": {
+          "type": "string"
+        },
+        "title": "Standard Doses",
+        "type": "array"
+      },
+      "is_pediatric": {
+        "description": "True if the drug is indicated for children or infants",
+        "title": "Is Pediatric",
+        "type": "boolean"
+      },
+      "side_effects": {
+        "description": "Structured list of all adverse reactions found in section 4.8",
+        "items": {
+          "$ref": "#/$defs/SideEffect"
+        },
+        "title": "Side Effects",
+        "type": "array"
+      }
+    },
+    "required": [
+      "common_name",
+      "official_name",
+      "pharmaceutical_format",
+      "is_pediatric"
+    ],
+    "title": "DrugDescription",
+    "type": "object"
+  },
+  "field_examples": {
+    "common_name": {
+      "value": "Ibuprofeno",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre genérico del principio activo.",
+        "relevant_fragments": "\"Ibuprofeno Lumen 400 mg\" y \"Cada comprimido recubierto contiene 400 mg de ibuprofeno\".",
+        "final_value": "Como los fragmentos relevantes identifican ibuprofeno como principio activo, el nombre común debe ser \"Ibuprofeno\"."
+      }
+    },
+    "official_name": {
+      "value": "Ibuprofeno Lumen 400 mg comprimidos recubiertos con película EFG",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre comercial u oficial completo del medicamento.",
+        "relevant_fragments": "\"# 1. NOMBRE DEL MEDICAMENTO\" y \"Ibuprofeno Lumen 400 mg comprimidos recubiertos con película EFG\".",
+        "final_value": "Como el fragmento relevante de la sección 1 da el nombre completo de la presentación, el valor debe ser \"Ibuprofeno Lumen 400 mg comprimidos recubiertos con película EFG\"."
+      }
+    },
+    "pharmaceutical_format": {
+      "value": "Comprimido recubierto con película",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "la forma farmacéutica física del medicamento.",
+        "relevant_fragments": "\"# 3. FORMA FARMACÉUTICA\" y \"Comprimido recubierto con película\".",
+        "final_value": "Como la sección 3 da la forma farmacéutica, el valor debe ser \"Comprimido recubierto con película\"."
+      }
+    },
+    "standard_doses": {
+      "value": [
+        "400 mg"
+      ],
+      "tags": [
+        "simple_array",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "lista de dosis o concentraciones estándar mencionadas.",
+        "relevant_fragments": "\"Ibuprofeno Lumen 400 mg\" y \"Cada comprimido recubierto contiene 400 mg de ibuprofeno\".",
+        "final_value": "Como los fragmentos relevantes mencionan una única concentración por comprimido, la lista debe contener \"400 mg\"."
+      }
+    },
+    "is_pediatric": {
+      "value": true,
+      "tags": [
+        "boolean_inference"
+      ],
+      "reasoning": {
+        "field_asks": "true si el medicamento está indicado o tiene posología para niños o adolescentes; false si no lo está.",
+        "relevant_fragments": "\"Población pediátrica: Niños a partir de 12 años y peso igual o superior a 40 kg: 1 comprimido cada 6-8 horas\".",
+        "final_value": "Como el fragmento relevante da una pauta pediátrica permitida para niños a partir de 12 años, el valor debe ser true."
+      }
+    },
+    "side_effects": {
+      "value": [
+        {
+          "reaction": "Náuseas",
+          "system_organ_class": "Trastornos gastrointestinales",
+          "probability": "HIGH",
+          "impact": "MILD"
+        },
+        {
+          "reaction": "Mareo",
+          "system_organ_class": "Trastornos del sistema nervioso",
+          "probability": "MEDIUM",
+          "impact": "MILD"
+        },
+        {
+          "reaction": "Reacciones cutáneas graves",
+          "system_organ_class": "Trastornos de la piel y del tejido subcutáneo",
+          "probability": "LOW",
+          "impact": "SEVERE"
+        },
+        {
+          "reaction": "edema facial",
+          "system_organ_class": null,
+          "probability": "UNKNOWN",
+          "impact": "MODERATE"
+        }
+      ],
+      "tags": [
+        "nested_array",
+        "enum_classification",
+        "clinical_severity_inference"
+      ],
+      "reasoning": {
+        "field_asks": "lista estructurada de reacciones adversas de la sección 4.8; cada item debe incluir reacción, clase de órgano o null, probabilidad mapeada a HIGH, MEDIUM, LOW o UNKNOWN, e impacto mapeado a MILD, MODERATE, SEVERE o CRITICAL.",
+        "relevant_fragments": "\"Trastornos gastrointestinales: Frecuentes: Náuseas\", \"Trastornos del sistema nervioso: Poco frecuentes: Mareo\", \"Trastornos de la piel y del tejido subcutáneo: Raras: Reacciones cutáneas graves\" y \"casos aislados de edema facial\".",
+        "final_value": "Como los fragmentos relevantes dan las reacciones y sus frecuencias, \"Frecuentes\" se mapea a HIGH, \"Poco frecuentes\" a MEDIUM, \"Raras\" a LOW y los casos aislados sin frecuencia tabulada a UNKNOWN; los impactos se asignan según gravedad clínica: náuseas y mareo MILD, reacciones cutáneas graves SEVERE y edema facial MODERATE."
+      }
+    }
+  }
+}

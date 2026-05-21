@@ -6,6 +6,8 @@ Los tasks `lifestyle_recipes` son extracciones L10 de recetas o descripciones cu
 
 - `data/dev_rev/lifestyle_recipes_01.json`
 - `data/dev/lifestyle_recipes_02.json`
+- `data/dev/lifestyle_recipes_03.json`
+- `data/dev/lifestyle_recipes_08.json`
 - `data/dev/lifestyle_recipes_05.json`
 
 ## Dualidad por campo
@@ -14,7 +16,7 @@ Los tasks `lifestyle_recipes` son extracciones L10 de recetas o descripciones cu
 | --- | --- |
 | `dish_name` | Requerido, `string`, no nullable. Dualidad entre nombre directo del encabezado y nombre de receta dentro del cuerpo cuando el encabezado es una técnica o ingrediente. |
 | `servings` | `integer` vs `null`. Dualidad entre raciones explícitas y textos enciclopédicos o tradicionales sin número de porciones. |
-| `ingredients` | Array requerido. Dualidad entre ingredientes con cantidades/unidades explícitas y nombres sin cantidad. Debe preservar nombres verbatim y usar `amount: null` y `unit: null` cuando el texto no cuantifica. |
+| `ingredients` | Array requerido. Dualidad entre ingredientes con cantidades/unidades explícitas y nombres sin cantidad. Debe preservar nombres verbatim y usar `amount: null` y `unit: null` cuando el texto no cuantifica. En los ejemplos revisados conviene quedarse con la base canónica de preparación y no añadir guarniciones, platos derivados o variantes locales opcionales. |
 | `ingredients[].unit` | Enum o `null`. Debe mapear a uno de estos valores: `g`, `ml`, `kg`, `unidad`, `pizca`, `cucharada` u `otro`; si la unidad no aparece o no es interpretable, `null`. |
 | `complexity_score` | Entero 1-10. No es textual: debe inferirse por número de pasos, técnicas, precisión y tiempo. Conviene contrastar receta muy simple frente a una con varias fases. |
 | `dietary_tags` | `[]` vs lista poblada. Debe mapear a `VEGANO`, `VEGETARIANO`, `SIN GLUTEN`, `SIN LÁCTEOS` o `BAJO EN CARBOHIDRATOS`. Se infiere por ausencia/presencia de carne, pescado, lácteos, gluten y carga de carbohidratos. |
@@ -28,10 +30,10 @@ Los tasks `lifestyle_recipes` son extracciones L10 de recetas o descripciones cu
 | `dish_name` | Nombre directo de receta vegetal. | Nombre directo de receta cárnica tradicional. |
 | `servings` | Valor no null, por ejemplo 2 o 4 raciones explícitas. | `null`, sin raciones indicadas. |
 | `ingredients` | Ingredientes con cantidades y unidades variadas. | Ingredientes nombrados sin cantidades precisas. |
-| `complexity_score` | Bajo, 2-3, por pocos pasos y una técnica principal. | Medio-alto, 7, por marinado, sofrito, cocción lenta y horneado final. |
+| `complexity_score` | Medio-bajo, 4, por corte, vapor, reposo separado y aliño. | Medio-alto, 7, por marinado, sofrito, cocción lenta y horneado final. |
 | `dietary_tags` | Lista poblada: `VEGANO`, `VEGETARIANO`, `SIN GLUTEN`, `SIN LÁCTEOS`. | `[]`, por carne, cerveza con gluten y mantequilla. |
 | `technique_sequence` | Técnica única `VAPOR`. | Secuencia con `SOFREÍR`, `COCCIÓN LENTA`, `HORNEAR`. |
-| `total_time_minutes` | Valor no null, tiempo total explícito. | `null`, tiempos vagos y dependientes de textura. |
+| `total_time_minutes` | Valor no null, inferido como suma de dos fases sucesivas, por ejemplo 18 + 7 minutos. | `null`, tiempos vagos y dependientes de textura. |
 
 ## Input, output y reasoning propuestos
 
@@ -42,9 +44,17 @@ Los tasks `lifestyle_recipes` son extracciones L10 de recetas o descripciones cu
 ```text
 # Berenjenas al vapor con tahini
 
-Para 2 raciones se cortan 2 berenjenas pequeñas en tiras gruesas y se cocinan al vapor durante 18 minutos, hasta que la pulpa quede tierna pero conserve la forma. Mientras tanto se mezcla una salsa con 2 cucharadas de tahini, 30 ml de zumo de limón, 1 cucharada de aceite de oliva, 1 pizca de sal y hojas de perejil picadas.
+Source: https://ejemplo.org/wiki/Berenjenas_al_vapor_con_tahini
 
-Cuando las berenjenas salen de la vaporera se colocan en una fuente y se cubren con la salsa. La receta se sirve templada, sin pan ni acompañamiento de cereales. El tiempo total, contando corte y aliño, es de 25 minutos.
+Las berenjenas al vapor con tahini son una preparación vegetal de servicio templado, habitual como entrante. Para 2 raciones se usan 2 berenjenas pequeñas, 2 cucharadas de tahini, 30 ml de zumo de limón, 1 cucharada de aceite de oliva, 1 pizca de sal y hojas de perejil picadas.
+
+== Contexto ==
+La receta se asocia a mesas mediterráneas donde las hortalizas cocidas se sirven con salsas de semillas o frutos secos. A diferencia de las berenjenas rebozadas, no emplea harina ni huevo; la grasa procede del tahini y del aceite de oliva.
+
+== Preparación ==
+Las berenjenas se cortan en tiras gruesas y se cocinan al vapor durante 18 minutos, hasta que la pulpa queda tierna pero conserva la forma. Después se colocan en una fuente y reposan 7 minutos antes de cubrirlas con la salsa de tahini, limón, aceite y sal.
+
+En algunas versiones se espolvorea sésamo tostado o granos de granada; en bares se sirve a veces con pan de pita, aunque esos añadidos no forman parte de la preparación básica.
 ```
 
 `instruction`:
@@ -91,7 +101,7 @@ Extrae la receta.
       "unit": null
     }
   ],
-  "complexity_score": 2,
+  "complexity_score": 4,
   "dietary_tags": [
     "VEGANO",
     "VEGETARIANO",
@@ -121,18 +131,18 @@ Extrae la receta.
   },
   "ingredients": {
     "field_asks": "lista estructurada de ingredientes; cada unidad debe mapearse a g, ml, kg, unidad, pizca, cucharada, otro o null.",
-    "relevant_fragments": "\"2 berenjenas pequeñas\", \"2 cucharadas de tahini\", \"30 ml de zumo de limón\", \"1 cucharada de aceite de oliva\", \"1 pizca de sal\" y \"hojas de perejil picadas\".",
-    "final_value": "Como los fragmentos relevantes dan ingredientes y varias cantidades, se extraen las cantidades y unidades explícitas; el perejil queda con amount y unit null porque no tiene cantidad numérica."
+    "relevant_fragments": "\"Para 2 raciones se usan 2 berenjenas pequeñas, 2 cucharadas de tahini, 30 ml de zumo de limón, 1 cucharada de aceite de oliva, 1 pizca de sal y hojas de perejil picadas\" y \"En algunas versiones se espolvorea sésamo tostado o granos de granada [...] aunque esos añadidos no forman parte de la preparación básica\".",
+    "final_value": "Como el primer fragmento relevante da los ingredientes de la preparación básica, se extraen las cantidades y unidades explícitas; el perejil queda con amount y unit null porque no tiene cantidad numérica. El segundo fragmento relevante presenta sésamo, granada y pan de pita como variantes o acompañamientos, por lo que no deben añadirse a la lista canónica."
   },
   "complexity_score": {
     "field_asks": "dificultad inferida de 1 a 10 según pasos, técnicas y tiempo.",
-    "relevant_fragments": "\"se cocinan al vapor durante 18 minutos\" y \"se mezcla una salsa\".",
-    "final_value": "Como los fragmentos relevantes describen una técnica principal y un aliño simple, la dificultad debe ser baja: 2."
+    "relevant_fragments": "\"se cortan en tiras gruesas\", \"se cocinan al vapor durante 18 minutos\", \"reposan 7 minutos\" y \"cubrirlas con la salsa de tahini, limón, aceite y sal\".",
+    "final_value": "Como los fragmentos relevantes combinan corte, control de punto al vapor, reposo separado y aliño, la dificultad es medio-baja y no mínima; el valor debe ser 4."
   },
   "dietary_tags": {
     "field_asks": "etiquetas dietéticas inferidas, usando solo estos valores: VEGANO, VEGETARIANO, SIN GLUTEN, SIN LÁCTEOS o BAJO EN CARBOHIDRATOS.",
-    "relevant_fragments": "\"berenjenas\", \"tahini\", \"zumo de limón\", \"aceite de oliva\", \"sal\" y \"sin pan ni acompañamiento de cereales\".",
-    "final_value": "Como los fragmentos relevantes solo contienen ingredientes vegetales, sin gluten ni lácteos, la lista debe incluir \"VEGANO\", \"VEGETARIANO\", \"SIN GLUTEN\" y \"SIN LÁCTEOS\"; no se usa \"BAJO EN CARBOHIDRATOS\" porque no es necesario inferirlo por el schema si no se destaca como rasgo dietético principal."
+    "relevant_fragments": "\"berenjenas\", \"tahini\", \"zumo de limón\", \"aceite de oliva\", \"sal\", \"no emplea harina ni huevo\" y \"pan de pita [...] no forma parte de la preparación básica\".",
+    "final_value": "Como los fragmentos relevantes de la preparación básica solo contienen ingredientes vegetales, sin lácteos ni harina, la lista debe incluir \"VEGANO\", \"VEGETARIANO\", \"SIN GLUTEN\" y \"SIN LÁCTEOS\". El pan de pita aparece como acompañamiento externo, no como parte canónica del plato, y por eso no bloquea \"SIN GLUTEN\" para la preparación básica."
   },
   "technique_sequence": {
     "field_asks": "secuencia cronológica de técnicas principales, usando solo estos valores: SOFREÍR, HERVIR, HORNEAR, FREÍR, VAPOR o COCCIÓN LENTA.",
@@ -141,8 +151,8 @@ Extrae la receta.
   },
   "total_time_minutes": {
     "field_asks": "duración total normalizada en minutos, o null si no hay tiempo suficiente.",
-    "relevant_fragments": "\"El tiempo total, contando corte y aliño, es de 25 minutos\".",
-    "final_value": "Como el fragmento relevante da el tiempo total, el valor debe ser 25."
+    "relevant_fragments": "\"se cocinan al vapor durante 18 minutos\" y \"reposan 7 minutos antes de cubrirlas con la salsa\".",
+    "final_value": "Como los fragmentos relevantes dan dos fases sucesivas, 18 minutos de vapor y 7 minutos de reposo posterior, la duración total sumable debe ser 25."
   }
 }
 ```
@@ -154,6 +164,11 @@ Extrae la receta.
 ```text
 # Costillas con cerveza negra
 
+Source: https://ejemplo.org/wiki/Costillas_con_cerveza_negra
+
+Las costillas con cerveza negra son una preparación de carne guisada y acabada al horno, habitual en recetarios domésticos de invierno.
+
+== Preparación ==
 Las costillas con cerveza negra se preparan frotando la carne con sal, pimienta y pimentón. En una cazuela amplia se sofríen cebolla y ajo con mantequilla hasta que toman color; después se añade la carne, un vaso de cerveza negra, miel y laurel. La cazuela queda a fuego muy bajo hasta que la salsa se vuelve espesa y la carne empieza a separarse del hueso.
 
 Al final se pasan las costillas a una bandeja, se pintan con la salsa reducida y se terminan en el horno fuerte para que la superficie quede brillante. En algunas casas se sirve con pan tostado para recoger la salsa.

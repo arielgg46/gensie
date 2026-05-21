@@ -43,19 +43,20 @@ def trace_step(
     if error:
         _write_text(step_dir / "error.txt", error)
 
-    _write_json(
-        step_dir / "summary.json",
-        {
-            "step_index": step_index,
-            "step_name": step_name,
-            "has_prompt": bool(prompt_files),
-            "prompt_files": prompt_files,
-            "has_request": request_payload is not None,
-            "has_response": response_payload is not None,
-            "error": error,
-            "metrics": dict(metrics or {}),
-        },
-    )
+    summary = {
+        "step_index": step_index,
+        "step_name": step_name,
+        "has_prompt": bool(prompt_files),
+        "prompt_files": prompt_files,
+        "has_request": request_payload is not None,
+        "has_response": response_payload is not None,
+        "error": error,
+        "metrics": dict(metrics or {}),
+    }
+    request_metadata = _request_metadata(request_payload)
+    if request_metadata:
+        summary["request_metadata"] = request_metadata
+    _write_json(step_dir / "summary.json", summary)
 
 
 _MISSING = object()
@@ -110,6 +111,15 @@ def request_payload(request: ChatRequest) -> dict[str, Any]:
     if request.metadata:
         payload["metadata"] = to_jsonable(request.metadata)
     return payload
+
+
+def _request_metadata(payload: Any) -> Any:
+    if not isinstance(payload, Mapping):
+        return None
+    metadata = payload.get("metadata")
+    if not metadata:
+        return None
+    return to_jsonable(metadata)
 
 
 def response_payload(response: ChatResponse, **extra: Any) -> dict[str, Any]:

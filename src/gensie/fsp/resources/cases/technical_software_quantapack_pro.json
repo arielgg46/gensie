@@ -1,0 +1,222 @@
+{
+  "id": "technical_software_quantapack_pro",
+  "domain": "technical_software",
+  "language": "es",
+  "tags": [
+    "technical_software",
+    "enum_classification",
+    "grounded_null",
+    "simple_array",
+    "date_normalization",
+    "checksum_extraction"
+  ],
+  "source_text": "# QPack\n\nQPack es el nombre abreviado usado en foros para QuantaPack Pro, un archivador de ficheros desarrollado por Aster Labs. El formato QPK fue diseñado por Bruno Kehl y se popularizó en repositorios internos de documentación técnica.\n\n== Historia ==\nEl primer lanzamiento público de QuantaPack Pro se realizó el 04 de marzo de 2019 durante la feria DataTools. Desde la rama 5.4, Aster Labs distribuye el programa bajo la licencia GNU LGPL. El portal de clientes agrupa instaladores firmados, notas de migración y paquetes antiguos en un archivo de descargas.\n\nPara verificar la descarga estable 5.4, la ficha publica el SHA256 del instalador: 9f2a7b1c4d6e8f00112233445566778899aabbccddeeff001122334455667788. En el aviso corporativo de 2024, Aster Labs identifica a Marina Soler como CEO actual de la compañía desarrolladora.",
+  "instruction": "Resume los datos técnicos de QPack, centrándote en su tipo de software, desarrollador y plataformas soportadas.",
+  "schema": {
+    "$defs": {
+      "SoftwareType": {
+        "enum": [
+          "ARCHIVER",
+          "WEB_BROWSER",
+          "OFFICE_SUITE",
+          "IDE_EDITOR",
+          "GRAPHICS_EDITOR",
+          "MEDIA_PLAYER",
+          "SYSTEM_TOOL",
+          "OTHER"
+        ],
+        "title": "SoftwareType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Detailed technical description of a software application.\nComplexity: L9 (Adversarial Null Traps).",
+    "properties": {
+      "official_name": {
+        "description": "The full official name of the software",
+        "title": "Official Name",
+        "type": "string"
+      },
+      "app_category": {
+        "$ref": "#/$defs/SoftwareType",
+        "description": "The primary functional category of the app"
+      },
+      "license": {
+        "description": "The specific license mentioned (e.g., GPL, Proprietary)",
+        "title": "License",
+        "type": "string"
+      },
+      "platforms": {
+        "description": "Operating systems mentioned as supported (e.g., Windows, macOS, Linux)",
+        "items": {
+          "type": "string"
+        },
+        "title": "Platforms",
+        "type": "array"
+      },
+      "primary_developer": {
+        "description": "The individual or organization that developed the software",
+        "title": "Primary Developer",
+        "type": "string"
+      },
+      "features": {
+        "description": "List of specific technical capabilities or features mentioned",
+        "items": {
+          "type": "string"
+        },
+        "title": "Features",
+        "type": "array"
+      },
+      "exact_release_date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The EXACT date (DD/MM/YYYY) of the first release. RETURN NULL IF ONLY THE YEAR IS MENTIONED.",
+        "title": "Exact Release Date"
+      },
+      "latest_stable_version_sha256": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The SHA256 checksum of the latest installer. RETURN NULL IF NOT EXPLICITLY IN THE TEXT.",
+        "title": "Latest Stable Version Sha256"
+      },
+      "current_ceo_name": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The name of the current CEO of the developing organization. RETURN NULL IF NOT IN TEXT.",
+        "title": "Current Ceo Name"
+      }
+    },
+    "required": [
+      "official_name",
+      "app_category",
+      "license",
+      "primary_developer"
+    ],
+    "title": "SoftwareDescription",
+    "type": "object"
+  },
+  "field_examples": {
+    "official_name": {
+      "value": "QuantaPack Pro",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre oficial completo del software.",
+        "relevant_fragments": "\"QPack es el nombre abreviado usado en foros para QuantaPack Pro\".",
+        "final_value": "Como el fragmento relevante distingue la abreviatura del nombre completo, el nombre oficial debe ser \"QuantaPack Pro\"."
+      }
+    },
+    "app_category": {
+      "value": "ARCHIVER",
+      "tags": [
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "la categoría funcional principal de la aplicación, mapeada a uno de estos valores: ARCHIVER, WEB_BROWSER, OFFICE_SUITE, IDE_EDITOR, GRAPHICS_EDITOR, MEDIA_PLAYER, SYSTEM_TOOL u OTHER.",
+        "relevant_fragments": "\"QuantaPack Pro, un archivador de ficheros\".",
+        "final_value": "Como el fragmento relevante describe el software como archivador, el valor del enum debe ser \"ARCHIVER\"."
+      }
+    },
+    "license": {
+      "value": "GNU LGPL",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "la licencia específica mencionada para el software.",
+        "relevant_fragments": "\"Aster Labs distribuye el programa bajo la licencia GNU LGPL\".",
+        "final_value": "Como el fragmento relevante nombra explícitamente la licencia, el valor debe ser \"GNU LGPL\"."
+      }
+    },
+    "platforms": {
+      "value": [],
+      "tags": [
+        "simple_array",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "sistemas operativos mencionados como soportados.",
+        "relevant_fragments": "\"El portal de clientes agrupa instaladores firmados, notas de migración y paquetes antiguos en un archivo de descargas\".",
+        "final_value": "Como el fragmento relevante habla de instaladores y descargas, pero no nombra ningún sistema operativo soportado como Windows, macOS o Linux, la lista debe ser vacía."
+      }
+    },
+    "primary_developer": {
+      "value": "Aster Labs",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "la persona u organización que desarrolló el software.",
+        "relevant_fragments": "\"un archivador de ficheros desarrollado por Aster Labs\".",
+        "final_value": "Como el fragmento relevante atribuye el desarrollo a Aster Labs, el desarrollador principal debe ser \"Aster Labs\"."
+      }
+    },
+    "features": {
+      "value": [],
+      "tags": [
+        "simple_array",
+        "grounded_null"
+      ],
+      "reasoning": {
+        "field_asks": "capacidades técnicas o funciones específicas mencionadas.",
+        "relevant_fragments": "\"un archivador de ficheros desarrollado por Aster Labs\", \"El formato QPK fue diseñado por Bruno Kehl\" y \"El portal de clientes agrupa instaladores firmados, notas de migración y paquetes antiguos\".",
+        "final_value": "Como los fragmentos relevantes permiten clasificar la aplicación y ubicar su formato, distribución e historia, pero no enumeran capacidades técnicas específicas como compresión, cifrado, integración con el sistema o formatos soportados, la lista debe ser vacía."
+      }
+    },
+    "exact_release_date": {
+      "value": "04/03/2019",
+      "tags": [
+        "date_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "la fecha exacta del primer lanzamiento en formato DD/MM/YYYY, o null si solo se menciona el año.",
+        "relevant_fragments": "\"El primer lanzamiento público de QuantaPack Pro se realizó el 04 de marzo de 2019\".",
+        "final_value": "Como el fragmento relevante da una fecha exacta de primer lanzamiento, debe normalizarse a \"04/03/2019\"."
+      }
+    },
+    "latest_stable_version_sha256": {
+      "value": "9f2a7b1c4d6e8f00112233445566778899aabbccddeeff001122334455667788",
+      "tags": [
+        "checksum_extraction"
+      ],
+      "reasoning": {
+        "field_asks": "el checksum SHA256 del instalador estable más reciente, o null si no está explícitamente en el texto.",
+        "relevant_fragments": "\"Para verificar la descarga estable 5.4, la ficha publica el SHA256 del instalador: 9f2a7b1c4d6e8f00112233445566778899aabbccddeeff001122334455667788\".",
+        "final_value": "Como el fragmento relevante da explícitamente el SHA256 del instalador estable, el valor debe ser \"9f2a7b1c4d6e8f00112233445566778899aabbccddeeff001122334455667788\"."
+      }
+    },
+    "current_ceo_name": {
+      "value": "Marina Soler",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre del CEO actual de la organización desarrolladora, o null si no está explícitamente en el texto.",
+        "relevant_fragments": "\"Aster Labs identifica a Marina Soler como CEO actual de la compañía desarrolladora\".",
+        "final_value": "Como el fragmento relevante identifica explícitamente a Marina Soler como CEO actual, el valor debe ser \"Marina Soler\"."
+      }
+    }
+  }
+}
