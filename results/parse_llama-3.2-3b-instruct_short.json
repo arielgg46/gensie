@@ -1,0 +1,2756 @@
+{
+  "participant": {
+    "team_name": "GenSIE Baseline Team",
+    "institution": "Official",
+    "pipelines": [
+      {
+        "name": "baseline",
+        "description": "Standard OpenAI agent using structured outputs."
+      },
+      {
+        "name": "enriched-schema",
+        "description": "Baseline + enriched schema prompt (field cards + Pydantic-like code)."
+      },
+      {
+        "name": "simple-clean-schema",
+        "description": "One-call baseline-plus with improved prompting and cleaned prompt schema; original schema is still used for structured output."
+      },
+      {
+        "name": "inline-reasoning",
+        "description": "One-call pipeline with top-level field reasoning wrappers in the generation schema, unwrapped to final values. Optional one-shot example."
+      },
+      {
+        "name": "enriched-inline-reasoning",
+        "description": "Inline reasoning wrappers plus compact Pydantic-like schema prompt with Reasoned[T]/Nullable[T]."
+      },
+      {
+        "name": "enriched-inline-reasoning-super-fsp",
+        "description": "Same as enriched-inline-reasoning, but always uses the full synthetic super FSP covering all extraction subtask types."
+      },
+      {
+        "name": "enriched-inline-reasoning-deep",
+        "description": "Enriched inline reasoning with recursive Reasoned[T] wrappers for all fields, subfields, and array items."
+      },
+      {
+        "name": "enriched-inline-reasoning-self-consistency",
+        "description": "Multi-sample enriched inline reasoning with modular schema-aware self-consistency over scalars, objects, and arrays."
+      },
+      {
+        "name": "parse",
+        "description": "PARSE-style: ARCHITECT (LLM schema refine) + SCOPE (grounding/rules + reflection) + RELAY (identity); arxiv:2510.08623."
+      }
+    ]
+  },
+  "config": {
+    "model": "accounts/fireworks/models/llama-v3p2-3b",
+    "pipeline": "parse",
+    "data_source": "/home/danielvp/work/gensie/data/dev_rev"
+  },
+  "metrics": {
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+  },
+  "tasks": [
+    {
+      "task_id": "cultural_entities_001",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-b04efa43e7b34f9897dd3df20d286294'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:39.280691+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-a4904a16bcc94f70ad7e502e6040e2b5'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:39.568080+00:00",
+              "completed_at": "2026-05-15T19:53:39.767889+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_entities_002",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-aef3858be0c5451e94b5a14eee4feb3b'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:39.819958+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-ddea5d43eac948aabf578f490a51c6da'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:39.976156+00:00",
+              "completed_at": "2026-05-15T19:53:40.133961+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_extraction_001",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-d5782effedd04573bf3ce1ee52dfdba1'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:40.189602+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-e4080f40b38a4a4b9260a69a18b42356'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:40.297912+00:00",
+              "completed_at": "2026-05-15T19:53:40.434100+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_extraction_002",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-888b6ca39929471ab156ba549c6df39d'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:40.485367+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-ee7462934d0f4e4ab66dfb230fe1e0c3'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:40.599357+00:00",
+              "completed_at": "2026-05-15T19:53:40.734430+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_literature_001",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-7973c0064b7d4943ada6152504ecf829'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:41.127439+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-53823d4bb0b441deb718284c40bbf351'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:41.278192+00:00",
+              "completed_at": "2026-05-15T19:53:41.467129+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_literature_002",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-022113cc0684418eb36e48f35fcab95b'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:41.525894+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-27a75bf175e0402986a10ae69244486c'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:41.679025+00:00",
+              "completed_at": "2026-05-15T19:53:41.847190+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_literature_003",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-677fbfd9e14c4c3caeea74677f1578e6'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:41.906974+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-12401331ff6c41348e55648b16a299ed'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:42.075334+00:00",
+              "completed_at": "2026-05-15T19:53:42.387609+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_literature_004",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-3ffc054ab9434146b25ac210ecc38ae4'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:42.443706+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-4db47ad5fc13434d9b2aa5f5b0794d95'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:42.606898+00:00",
+              "completed_at": "2026-05-15T19:53:42.759196+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_literature_005",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-4ceb9704eac241f28af4263164908d9a'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:42.809701+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-7f34c7a82d934be899bb2330c839a547'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:42.960996+00:00",
+              "completed_at": "2026-05-15T19:53:43.124965+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_literature_006",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-5eee3a61151d495790298d3443cfb92c'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:43.188674+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-3af10d945abd4e29a49bba3f3149300b'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:43.364652+00:00",
+              "completed_at": "2026-05-15T19:53:43.497880+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_literature_007",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-083a08846dc44b12aa6d600779a9d2fb'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:43.550773+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-dcbe1d8f2c2148d98857536352c3a02d'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:43.669870+00:00",
+              "completed_at": "2026-05-15T19:53:43.800796+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_literature_008",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-39c7ca62573d42f5b3d1ce9dc17ad437'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:43.855604+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-4f9ddd9d4cee4a12bf046a39eba156d4'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:43.994308+00:00",
+              "completed_at": "2026-05-15T19:53:44.136700+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_literature_009",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-f323e626da2a4f4190d5b2f1075e4b1e'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:44.194561+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-09a6da6e74f649f8bf5b0e647ffff5d4'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:44.330153+00:00",
+              "completed_at": "2026-05-15T19:53:44.478349+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_literature_010",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-4796176aae644d3692fe4ed14a0feedf'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:44.537252+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-78f2ff2852b246ee9270dec247794e8d'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:44.693120+00:00",
+              "completed_at": "2026-05-15T19:53:44.831884+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_media_001",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-0a66092bde794faeb68b5ea2d719a152'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:44.881225+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-631be72be0744b34aefdd239753ce648'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:45.013993+00:00",
+              "completed_at": "2026-05-15T19:53:45.159837+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_media_002",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-8dac571136774fa98c86e2392d780bae'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:45.223565+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-a1923fd6d78245c0bc54a3c0a31f47a2'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:45.362633+00:00",
+              "completed_at": "2026-05-15T19:53:45.664451+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_monuments_1",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-4b08e01e34a547d6b1f0a30b0a3dfc69'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:45.719661+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-ed5d0d3f508d48d3a702f52e25b865d7'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:45.861985+00:00",
+              "completed_at": "2026-05-15T19:53:45.980544+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "environmental_ecology_001",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-a12b710b96694392aa71c86d1ec88655'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:46.032089+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-c8262b42179f4cf187f583f0af196ab7'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:46.179666+00:00",
+              "completed_at": "2026-05-15T19:53:46.364920+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-18b371416d0945aeaeb7afd75477e290'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:46.420005+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-e0090925d30249c0811897b547c6ddcc'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:46.575200+00:00",
+              "completed_at": "2026-05-15T19:53:46.778374+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "environmental_ecology_003",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-9f3981f3f1d9417088778567126a9dae'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:46.829607+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-28973268c3a74e0d816ca09626d7710f'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:46.959290+00:00",
+              "completed_at": "2026-05-15T19:53:47.124699+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "environmental_ecology_004",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-a8d1f4f308d84d6d981f86136597e9b8'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:47.178782+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-aca1064c2e894e1f8cc1403385eabc28'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:47.315587+00:00",
+              "completed_at": "2026-05-15T19:53:47.472653+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "environmental_ecology_005",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-2c8780d1e4a04f359674b6baa301f221'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:47.529815+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-feedf9895bce45d194e5426a1e972bcd'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:47.671229+00:00",
+              "completed_at": "2026-05-15T19:53:47.820132+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "environmental_ecology_006",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-8e2cd636c965499190239be2d53e1a56'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:47.881772+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-eb9991d2110f4b2ba271f1b2d4056180'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:48.029563+00:00",
+              "completed_at": "2026-05-15T19:53:48.196160+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "general_disasters_001",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-1146a2f374cd40c6b1bbed0b4ea70551'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:48.257006+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-6a0451a5cc784a43a9fdfb6dc0e8217e'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:48.394797+00:00",
+              "completed_at": "2026-05-15T19:53:48.532055+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "general_disasters_002",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-ff9b1bd5a0504a98ba1ed2e7165e8699'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:48.591260+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-90b50e52a4d546dfa4560dff832def6b'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:48.743112+00:00",
+              "completed_at": "2026-05-15T19:53:48.885753+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_contracts_001",
+      "tps": 0.0,
+      "gold_keys": 9,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-4cda456a08744ac5afbf894045f5c58a'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:48.943061+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-0ace974a35bf48249831c04f784140de'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:49.091778+00:00",
+              "completed_at": "2026-05-15T19:53:49.238666+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_contracts_002",
+      "tps": 0.0,
+      "gold_keys": 9,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-6b1ef1de78444405b15b3ca7aa1a361d'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:49.290804+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-9ec1ac0f2297419b8db0eb0ef938ddc5'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:49.431402+00:00",
+              "completed_at": "2026-05-15T19:53:49.588105+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_entities_001",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-62e5e247aec4429f91b97f67295a124e'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:49.650579+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-43d4717d06624c129a4e999bc6739d03'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:49.781799+00:00",
+              "completed_at": "2026-05-15T19:53:49.919289+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_extraction_002",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-219d6aad76114207af847c42ad647ffd'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:49.974658+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-1d2dc71d9401466289d70ec98ceb0add'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:50.105601+00:00",
+              "completed_at": "2026-05-15T19:53:50.273721+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_judicial_001",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-1a956db64cb649a4a12e450ebe712047'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:50.330837+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-fd0ae6dea69240d69a2072c50a737d5f'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:50.494046+00:00",
+              "completed_at": "2026-05-15T19:53:50.662556+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_judicial_002",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-89466e3ca44a4cef9397d46a0f350f1a'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:50.717259+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-86362853d46440b5af8f613e8eb4081b'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:50.879141+00:00",
+              "completed_at": "2026-05-15T19:53:51.052559+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_legislation_001",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-633919622fa646939839a5add25354bb'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:51.115594+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-7ae6047a3e80455ba34a84876a73304c'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:51.264157+00:00",
+              "completed_at": "2026-05-15T19:53:51.413250+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_legislation_002",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-20f319e593594e2e925c10a55aeaeb75'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:51.481346+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-4d8342ff1b87445e8d0634229ef0fa72'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:51.641943+00:00",
+              "completed_at": "2026-05-15T19:53:51.792775+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "lifestyle_recipes_01",
+      "tps": 0.0,
+      "gold_keys": 7,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-7b92f0200a7e4c9d8c4282da02be96b8'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:51.848140+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-935731f36d6f4d8fa8c06b26374d8f90'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:51.988076+00:00",
+              "completed_at": "2026-05-15T19:53:52.136624+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_diseases_01",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-bf59cc6c9de640c8aacae2ed048ad6e9'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:52.193109+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-cf08cd7c44d843cfa10d24c718afbad6'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:52.335809+00:00",
+              "completed_at": "2026-05-15T19:53:52.483303+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_diseases_02",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-03bf7c1bec13435eb84e12f4f4a15565'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:52.548113+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-3db4dafc86da461d8ee4e72d5b2e5f71'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:52.724969+00:00",
+              "completed_at": "2026-05-15T19:53:52.868692+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_drug_001",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-d2c2e7f31ae3448e815481c14fd27d01'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:52.922155+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-37dc2c737b094f41a2963fa2aa614a0e'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:53.076971+00:00",
+              "completed_at": "2026-05-15T19:53:53.269140+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_drug_002",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-99e50da96a354dd4999acf71729cf97b'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:53.323224+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-94fad743272f4cacbf4c2412e0e66e60'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:53.483873+00:00",
+              "completed_at": "2026-05-15T19:53:53.864845+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_entities_001",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-5115af3225644cca92aaa49227430de5'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:53.919301+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-d6eb387b8574451498ee28d722cc1c38'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:54.151860+00:00",
+              "completed_at": "2026-05-15T19:53:54.300740+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_entities_002",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-89dc472b4319462e8e45aca2be5619bc'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:54.361614+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-e4109ac9c46f4299957ef383d720bf1a'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:54.501325+00:00",
+              "completed_at": "2026-05-15T19:53:54.709050+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_extraction_001",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-67921bc0c92849b28d62c1594be028ed'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:54.760238+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-3a1aca0f638f4265bb6ecda8f6ca67ab'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:54.917139+00:00",
+              "completed_at": "2026-05-15T19:53:55.068585+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_extraction_002",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-413b9068461f4a3ca999210218602d1a'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:55.122702+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-92657093821e48d8ad5b335981ccbe2e'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:55.260392+00:00",
+              "completed_at": "2026-05-15T19:53:55.392195+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_extraction_003",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-218dbe9799374a97a0de8d3f8bf88bd0'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:55.446467+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-93592c97baee4f36b41eb102a5c6dbd8'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:55.588354+00:00",
+              "completed_at": "2026-05-15T19:53:55.716713+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_health_news_001",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-0a367868204f440db82fb9f8e3484b4b'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:55.772372+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-6450740383d040deb3d6250149fcc8af'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:55.920056+00:00",
+              "completed_at": "2026-05-15T19:53:56.070550+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "stem_astronomy_detailed_001",
+      "tps": 0.0,
+      "gold_keys": 9,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-6d1f1b1958314322a8cbf90130ce5d5f'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:56.130154+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-2f098dd00e6d43e2b0212b9d98858cb7'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:56.264006+00:00",
+              "completed_at": "2026-05-15T19:53:56.405062+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "stem_astronomy_detailed_002",
+      "tps": 0.0,
+      "gold_keys": 9,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-33727f32132145caaa1a6eb86134d973'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:56.461117+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-1d3a72ea4b3f4c47baf8a2feb0660401'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:56.593141+00:00",
+              "completed_at": "2026-05-15T19:53:56.749011+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_entities_001",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-586556db5ce94f42badc6ad6cb2279dc'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:56.805545+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-90ea87662efc4863980e2291c0bf8a73'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:56.936947+00:00",
+              "completed_at": "2026-05-15T19:53:57.157990+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_entities_002",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-5bbc9e5f35db4c8ab6aef9df4fd45ce8'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:57.209824+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-28e7e6f52e534ce4a4a2ba2d66430a89'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:57.326445+00:00",
+              "completed_at": "2026-05-15T19:53:57.446067+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_entities_003",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-e1a02a9a0c984b659dc57174b9ef51e6'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:57.503067+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-edbec8516f014f38b2c1a5bfb5865e81'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:57.611546+00:00",
+              "completed_at": "2026-05-15T19:53:57.725049+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_extraction_001",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-7a69e84a7e724ac696453d027f1739ee'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:57.776256+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-474be97e3fb541d59385bcd2a1077614'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:57.882231+00:00",
+              "completed_at": "2026-05-15T19:53:57.995903+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_extraction_002",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-5a0e89bed6ce4d31af4c20b5d20253c7'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:58.046789+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-c72e153527b8466e864c2b0d3bc740be'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:58.163075+00:00",
+              "completed_at": "2026-05-15T19:53:58.284973+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_extraction_003",
+      "tps": 0.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-70e1bdb639bd4080818806b16881d256'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:58.339410+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-16d5f82ee56d493dbdd0c7f09a28b8c1'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:58.451276+00:00",
+              "completed_at": "2026-05-15T19:53:58.565024+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_software_003",
+      "tps": 0.0,
+      "gold_keys": 9,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-e30159e9733a4cd48c1fa88469e42da1'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:58.616059+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-247ce0ae84854c388ec5219c58e826eb'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:58.723961+00:00",
+              "completed_at": "2026-05-15T19:53:58.853058+00:00"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_software_006",
+      "tps": 0.0,
+      "gold_keys": 9,
+      "system_keys": 1,
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 2,
+        "failed_request_count": 2,
+        "aggregation_step_count": 0,
+        "tokens": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "timings": {
+          "total_duration_ms": 0.0,
+          "model_duration_ms": 0.0,
+          "aggregation_duration_ms": 0.0,
+          "average_duration_ms": null,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "parse_architect",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-18d0244d37ff46aab04bfc8a818fb8ce'}",
+            "tokens": null,
+            "timings": {
+              "started_at": "2026-05-15T19:53:58.905545+00:00"
+            }
+          },
+          {
+            "step_index": 2,
+            "step_name": "parse_scope_attempt_01",
+            "is_model_request": true,
+            "error": "Error code: 404 - {'error': {'message': 'Model not found, inaccessible, and/or not deployed', 'param': 'model', 'code': 'NOT_FOUND', 'type': 'error'}, 'request_id': 'chatcmpl-0d3fc23cc88e4486840a4b121dd29dc1'} (OPENAI_BASE_URL=https://api.fireworks.ai/inference/v1)",
+            "tokens": {},
+            "timings": {
+              "started_at": "2026-05-15T19:53:59.034215+00:00",
+              "completed_at": "2026-05-15T19:53:59.150082+00:00"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
