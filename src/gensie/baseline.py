@@ -35,6 +35,7 @@ from gensie.self_consistency import (
     TrialBudgetPlanner,
     build_string_similarity_from_env,
 )
+from gensie.parse_pipeline import ParsePipelineAgent
 from dotenv import load_dotenv
 from logging import getLogger
 
@@ -1377,6 +1378,7 @@ class OfficialParticipant(Participant):
             "enriched-inline-reasoning-super-fsp": EnrichedInlineReasoningSuperFspAgent(),
             "enriched-inline-reasoning-deep": EnrichedDeepInlineReasoningAgent(),
             "enriched-inline-reasoning-self-consistency": EnrichedInlineReasoningSelfConsistencyAgent(),
+            "parse": ParsePipelineAgent(),
             # "pipeline2": MyCustomAgent(arg1, arg2...),
             # "pipeline3": AnotherAgent(...),
         }
@@ -1417,6 +1419,10 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="enriched-inline-reasoning-self-consistency",
                     description="Multi-sample enriched inline reasoning with modular schema-aware self-consistency over scalars, objects, and arrays.",
+                ),
+                PipelineInfo(
+                    name="parse",
+                    description="PARSE-style: ARCHITECT (LLM schema refine) + SCOPE (grounding/rules + reflection) + RELAY (identity); arxiv:2510.08623.",
                 ),
                 # Add descriptions for your other pipelines here:
                 # PipelineInfo(name="pipeline2", description="My advanced RAG agent"),
