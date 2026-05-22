@@ -27,9 +27,11 @@ class FspRetrievalResult:
     matched_terms: tuple[str, ...]
     schema_match: bool
     compatible_fields: tuple[str, ...]
+    method: str = "schema_lexical"
 
     def metadata(self) -> dict[str, object]:
         return {
+            "method": self.method,
             "score": round(self.score, 3),
             "rank": self.rank,
             "matched_tags": list(self.matched_tags),

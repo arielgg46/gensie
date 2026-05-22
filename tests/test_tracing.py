@@ -8,7 +8,7 @@ from gensie.tracing import trace_step
 
 
 def test_trace_step_creates_incrementing_step_artifacts_with_metrics():
-    base_dir = Path("test-artifacts") / f"trace-{uuid.uuid4().hex}"
+    base_dir = Path(".test-tracing") / f"trace-{uuid.uuid4().hex}"
     task = Task(
         id="sample_task",
         input_text="Ada Lovelace wrote notes on the Analytical Engine.",
@@ -76,3 +76,4 @@ def test_trace_step_creates_incrementing_step_artifacts_with_metrics():
         assert summary["metrics"]["tokens"]["total_tokens"] == 16
     finally:
         shutil.rmtree(base_dir, ignore_errors=True)
+        shutil.rmtree(base_dir.parent, ignore_errors=True)

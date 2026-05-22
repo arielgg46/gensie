@@ -164,12 +164,31 @@ class RagVerdictJudgeFspProvider:
                 " ".join(plan.field_names if plan is not None else ()),
             )
         )
-        return rank_fsp_cases(
-            task_schema=task.target_schema,
-            task_text=task_text,
-            cases=cases,
-            top_k=len(cases) if self.max_prompt_chars is not None else self.top_k,
-        ) or self.retrieve(task=None, plan=plan)
+        top_k = len(cases) if self.max_prompt_chars is not None else self.top_k
+        try:
+            from gensie.fsp.field_rag import rank_fsp_cases_by_field_embeddings
+
+            selected = rank_fsp_cases_by_field_embeddings(
+                task_schema=task.target_schema,
+                task_text=task_text,
+                task_id=task.id,
+                task_instruction=task.instruction,
+                cases=cases,
+                top_k=top_k,
+            )
+        except Exception:
+            selected = ()
+        if selected:
+            return selected
+        fallback = _mark_results_not_same_schema(
+            rank_fsp_cases(
+                task_schema=task.target_schema,
+                task_text=task_text,
+                cases=cases,
+                top_k=top_k,
+            )
+        )
+        return fallback or self.retrieve(task=None, plan=plan)
 
 
 def _projection_fields(
@@ -184,6 +203,24 @@ def _projection_fields(
         field_name
         for field_name in plan.field_names
         if field_name in example_fields
+    )
+
+
+def _mark_results_not_same_schema(
+    results: Sequence[FspRetrievalResult],
+) -> tuple[FspRetrievalResult, ...]:
+    return tuple(
+        FspRetrievalResult(
+            case=result.case,
+            score=result.score,
+            rank=result.rank,
+            matched_tags=result.matched_tags,
+            matched_terms=result.matched_terms,
+            schema_match=False,
+            compatible_fields=result.compatible_fields,
+            method=result.method,
+        )
+        for result in results
     )
 
 

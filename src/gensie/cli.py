@@ -26,6 +26,30 @@ app = typer.Typer(help="GenSIE Developer Tools")
 console = Console()
 
 
+def _resolve_eval_artifact_paths(
+    *,
+    pipeline: str,
+    output: Path | None,
+    details_dir: Path | None,
+    auto_output_paths: bool,
+    run_timestamp: str | None = None,
+) -> tuple[Path | None, Path | None, str]:
+    timestamp = run_timestamp or datetime.now().strftime("%Y%m%d-%H%M%S")
+    pipeline_slug = slugify(pipeline)
+    if auto_output_paths:
+        auto_run_dir = Path("local-results") / pipeline_slug / timestamp
+        if details_dir is None:
+            details_dir = auto_run_dir
+        if output is None:
+            output = auto_run_dir / f"{pipeline_slug}-{timestamp}-summary.json"
+
+    return (
+        output.absolute() if output is not None else None,
+        details_dir.absolute() if details_dir is not None else None,
+        timestamp,
+    )
+
+
 def _write_json(path: Path, payload: Any):
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
@@ -177,7 +201,29 @@ def eval(
     ),
     details_dir: Optional[Path] = typer.Option(
         None,
-        help="Directory to save prompts, predictions, gold outputs, and per-task summaries",
+        "--details-dir",
+        help="Directory where per-task prompt/request/response trace artifacts are saved",
+    ),
+    auto_output_paths: bool = typer.Option(
+        False,
+        "--auto-output-paths",
+        help="Derive details-dir and output paths from pipeline name and run datetime",
+    ),
+    time_budget_s: float = typer.Option(
+        60.0,
+        help="Soft per-instance wall-time budget (target, averaged over the test set)",
+    ),
+    request_timeout_s: float = typer.Option(
+        300.0,
+        help="Hard safety cap per /run request; generous so the run is not stopped at the soft budget",
+    ),
+    usage_log: Optional[Path] = typer.Option(
+        None,
+        help="Path to the inference server's JSONL token-usage log (authoritative token source)",
+    ),
+    usage_log_api_key: Optional[str] = typer.Option(
+        None,
+        help="API key to filter the usage log by (default: $OPENAI_API_KEY; unset -> all rows)",
     ),
 ):
     """Evaluates the agent against a local dataset and generates a report.
@@ -197,8 +243,21 @@ def eval(
     if limit:
         json_files = json_files[:limit]
 
-    if details_dir:
+    output, details_dir, _ = _resolve_eval_artifact_paths(
+        pipeline=pipeline,
+        output=output,
+        details_dir=details_dir,
+        auto_output_paths=auto_output_paths,
+    )
+    if details_dir is not None:
+        console.print(f"[blue]Trace artifacts dir:[/blue] {details_dir}")
+    if output is not None:
+        console.print(f"[blue]Summary output:[/blue] {output}")
+
+    if details_dir is not None:
         details_dir.mkdir(parents=True, exist_ok=True)
+
+    log_key = usage_log_api_key or os.getenv("OPENAI_API_KEY")
 
     tps_list = []
     gold_counts = []
@@ -240,6 +299,9 @@ def eval(
             task = None
             system_output = None
             error_message = None
+            header_usage = None
+            n0 = len(usage_rows(usage_log, log_key)) if usage_log else None
+            t0 = time.perf_counter()
             try:
                 task = Task.load(file_path)
                 task_payload = task.model_dump(mode="json")
@@ -327,6 +389,8 @@ def eval(
                     "tps": tps,
                     "gold_keys": g_count,
                     "system_keys": s_count,
+                    "elapsed_s": elapsed,
+                    "tokens": tokens,
                     "status": status,
                     "error": error_message,
                 }

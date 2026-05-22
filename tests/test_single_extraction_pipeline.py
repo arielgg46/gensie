@@ -1,4 +1,7 @@
+import json
+import shutil
 from types import SimpleNamespace
+from pathlib import Path
 
 from gensie.baseline import (
     BasicAgent,
@@ -20,14 +23,17 @@ from gensie.phases import build_verbatim_entity_response_format
 from gensie.pipeline import (
     ComposablePipelineAgent,
     ExtractionSpec,
+    PipelineContext,
     PipelineSpec,
     ReasoningMode,
     SchemaPromptMode,
 )
 from gensie.runtime import ChatResponse, OpenAIChatClient
 from gensie.sampling import SingleExtractionRunner
+from gensie.fsp.rag import FSP_RETRIEVAL_TRACE_METADATA_KEY
 from gensie.prompts.system import STRICT_ANCHORING_RULE
 from gensie.task import Task
+from gensie.usage import UsageTracker
 
 
 class FakeChatClient:
@@ -278,6 +284,50 @@ def test_enriched_schema_rag_agent_uses_plain_pydantic_prompt_with_two_rag_fsp()
     assert "SCHEMA PYDANTIC:" in prompt
     assert "person: str" in prompt
     assert len(request.metadata["fsp_examples"]) == 2
+
+
+def test_extraction_trace_writes_retrieval_artifact():
+    fake = FakeChatClient(
+        '{"person":"Ada Lovelace","year":1843,'
+        '"mentions":[{"text":"Ada Lovelace","label":"PERSON"}]}'
+    )
+    task = _task()
+    trace_dir = Path(".test-extraction-retrieval-trace")
+    shutil.rmtree(trace_dir, ignore_errors=True)
+    task.metadata["_trace_dir"] = str(trace_dir / task.id)
+    context = PipelineContext(
+        task=task,
+        model="demo",
+        usage=UsageTracker(),
+        metadata={
+            FSP_RETRIEVAL_TRACE_METADATA_KEY: {
+                "method": "field_embeddings",
+                "task_schema_fields": ["person", "year"],
+                "selected_case_ids": ["case_a"],
+                "considered_cases": [],
+            }
+        },
+    )
+    spec = PipelineSpec(
+        name="trace-retrieval",
+        description="Trace retrieval artifact.",
+        extraction=ExtractionSpec(
+            name="baseline",
+            schema_prompt=SchemaPromptMode.JSON_SCHEMA,
+        ),
+    )
+
+    try:
+        result = SingleExtractionRunner(fake).run_extraction(spec, context)
+
+        assert result.is_valid
+        retrieval_path = trace_dir / task.id / "steps" / "01-extract" / "retrieval.json"
+        retrieval = json.loads(retrieval_path.read_text(encoding="utf-8"))
+        assert retrieval["method"] == "field_embeddings"
+        assert retrieval["task_schema_fields"] == ["person", "year"]
+        assert FSP_RETRIEVAL_TRACE_METADATA_KEY not in context.metadata
+    finally:
+        shutil.rmtree(trace_dir, ignore_errors=True)
 
 
 def test_verbatim_entities_enriched_agent_runs_phase_and_injects_entities():

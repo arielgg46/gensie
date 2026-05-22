@@ -23,6 +23,7 @@ def trace_step(
     prompt_messages: Sequence[ChatMessage] | None = None,
     request_payload: Any | None = None,
     response_payload: Any | None = None,
+    json_artifacts: Mapping[str, Any] | None = None,
     error: str | None = None,
     metrics: Mapping[str, Any] | None = None,
 ) -> None:
@@ -40,6 +41,7 @@ def trace_step(
         _write_json(step_dir / "request.json", request_payload)
     if response_payload is not None:
         _write_json(step_dir / "response.json", response_payload)
+    artifact_files = _write_json_artifacts(step_dir, json_artifacts)
     if error:
         _write_text(step_dir / "error.txt", error)
 
@@ -48,6 +50,7 @@ def trace_step(
         "step_name": step_name,
         "has_prompt": bool(prompt_files),
         "prompt_files": prompt_files,
+        "artifact_files": artifact_files,
         "has_request": request_payload is not None,
         "has_response": response_payload is not None,
         "error": error,
@@ -230,6 +233,22 @@ def _write_prompt_files(
         _write_text(step_dir / filename, content)
         prompt_files.append(filename)
     return prompt_files
+
+
+def _write_json_artifacts(
+    step_dir: Path, artifacts: Mapping[str, Any] | None
+) -> list[str]:
+    if not artifacts:
+        return []
+
+    artifact_files = []
+    for filename, payload in artifacts.items():
+        name = Path(str(filename)).name
+        if not name:
+            continue
+        _write_json(step_dir / name, payload)
+        artifact_files.append(name)
+    return artifact_files
 
 
 def _env_disabled(name: str) -> bool:

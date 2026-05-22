@@ -385,9 +385,14 @@ def test_same_schema_rag_reasoning_format_rule_uses_provider_labels():
                 _same_schema_case(
                     "same_schema_one",
                     "Ada Lovelace published notes in 1843.",
-                )
+                ),
+                _same_schema_case(
+                    "same_schema_two",
+                    "Grace Hopper documented a compiler note.",
+                ),
             ],
             labels=labels,
+            top_k=2,
         )
     )
     context = PipelineContext(task=_task(), model="demo", usage=UsageTracker())
@@ -470,8 +475,13 @@ def test_same_schema_rag_prompt_can_use_enriched_field_descriptions(monkeypatch)
                             "Etiqueta enriquecida para la mención, sin inferir."
                         ),
                     },
-                )
+                ),
+                _same_schema_case(
+                    "same_schema_two",
+                    "Grace Hopper documented a compiler note.",
+                ),
             ],
+            top_k=2,
         )
     )
     context = PipelineContext(task=_task(), model="demo", usage=UsageTracker())

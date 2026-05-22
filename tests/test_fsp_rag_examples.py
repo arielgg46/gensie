@@ -6,6 +6,10 @@ from gensie.fsp.cases import (
     default_fsp_cases,
     quijote_cultural_literature_case,
 )
+from gensie.fsp.field_rag import (
+    normalized_schema_fingerprint,
+    rank_fsp_cases_by_field_embeddings,
+)
 from gensie.fsp.examples import (
     CandidateOrder,
     FieldExample,
@@ -35,6 +39,7 @@ from gensie.pipeline import (
 from gensie.task import Task
 from gensie.usage import UsageTracker
 from gensie.schemas.projection import build_reduced_schema
+import numpy as np
 
 
 def _context() -> PipelineContext:
@@ -68,6 +73,7 @@ def _minimal_case(
     case_id: str,
     schema: dict,
     *,
+    instruction: str = "Extrae los campos solicitados.",
     tags: tuple[str, ...] = (),
     field_tags: tuple[str, ...] = (),
     source_text: str | None = None,
@@ -77,7 +83,7 @@ def _minimal_case(
         domain="test",
         language="es",
         source_text=source_text or f"Texto fuente del caso {case_id}.",
-        instruction="Extrae los campos solicitados.",
+        instruction=instruction,
         schema=schema,
         field_examples={
             field_name: FieldExample(
@@ -265,8 +271,9 @@ def test_rag_extraction_provider_prefers_same_schema_over_resource_order():
     )
 
     assert examples[0].name == "same_schema"
-    assert examples[0].metadata["retrieval"]["schema_match"] is True
-    assert examples[0].metadata["retrieval"]["score"] > 100
+    assert examples[0].metadata["retrieval"]["schema_match"] is False
+    assert examples[0].metadata["retrieval"]["method"] == "field_embeddings"
+    assert examples[0].metadata["retrieval"]["score"] > 0
 
 
 def test_rag_extraction_provider_exposes_structured_selection():
@@ -301,6 +308,7 @@ def test_rag_extraction_provider_exposes_structured_selection():
     ]
     assert selection.all_schema_match is True
     assert selection.metadata()[0]["retrieval"]["schema_match"] is True
+    assert selection.metadata()[0]["retrieval"]["method"] == "same_schema_embeddings"
     assert selection.metadata()[0]["prompt_chars"] > 0
 
 
@@ -380,10 +388,200 @@ def test_rag_extraction_provider_uses_schema_tags_when_schema_differs():
             few_shot=FewShotMode.RAG,
         ),
     )
-    matched_tags = set(examples[0].metadata["retrieval"]["matched_tags"])
-
     assert examples[0].name == "similar_tags"
-    assert {"complex_object_array", "nested_numeric_object_array", "grounded_null"} <= matched_tags
+    assert examples[0].metadata["retrieval"]["method"] == "field_embeddings"
+    assert set(examples[0].metadata["retrieval"]["compatible_fields"]) == {
+        "observations",
+        "event_date",
+    }
+
+
+def test_field_rag_diagnostics_align_to_task_schema_fields():
+    class FakeEmbedder:
+        def embed(self, texts):
+            vectors = []
+            for text in texts:
+                text = text.lower()
+                if "symptoms" in text or "features" in text:
+                    vectors.append([1.0, 0.0])
+                elif "urgent" in text or "open_source" in text:
+                    vectors.append([0.0, 1.0])
+                else:
+                    vectors.append([0.0, 0.0])
+            return np.asarray(vectors, dtype=np.float32)
+
+    target_schema = {
+        "type": "object",
+        "properties": {
+            "symptoms": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Symptoms reported by the patient",
+            },
+            "requires_urgent_care": {
+                "type": "boolean",
+                "description": "Whether the disease requires urgent care",
+            },
+        },
+    }
+    medical_extraction_schema = {
+        "type": "object",
+        "properties": {
+            "answer": {"type": "string", "description": "Answer span"},
+        },
+    }
+    technical_software_schema = {
+        "type": "object",
+        "properties": {
+            "features": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Software features",
+            },
+            "is_open_source": {
+                "type": "boolean",
+                "description": "Whether the tool is open source",
+            },
+        },
+    }
+    diagnostics = {}
+
+    results = rank_fsp_cases_by_field_embeddings(
+        task_schema=target_schema,
+        task_text="medical disease symptoms urgent care",
+        cases=[
+            _minimal_case("medical_extraction_answer", medical_extraction_schema),
+            _minimal_case("technical_software_tool", technical_software_schema),
+        ],
+        top_k=1,
+        embedder=FakeEmbedder(),
+        diagnostics=diagnostics,
+    )
+
+    assert results[0].case.id == "technical_software_tool"
+    assert diagnostics["task_schema_fields"] == [
+        "symptoms",
+        "requires_urgent_care",
+    ]
+    considered = {
+        item["case_id"]: item for item in diagnostics["considered_cases"]
+    }
+    assert considered["medical_extraction_answer"]["task_fields"] == [
+        "symptoms",
+        "requires_urgent_care",
+    ]
+    assert considered["medical_extraction_answer"]["similarity_vector"] == [0.0, 0.0]
+    assert considered["medical_extraction_answer"][
+        "best_fsp_field_by_task_field"
+    ] == ["", ""]
+    assert considered["technical_software_tool"]["similarity_vector"] == [1.0, 1.0]
+    assert considered["technical_software_tool"][
+        "best_fsp_field_by_task_field"
+    ] == ["features", "is_open_source"]
+
+
+def test_normalized_schema_fingerprint_ignores_descriptions_and_required_order():
+    first = {
+        "type": "object",
+        "properties": {
+            "status": {
+                "type": "string",
+                "enum": ["draft", "final"],
+                "description": "Status label",
+            },
+            "tags": {
+                "type": ["array", "null"],
+                "items": {"type": "string"},
+            },
+        },
+        "required": ["status", "tags"],
+    }
+    second = {
+        "required": ["tags", "status"],
+        "properties": {
+            "tags": {
+                "items": {"type": "string"},
+                "type": ["null", "array"],
+            },
+            "status": {
+                "description": "Different wording",
+                "enum": ["final", "draft"],
+                "type": "string",
+            },
+        },
+        "type": "object",
+    }
+
+    assert normalized_schema_fingerprint(first) == normalized_schema_fingerprint(second)
+
+
+def test_same_schema_phase_uses_instruction_similarity_before_field_fallback():
+    class FakeEmbedder:
+        def embed(self, texts):
+            vectors = []
+            for text in texts:
+                text = text.lower()
+                if "legal_extraction" in text:
+                    vectors.append([1.0, 0.0])
+                elif "contrato" in text or "clausula" in text or "cláusula" in text:
+                    vectors.append([0.8, 0.2])
+                elif "medical_extraction" in text:
+                    vectors.append([0.2, 0.8])
+                elif "cultural_extraction" in text or "miniserie" in text:
+                    vectors.append([0.0, 1.0])
+                else:
+                    vectors.append([0.3, 0.3])
+            return np.asarray(vectors, dtype=np.float32)
+
+    schema = {
+        "type": "object",
+        "properties": {
+            "answer": {"type": "string", "description": "Answer span"},
+        },
+        "required": ["answer"],
+    }
+    diagnostics = {}
+
+    results = rank_fsp_cases_by_field_embeddings(
+        task_schema=schema,
+        task_text="legal contract question",
+        task_id="legal_extraction_002",
+        task_instruction="Responde una pregunta sobre una clausula del contrato.",
+        cases=[
+            _minimal_case(
+                "cultural_extraction_answer",
+                schema,
+                instruction="Responde una pregunta sobre una miniserie.",
+            ),
+            _minimal_case(
+                "legal_extraction_answer_one",
+                schema,
+                instruction="Responde una pregunta legal sobre contrato.",
+            ),
+            _minimal_case(
+                "legal_extraction_answer_two",
+                schema,
+                instruction="Extrae la respuesta legal solicitada.",
+            ),
+            _minimal_case(
+                "medical_extraction_answer",
+                schema,
+                instruction="Responde una pregunta de cantidad literal.",
+            ),
+        ],
+        top_k=2,
+        embedder=FakeEmbedder(),
+        diagnostics=diagnostics,
+    )
+
+    assert [result.case.id for result in results] == [
+        "legal_extraction_answer_one",
+        "legal_extraction_answer_two",
+    ]
+    assert all(result.schema_match for result in results)
+    assert all(result.method == "same_schema_embeddings" for result in results)
+    assert diagnostics["selection_method"] == "same_schema_embeddings"
+    assert diagnostics["same_schema_similarity_threshold"] == 0.6
 
 
 def test_rag_extraction_provider_skips_examples_over_prompt_budget():

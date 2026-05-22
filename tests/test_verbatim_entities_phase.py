@@ -135,7 +135,7 @@ def test_verbatim_entities_phase_traces_its_own_step():
         '"lugares":["Madrid"],'
         '"otros":["Atlas-IE"]}'
     )
-    trace_dir = Path("test-artifacts/unit-verbatim-tracing")
+    trace_dir = Path(".test-verbatim-tracing")
     shutil.rmtree(trace_dir, ignore_errors=True)
     task = _task()
     task.metadata["_trace_dir"] = str(trace_dir / "entity-sample")

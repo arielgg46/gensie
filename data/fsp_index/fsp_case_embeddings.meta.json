@@ -1,0 +1,1693 @@
+{
+  "model": "BAAI/bge-small-en-v1.5",
+  "field_dim": 384,
+  "same_schema_dim": 384,
+  "field_rows": [
+    {
+      "case_id": "cultural_entities_casa_mareas",
+      "field_name": "entities",
+      "type_class": "array[object]",
+      "text": "entities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "cultural_entities_jardin_orbital",
+      "field_name": "entities",
+      "type_class": "array[object]",
+      "text": "entities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "cultural_extraction_miniserie_danesa",
+      "field_name": "answer",
+      "type_class": "string",
+      "text": "answer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "cultural_extraction_vega_directora",
+      "field_name": "answer",
+      "type_class": "string",
+      "text": "answer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "cultural_literature_ciudad_espejos",
+      "field_name": "title",
+      "type_class": "string",
+      "text": "title (string): The official title of the literary work"
+    },
+    {
+      "case_id": "cultural_literature_ciudad_espejos",
+      "field_name": "author",
+      "type_class": "string",
+      "text": "author (string): The primary author or creator of the work"
+    },
+    {
+      "case_id": "cultural_literature_ciudad_espejos",
+      "field_name": "publication_year",
+      "type_class": "numeric",
+      "text": "publication_year (integer|null): The year the work was first published"
+    },
+    {
+      "case_id": "cultural_literature_ciudad_espejos",
+      "field_name": "genres",
+      "type_class": "array[string]",
+      "text": "genres (array of string): Literary genres associated with the work (e.g., 'Science Fiction', 'Romance')"
+    },
+    {
+      "case_id": "cultural_literature_ciudad_espejos",
+      "field_name": "key_themes",
+      "type_class": "array[string]",
+      "text": "key_themes (array of string): Main topics or themes explored in the work"
+    },
+    {
+      "case_id": "cultural_literature_ciudad_espejos",
+      "field_name": "original_language",
+      "type_class": "string",
+      "text": "original_language (string|null): The language in which the work was originally written"
+    },
+    {
+      "case_id": "cultural_literature_libro_niebla",
+      "field_name": "title",
+      "type_class": "string",
+      "text": "title (string): The official title of the literary work"
+    },
+    {
+      "case_id": "cultural_literature_libro_niebla",
+      "field_name": "author",
+      "type_class": "string",
+      "text": "author (string): The primary author or creator of the work"
+    },
+    {
+      "case_id": "cultural_literature_libro_niebla",
+      "field_name": "publication_year",
+      "type_class": "numeric",
+      "text": "publication_year (integer|null): The year the work was first published"
+    },
+    {
+      "case_id": "cultural_literature_libro_niebla",
+      "field_name": "genres",
+      "type_class": "array[string]",
+      "text": "genres (array of string): Literary genres associated with the work (e.g., 'Science Fiction', 'Romance')"
+    },
+    {
+      "case_id": "cultural_literature_libro_niebla",
+      "field_name": "key_themes",
+      "type_class": "array[string]",
+      "text": "key_themes (array of string): Main topics or themes explored in the work"
+    },
+    {
+      "case_id": "cultural_literature_libro_niebla",
+      "field_name": "original_language",
+      "type_class": "string",
+      "text": "original_language (string|null): The language in which the work was originally written"
+    },
+    {
+      "case_id": "cultural_media_mixed_series",
+      "field_name": "work_title",
+      "type_class": "string",
+      "text": "work_title (string): The name of the movie, book, or series"
+    },
+    {
+      "case_id": "cultural_media_mixed_series",
+      "field_name": "medium",
+      "type_class": "enum",
+      "text": "medium (enum[MediumType]): The type of media being reviewed"
+    },
+    {
+      "case_id": "cultural_media_mixed_series",
+      "field_name": "director",
+      "type_class": "string",
+      "text": "director (string|null): The person who directed the film or series"
+    },
+    {
+      "case_id": "cultural_media_mixed_series",
+      "field_name": "main_cast",
+      "type_class": "array[string]",
+      "text": "main_cast (array of string): Key actors or performers mentioned in the review"
+    },
+    {
+      "case_id": "cultural_media_mixed_series",
+      "field_name": "release_year",
+      "type_class": "numeric",
+      "text": "release_year (integer|null): The year the work was released"
+    },
+    {
+      "case_id": "cultural_media_mixed_series",
+      "field_name": "rating",
+      "type_class": "numeric",
+      "text": "rating (number|null): The score given by the reviewer, normalized to a 0-10 scale"
+    },
+    {
+      "case_id": "cultural_media_mixed_series",
+      "field_name": "sentiment",
+      "type_class": "enum",
+      "text": "sentiment (enum[Sentiment]): Overall tone of the review"
+    },
+    {
+      "case_id": "cultural_media_mixed_series",
+      "field_name": "pros",
+      "type_class": "array[string]",
+      "text": "pros (array of string): Specific positive aspects highlighted by the critic"
+    },
+    {
+      "case_id": "cultural_media_mixed_series",
+      "field_name": "cons",
+      "type_class": "array[string]",
+      "text": "cons (array of string): Specific negative aspects or flaws mentioned"
+    },
+    {
+      "case_id": "cultural_media_mixed_series",
+      "field_name": "key_verdict",
+      "type_class": "string",
+      "text": "key_verdict (string): A concise summary of the final judgment (e.g., 'Una copia barata', 'Fascinante rareza')"
+    },
+    {
+      "case_id": "cultural_media_negative_film",
+      "field_name": "work_title",
+      "type_class": "string",
+      "text": "work_title (string): The name of the movie, book, or series"
+    },
+    {
+      "case_id": "cultural_media_negative_film",
+      "field_name": "medium",
+      "type_class": "enum",
+      "text": "medium (enum[MediumType]): The type of media being reviewed"
+    },
+    {
+      "case_id": "cultural_media_negative_film",
+      "field_name": "director",
+      "type_class": "string",
+      "text": "director (string|null): The person who directed the film or series"
+    },
+    {
+      "case_id": "cultural_media_negative_film",
+      "field_name": "main_cast",
+      "type_class": "array[string]",
+      "text": "main_cast (array of string): Key actors or performers mentioned in the review"
+    },
+    {
+      "case_id": "cultural_media_negative_film",
+      "field_name": "release_year",
+      "type_class": "numeric",
+      "text": "release_year (integer|null): The year the work was released"
+    },
+    {
+      "case_id": "cultural_media_negative_film",
+      "field_name": "rating",
+      "type_class": "numeric",
+      "text": "rating (number|null): The score given by the reviewer, normalized to a 0-10 scale"
+    },
+    {
+      "case_id": "cultural_media_negative_film",
+      "field_name": "sentiment",
+      "type_class": "enum",
+      "text": "sentiment (enum[Sentiment]): Overall tone of the review"
+    },
+    {
+      "case_id": "cultural_media_negative_film",
+      "field_name": "pros",
+      "type_class": "array[string]",
+      "text": "pros (array of string): Specific positive aspects highlighted by the critic"
+    },
+    {
+      "case_id": "cultural_media_negative_film",
+      "field_name": "cons",
+      "type_class": "array[string]",
+      "text": "cons (array of string): Specific negative aspects or flaws mentioned"
+    },
+    {
+      "case_id": "cultural_media_negative_film",
+      "field_name": "key_verdict",
+      "type_class": "string",
+      "text": "key_verdict (string): A concise summary of the final judgment (e.g., 'Una copia barata', 'Fascinante rareza')"
+    },
+    {
+      "case_id": "cultural_monuments_abrigos_solana",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The official name of the monument or protected site"
+    },
+    {
+      "case_id": "cultural_monuments_abrigos_solana",
+      "field_name": "municipality",
+      "type_class": "string",
+      "text": "municipality (string): The municipality or city where the monument is located"
+    },
+    {
+      "case_id": "cultural_monuments_abrigos_solana",
+      "field_name": "bic_category",
+      "type_class": "enum",
+      "text": "bic_category (enum[BICCategory]): The legal category of protection (e.g., Monumento, Jardín Histórico)"
+    },
+    {
+      "case_id": "cultural_monuments_abrigos_solana",
+      "field_name": "registration_code",
+      "type_class": "string",
+      "text": "registration_code (string): The official registration ID (e.g., 'RI-51-0001091'). Must strictly follow the pattern."
+    },
+    {
+      "case_id": "cultural_monuments_abrigos_solana",
+      "field_name": "declaration_date",
+      "type_class": "string",
+      "text": "declaration_date (string|null): The date of the legal declaration in YYYY-MM-DD format (normalize from text)"
+    },
+    {
+      "case_id": "cultural_monuments_abrigos_solana",
+      "field_name": "is_declared",
+      "type_class": "boolean",
+      "text": "is_declared (boolean): True if the status is 'Declarado'; False if it is 'Incoado' (pending)"
+    },
+    {
+      "case_id": "cultural_monuments_puente_san_miguel",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The official name of the monument or protected site"
+    },
+    {
+      "case_id": "cultural_monuments_puente_san_miguel",
+      "field_name": "municipality",
+      "type_class": "string",
+      "text": "municipality (string): The municipality or city where the monument is located"
+    },
+    {
+      "case_id": "cultural_monuments_puente_san_miguel",
+      "field_name": "bic_category",
+      "type_class": "enum",
+      "text": "bic_category (enum[BICCategory]): The legal category of protection (e.g., Monumento, Jardín Histórico)"
+    },
+    {
+      "case_id": "cultural_monuments_puente_san_miguel",
+      "field_name": "registration_code",
+      "type_class": "string",
+      "text": "registration_code (string): The official registration ID (e.g., 'RI-51-0001091'). Must strictly follow the pattern."
+    },
+    {
+      "case_id": "cultural_monuments_puente_san_miguel",
+      "field_name": "declaration_date",
+      "type_class": "string",
+      "text": "declaration_date (string|null): The date of the legal declaration in YYYY-MM-DD format (normalize from text)"
+    },
+    {
+      "case_id": "cultural_monuments_puente_san_miguel",
+      "field_name": "is_declared",
+      "type_class": "boolean",
+      "text": "is_declared (boolean): True if the status is 'Declarado'; False if it is 'Incoado' (pending)"
+    },
+    {
+      "case_id": "environmental_ecology_derrame_rio_san_juan",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "case_id": "environmental_ecology_derrame_rio_san_juan",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "case_id": "environmental_ecology_derrame_rio_san_juan",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "case_id": "environmental_ecology_derrame_rio_san_juan",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "case_id": "environmental_ecology_derrame_rio_san_juan",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "case_id": "environmental_ecology_derrame_rio_san_juan",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "case_id": "environmental_ecology_derrame_rio_san_juan",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "case_id": "environmental_ecology_derrame_rio_san_juan",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "case_id": "environmental_ecology_derrame_rio_san_juan",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "case_id": "environmental_ecology_derrame_rio_san_juan",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "environmental_ecology_turberas_respiratorias",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "case_id": "environmental_ecology_turberas_respiratorias",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "case_id": "environmental_ecology_turberas_respiratorias",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "case_id": "environmental_ecology_turberas_respiratorias",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "case_id": "environmental_ecology_turberas_respiratorias",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "case_id": "environmental_ecology_turberas_respiratorias",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "case_id": "environmental_ecology_turberas_respiratorias",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "case_id": "environmental_ecology_turberas_respiratorias",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "case_id": "environmental_ecology_turberas_respiratorias",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "case_id": "environmental_ecology_turberas_respiratorias",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "general_disasters_alud_santa_lidia",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "case_id": "general_disasters_alud_santa_lidia",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "case_id": "general_disasters_alud_santa_lidia",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "case_id": "general_disasters_alud_santa_lidia",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "case_id": "general_disasters_alud_santa_lidia",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "case_id": "general_disasters_alud_santa_lidia",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "case_id": "general_disasters_alud_santa_lidia",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "case_id": "general_disasters_alud_santa_lidia",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "case_id": "general_disasters_alud_santa_lidia",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "case_id": "general_disasters_alud_santa_lidia",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "general_disasters_tifon_luma",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "case_id": "general_disasters_tifon_luma",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "case_id": "general_disasters_tifon_luma",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "case_id": "general_disasters_tifon_luma",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "case_id": "general_disasters_tifon_luma",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "case_id": "general_disasters_tifon_luma",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "case_id": "general_disasters_tifon_luma",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "case_id": "general_disasters_tifon_luma",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "case_id": "general_disasters_tifon_luma",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "case_id": "general_disasters_tifon_luma",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "legal_contracts_compraventa_maquinaria_agricola",
+      "field_name": "contract_title",
+      "type_class": "string",
+      "text": "contract_title (string): The formal title or heading of the contract"
+    },
+    {
+      "case_id": "legal_contracts_compraventa_maquinaria_agricola",
+      "field_name": "contract_type",
+      "type_class": "enum",
+      "text": "contract_type (enum[ContractType]): The broad legal category of the agreement"
+    },
+    {
+      "case_id": "legal_contracts_compraventa_maquinaria_agricola",
+      "field_name": "effective_date",
+      "type_class": "string",
+      "text": "effective_date (string|null): The date the contract goes into effect (YYYY-MM-DD or verbatim)"
+    },
+    {
+      "case_id": "legal_contracts_compraventa_maquinaria_agricola",
+      "field_name": "parties",
+      "type_class": "array[string]",
+      "text": "parties (array of string): The names of the individuals or organizations entering into the agreement"
+    },
+    {
+      "case_id": "legal_contracts_compraventa_maquinaria_agricola",
+      "field_name": "total_clauses",
+      "type_class": "numeric",
+      "text": "total_clauses (integer): Total number of numbered or named sections (e.g., PRIMERO, SEGUNDO...)"
+    },
+    {
+      "case_id": "legal_contracts_compraventa_maquinaria_agricola",
+      "field_name": "governing_law_jurisdiction",
+      "type_class": "string",
+      "text": "governing_law_jurisdiction (string|null): The state, country, or jurisdiction whose laws govern the contract"
+    },
+    {
+      "case_id": "legal_contracts_compraventa_maquinaria_agricola",
+      "field_name": "has_nda_clause",
+      "type_class": "boolean",
+      "text": "has_nda_clause (boolean): True if the text explicitly mentions confidentiality or non-disclosure"
+    },
+    {
+      "case_id": "legal_contracts_compraventa_maquinaria_agricola",
+      "field_name": "has_liability_limitation",
+      "type_class": "boolean",
+      "text": "has_liability_limitation (boolean): True if there is an explicit clause limiting or exempting liability"
+    },
+    {
+      "case_id": "legal_contracts_compraventa_maquinaria_agricola",
+      "field_name": "monetary_amount",
+      "type_class": "numeric",
+      "text": "monetary_amount (number|null): Total amount of the contract if specified numerically"
+    },
+    {
+      "case_id": "legal_contracts_servicios_aurora",
+      "field_name": "contract_title",
+      "type_class": "string",
+      "text": "contract_title (string): The formal title or heading of the contract"
+    },
+    {
+      "case_id": "legal_contracts_servicios_aurora",
+      "field_name": "contract_type",
+      "type_class": "enum",
+      "text": "contract_type (enum[ContractType]): The broad legal category of the agreement"
+    },
+    {
+      "case_id": "legal_contracts_servicios_aurora",
+      "field_name": "effective_date",
+      "type_class": "string",
+      "text": "effective_date (string|null): The date the contract goes into effect (YYYY-MM-DD or verbatim)"
+    },
+    {
+      "case_id": "legal_contracts_servicios_aurora",
+      "field_name": "parties",
+      "type_class": "array[string]",
+      "text": "parties (array of string): The names of the individuals or organizations entering into the agreement"
+    },
+    {
+      "case_id": "legal_contracts_servicios_aurora",
+      "field_name": "total_clauses",
+      "type_class": "numeric",
+      "text": "total_clauses (integer): Total number of numbered or named sections (e.g., PRIMERO, SEGUNDO...)"
+    },
+    {
+      "case_id": "legal_contracts_servicios_aurora",
+      "field_name": "governing_law_jurisdiction",
+      "type_class": "string",
+      "text": "governing_law_jurisdiction (string|null): The state, country, or jurisdiction whose laws govern the contract"
+    },
+    {
+      "case_id": "legal_contracts_servicios_aurora",
+      "field_name": "has_nda_clause",
+      "type_class": "boolean",
+      "text": "has_nda_clause (boolean): True if the text explicitly mentions confidentiality or non-disclosure"
+    },
+    {
+      "case_id": "legal_contracts_servicios_aurora",
+      "field_name": "has_liability_limitation",
+      "type_class": "boolean",
+      "text": "has_liability_limitation (boolean): True if there is an explicit clause limiting or exempting liability"
+    },
+    {
+      "case_id": "legal_contracts_servicios_aurora",
+      "field_name": "monetary_amount",
+      "type_class": "numeric",
+      "text": "monetary_amount (number|null): Total amount of the contract if specified numerically"
+    },
+    {
+      "case_id": "legal_entities_isabel_ii",
+      "field_name": "entities",
+      "type_class": "array[object]",
+      "text": "entities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "legal_entities_rd_48_2026",
+      "field_name": "entities",
+      "type_class": "array[object]",
+      "text": "entities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "legal_extraction_capitalidad_valdoria",
+      "field_name": "answer",
+      "type_class": "string",
+      "text": "answer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "legal_extraction_iniciativa_popular",
+      "field_name": "answer",
+      "type_class": "string",
+      "text": "answer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "legal_judicial_estafa_cuenta_clara",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "case_id": "legal_judicial_estafa_cuenta_clara",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "case_id": "legal_judicial_estafa_cuenta_clara",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "case_id": "legal_judicial_estafa_cuenta_clara",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "case_id": "legal_judicial_estafa_cuenta_clara",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "case_id": "legal_judicial_estafa_cuenta_clara",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "case_id": "legal_judicial_estafa_cuenta_clara",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "case_id": "legal_judicial_estafa_cuenta_clara",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "case_id": "legal_judicial_estafa_cuenta_clara",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "case_id": "legal_judicial_estafa_cuenta_clara",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "legal_judicial_redada_los_cobres",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "case_id": "legal_judicial_redada_los_cobres",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "case_id": "legal_judicial_redada_los_cobres",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "case_id": "legal_judicial_redada_los_cobres",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "case_id": "legal_judicial_redada_los_cobres",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "case_id": "legal_judicial_redada_los_cobres",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "case_id": "legal_judicial_redada_los_cobres",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "case_id": "legal_judicial_redada_los_cobres",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "case_id": "legal_judicial_redada_los_cobres",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "case_id": "legal_judicial_redada_los_cobres",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "legal_legislation_patios_verdes_valenciana",
+      "field_name": "official_title",
+      "type_class": "string",
+      "text": "official_title (string): Full official title of the law"
+    },
+    {
+      "case_id": "legal_legislation_patios_verdes_valenciana",
+      "field_name": "law_range",
+      "type_class": "enum",
+      "text": "law_range (enum[LawRange]): The legal rank of the norm"
+    },
+    {
+      "case_id": "legal_legislation_patios_verdes_valenciana",
+      "field_name": "sanction_date",
+      "type_class": "string",
+      "text": "sanction_date (string|null): Date of sanction in YYYY-MM-DD"
+    },
+    {
+      "case_id": "legal_legislation_patios_verdes_valenciana",
+      "field_name": "jurisdiction",
+      "type_class": "enum",
+      "text": "jurisdiction (enum[JurisdictionScope]): The scope of application"
+    },
+    {
+      "case_id": "legal_legislation_patios_verdes_valenciana",
+      "field_name": "is_repealed",
+      "type_class": "boolean",
+      "text": "is_repealed (boolean): True if the text mentions the law is no longer in effect or has been replaced"
+    },
+    {
+      "case_id": "legal_legislation_patios_verdes_valenciana",
+      "field_name": "affected_articles",
+      "type_class": "array[string]",
+      "text": "affected_articles (array of string): List of specific articles mentioned as modified or relevant"
+    },
+    {
+      "case_id": "legal_legislation_rdley_ahorro_energetico",
+      "field_name": "official_title",
+      "type_class": "string",
+      "text": "official_title (string): Full official title of the law"
+    },
+    {
+      "case_id": "legal_legislation_rdley_ahorro_energetico",
+      "field_name": "law_range",
+      "type_class": "enum",
+      "text": "law_range (enum[LawRange]): The legal rank of the norm"
+    },
+    {
+      "case_id": "legal_legislation_rdley_ahorro_energetico",
+      "field_name": "sanction_date",
+      "type_class": "string",
+      "text": "sanction_date (string|null): Date of sanction in YYYY-MM-DD"
+    },
+    {
+      "case_id": "legal_legislation_rdley_ahorro_energetico",
+      "field_name": "jurisdiction",
+      "type_class": "enum",
+      "text": "jurisdiction (enum[JurisdictionScope]): The scope of application"
+    },
+    {
+      "case_id": "legal_legislation_rdley_ahorro_energetico",
+      "field_name": "is_repealed",
+      "type_class": "boolean",
+      "text": "is_repealed (boolean): True if the text mentions the law is no longer in effect or has been replaced"
+    },
+    {
+      "case_id": "legal_legislation_rdley_ahorro_energetico",
+      "field_name": "affected_articles",
+      "type_class": "array[string]",
+      "text": "affected_articles (array of string): List of specific articles mentioned as modified or relevant"
+    },
+    {
+      "case_id": "lifestyle_recipes_berenjenas_tahini",
+      "field_name": "dish_name",
+      "type_class": "string",
+      "text": "dish_name (string): The name of the recipe"
+    },
+    {
+      "case_id": "lifestyle_recipes_berenjenas_tahini",
+      "field_name": "servings",
+      "type_class": "numeric",
+      "text": "servings (integer|null): Number of portions generated"
+    },
+    {
+      "case_id": "lifestyle_recipes_berenjenas_tahini",
+      "field_name": "ingredients",
+      "type_class": "array[object]",
+      "text": "ingredients (array of object): Structured list of ingredients"
+    },
+    {
+      "case_id": "lifestyle_recipes_berenjenas_tahini",
+      "field_name": "complexity_score",
+      "type_class": "numeric",
+      "text": "complexity_score (integer): Inferred difficulty from 1 (easy) to 10 (pro chef) based on steps and time"
+    },
+    {
+      "case_id": "lifestyle_recipes_berenjenas_tahini",
+      "field_name": "dietary_tags",
+      "type_class": "array[enum]",
+      "text": "dietary_tags (array of enum[DietaryTag]): Reasoned tags based on the absence of certain ingredient types (e.g., meat, gluten)"
+    },
+    {
+      "case_id": "lifestyle_recipes_berenjenas_tahini",
+      "field_name": "technique_sequence",
+      "type_class": "array[enum]",
+      "text": "technique_sequence (array of enum[CookingTechnique]): The chronological sequence of main cooking techniques applied"
+    },
+    {
+      "case_id": "lifestyle_recipes_berenjenas_tahini",
+      "field_name": "total_time_minutes",
+      "type_class": "numeric",
+      "text": "total_time_minutes (integer|null): Normalized total duration in minutes"
+    },
+    {
+      "case_id": "lifestyle_recipes_costillas_cerveza_negra",
+      "field_name": "dish_name",
+      "type_class": "string",
+      "text": "dish_name (string): The name of the recipe"
+    },
+    {
+      "case_id": "lifestyle_recipes_costillas_cerveza_negra",
+      "field_name": "servings",
+      "type_class": "numeric",
+      "text": "servings (integer|null): Number of portions generated"
+    },
+    {
+      "case_id": "lifestyle_recipes_costillas_cerveza_negra",
+      "field_name": "ingredients",
+      "type_class": "array[object]",
+      "text": "ingredients (array of object): Structured list of ingredients"
+    },
+    {
+      "case_id": "lifestyle_recipes_costillas_cerveza_negra",
+      "field_name": "complexity_score",
+      "type_class": "numeric",
+      "text": "complexity_score (integer): Inferred difficulty from 1 (easy) to 10 (pro chef) based on steps and time"
+    },
+    {
+      "case_id": "lifestyle_recipes_costillas_cerveza_negra",
+      "field_name": "dietary_tags",
+      "type_class": "array[enum]",
+      "text": "dietary_tags (array of enum[DietaryTag]): Reasoned tags based on the absence of certain ingredient types (e.g., meat, gluten)"
+    },
+    {
+      "case_id": "lifestyle_recipes_costillas_cerveza_negra",
+      "field_name": "technique_sequence",
+      "type_class": "array[enum]",
+      "text": "technique_sequence (array of enum[CookingTechnique]): The chronological sequence of main cooking techniques applied"
+    },
+    {
+      "case_id": "lifestyle_recipes_costillas_cerveza_negra",
+      "field_name": "total_time_minutes",
+      "type_class": "numeric",
+      "text": "total_time_minutes (integer|null): Normalized total duration in minutes"
+    },
+    {
+      "case_id": "medical_diseases_faringitis_estreptococica",
+      "field_name": "pathology_name",
+      "type_class": "string",
+      "text": "pathology_name (string): The medical name of the disease or disorder"
+    },
+    {
+      "case_id": "medical_diseases_faringitis_estreptococica",
+      "field_name": "etiology_type",
+      "type_class": "enum",
+      "text": "etiology_type (enum[EtiologyType]): The primary origin or cause of the disease"
+    },
+    {
+      "case_id": "medical_diseases_faringitis_estreptococica",
+      "field_name": "etiology_description",
+      "type_class": "string",
+      "text": "etiology_description (string|null): A brief summary of how the disease is caused"
+    },
+    {
+      "case_id": "medical_diseases_faringitis_estreptococica",
+      "field_name": "symptoms",
+      "type_class": "array[object]",
+      "text": "symptoms (array of object): Structured list of reported symptoms"
+    },
+    {
+      "case_id": "medical_diseases_faringitis_estreptococica",
+      "field_name": "diagnosis_methods",
+      "type_class": "array[string]",
+      "text": "diagnosis_methods (array of string): Clinical tests or methods mentioned for identifying the pathology"
+    },
+    {
+      "case_id": "medical_diseases_faringitis_estreptococica",
+      "field_name": "is_chronic",
+      "type_class": "boolean",
+      "text": "is_chronic (boolean|null): True if the text explicitly defines the disease as chronic or long-term"
+    },
+    {
+      "case_id": "medical_diseases_migrana_cronica",
+      "field_name": "pathology_name",
+      "type_class": "string",
+      "text": "pathology_name (string): The medical name of the disease or disorder"
+    },
+    {
+      "case_id": "medical_diseases_migrana_cronica",
+      "field_name": "etiology_type",
+      "type_class": "enum",
+      "text": "etiology_type (enum[EtiologyType]): The primary origin or cause of the disease"
+    },
+    {
+      "case_id": "medical_diseases_migrana_cronica",
+      "field_name": "etiology_description",
+      "type_class": "string",
+      "text": "etiology_description (string|null): A brief summary of how the disease is caused"
+    },
+    {
+      "case_id": "medical_diseases_migrana_cronica",
+      "field_name": "symptoms",
+      "type_class": "array[object]",
+      "text": "symptoms (array of object): Structured list of reported symptoms"
+    },
+    {
+      "case_id": "medical_diseases_migrana_cronica",
+      "field_name": "diagnosis_methods",
+      "type_class": "array[string]",
+      "text": "diagnosis_methods (array of string): Clinical tests or methods mentioned for identifying the pathology"
+    },
+    {
+      "case_id": "medical_diseases_migrana_cronica",
+      "field_name": "is_chronic",
+      "type_class": "boolean",
+      "text": "is_chronic (boolean|null): True if the text explicitly defines the disease as chronic or long-term"
+    },
+    {
+      "case_id": "medical_drug_ibuprofeno_lumen",
+      "field_name": "common_name",
+      "type_class": "string",
+      "text": "common_name (string): The generic name of the active principle"
+    },
+    {
+      "case_id": "medical_drug_ibuprofeno_lumen",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The full commercial or official name of the drug"
+    },
+    {
+      "case_id": "medical_drug_ibuprofeno_lumen",
+      "field_name": "pharmaceutical_format",
+      "type_class": "string",
+      "text": "pharmaceutical_format (string): The physical form (e.g., Comprimido, Cápsula, Solución)"
+    },
+    {
+      "case_id": "medical_drug_ibuprofeno_lumen",
+      "field_name": "standard_doses",
+      "type_class": "array[string]",
+      "text": "standard_doses (array of string): List of available strengths or doses mentioned (e.g., ['1 g', '500 mg'])"
+    },
+    {
+      "case_id": "medical_drug_ibuprofeno_lumen",
+      "field_name": "is_pediatric",
+      "type_class": "boolean",
+      "text": "is_pediatric (boolean): True if the drug is indicated for children or infants"
+    },
+    {
+      "case_id": "medical_drug_ibuprofeno_lumen",
+      "field_name": "side_effects",
+      "type_class": "array[object]",
+      "text": "side_effects (array of object): Structured list of all adverse reactions found in section 4.8"
+    },
+    {
+      "case_id": "medical_drug_paracetamol_codeina_nova",
+      "field_name": "common_name",
+      "type_class": "string",
+      "text": "common_name (string): The generic name of the active principle"
+    },
+    {
+      "case_id": "medical_drug_paracetamol_codeina_nova",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The full commercial or official name of the drug"
+    },
+    {
+      "case_id": "medical_drug_paracetamol_codeina_nova",
+      "field_name": "pharmaceutical_format",
+      "type_class": "string",
+      "text": "pharmaceutical_format (string): The physical form (e.g., Comprimido, Cápsula, Solución)"
+    },
+    {
+      "case_id": "medical_drug_paracetamol_codeina_nova",
+      "field_name": "standard_doses",
+      "type_class": "array[string]",
+      "text": "standard_doses (array of string): List of available strengths or doses mentioned (e.g., ['1 g', '500 mg'])"
+    },
+    {
+      "case_id": "medical_drug_paracetamol_codeina_nova",
+      "field_name": "is_pediatric",
+      "type_class": "boolean",
+      "text": "is_pediatric (boolean): True if the drug is indicated for children or infants"
+    },
+    {
+      "case_id": "medical_drug_paracetamol_codeina_nova",
+      "field_name": "side_effects",
+      "type_class": "array[object]",
+      "text": "side_effects (array of object): Structured list of all adverse reactions found in section 4.8"
+    },
+    {
+      "case_id": "medical_entities_acetilsalicilico_cafeina_rovi",
+      "field_name": "entities",
+      "type_class": "array[object]",
+      "text": "entities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "medical_entities_omeprazol_norte",
+      "field_name": "entities",
+      "type_class": "array[object]",
+      "text": "entities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "medical_extraction_glucosal_ampolla",
+      "field_name": "answer",
+      "type_class": "string",
+      "text": "answer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "medical_extraction_lactosa_comprimido",
+      "field_name": "answer",
+      "type_class": "string",
+      "text": "answer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "medical_health_news_suplemento_villa_mar",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "case_id": "medical_health_news_suplemento_villa_mar",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "case_id": "medical_health_news_suplemento_villa_mar",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "case_id": "medical_health_news_suplemento_villa_mar",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "case_id": "medical_health_news_suplemento_villa_mar",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "case_id": "medical_health_news_suplemento_villa_mar",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "case_id": "medical_health_news_suplemento_villa_mar",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "case_id": "medical_health_news_suplemento_villa_mar",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "case_id": "medical_health_news_suplemento_villa_mar",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "case_id": "medical_health_news_suplemento_villa_mar",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "medical_health_news_turnos_glucosa",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "case_id": "medical_health_news_turnos_glucosa",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "case_id": "medical_health_news_turnos_glucosa",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "case_id": "medical_health_news_turnos_glucosa",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "case_id": "medical_health_news_turnos_glucosa",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "case_id": "medical_health_news_turnos_glucosa",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "case_id": "medical_health_news_turnos_glucosa",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "case_id": "medical_health_news_turnos_glucosa",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "case_id": "medical_health_news_turnos_glucosa",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "case_id": "medical_health_news_turnos_glucosa",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_marte",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The primary scientific designation or name"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_marte",
+      "field_name": "body_type",
+      "type_class": "enum",
+      "text": "body_type (enum[CelestialBodyType]): The classification of the celestial object"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_marte",
+      "field_name": "mass_kg",
+      "type_class": "numeric",
+      "text": "mass_kg (number|null): Mass in kilograms (scientific notation or float)"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_marte",
+      "field_name": "diameter_km",
+      "type_class": "numeric",
+      "text": "diameter_km (number|null): Mean diameter in kilometers"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_marte",
+      "field_name": "eccentricity",
+      "type_class": "numeric",
+      "text": "eccentricity (number|null): Orbital eccentricity (e.g., 1.199)"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_marte",
+      "field_name": "orbital_period_days",
+      "type_class": "numeric",
+      "text": "orbital_period_days (number|null): Time to complete one orbit in Earth days"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_marte",
+      "field_name": "semi_major_axis_au",
+      "type_class": "numeric",
+      "text": "semi_major_axis_au (number|null): Average distance from the sun in AU"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_marte",
+      "field_name": "discovery_date",
+      "type_class": "string",
+      "text": "discovery_date (string|null): Date of discovery in YYYY-MM-DD format"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_marte",
+      "field_name": "discoverer",
+      "type_class": "string",
+      "text": "discoverer (string|null): Name of the person or observatory that found the object"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_pluton",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The primary scientific designation or name"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_pluton",
+      "field_name": "body_type",
+      "type_class": "enum",
+      "text": "body_type (enum[CelestialBodyType]): The classification of the celestial object"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_pluton",
+      "field_name": "mass_kg",
+      "type_class": "numeric",
+      "text": "mass_kg (number|null): Mass in kilograms (scientific notation or float)"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_pluton",
+      "field_name": "diameter_km",
+      "type_class": "numeric",
+      "text": "diameter_km (number|null): Mean diameter in kilometers"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_pluton",
+      "field_name": "eccentricity",
+      "type_class": "numeric",
+      "text": "eccentricity (number|null): Orbital eccentricity (e.g., 1.199)"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_pluton",
+      "field_name": "orbital_period_days",
+      "type_class": "numeric",
+      "text": "orbital_period_days (number|null): Time to complete one orbit in Earth days"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_pluton",
+      "field_name": "semi_major_axis_au",
+      "type_class": "numeric",
+      "text": "semi_major_axis_au (number|null): Average distance from the sun in AU"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_pluton",
+      "field_name": "discovery_date",
+      "type_class": "string",
+      "text": "discovery_date (string|null): Date of discovery in YYYY-MM-DD format"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_pluton",
+      "field_name": "discoverer",
+      "type_class": "string",
+      "text": "discoverer (string|null): Name of the person or observatory that found the object"
+    },
+    {
+      "case_id": "technical_entities_nube_clara",
+      "field_name": "entities",
+      "type_class": "array[object]",
+      "text": "entities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "technical_entities_sierra_ix",
+      "field_name": "entities",
+      "type_class": "array[object]",
+      "text": "entities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "technical_extraction_arczip_blake3",
+      "field_name": "answer",
+      "type_class": "string",
+      "text": "answer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "technical_extraction_deltadb_quasarsql",
+      "field_name": "answer",
+      "type_class": "string",
+      "text": "answer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "technical_software_lince_editor",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The full official name of the software"
+    },
+    {
+      "case_id": "technical_software_lince_editor",
+      "field_name": "app_category",
+      "type_class": "enum",
+      "text": "app_category (enum[SoftwareType]): The primary functional category of the app"
+    },
+    {
+      "case_id": "technical_software_lince_editor",
+      "field_name": "license",
+      "type_class": "string",
+      "text": "license (string): The specific license mentioned (e.g., GPL, Proprietary)"
+    },
+    {
+      "case_id": "technical_software_lince_editor",
+      "field_name": "platforms",
+      "type_class": "array[string]",
+      "text": "platforms (array of string): Operating systems mentioned as supported (e.g., Windows, macOS, Linux)"
+    },
+    {
+      "case_id": "technical_software_lince_editor",
+      "field_name": "primary_developer",
+      "type_class": "string",
+      "text": "primary_developer (string): The individual or organization that developed the software"
+    },
+    {
+      "case_id": "technical_software_lince_editor",
+      "field_name": "features",
+      "type_class": "array[string]",
+      "text": "features (array of string): List of specific technical capabilities or features mentioned"
+    },
+    {
+      "case_id": "technical_software_lince_editor",
+      "field_name": "exact_release_date",
+      "type_class": "string",
+      "text": "exact_release_date (string|null): The EXACT date (DD/MM/YYYY) of the first release. RETURN NULL IF ONLY THE YEAR IS MENTIONED."
+    },
+    {
+      "case_id": "technical_software_lince_editor",
+      "field_name": "latest_stable_version_sha256",
+      "type_class": "string",
+      "text": "latest_stable_version_sha256 (string|null): The SHA256 checksum of the latest installer. RETURN NULL IF NOT EXPLICITLY IN THE TEXT."
+    },
+    {
+      "case_id": "technical_software_lince_editor",
+      "field_name": "current_ceo_name",
+      "type_class": "string",
+      "text": "current_ceo_name (string|null): The name of the current CEO of the developing organization. RETURN NULL IF NOT IN TEXT."
+    },
+    {
+      "case_id": "technical_software_quantapack_pro",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The full official name of the software"
+    },
+    {
+      "case_id": "technical_software_quantapack_pro",
+      "field_name": "app_category",
+      "type_class": "enum",
+      "text": "app_category (enum[SoftwareType]): The primary functional category of the app"
+    },
+    {
+      "case_id": "technical_software_quantapack_pro",
+      "field_name": "license",
+      "type_class": "string",
+      "text": "license (string): The specific license mentioned (e.g., GPL, Proprietary)"
+    },
+    {
+      "case_id": "technical_software_quantapack_pro",
+      "field_name": "platforms",
+      "type_class": "array[string]",
+      "text": "platforms (array of string): Operating systems mentioned as supported (e.g., Windows, macOS, Linux)"
+    },
+    {
+      "case_id": "technical_software_quantapack_pro",
+      "field_name": "primary_developer",
+      "type_class": "string",
+      "text": "primary_developer (string): The individual or organization that developed the software"
+    },
+    {
+      "case_id": "technical_software_quantapack_pro",
+      "field_name": "features",
+      "type_class": "array[string]",
+      "text": "features (array of string): List of specific technical capabilities or features mentioned"
+    },
+    {
+      "case_id": "technical_software_quantapack_pro",
+      "field_name": "exact_release_date",
+      "type_class": "string",
+      "text": "exact_release_date (string|null): The EXACT date (DD/MM/YYYY) of the first release. RETURN NULL IF ONLY THE YEAR IS MENTIONED."
+    },
+    {
+      "case_id": "technical_software_quantapack_pro",
+      "field_name": "latest_stable_version_sha256",
+      "type_class": "string",
+      "text": "latest_stable_version_sha256 (string|null): The SHA256 checksum of the latest installer. RETURN NULL IF NOT EXPLICITLY IN THE TEXT."
+    },
+    {
+      "case_id": "technical_software_quantapack_pro",
+      "field_name": "current_ceo_name",
+      "type_class": "string",
+      "text": "current_ceo_name (string|null): The name of the current CEO of the developing organization. RETURN NULL IF NOT IN TEXT."
+    }
+  ],
+  "same_schema_rows": [
+    {
+      "case_id": "cultural_entities_casa_mareas",
+      "schema_fingerprint": "{\"$defs\":{\"Entity\":{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"label\":{\"$ref\":\"#/$defs/EntityType\",\"description\":\"\"},\"text\":{\"description\":\"\",\"title\":\"Text\",\"type\":\"string\"}},\"required\":[\"label\",\"text\"],\"title\":\"Entity\",\"type\":\"object\"},\"EntityType\":{\"enum\":[\"DATE\",\"EVENT\",\"LOCATION\",\"MISCELLANEOUS\",\"ORGANIZATION\",\"PERSON\"],\"title\":\"EntityType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"entities\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/Entity\"},\"title\":\"Entities\",\"type\":\"array\"}},\"title\":\"NamedEntities\",\"type\":\"object\"}",
+      "text": "cultural_entities_casa_mareas\nIdentifica las películas, estudios, personas, lugares, fechas y eventos mencionados en la noticia cultural.\nentities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "cultural_entities_jardin_orbital",
+      "schema_fingerprint": "{\"$defs\":{\"Entity\":{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"label\":{\"$ref\":\"#/$defs/EntityType\",\"description\":\"\"},\"text\":{\"description\":\"\",\"title\":\"Text\",\"type\":\"string\"}},\"required\":[\"label\",\"text\"],\"title\":\"Entity\",\"type\":\"object\"},\"EntityType\":{\"enum\":[\"DATE\",\"EVENT\",\"LOCATION\",\"MISCELLANEOUS\",\"ORGANIZATION\",\"PERSON\"],\"title\":\"EntityType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"entities\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/Entity\"},\"title\":\"Entities\",\"type\":\"array\"}},\"title\":\"NamedEntities\",\"type\":\"object\"}",
+      "text": "cultural_entities_jardin_orbital\nExtrae los nombres de películas, personas, personajes y lugares mencionados en la introducción de la crítica.\nentities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "cultural_extraction_miniserie_danesa",
+      "schema_fingerprint": "{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"answer\":{\"description\":\"\",\"title\":\"Answer\",\"type\":\"string\"}},\"required\":[\"answer\"],\"title\":\"TextAnswer\",\"type\":\"object\"}",
+      "text": "cultural_extraction_miniserie_danesa\n¿Quiénes protagonizan la miniserie 'Los mapas del invierno'?\nanswer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "cultural_extraction_vega_directora",
+      "schema_fingerprint": "{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"answer\":{\"description\":\"\",\"title\":\"Answer\",\"type\":\"string\"}},\"required\":[\"answer\"],\"title\":\"TextAnswer\",\"type\":\"object\"}",
+      "text": "cultural_extraction_vega_directora\n¿Quién dirigió la película 'La última noche de Vega'?\nanswer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "cultural_literature_ciudad_espejos",
+      "schema_fingerprint": "{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"author\":{\"description\":\"\",\"title\":\"Author\",\"type\":\"string\"},\"genres\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Genres\",\"type\":\"array\"},\"key_themes\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key Themes\",\"type\":\"array\"},\"original_language\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Original Language\"},\"publication_year\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Publication Year\"},\"title\":{\"description\":\"\",\"title\":\"Title\",\"type\":\"string\"}},\"required\":[\"author\",\"title\"],\"title\":\"LiteraryWork\",\"type\":\"object\"}",
+      "text": "cultural_literature_ciudad_espejos\nExtrae los metadatos bibliográficos y temas principales de la obra literaria descrita.\ntitle (string): The official title of the literary work\nauthor (string): The primary author or creator of the work\npublication_year (integer|null): The year the work was first published\ngenres (array of string): Literary genres associated with the work (e.g., 'Science Fiction', 'Romance')\nkey_themes (array of string): Main topics or themes explored in the work\noriginal_language (string|null): The language in which the work was originally written"
+    },
+    {
+      "case_id": "cultural_literature_libro_niebla",
+      "schema_fingerprint": "{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"author\":{\"description\":\"\",\"title\":\"Author\",\"type\":\"string\"},\"genres\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Genres\",\"type\":\"array\"},\"key_themes\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key Themes\",\"type\":\"array\"},\"original_language\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Original Language\"},\"publication_year\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Publication Year\"},\"title\":{\"description\":\"\",\"title\":\"Title\",\"type\":\"string\"}},\"required\":[\"author\",\"title\"],\"title\":\"LiteraryWork\",\"type\":\"object\"}",
+      "text": "cultural_literature_libro_niebla\nExtrae los metadatos bibliográficos y temas principales de la obra literaria descrita.\ntitle (string): The official title of the literary work\nauthor (string): The primary author or creator of the work\npublication_year (integer|null): The year the work was first published\ngenres (array of string): Literary genres associated with the work (e.g., 'Science Fiction', 'Romance')\nkey_themes (array of string): Main topics or themes explored in the work\noriginal_language (string|null): The language in which the work was originally written"
+    },
+    {
+      "case_id": "cultural_media_mixed_series",
+      "schema_fingerprint": "{\"$defs\":{\"MediumType\":{\"enum\":[\"BOOK\",\"MOVIE\",\"TV_SERIES\",\"VIDEO_GAME\"],\"title\":\"MediumType\",\"type\":\"string\"},\"Sentiment\":{\"enum\":[\"NEGATIVE\",\"NEUTRAL\",\"POSITIVE\"],\"title\":\"Sentiment\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"cons\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Cons\",\"type\":\"array\"},\"director\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Director\"},\"key_verdict\":{\"description\":\"\",\"title\":\"Key Verdict\",\"type\":\"string\"},\"main_cast\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Main Cast\",\"type\":\"array\"},\"medium\":{\"$ref\":\"#/$defs/MediumType\",\"description\":\"\"},\"pros\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Pros\",\"type\":\"array\"},\"rating\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Rating\"},\"release_year\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Release Year\"},\"sentiment\":{\"$ref\":\"#/$defs/Sentiment\",\"description\":\"\"},\"work_title\":{\"description\":\"\",\"title\":\"Work Title\",\"type\":\"string\"}},\"required\":[\"key_verdict\",\"medium\",\"sentiment\",\"work_title\"],\"title\":\"MediaReview\",\"type\":\"object\"}",
+      "text": "cultural_media_mixed_series\nExtrae la informaci?n de la cr?tica cultural, identificando la obra, medio, direcci?n, reparto, a?o, puntuaci?n, valoraci?n y veredicto final.\nwork_title (string): The name of the movie, book, or series\nmedium (enum[MediumType]): The type of media being reviewed\ndirector (string|null): The person who directed the film or series\nmain_cast (array of string): Key actors or performers mentioned in the review\nrelease_year (integer|null): The year the work was released\nrating (number|null): The score given by the reviewer, normalized to a 0-10 scale\nsentiment (enum[Sentiment]): Overall tone of the review\npros (array of string): Specific positive aspects highlighted by the critic\ncons (array of string): Specific negative aspects or flaws mentioned\nkey_verdict (string): A concise summary of the final judgment (e.g., 'Una copia barata', 'Fascinante rareza')"
+    },
+    {
+      "case_id": "cultural_media_negative_film",
+      "schema_fingerprint": "{\"$defs\":{\"MediumType\":{\"enum\":[\"BOOK\",\"MOVIE\",\"TV_SERIES\",\"VIDEO_GAME\"],\"title\":\"MediumType\",\"type\":\"string\"},\"Sentiment\":{\"enum\":[\"NEGATIVE\",\"NEUTRAL\",\"POSITIVE\"],\"title\":\"Sentiment\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"cons\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Cons\",\"type\":\"array\"},\"director\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Director\"},\"key_verdict\":{\"description\":\"\",\"title\":\"Key Verdict\",\"type\":\"string\"},\"main_cast\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Main Cast\",\"type\":\"array\"},\"medium\":{\"$ref\":\"#/$defs/MediumType\",\"description\":\"\"},\"pros\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Pros\",\"type\":\"array\"},\"rating\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Rating\"},\"release_year\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Release Year\"},\"sentiment\":{\"$ref\":\"#/$defs/Sentiment\",\"description\":\"\"},\"work_title\":{\"description\":\"\",\"title\":\"Work Title\",\"type\":\"string\"}},\"required\":[\"key_verdict\",\"medium\",\"sentiment\",\"work_title\"],\"title\":\"MediaReview\",\"type\":\"object\"}",
+      "text": "cultural_media_negative_film\nExtrae la informaci?n de la cr?tica cultural, identificando la obra, medio, direcci?n, reparto, a?o, puntuaci?n, valoraci?n y veredicto final.\nwork_title (string): The name of the movie, book, or series\nmedium (enum[MediumType]): The type of media being reviewed\ndirector (string|null): The person who directed the film or series\nmain_cast (array of string): Key actors or performers mentioned in the review\nrelease_year (integer|null): The year the work was released\nrating (number|null): The score given by the reviewer, normalized to a 0-10 scale\nsentiment (enum[Sentiment]): Overall tone of the review\npros (array of string): Specific positive aspects highlighted by the critic\ncons (array of string): Specific negative aspects or flaws mentioned\nkey_verdict (string): A concise summary of the final judgment (e.g., 'Una copia barata', 'Fascinante rareza')"
+    },
+    {
+      "case_id": "cultural_monuments_abrigos_solana",
+      "schema_fingerprint": "{\"$defs\":{\"BICCategory\":{\"enum\":[\"CONJUNTO HISTÓRICO\",\"JARDÍN HISTÓRICO\",\"MONUMENTO\",\"OTRO\",\"SITIO HISTÓRICO\",\"ZONA ARQUEOLÓGICA\"],\"title\":\"BICCategory\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"bic_category\":{\"$ref\":\"#/$defs/BICCategory\",\"description\":\"\"},\"declaration_date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Declaration Date\"},\"is_declared\":{\"default\":true,\"description\":\"\",\"title\":\"Is Declared\",\"type\":\"boolean\"},\"municipality\":{\"description\":\"\",\"title\":\"Municipality\",\"type\":\"string\"},\"official_name\":{\"description\":\"\",\"title\":\"Official Name\",\"type\":\"string\"},\"registration_code\":{\"description\":\"\",\"pattern\":\"^[A-Z\\\\-0-9]+$\",\"title\":\"Registration Code\",\"type\":\"string\"}},\"required\":[\"bic_category\",\"municipality\",\"official_name\",\"registration_code\"],\"title\":\"MonumentBIC\",\"type\":\"object\"}",
+      "text": "cultural_monuments_abrigos_solana\nExtrae la información del monumento o bien de interés cultural a partir del texto proporcionado, siguiendo el esquema indicado.\nofficial_name (string): The official name of the monument or protected site\nmunicipality (string): The municipality or city where the monument is located\nbic_category (enum[BICCategory]): The legal category of protection (e.g., Monumento, Jardín Histórico)\nregistration_code (string): The official registration ID (e.g., 'RI-51-0001091'). Must strictly follow the pattern.\ndeclaration_date (string|null): The date of the legal declaration in YYYY-MM-DD format (normalize from text)\nis_declared (boolean): True if the status is 'Declarado'; False if it is 'Incoado' (pending)"
+    },
+    {
+      "case_id": "cultural_monuments_puente_san_miguel",
+      "schema_fingerprint": "{\"$defs\":{\"BICCategory\":{\"enum\":[\"CONJUNTO HISTÓRICO\",\"JARDÍN HISTÓRICO\",\"MONUMENTO\",\"OTRO\",\"SITIO HISTÓRICO\",\"ZONA ARQUEOLÓGICA\"],\"title\":\"BICCategory\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"bic_category\":{\"$ref\":\"#/$defs/BICCategory\",\"description\":\"\"},\"declaration_date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Declaration Date\"},\"is_declared\":{\"default\":true,\"description\":\"\",\"title\":\"Is Declared\",\"type\":\"boolean\"},\"municipality\":{\"description\":\"\",\"title\":\"Municipality\",\"type\":\"string\"},\"official_name\":{\"description\":\"\",\"title\":\"Official Name\",\"type\":\"string\"},\"registration_code\":{\"description\":\"\",\"pattern\":\"^[A-Z\\\\-0-9]+$\",\"title\":\"Registration Code\",\"type\":\"string\"}},\"required\":[\"bic_category\",\"municipality\",\"official_name\",\"registration_code\"],\"title\":\"MonumentBIC\",\"type\":\"object\"}",
+      "text": "cultural_monuments_puente_san_miguel\nExtrae la información del monumento o bien de interés cultural a partir del texto proporcionado, siguiendo el esquema indicado.\nofficial_name (string): The official name of the monument or protected site\nmunicipality (string): The municipality or city where the monument is located\nbic_category (enum[BICCategory]): The legal category of protection (e.g., Monumento, Jardín Histórico)\nregistration_code (string): The official registration ID (e.g., 'RI-51-0001091'). Must strictly follow the pattern.\ndeclaration_date (string|null): The date of the legal declaration in YYYY-MM-DD format (normalize from text)\nis_declared (boolean): True if the status is 'Declarado'; False if it is 'Incoado' (pending)"
+    },
+    {
+      "case_id": "environmental_ecology_derrame_rio_san_juan",
+      "schema_fingerprint": "{\"$defs\":{\"NewsCategory\":{\"enum\":[\"CULTURE\",\"DISASTER\",\"ECONOMY\",\"ENVIRONMENT\",\"HEALTH\",\"JUDICIAL\",\"OTHER\",\"POLITICS\",\"SCIENCE\",\"SPORTS\"],\"title\":\"NewsCategory\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"affected_count\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Affected Count\"},\"casualties\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Casualties\"},\"category\":{\"$ref\":\"#/$defs/NewsCategory\",\"description\":\"\"},\"date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Date\"},\"headline\":{\"description\":\"\",\"title\":\"Headline\",\"type\":\"string\"},\"injured\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Injured\"},\"key_organizations\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key Organizations\",\"type\":\"array\"},\"key_people\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key People\",\"type\":\"array\"},\"location\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Location\"},\"summary\":{\"description\":\"\",\"title\":\"Summary\",\"type\":\"string\"}},\"required\":[\"category\",\"headline\",\"summary\"],\"title\":\"NewsArticle\",\"type\":\"object\"}",
+      "text": "environmental_ecology_derrame_rio_san_juan\nExtrae la información estructurada de este artículo de noticias sobre un evento medioambiental, incluyendo el titular, resumen, categoría, ubicación, personas y organizaciones clave mencionadas, y cualquier cifra de víctimas o afectados si se menciona.\nheadline (string): The main headline or title of the news article\nsummary (string): A brief summary of the main facts reported (1-3 sentences)\ncategory (enum[NewsCategory]): The thematic category of the news story\nlocation (string|null): Geographic location where the event occurred (city, country, or region)\ndate (string|null): Date mentioned in the article (may be implicit or explicit)\nkey_people (array of string): Names of key individuals mentioned in the article\nkey_organizations (array of string): Names of organizations, companies, or governments mentioned\ncasualties (integer|null): Number of deaths mentioned, if any\ninjured (integer|null): Number of people injured, if any\naffected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "environmental_ecology_turberas_respiratorias",
+      "schema_fingerprint": "{\"$defs\":{\"NewsCategory\":{\"enum\":[\"CULTURE\",\"DISASTER\",\"ECONOMY\",\"ENVIRONMENT\",\"HEALTH\",\"JUDICIAL\",\"OTHER\",\"POLITICS\",\"SCIENCE\",\"SPORTS\"],\"title\":\"NewsCategory\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"affected_count\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Affected Count\"},\"casualties\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Casualties\"},\"category\":{\"$ref\":\"#/$defs/NewsCategory\",\"description\":\"\"},\"date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Date\"},\"headline\":{\"description\":\"\",\"title\":\"Headline\",\"type\":\"string\"},\"injured\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Injured\"},\"key_organizations\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key Organizations\",\"type\":\"array\"},\"key_people\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key People\",\"type\":\"array\"},\"location\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Location\"},\"summary\":{\"description\":\"\",\"title\":\"Summary\",\"type\":\"string\"}},\"required\":[\"category\",\"headline\",\"summary\"],\"title\":\"NewsArticle\",\"type\":\"object\"}",
+      "text": "environmental_ecology_turberas_respiratorias\nExtrae la información estructurada de este artículo de noticias sobre medio ambiente y crisis climática, siguiendo el esquema proporcionado. Devuelve null para los campos que no se mencionan en el texto.\nheadline (string): The main headline or title of the news article\nsummary (string): A brief summary of the main facts reported (1-3 sentences)\ncategory (enum[NewsCategory]): The thematic category of the news story\nlocation (string|null): Geographic location where the event occurred (city, country, or region)\ndate (string|null): Date mentioned in the article (may be implicit or explicit)\nkey_people (array of string): Names of key individuals mentioned in the article\nkey_organizations (array of string): Names of organizations, companies, or governments mentioned\ncasualties (integer|null): Number of deaths mentioned, if any\ninjured (integer|null): Number of people injured, if any\naffected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "general_disasters_alud_santa_lidia",
+      "schema_fingerprint": "{\"$defs\":{\"NewsCategory\":{\"enum\":[\"CULTURE\",\"DISASTER\",\"ECONOMY\",\"ENVIRONMENT\",\"HEALTH\",\"JUDICIAL\",\"OTHER\",\"POLITICS\",\"SCIENCE\",\"SPORTS\"],\"title\":\"NewsCategory\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"affected_count\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Affected Count\"},\"casualties\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Casualties\"},\"category\":{\"$ref\":\"#/$defs/NewsCategory\",\"description\":\"\"},\"date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Date\"},\"headline\":{\"description\":\"\",\"title\":\"Headline\",\"type\":\"string\"},\"injured\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Injured\"},\"key_organizations\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key Organizations\",\"type\":\"array\"},\"key_people\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key People\",\"type\":\"array\"},\"location\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Location\"},\"summary\":{\"description\":\"\",\"title\":\"Summary\",\"type\":\"string\"}},\"required\":[\"category\",\"headline\",\"summary\"],\"title\":\"NewsArticle\",\"type\":\"object\"}",
+      "text": "general_disasters_alud_santa_lidia\nExtrae la información estructurada de este artículo de noticias sobre un desastre natural, siguiendo el esquema proporcionado. Devuelve null para los campos que no se mencionan en el texto.\nheadline (string): The main headline or title of the news article\nsummary (string): A brief summary of the main facts reported (1-3 sentences)\ncategory (enum[NewsCategory]): The thematic category of the news story\nlocation (string|null): Geographic location where the event occurred (city, country, or region)\ndate (string|null): Date mentioned in the article (may be implicit or explicit)\nkey_people (array of string): Names of key individuals mentioned in the article\nkey_organizations (array of string): Names of organizations, companies, or governments mentioned\ncasualties (integer|null): Number of deaths mentioned, if any\ninjured (integer|null): Number of people injured, if any\naffected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "general_disasters_tifon_luma",
+      "schema_fingerprint": "{\"$defs\":{\"NewsCategory\":{\"enum\":[\"CULTURE\",\"DISASTER\",\"ECONOMY\",\"ENVIRONMENT\",\"HEALTH\",\"JUDICIAL\",\"OTHER\",\"POLITICS\",\"SCIENCE\",\"SPORTS\"],\"title\":\"NewsCategory\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"affected_count\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Affected Count\"},\"casualties\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Casualties\"},\"category\":{\"$ref\":\"#/$defs/NewsCategory\",\"description\":\"\"},\"date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Date\"},\"headline\":{\"description\":\"\",\"title\":\"Headline\",\"type\":\"string\"},\"injured\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Injured\"},\"key_organizations\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key Organizations\",\"type\":\"array\"},\"key_people\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key People\",\"type\":\"array\"},\"location\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Location\"},\"summary\":{\"description\":\"\",\"title\":\"Summary\",\"type\":\"string\"}},\"required\":[\"category\",\"headline\",\"summary\"],\"title\":\"NewsArticle\",\"type\":\"object\"}",
+      "text": "general_disasters_tifon_luma\nExtrae la información estructurada de este artículo de noticias sobre un fenómeno meteorológico, incluyendo el titular, resumen, categoría, ubicación, organizaciones clave, y cualquier cifra de víctimas o afectados mencionada.\nheadline (string): The main headline or title of the news article\nsummary (string): A brief summary of the main facts reported (1-3 sentences)\ncategory (enum[NewsCategory]): The thematic category of the news story\nlocation (string|null): Geographic location where the event occurred (city, country, or region)\ndate (string|null): Date mentioned in the article (may be implicit or explicit)\nkey_people (array of string): Names of key individuals mentioned in the article\nkey_organizations (array of string): Names of organizations, companies, or governments mentioned\ncasualties (integer|null): Number of deaths mentioned, if any\ninjured (integer|null): Number of people injured, if any\naffected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "legal_contracts_compraventa_maquinaria_agricola",
+      "schema_fingerprint": "{\"$defs\":{\"ContractType\":{\"enum\":[\"ACUERDO MARCO\",\"COMPRAVENTA\",\"CONFIDENCIALIDAD\",\"LABORAL\",\"OTRO\",\"PRESTACIÓN DE SERVICIOS\"],\"title\":\"ContractType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"contract_title\":{\"description\":\"\",\"title\":\"Contract Title\",\"type\":\"string\"},\"contract_type\":{\"$ref\":\"#/$defs/ContractType\",\"description\":\"\"},\"effective_date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Effective Date\"},\"governing_law_jurisdiction\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Governing Law Jurisdiction\"},\"has_liability_limitation\":{\"default\":false,\"description\":\"\",\"title\":\"Has Liability Limitation\",\"type\":\"boolean\"},\"has_nda_clause\":{\"default\":false,\"description\":\"\",\"title\":\"Has Nda Clause\",\"type\":\"boolean\"},\"monetary_amount\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Monetary Amount\"},\"parties\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Parties\",\"type\":\"array\"},\"total_clauses\":{\"description\":\"\",\"title\":\"Total Clauses\",\"type\":\"integer\"}},\"required\":[\"contract_title\",\"contract_type\",\"parties\",\"total_clauses\"],\"title\":\"ContractSummary\",\"type\":\"object\"}",
+      "text": "legal_contracts_compraventa_maquinaria_agricola\nExtrae el resumen del contrato o acto legislativo\ncontract_title (string): The formal title or heading of the contract\ncontract_type (enum[ContractType]): The broad legal category of the agreement\neffective_date (string|null): The date the contract goes into effect (YYYY-MM-DD or verbatim)\nparties (array of string): The names of the individuals or organizations entering into the agreement\ntotal_clauses (integer): Total number of numbered or named sections (e.g., PRIMERO, SEGUNDO...)\ngoverning_law_jurisdiction (string|null): The state, country, or jurisdiction whose laws govern the contract\nhas_nda_clause (boolean): True if the text explicitly mentions confidentiality or non-disclosure\nhas_liability_limitation (boolean): True if there is an explicit clause limiting or exempting liability\nmonetary_amount (number|null): Total amount of the contract if specified numerically"
+    },
+    {
+      "case_id": "legal_contracts_servicios_aurora",
+      "schema_fingerprint": "{\"$defs\":{\"ContractType\":{\"enum\":[\"ACUERDO MARCO\",\"COMPRAVENTA\",\"CONFIDENCIALIDAD\",\"LABORAL\",\"OTRO\",\"PRESTACIÓN DE SERVICIOS\"],\"title\":\"ContractType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"contract_title\":{\"description\":\"\",\"title\":\"Contract Title\",\"type\":\"string\"},\"contract_type\":{\"$ref\":\"#/$defs/ContractType\",\"description\":\"\"},\"effective_date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Effective Date\"},\"governing_law_jurisdiction\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Governing Law Jurisdiction\"},\"has_liability_limitation\":{\"default\":false,\"description\":\"\",\"title\":\"Has Liability Limitation\",\"type\":\"boolean\"},\"has_nda_clause\":{\"default\":false,\"description\":\"\",\"title\":\"Has Nda Clause\",\"type\":\"boolean\"},\"monetary_amount\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Monetary Amount\"},\"parties\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Parties\",\"type\":\"array\"},\"total_clauses\":{\"description\":\"\",\"title\":\"Total Clauses\",\"type\":\"integer\"}},\"required\":[\"contract_title\",\"contract_type\",\"parties\",\"total_clauses\"],\"title\":\"ContractSummary\",\"type\":\"object\"}",
+      "text": "legal_contracts_servicios_aurora\nExtrae el resumen del contrato o acto legislativo\ncontract_title (string): The formal title or heading of the contract\ncontract_type (enum[ContractType]): The broad legal category of the agreement\neffective_date (string|null): The date the contract goes into effect (YYYY-MM-DD or verbatim)\nparties (array of string): The names of the individuals or organizations entering into the agreement\ntotal_clauses (integer): Total number of numbered or named sections (e.g., PRIMERO, SEGUNDO...)\ngoverning_law_jurisdiction (string|null): The state, country, or jurisdiction whose laws govern the contract\nhas_nda_clause (boolean): True if the text explicitly mentions confidentiality or non-disclosure\nhas_liability_limitation (boolean): True if there is an explicit clause limiting or exempting liability\nmonetary_amount (number|null): Total amount of the contract if specified numerically"
+    },
+    {
+      "case_id": "legal_entities_isabel_ii",
+      "schema_fingerprint": "{\"$defs\":{\"Entity\":{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"label\":{\"$ref\":\"#/$defs/EntityType\",\"description\":\"\"},\"text\":{\"description\":\"\",\"title\":\"Text\",\"type\":\"string\"}},\"required\":[\"label\",\"text\"],\"title\":\"Entity\",\"type\":\"object\"},\"EntityType\":{\"enum\":[\"DATE\",\"EVENT\",\"LOCATION\",\"MISCELLANEOUS\",\"ORGANIZATION\",\"PERSON\"],\"title\":\"EntityType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"entities\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/Entity\"},\"title\":\"Entities\",\"type\":\"array\"}},\"title\":\"NamedEntities\",\"type\":\"object\"}",
+      "text": "legal_entities_isabel_ii\nExtrae las entidades nombradas (personas, organizaciones, lugares) mencionadas en el encabezado y preámbulo de la Ley Fundamental.\nentities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "legal_entities_rd_48_2026",
+      "schema_fingerprint": "{\"$defs\":{\"Entity\":{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"label\":{\"$ref\":\"#/$defs/EntityType\",\"description\":\"\"},\"text\":{\"description\":\"\",\"title\":\"Text\",\"type\":\"string\"}},\"required\":[\"label\",\"text\"],\"title\":\"Entity\",\"type\":\"object\"},\"EntityType\":{\"enum\":[\"DATE\",\"EVENT\",\"LOCATION\",\"MISCELLANEOUS\",\"ORGANIZATION\",\"PERSON\"],\"title\":\"EntityType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"entities\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/Entity\"},\"title\":\"Entities\",\"type\":\"array\"}},\"title\":\"NamedEntities\",\"type\":\"object\"}",
+      "text": "legal_entities_rd_48_2026\nIdentifica las entidades nombradas (normas, organismos, lugares y fechas) mencionadas en el fragmento del real decreto.\nentities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "legal_extraction_capitalidad_valdoria",
+      "schema_fingerprint": "{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"answer\":{\"description\":\"\",\"title\":\"Answer\",\"type\":\"string\"}},\"required\":[\"answer\"],\"title\":\"TextAnswer\",\"type\":\"object\"}",
+      "text": "legal_extraction_capitalidad_valdoria\n¿A qué ciudad corresponde la capitalidad administrativa de la Comunidad Autónoma?\nanswer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "legal_extraction_iniciativa_popular",
+      "schema_fingerprint": "{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"answer\":{\"description\":\"\",\"title\":\"Answer\",\"type\":\"string\"}},\"required\":[\"answer\"],\"title\":\"TextAnswer\",\"type\":\"object\"}",
+      "text": "legal_extraction_iniciativa_popular\n¿Qué porcentaje de vecinos debe suscribir la iniciativa popular?\nanswer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "legal_judicial_estafa_cuenta_clara",
+      "schema_fingerprint": "{\"$defs\":{\"NewsCategory\":{\"enum\":[\"CULTURE\",\"DISASTER\",\"ECONOMY\",\"ENVIRONMENT\",\"HEALTH\",\"JUDICIAL\",\"OTHER\",\"POLITICS\",\"SCIENCE\",\"SPORTS\"],\"title\":\"NewsCategory\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"affected_count\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Affected Count\"},\"casualties\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Casualties\"},\"category\":{\"$ref\":\"#/$defs/NewsCategory\",\"description\":\"\"},\"date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Date\"},\"headline\":{\"description\":\"\",\"title\":\"Headline\",\"type\":\"string\"},\"injured\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Injured\"},\"key_organizations\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key Organizations\",\"type\":\"array\"},\"key_people\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key People\",\"type\":\"array\"},\"location\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Location\"},\"summary\":{\"description\":\"\",\"title\":\"Summary\",\"type\":\"string\"}},\"required\":[\"category\",\"headline\",\"summary\"],\"title\":\"NewsArticle\",\"type\":\"object\"}",
+      "text": "legal_judicial_estafa_cuenta_clara\nExtrae la información estructurada de este artículo de noticias judiciales, identificando personas clave, organizaciones involucradas y cifras humanas mencionadas.\nheadline (string): The main headline or title of the news article\nsummary (string): A brief summary of the main facts reported (1-3 sentences)\ncategory (enum[NewsCategory]): The thematic category of the news story\nlocation (string|null): Geographic location where the event occurred (city, country, or region)\ndate (string|null): Date mentioned in the article (may be implicit or explicit)\nkey_people (array of string): Names of key individuals mentioned in the article\nkey_organizations (array of string): Names of organizations, companies, or governments mentioned\ncasualties (integer|null): Number of deaths mentioned, if any\ninjured (integer|null): Number of people injured, if any\naffected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "legal_judicial_redada_los_cobres",
+      "schema_fingerprint": "{\"$defs\":{\"NewsCategory\":{\"enum\":[\"CULTURE\",\"DISASTER\",\"ECONOMY\",\"ENVIRONMENT\",\"HEALTH\",\"JUDICIAL\",\"OTHER\",\"POLITICS\",\"SCIENCE\",\"SPORTS\"],\"title\":\"NewsCategory\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"affected_count\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Affected Count\"},\"casualties\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Casualties\"},\"category\":{\"$ref\":\"#/$defs/NewsCategory\",\"description\":\"\"},\"date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Date\"},\"headline\":{\"description\":\"\",\"title\":\"Headline\",\"type\":\"string\"},\"injured\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Injured\"},\"key_organizations\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key Organizations\",\"type\":\"array\"},\"key_people\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key People\",\"type\":\"array\"},\"location\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Location\"},\"summary\":{\"description\":\"\",\"title\":\"Summary\",\"type\":\"string\"}},\"required\":[\"category\",\"headline\",\"summary\"],\"title\":\"NewsArticle\",\"type\":\"object\"}",
+      "text": "legal_judicial_redada_los_cobres\nExtrae la información estructurada de este artículo de noticias sobre un operativo policial, incluyendo el titular, resumen, categoría, ubicación, organizaciones clave, y cualquier cifra de víctimas o heridos mencionada.\nheadline (string): The main headline or title of the news article\nsummary (string): A brief summary of the main facts reported (1-3 sentences)\ncategory (enum[NewsCategory]): The thematic category of the news story\nlocation (string|null): Geographic location where the event occurred (city, country, or region)\ndate (string|null): Date mentioned in the article (may be implicit or explicit)\nkey_people (array of string): Names of key individuals mentioned in the article\nkey_organizations (array of string): Names of organizations, companies, or governments mentioned\ncasualties (integer|null): Number of deaths mentioned, if any\ninjured (integer|null): Number of people injured, if any\naffected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "legal_legislation_patios_verdes_valenciana",
+      "schema_fingerprint": "{\"$defs\":{\"JurisdictionScope\":{\"enum\":[\"AUTONÓMICO\",\"EUROPEO\",\"LOCAL\",\"NACIONAL\"],\"title\":\"JurisdictionScope\",\"type\":\"string\"},\"LawRange\":{\"enum\":[\"CONSTITUCIÓN\",\"LEY ORDINARIA\",\"LEY ORGÁNICA\",\"OTRA\",\"REAL DECRETO\",\"REAL DECRETO-LEY\"],\"title\":\"LawRange\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"affected_articles\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Affected Articles\",\"type\":\"array\"},\"is_repealed\":{\"description\":\"\",\"title\":\"Is Repealed\",\"type\":\"boolean\"},\"jurisdiction\":{\"$ref\":\"#/$defs/JurisdictionScope\",\"description\":\"\"},\"law_range\":{\"$ref\":\"#/$defs/LawRange\",\"description\":\"\"},\"official_title\":{\"description\":\"\",\"title\":\"Official Title\",\"type\":\"string\"},\"sanction_date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Sanction Date\"}},\"required\":[\"is_repealed\",\"jurisdiction\",\"law_range\",\"official_title\"],\"title\":\"LegislativeAct\",\"type\":\"object\"}",
+      "text": "legal_legislation_patios_verdes_valenciana\nExtrae el resumen del contrato o acto legislativo.\nofficial_title (string): Full official title of the law\nlaw_range (enum[LawRange]): The legal rank of the norm\nsanction_date (string|null): Date of sanction in YYYY-MM-DD\njurisdiction (enum[JurisdictionScope]): The scope of application\nis_repealed (boolean): True if the text mentions the law is no longer in effect or has been replaced\naffected_articles (array of string): List of specific articles mentioned as modified or relevant"
+    },
+    {
+      "case_id": "legal_legislation_rdley_ahorro_energetico",
+      "schema_fingerprint": "{\"$defs\":{\"JurisdictionScope\":{\"enum\":[\"AUTONÓMICO\",\"EUROPEO\",\"LOCAL\",\"NACIONAL\"],\"title\":\"JurisdictionScope\",\"type\":\"string\"},\"LawRange\":{\"enum\":[\"CONSTITUCIÓN\",\"LEY ORDINARIA\",\"LEY ORGÁNICA\",\"OTRA\",\"REAL DECRETO\",\"REAL DECRETO-LEY\"],\"title\":\"LawRange\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"affected_articles\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Affected Articles\",\"type\":\"array\"},\"is_repealed\":{\"description\":\"\",\"title\":\"Is Repealed\",\"type\":\"boolean\"},\"jurisdiction\":{\"$ref\":\"#/$defs/JurisdictionScope\",\"description\":\"\"},\"law_range\":{\"$ref\":\"#/$defs/LawRange\",\"description\":\"\"},\"official_title\":{\"description\":\"\",\"title\":\"Official Title\",\"type\":\"string\"},\"sanction_date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Sanction Date\"}},\"required\":[\"is_repealed\",\"jurisdiction\",\"law_range\",\"official_title\"],\"title\":\"LegislativeAct\",\"type\":\"object\"}",
+      "text": "legal_legislation_rdley_ahorro_energetico\nExtrae el resumen del contrato o acto legislativo.\nofficial_title (string): Full official title of the law\nlaw_range (enum[LawRange]): The legal rank of the norm\nsanction_date (string|null): Date of sanction in YYYY-MM-DD\njurisdiction (enum[JurisdictionScope]): The scope of application\nis_repealed (boolean): True if the text mentions the law is no longer in effect or has been replaced\naffected_articles (array of string): List of specific articles mentioned as modified or relevant"
+    },
+    {
+      "case_id": "lifestyle_recipes_berenjenas_tahini",
+      "schema_fingerprint": "{\"$defs\":{\"CookingTechnique\":{\"enum\":[\"COCCIÓN LENTA\",\"FREÍR\",\"HERVIR\",\"HORNEAR\",\"SOFREÍR\",\"VAPOR\"],\"title\":\"CookingTechnique\",\"type\":\"string\"},\"DietaryTag\":{\"enum\":[\"BAJO EN CARBOHIDRATOS\",\"SIN GLUTEN\",\"SIN LÁCTEOS\",\"VEGANO\",\"VEGETARIANO\"],\"title\":\"DietaryTag\",\"type\":\"string\"},\"RecipeIngredient\":{\"additionalProperties\":false,\"properties\":{\"amount\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Amount\"},\"name\":{\"description\":\"\",\"title\":\"Name\",\"type\":\"string\"},\"unit\":{\"anyOf\":[{\"$ref\":\"#/$defs/UnitType\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\"}},\"required\":[\"name\"],\"title\":\"RecipeIngredient\",\"type\":\"object\"},\"UnitType\":{\"enum\":[\"cucharada\",\"g\",\"kg\",\"ml\",\"otro\",\"pizca\",\"unidad\"],\"title\":\"UnitType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"complexity_score\":{\"description\":\"\",\"maximum\":10,\"minimum\":1,\"title\":\"Complexity Score\",\"type\":\"integer\"},\"dietary_tags\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/DietaryTag\"},\"title\":\"Dietary Tags\",\"type\":\"array\"},\"dish_name\":{\"description\":\"\",\"title\":\"Dish Name\",\"type\":\"string\"},\"ingredients\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/RecipeIngredient\"},\"title\":\"Ingredients\",\"type\":\"array\"},\"servings\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Servings\"},\"technique_sequence\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/CookingTechnique\"},\"title\":\"Technique Sequence\",\"type\":\"array\"},\"total_time_minutes\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Total Time Minutes\"}},\"required\":[\"complexity_score\",\"dish_name\",\"ingredients\",\"technique_sequence\"],\"title\":\"RecipeProcedural\",\"type\":\"object\"}",
+      "text": "lifestyle_recipes_berenjenas_tahini\nExtrae la receta.\ndish_name (string): The name of the recipe\nservings (integer|null): Number of portions generated\ningredients (array of object): Structured list of ingredients\ncomplexity_score (integer): Inferred difficulty from 1 (easy) to 10 (pro chef) based on steps and time\ndietary_tags (array of enum[DietaryTag]): Reasoned tags based on the absence of certain ingredient types (e.g., meat, gluten)\ntechnique_sequence (array of enum[CookingTechnique]): The chronological sequence of main cooking techniques applied\ntotal_time_minutes (integer|null): Normalized total duration in minutes"
+    },
+    {
+      "case_id": "lifestyle_recipes_costillas_cerveza_negra",
+      "schema_fingerprint": "{\"$defs\":{\"CookingTechnique\":{\"enum\":[\"COCCIÓN LENTA\",\"FREÍR\",\"HERVIR\",\"HORNEAR\",\"SOFREÍR\",\"VAPOR\"],\"title\":\"CookingTechnique\",\"type\":\"string\"},\"DietaryTag\":{\"enum\":[\"BAJO EN CARBOHIDRATOS\",\"SIN GLUTEN\",\"SIN LÁCTEOS\",\"VEGANO\",\"VEGETARIANO\"],\"title\":\"DietaryTag\",\"type\":\"string\"},\"RecipeIngredient\":{\"additionalProperties\":false,\"properties\":{\"amount\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Amount\"},\"name\":{\"description\":\"\",\"title\":\"Name\",\"type\":\"string\"},\"unit\":{\"anyOf\":[{\"$ref\":\"#/$defs/UnitType\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\"}},\"required\":[\"name\"],\"title\":\"RecipeIngredient\",\"type\":\"object\"},\"UnitType\":{\"enum\":[\"cucharada\",\"g\",\"kg\",\"ml\",\"otro\",\"pizca\",\"unidad\"],\"title\":\"UnitType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"complexity_score\":{\"description\":\"\",\"maximum\":10,\"minimum\":1,\"title\":\"Complexity Score\",\"type\":\"integer\"},\"dietary_tags\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/DietaryTag\"},\"title\":\"Dietary Tags\",\"type\":\"array\"},\"dish_name\":{\"description\":\"\",\"title\":\"Dish Name\",\"type\":\"string\"},\"ingredients\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/RecipeIngredient\"},\"title\":\"Ingredients\",\"type\":\"array\"},\"servings\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Servings\"},\"technique_sequence\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/CookingTechnique\"},\"title\":\"Technique Sequence\",\"type\":\"array\"},\"total_time_minutes\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Total Time Minutes\"}},\"required\":[\"complexity_score\",\"dish_name\",\"ingredients\",\"technique_sequence\"],\"title\":\"RecipeProcedural\",\"type\":\"object\"}",
+      "text": "lifestyle_recipes_costillas_cerveza_negra\nExtrae la receta.\ndish_name (string): The name of the recipe\nservings (integer|null): Number of portions generated\ningredients (array of object): Structured list of ingredients\ncomplexity_score (integer): Inferred difficulty from 1 (easy) to 10 (pro chef) based on steps and time\ndietary_tags (array of enum[DietaryTag]): Reasoned tags based on the absence of certain ingredient types (e.g., meat, gluten)\ntechnique_sequence (array of enum[CookingTechnique]): The chronological sequence of main cooking techniques applied\ntotal_time_minutes (integer|null): Normalized total duration in minutes"
+    },
+    {
+      "case_id": "medical_diseases_faringitis_estreptococica",
+      "schema_fingerprint": "{\"$defs\":{\"EtiologyType\":{\"enum\":[\"AUTOIMMUNE\",\"DEGENERATIVE\",\"GENETIC\",\"INFECTIOUS\",\"OTHER\",\"UNKNOWN\"],\"title\":\"EtiologyType\",\"type\":\"string\"},\"Symptom\":{\"additionalProperties\":false,\"properties\":{\"is_primary\":{\"default\":true,\"description\":\"\",\"title\":\"Is Primary\",\"type\":\"boolean\"},\"name\":{\"description\":\"\",\"title\":\"Name\",\"type\":\"string\"},\"severity_level\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Severity Level\"}},\"required\":[\"name\"],\"title\":\"Symptom\",\"type\":\"object\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"diagnosis_methods\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Diagnosis Methods\",\"type\":\"array\"},\"etiology_description\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Etiology Description\"},\"etiology_type\":{\"$ref\":\"#/$defs/EtiologyType\",\"description\":\"\"},\"is_chronic\":{\"anyOf\":[{\"type\":\"boolean\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Is Chronic\"},\"pathology_name\":{\"description\":\"\",\"title\":\"Pathology Name\",\"type\":\"string\"},\"symptoms\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/Symptom\"},\"title\":\"Symptoms\",\"type\":\"array\"}},\"required\":[\"etiology_type\",\"pathology_name\"],\"title\":\"DiseaseProfile\",\"type\":\"object\"}",
+      "text": "medical_diseases_faringitis_estreptococica\nExtrae el perfil de la enfermedad.\npathology_name (string): The medical name of the disease or disorder\netiology_type (enum[EtiologyType]): The primary origin or cause of the disease\netiology_description (string|null): A brief summary of how the disease is caused\nsymptoms (array of object): Structured list of reported symptoms\ndiagnosis_methods (array of string): Clinical tests or methods mentioned for identifying the pathology\nis_chronic (boolean|null): True if the text explicitly defines the disease as chronic or long-term"
+    },
+    {
+      "case_id": "medical_diseases_migrana_cronica",
+      "schema_fingerprint": "{\"$defs\":{\"EtiologyType\":{\"enum\":[\"AUTOIMMUNE\",\"DEGENERATIVE\",\"GENETIC\",\"INFECTIOUS\",\"OTHER\",\"UNKNOWN\"],\"title\":\"EtiologyType\",\"type\":\"string\"},\"Symptom\":{\"additionalProperties\":false,\"properties\":{\"is_primary\":{\"default\":true,\"description\":\"\",\"title\":\"Is Primary\",\"type\":\"boolean\"},\"name\":{\"description\":\"\",\"title\":\"Name\",\"type\":\"string\"},\"severity_level\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Severity Level\"}},\"required\":[\"name\"],\"title\":\"Symptom\",\"type\":\"object\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"diagnosis_methods\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Diagnosis Methods\",\"type\":\"array\"},\"etiology_description\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Etiology Description\"},\"etiology_type\":{\"$ref\":\"#/$defs/EtiologyType\",\"description\":\"\"},\"is_chronic\":{\"anyOf\":[{\"type\":\"boolean\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Is Chronic\"},\"pathology_name\":{\"description\":\"\",\"title\":\"Pathology Name\",\"type\":\"string\"},\"symptoms\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/Symptom\"},\"title\":\"Symptoms\",\"type\":\"array\"}},\"required\":[\"etiology_type\",\"pathology_name\"],\"title\":\"DiseaseProfile\",\"type\":\"object\"}",
+      "text": "medical_diseases_migrana_cronica\nExtrae el perfil de la enfermedad.\npathology_name (string): The medical name of the disease or disorder\netiology_type (enum[EtiologyType]): The primary origin or cause of the disease\netiology_description (string|null): A brief summary of how the disease is caused\nsymptoms (array of object): Structured list of reported symptoms\ndiagnosis_methods (array of string): Clinical tests or methods mentioned for identifying the pathology\nis_chronic (boolean|null): True if the text explicitly defines the disease as chronic or long-term"
+    },
+    {
+      "case_id": "medical_drug_ibuprofeno_lumen",
+      "schema_fingerprint": "{\"$defs\":{\"FrequencyLevel\":{\"enum\":[\"HIGH\",\"LOW\",\"MEDIUM\",\"UNKNOWN\"],\"title\":\"FrequencyLevel\",\"type\":\"string\"},\"ImpactLevel\":{\"enum\":[\"CRITICAL\",\"MILD\",\"MODERATE\",\"SEVERE\"],\"title\":\"ImpactLevel\",\"type\":\"string\"},\"SideEffect\":{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"impact\":{\"$ref\":\"#/$defs/ImpactLevel\",\"description\":\"\"},\"probability\":{\"$ref\":\"#/$defs/FrequencyLevel\",\"description\":\"\"},\"reaction\":{\"description\":\"\",\"title\":\"Reaction\",\"type\":\"string\"},\"system_organ_class\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"System Organ Class\"}},\"required\":[\"impact\",\"probability\",\"reaction\"],\"title\":\"SideEffect\",\"type\":\"object\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"common_name\":{\"description\":\"\",\"title\":\"Common Name\",\"type\":\"string\"},\"is_pediatric\":{\"description\":\"\",\"title\":\"Is Pediatric\",\"type\":\"boolean\"},\"official_name\":{\"description\":\"\",\"title\":\"Official Name\",\"type\":\"string\"},\"pharmaceutical_format\":{\"description\":\"\",\"title\":\"Pharmaceutical Format\",\"type\":\"string\"},\"side_effects\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/SideEffect\"},\"title\":\"Side Effects\",\"type\":\"array\"},\"standard_doses\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Standard Doses\",\"type\":\"array\"}},\"required\":[\"common_name\",\"is_pediatric\",\"official_name\",\"pharmaceutical_format\"],\"title\":\"DrugDescription\",\"type\":\"object\"}",
+      "text": "medical_drug_ibuprofeno_lumen\nExtrae la descripción estructurada del medicamento, incluyendo su uso en población pediátrica y la lista detallada de efectos adversos.\ncommon_name (string): The generic name of the active principle\nofficial_name (string): The full commercial or official name of the drug\npharmaceutical_format (string): The physical form (e.g., Comprimido, Cápsula, Solución)\nstandard_doses (array of string): List of available strengths or doses mentioned (e.g., ['1 g', '500 mg'])\nis_pediatric (boolean): True if the drug is indicated for children or infants\nside_effects (array of object): Structured list of all adverse reactions found in section 4.8"
+    },
+    {
+      "case_id": "medical_drug_paracetamol_codeina_nova",
+      "schema_fingerprint": "{\"$defs\":{\"FrequencyLevel\":{\"enum\":[\"HIGH\",\"LOW\",\"MEDIUM\",\"UNKNOWN\"],\"title\":\"FrequencyLevel\",\"type\":\"string\"},\"ImpactLevel\":{\"enum\":[\"CRITICAL\",\"MILD\",\"MODERATE\",\"SEVERE\"],\"title\":\"ImpactLevel\",\"type\":\"string\"},\"SideEffect\":{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"impact\":{\"$ref\":\"#/$defs/ImpactLevel\",\"description\":\"\"},\"probability\":{\"$ref\":\"#/$defs/FrequencyLevel\",\"description\":\"\"},\"reaction\":{\"description\":\"\",\"title\":\"Reaction\",\"type\":\"string\"},\"system_organ_class\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"System Organ Class\"}},\"required\":[\"impact\",\"probability\",\"reaction\"],\"title\":\"SideEffect\",\"type\":\"object\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"common_name\":{\"description\":\"\",\"title\":\"Common Name\",\"type\":\"string\"},\"is_pediatric\":{\"description\":\"\",\"title\":\"Is Pediatric\",\"type\":\"boolean\"},\"official_name\":{\"description\":\"\",\"title\":\"Official Name\",\"type\":\"string\"},\"pharmaceutical_format\":{\"description\":\"\",\"title\":\"Pharmaceutical Format\",\"type\":\"string\"},\"side_effects\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/SideEffect\"},\"title\":\"Side Effects\",\"type\":\"array\"},\"standard_doses\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Standard Doses\",\"type\":\"array\"}},\"required\":[\"common_name\",\"is_pediatric\",\"official_name\",\"pharmaceutical_format\"],\"title\":\"DrugDescription\",\"type\":\"object\"}",
+      "text": "medical_drug_paracetamol_codeina_nova\nExtrae la información completa del medicamento, incluyendo nombre, indicación pediátrica y efectos adversos con su frecuencia e impacto.\ncommon_name (string): The generic name of the active principle\nofficial_name (string): The full commercial or official name of the drug\npharmaceutical_format (string): The physical form (e.g., Comprimido, Cápsula, Solución)\nstandard_doses (array of string): List of available strengths or doses mentioned (e.g., ['1 g', '500 mg'])\nis_pediatric (boolean): True if the drug is indicated for children or infants\nside_effects (array of object): Structured list of all adverse reactions found in section 4.8"
+    },
+    {
+      "case_id": "medical_entities_acetilsalicilico_cafeina_rovi",
+      "schema_fingerprint": "{\"$defs\":{\"Entity\":{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"label\":{\"$ref\":\"#/$defs/EntityType\",\"description\":\"\"},\"text\":{\"description\":\"\",\"title\":\"Text\",\"type\":\"string\"}},\"required\":[\"label\",\"text\"],\"title\":\"Entity\",\"type\":\"object\"},\"EntityType\":{\"enum\":[\"DATE\",\"EVENT\",\"LOCATION\",\"MISCELLANEOUS\",\"ORGANIZATION\",\"PERSON\"],\"title\":\"EntityType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"entities\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/Entity\"},\"title\":\"Entities\",\"type\":\"array\"}},\"title\":\"NamedEntities\",\"type\":\"object\"}",
+      "text": "medical_entities_acetilsalicilico_cafeina_rovi\nIdentifica las entidades nombradas (nombres de medicamentos, sustancias, marcas y otros) mencionadas en este fragmento de ficha técnica farmacéutica.\nentities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "medical_entities_omeprazol_norte",
+      "schema_fingerprint": "{\"$defs\":{\"Entity\":{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"label\":{\"$ref\":\"#/$defs/EntityType\",\"description\":\"\"},\"text\":{\"description\":\"\",\"title\":\"Text\",\"type\":\"string\"}},\"required\":[\"label\",\"text\"],\"title\":\"Entity\",\"type\":\"object\"},\"EntityType\":{\"enum\":[\"DATE\",\"EVENT\",\"LOCATION\",\"MISCELLANEOUS\",\"ORGANIZATION\",\"PERSON\"],\"title\":\"EntityType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"entities\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/Entity\"},\"title\":\"Entities\",\"type\":\"array\"}},\"title\":\"NamedEntities\",\"type\":\"object\"}",
+      "text": "medical_entities_omeprazol_norte\nExtrae los nombres de medicamentos, laboratorios, ubicaciones, fechas y organizaciones mencionados en este fragmento técnico.\nentities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "medical_extraction_glucosal_ampolla",
+      "schema_fingerprint": "{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"answer\":{\"description\":\"\",\"title\":\"Answer\",\"type\":\"string\"}},\"required\":[\"answer\"],\"title\":\"TextAnswer\",\"type\":\"object\"}",
+      "text": "medical_extraction_glucosal_ampolla\n¿Qué frase inicia la composición de la ampolla de 5 ml de Glucosal 100 mg/ml?\nanswer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "medical_extraction_lactosa_comprimido",
+      "schema_fingerprint": "{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"answer\":{\"description\":\"\",\"title\":\"Answer\",\"type\":\"string\"}},\"required\":[\"answer\"],\"title\":\"TextAnswer\",\"type\":\"object\"}",
+      "text": "medical_extraction_lactosa_comprimido\n¿Cuánta lactosa monohidrato contiene cada comprimido?\nanswer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "medical_health_news_suplemento_villa_mar",
+      "schema_fingerprint": "{\"$defs\":{\"NewsCategory\":{\"enum\":[\"CULTURE\",\"DISASTER\",\"ECONOMY\",\"ENVIRONMENT\",\"HEALTH\",\"JUDICIAL\",\"OTHER\",\"POLITICS\",\"SCIENCE\",\"SPORTS\"],\"title\":\"NewsCategory\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"affected_count\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Affected Count\"},\"casualties\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Casualties\"},\"category\":{\"$ref\":\"#/$defs/NewsCategory\",\"description\":\"\"},\"date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Date\"},\"headline\":{\"description\":\"\",\"title\":\"Headline\",\"type\":\"string\"},\"injured\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Injured\"},\"key_organizations\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key Organizations\",\"type\":\"array\"},\"key_people\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key People\",\"type\":\"array\"},\"location\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Location\"},\"summary\":{\"description\":\"\",\"title\":\"Summary\",\"type\":\"string\"}},\"required\":[\"category\",\"headline\",\"summary\"],\"title\":\"NewsArticle\",\"type\":\"object\"}",
+      "text": "medical_health_news_suplemento_villa_mar\nExtrae la información estructurada de este artículo de noticias sobre salud pública, siguiendo el esquema proporcionado. Devuelve null para los campos que no se mencionan en el texto.\nheadline (string): The main headline or title of the news article\nsummary (string): A brief summary of the main facts reported (1-3 sentences)\ncategory (enum[NewsCategory]): The thematic category of the news story\nlocation (string|null): Geographic location where the event occurred (city, country, or region)\ndate (string|null): Date mentioned in the article (may be implicit or explicit)\nkey_people (array of string): Names of key individuals mentioned in the article\nkey_organizations (array of string): Names of organizations, companies, or governments mentioned\ncasualties (integer|null): Number of deaths mentioned, if any\ninjured (integer|null): Number of people injured, if any\naffected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "medical_health_news_turnos_glucosa",
+      "schema_fingerprint": "{\"$defs\":{\"NewsCategory\":{\"enum\":[\"CULTURE\",\"DISASTER\",\"ECONOMY\",\"ENVIRONMENT\",\"HEALTH\",\"JUDICIAL\",\"OTHER\",\"POLITICS\",\"SCIENCE\",\"SPORTS\"],\"title\":\"NewsCategory\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"affected_count\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Affected Count\"},\"casualties\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Casualties\"},\"category\":{\"$ref\":\"#/$defs/NewsCategory\",\"description\":\"\"},\"date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Date\"},\"headline\":{\"description\":\"\",\"title\":\"Headline\",\"type\":\"string\"},\"injured\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Injured\"},\"key_organizations\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key Organizations\",\"type\":\"array\"},\"key_people\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Key People\",\"type\":\"array\"},\"location\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Location\"},\"summary\":{\"description\":\"\",\"title\":\"Summary\",\"type\":\"string\"}},\"required\":[\"category\",\"headline\",\"summary\"],\"title\":\"NewsArticle\",\"type\":\"object\"}",
+      "text": "medical_health_news_turnos_glucosa\nExtrae la información estructurada de este artículo de noticias de salud siguiendo el esquema proporcionado.\nheadline (string): The main headline or title of the news article\nsummary (string): A brief summary of the main facts reported (1-3 sentences)\ncategory (enum[NewsCategory]): The thematic category of the news story\nlocation (string|null): Geographic location where the event occurred (city, country, or region)\ndate (string|null): Date mentioned in the article (may be implicit or explicit)\nkey_people (array of string): Names of key individuals mentioned in the article\nkey_organizations (array of string): Names of organizations, companies, or governments mentioned\ncasualties (integer|null): Number of deaths mentioned, if any\ninjured (integer|null): Number of people injured, if any\naffected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_marte",
+      "schema_fingerprint": "{\"$defs\":{\"CelestialBodyType\":{\"enum\":[\"ASTEROIDE\",\"COMETA\",\"LUNA\",\"OBJETO INTERESTELAR\",\"OTRO\",\"PLANETA ENANO\",\"PLANETA\"],\"title\":\"CelestialBodyType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"body_type\":{\"$ref\":\"#/$defs/CelestialBodyType\",\"description\":\"\"},\"diameter_km\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Diameter Km\"},\"discoverer\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Discoverer\"},\"discovery_date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Discovery Date\"},\"eccentricity\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Eccentricity\"},\"mass_kg\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Mass Kg\"},\"official_name\":{\"description\":\"\",\"title\":\"Official Name\",\"type\":\"string\"},\"orbital_period_days\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Orbital Period Days\"},\"semi_major_axis_au\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Semi Major Axis Au\"}},\"required\":[\"body_type\",\"official_name\"],\"title\":\"CelestialObjectProperties\",\"type\":\"object\"}",
+      "text": "stem_astronomy_detailed_marte\nExtrae las propiedades físicas y orbitales del cuerpo celeste descrito en el texto, incluyendo su nombre oficial, tipo, y parámetros orbitales disponibles.\nofficial_name (string): The primary scientific designation or name\nbody_type (enum[CelestialBodyType]): The classification of the celestial object\nmass_kg (number|null): Mass in kilograms (scientific notation or float)\ndiameter_km (number|null): Mean diameter in kilometers\neccentricity (number|null): Orbital eccentricity (e.g., 1.199)\norbital_period_days (number|null): Time to complete one orbit in Earth days\nsemi_major_axis_au (number|null): Average distance from the sun in AU\ndiscovery_date (string|null): Date of discovery in YYYY-MM-DD format\ndiscoverer (string|null): Name of the person or observatory that found the object"
+    },
+    {
+      "case_id": "stem_astronomy_detailed_pluton",
+      "schema_fingerprint": "{\"$defs\":{\"CelestialBodyType\":{\"enum\":[\"ASTEROIDE\",\"COMETA\",\"LUNA\",\"OBJETO INTERESTELAR\",\"OTRO\",\"PLANETA ENANO\",\"PLANETA\"],\"title\":\"CelestialBodyType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"body_type\":{\"$ref\":\"#/$defs/CelestialBodyType\",\"description\":\"\"},\"diameter_km\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Diameter Km\"},\"discoverer\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Discoverer\"},\"discovery_date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Discovery Date\"},\"eccentricity\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Eccentricity\"},\"mass_kg\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Mass Kg\"},\"official_name\":{\"description\":\"\",\"title\":\"Official Name\",\"type\":\"string\"},\"orbital_period_days\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Orbital Period Days\"},\"semi_major_axis_au\":{\"anyOf\":[{\"type\":\"number\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Semi Major Axis Au\"}},\"required\":[\"body_type\",\"official_name\"],\"title\":\"CelestialObjectProperties\",\"type\":\"object\"}",
+      "text": "stem_astronomy_detailed_pluton\nExtrae las propiedades físicas y orbitales del cuerpo celeste descrito en el texto, incluyendo su nombre oficial, clasificación, distancia orbital media y datos de descubrimiento.\nofficial_name (string): The primary scientific designation or name\nbody_type (enum[CelestialBodyType]): The classification of the celestial object\nmass_kg (number|null): Mass in kilograms (scientific notation or float)\ndiameter_km (number|null): Mean diameter in kilometers\neccentricity (number|null): Orbital eccentricity (e.g., 1.199)\norbital_period_days (number|null): Time to complete one orbit in Earth days\nsemi_major_axis_au (number|null): Average distance from the sun in AU\ndiscovery_date (string|null): Date of discovery in YYYY-MM-DD format\ndiscoverer (string|null): Name of the person or observatory that found the object"
+    },
+    {
+      "case_id": "technical_entities_nube_clara",
+      "schema_fingerprint": "{\"$defs\":{\"Entity\":{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"label\":{\"$ref\":\"#/$defs/EntityType\",\"description\":\"\"},\"text\":{\"description\":\"\",\"title\":\"Text\",\"type\":\"string\"}},\"required\":[\"label\",\"text\"],\"title\":\"Entity\",\"type\":\"object\"},\"EntityType\":{\"enum\":[\"DATE\",\"EVENT\",\"LOCATION\",\"MISCELLANEOUS\",\"ORGANIZATION\",\"PERSON\"],\"title\":\"EntityType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"entities\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/Entity\"},\"title\":\"Entities\",\"type\":\"array\"}},\"title\":\"NamedEntities\",\"type\":\"object\"}",
+      "text": "technical_entities_nube_clara\nExtrae las entidades nombradas del texto técnico y clasifícalas por tipo.\nentities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "technical_entities_sierra_ix",
+      "schema_fingerprint": "{\"$defs\":{\"Entity\":{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"label\":{\"$ref\":\"#/$defs/EntityType\",\"description\":\"\"},\"text\":{\"description\":\"\",\"title\":\"Text\",\"type\":\"string\"}},\"required\":[\"label\",\"text\"],\"title\":\"Entity\",\"type\":\"object\"},\"EntityType\":{\"enum\":[\"DATE\",\"EVENT\",\"LOCATION\",\"MISCELLANEOUS\",\"ORGANIZATION\",\"PERSON\"],\"title\":\"EntityType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"entities\":{\"description\":\"\",\"items\":{\"$ref\":\"#/$defs/Entity\"},\"title\":\"Entities\",\"type\":\"array\"}},\"title\":\"NamedEntities\",\"type\":\"object\"}",
+      "text": "technical_entities_sierra_ix\nExtrae las entidades nombradas del texto técnico y clasifícalas por tipo.\nentities (array of object): List of all recognized named entities"
+    },
+    {
+      "case_id": "technical_extraction_arczip_blake3",
+      "schema_fingerprint": "{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"answer\":{\"description\":\"\",\"title\":\"Answer\",\"type\":\"string\"}},\"required\":[\"answer\"],\"title\":\"TextAnswer\",\"type\":\"object\"}",
+      "text": "technical_extraction_arczip_blake3\n¿Qué algoritmo usa ArcZip para deduplicar bloques?\nanswer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "technical_extraction_deltadb_quasarsql",
+      "schema_fingerprint": "{\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"answer\":{\"description\":\"\",\"title\":\"Answer\",\"type\":\"string\"}},\"required\":[\"answer\"],\"title\":\"TextAnswer\",\"type\":\"object\"}",
+      "text": "technical_extraction_deltadb_quasarsql\n¿Qué motor usa DeltaDB para planificar consultas sobre índices temporales?\nanswer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "case_id": "technical_software_lince_editor",
+      "schema_fingerprint": "{\"$defs\":{\"SoftwareType\":{\"enum\":[\"ARCHIVER\",\"GRAPHICS_EDITOR\",\"IDE_EDITOR\",\"MEDIA_PLAYER\",\"OFFICE_SUITE\",\"OTHER\",\"SYSTEM_TOOL\",\"WEB_BROWSER\"],\"title\":\"SoftwareType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"app_category\":{\"$ref\":\"#/$defs/SoftwareType\",\"description\":\"\"},\"current_ceo_name\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Current Ceo Name\"},\"exact_release_date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Exact Release Date\"},\"features\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Features\",\"type\":\"array\"},\"latest_stable_version_sha256\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Latest Stable Version Sha256\"},\"license\":{\"description\":\"\",\"title\":\"License\",\"type\":\"string\"},\"official_name\":{\"description\":\"\",\"title\":\"Official Name\",\"type\":\"string\"},\"platforms\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Platforms\",\"type\":\"array\"},\"primary_developer\":{\"description\":\"\",\"title\":\"Primary Developer\",\"type\":\"string\"}},\"required\":[\"app_category\",\"license\",\"official_name\",\"primary_developer\"],\"title\":\"SoftwareDescription\",\"type\":\"object\"}",
+      "text": "technical_software_lince_editor\nAnaliza la descripción del software para extraer detalles técnicos, desarrolladores y licencias.\nofficial_name (string): The full official name of the software\napp_category (enum[SoftwareType]): The primary functional category of the app\nlicense (string): The specific license mentioned (e.g., GPL, Proprietary)\nplatforms (array of string): Operating systems mentioned as supported (e.g., Windows, macOS, Linux)\nprimary_developer (string): The individual or organization that developed the software\nfeatures (array of string): List of specific technical capabilities or features mentioned\nexact_release_date (string|null): The EXACT date (DD/MM/YYYY) of the first release. RETURN NULL IF ONLY THE YEAR IS MENTIONED.\nlatest_stable_version_sha256 (string|null): The SHA256 checksum of the latest installer. RETURN NULL IF NOT EXPLICITLY IN THE TEXT.\ncurrent_ceo_name (string|null): The name of the current CEO of the developing organization. RETURN NULL IF NOT IN TEXT."
+    },
+    {
+      "case_id": "technical_software_quantapack_pro",
+      "schema_fingerprint": "{\"$defs\":{\"SoftwareType\":{\"enum\":[\"ARCHIVER\",\"GRAPHICS_EDITOR\",\"IDE_EDITOR\",\"MEDIA_PLAYER\",\"OFFICE_SUITE\",\"OTHER\",\"SYSTEM_TOOL\",\"WEB_BROWSER\"],\"title\":\"SoftwareType\",\"type\":\"string\"}},\"additionalProperties\":false,\"description\":\"\",\"properties\":{\"app_category\":{\"$ref\":\"#/$defs/SoftwareType\",\"description\":\"\"},\"current_ceo_name\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Current Ceo Name\"},\"exact_release_date\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Exact Release Date\"},\"features\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Features\",\"type\":\"array\"},\"latest_stable_version_sha256\":{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"null\"}],\"default\":null,\"description\":\"\",\"title\":\"Latest Stable Version Sha256\"},\"license\":{\"description\":\"\",\"title\":\"License\",\"type\":\"string\"},\"official_name\":{\"description\":\"\",\"title\":\"Official Name\",\"type\":\"string\"},\"platforms\":{\"description\":\"\",\"items\":{\"type\":\"string\"},\"title\":\"Platforms\",\"type\":\"array\"},\"primary_developer\":{\"description\":\"\",\"title\":\"Primary Developer\",\"type\":\"string\"}},\"required\":[\"app_category\",\"license\",\"official_name\",\"primary_developer\"],\"title\":\"SoftwareDescription\",\"type\":\"object\"}",
+      "text": "technical_software_quantapack_pro\nResume los datos técnicos de QPack, centrándote en su tipo de software, desarrollador y plataformas soportadas.\nofficial_name (string): The full official name of the software\napp_category (enum[SoftwareType]): The primary functional category of the app\nlicense (string): The specific license mentioned (e.g., GPL, Proprietary)\nplatforms (array of string): Operating systems mentioned as supported (e.g., Windows, macOS, Linux)\nprimary_developer (string): The individual or organization that developed the software\nfeatures (array of string): List of specific technical capabilities or features mentioned\nexact_release_date (string|null): The EXACT date (DD/MM/YYYY) of the first release. RETURN NULL IF ONLY THE YEAR IS MENTIONED.\nlatest_stable_version_sha256 (string|null): The SHA256 checksum of the latest installer. RETURN NULL IF NOT EXPLICITLY IN THE TEXT.\ncurrent_ceo_name (string|null): The name of the current CEO of the developing organization. RETURN NULL IF NOT IN TEXT."
+    }
+  ]
+}

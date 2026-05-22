@@ -17,6 +17,9 @@ from gensie.pipeline.context import PipelineContext
 from gensie.pipeline.specs import ExtractionSpec, ReasoningMode
 
 
+FSP_RETRIEVAL_TRACE_METADATA_KEY = "_fsp_retrieval_trace"
+
+
 @dataclass(frozen=True)
 class RagExtractionFspProvider(FSPProvider):
     cases: tuple[StructuredFspCase, ...] = field(
@@ -114,12 +117,64 @@ class RagExtractionFspProvider(FSPProvider):
                 str(task.target_schema.get("description") or ""),
             )
         )
-        return rank_fsp_cases(
-            task_schema=task.target_schema,
-            task_text=task_text,
-            cases=self.cases,
-            top_k=self.top_k if top_k is None else top_k,
+        top_k = self.top_k if top_k is None else top_k
+        try:
+            from gensie.fsp.field_rag import rank_fsp_cases_by_field_embeddings
+
+            diagnostics: dict[str, object] = {}
+            selected = rank_fsp_cases_by_field_embeddings(
+                task_schema=task.target_schema,
+                task_text=task_text,
+                task_id=task.id,
+                task_instruction=task.instruction,
+                cases=self.cases,
+                top_k=top_k,
+                diagnostics=diagnostics,
+            )
+        except Exception as exc:
+            selected = ()
+            context.metadata[FSP_RETRIEVAL_TRACE_METADATA_KEY] = {
+                "method": "schema_lexical",
+                "selection_method": "schema_lexical_fallback",
+                "error": str(exc) or repr(exc),
+            }
+        if selected:
+            if diagnostics:
+                context.metadata[FSP_RETRIEVAL_TRACE_METADATA_KEY] = diagnostics
+            return selected
+        selected = _mark_results_not_same_schema(
+            rank_fsp_cases(
+                task_schema=task.target_schema,
+                task_text=task_text,
+                cases=self.cases,
+                top_k=top_k,
+            )
         )
+        if FSP_RETRIEVAL_TRACE_METADATA_KEY not in context.metadata:
+            context.metadata[FSP_RETRIEVAL_TRACE_METADATA_KEY] = {
+                "method": "schema_lexical",
+                "selection_method": "schema_lexical_fallback",
+                "selected_case_ids": [result.case.id for result in selected],
+            }
+        return selected
+
+
+def _mark_results_not_same_schema(
+    results: Sequence[FspRetrievalResult],
+) -> tuple[FspRetrievalResult, ...]:
+    return tuple(
+        FspRetrievalResult(
+            case=result.case,
+            score=result.score,
+            rank=result.rank,
+            matched_tags=result.matched_tags,
+            matched_terms=result.matched_terms,
+            schema_match=False,
+            compatible_fields=result.compatible_fields,
+            method=result.method,
+        )
+        for result in results
+    )
 
 
 def _metadata_for_result(

@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from typing import Any, Mapping
 
 from gensie.phases import PipelinePhase, VerbatimEntitiesPhase
+from gensie.fsp.rag import FSP_RETRIEVAL_TRACE_METADATA_KEY
 from gensie.pipeline.context import PipelineContext
 from gensie.pipeline.records import AggregationResult, ExtractionResult
 from gensie.pipeline.specs import ExtractionSpec, PhaseKind, PipelineSpec
@@ -228,12 +229,18 @@ def _trace_extraction_step(
         if response is not None
         else {"parsed_output": raw_output, "final_output": final_output}
     )
+    retrieval_trace = context.metadata.pop(FSP_RETRIEVAL_TRACE_METADATA_KEY, None)
     trace_step(
         context.task,
         step_name,
         prompt_messages=request.messages,
         request_payload=request_payload(request),
         response_payload=payload,
+        json_artifacts=(
+            {"retrieval.json": retrieval_trace}
+            if retrieval_trace is not None
+            else None
+        ),
         error=error,
         metrics={
             "tokens": usage_payload(response.usage if response is not None else None),
