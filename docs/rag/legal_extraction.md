@@ -39,7 +39,6 @@ Solo existe una instancia del prefijo en `dev_rev` y `data/dev` contiene la mism
 La capitalidad administrativa de la Comunidad Autónoma corresponde a la ciudad de Valdoria.
 
 
-
 ## Artículo 8
 
 1. La bandera de la Comunidad estará formada por tres franjas horizontales de igual anchura, de colores verde, blanco y azul.
@@ -47,7 +46,6 @@ La capitalidad administrativa de la Comunidad Autónoma corresponde a la ciudad 
 2. El escudo y el himno serán regulados por ley de la Asamblea, respetando la tradición histórica de sus municipios.
 
 3. Las instituciones públicas podrán utilizar sus símbolos propios en los actos oficiales, de acuerdo con lo que establezcan sus normas internas.
-
 
 
 ## Artículo 9

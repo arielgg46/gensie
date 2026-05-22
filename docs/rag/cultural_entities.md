@@ -25,7 +25,7 @@ Solo existen dos ejemplos del prefijo en `dev_rev` y los dos archivos de `data/d
 | --- | --- |
 | `entities` | Lista única de menciones nombradas del recorte cultural. Extrae películas, series, actores, personajes, estudios, medios, lugares, fechas y eventos si aparecen; no agrupes por categoría ni añadas entidades inferidas desde conocimiento externo. |
 | `entities[].text` | Mención verbatim tal como aparece en el texto. Conserva tildes, signos de exclamación, comillas internas, artículos y fechas completas; no traduzcas, normalices ni fusiones variantes de un título si el texto las menciona por separado. |
-| `entities[].label` | Etiqueta del enum completo: `PERSON`, `ORGANIZATION`, `LOCATION`, `DATE`, `EVENT` o `MISCELLANEOUS`. Actores, directoras y personajes suelen ser `PERSON`; estudios, plataformas y medios `ORGANIZATION`; ciudades, barrios o lugares culturales `LOCATION`; fechas de estreno `DATE`; festivales o premios `EVENT`; películas, series y obras culturales `MISCELLANEOUS`. |
+| `entities[].label` | Etiqueta del enum completo: `PERSON`, `ORGANIZATION`, `LOCATION`, `DATE`, `EVENT` o `MISCELLANEOUS`. Actores, directores y personajes suelen ser `PERSON`; estudios, plataformas y medios `ORGANIZATION`; ciudades, barrios o lugares culturales `LOCATION`; fechas de estreno `DATE`; festivales o premios `EVENT`; películas, series y obras culturales `MISCELLANEOUS`. |
 
 ## Propuesta de los dos ejemplos
 

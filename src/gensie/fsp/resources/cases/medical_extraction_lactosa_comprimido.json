@@ -26,6 +26,9 @@
     "title": "TextAnswer",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "answer": "Fragmento único y verbatim que responde exactamente la pregunta. Copia la oración o sintagma completo del texto fuente, conservando unidades, tildes y puntuación; no resumas, no normalices cantidades y no añadas contexto externo."
+  },
   "field_examples": {
     "answer": {
       "value": "Cada comprimido contiene 18 mg de lactosa monohidrato.",

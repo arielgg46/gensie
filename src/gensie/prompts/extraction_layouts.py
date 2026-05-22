@@ -45,7 +45,7 @@ def build_extraction_prompt_layout(
     fsp_selection: FspSelection | None = None,
 ) -> ExtractionPromptLayoutResult:
     rules = tuple(default_rules)
-    if _should_use_same_schema_layout(extraction, fsp_selection):
+    if should_use_same_schema_rag_compact_layout(extraction, fsp_selection):
         assert fsp_selection is not None
         return _build_same_schema_rag_compact_layout(
             context=context,
@@ -208,21 +208,10 @@ def _build_same_schema_system_prompt(
     default_rules: Sequence[str],
     include_default_rules: bool,
 ) -> str:
-    task = context.task
     sections: list[str] = [_system_without_strict_anchor(default_system).rstrip()]
 
     if include_default_rules:
         sections.extend(["", EXTRACTION_RULES_HEADER, *default_rules])
-
-    sections.extend(
-        [
-            "",
-            "En esta llamada resolverás tareas de este tipo:",
-            "",
-            "INSTRUCCIÓN:",
-            task.instruction,
-        ]
-    )
 
     if schema_view.root_description:
         sections.extend(["", "DESCRIPCIÓN DEL SCHEMA:", schema_view.root_description])
@@ -269,7 +258,18 @@ def _build_same_schema_user_prompt(
     if phase_block:
         sections.extend(["", phase_block])
 
-    sections.extend(["", "TEXTO FUENTE:", context.task.input_text])
+    sections.extend(
+        [
+            "",
+            "TAREA NUEVA:",
+            "",
+            "INSTRUCCIÓN:",
+            context.task.instruction,
+            "",
+            "TEXTO FUENTE:",
+            context.task.input_text,
+        ]
+    )
     return "\n".join(sections)
 
 
@@ -356,6 +356,13 @@ def _system_without_strict_anchor(system: str) -> str:
 
 
 def _should_use_same_schema_layout(
+    extraction: ExtractionSpec,
+    selection: FspSelection | None,
+) -> bool:
+    return should_use_same_schema_rag_compact_layout(extraction, selection)
+
+
+def should_use_same_schema_rag_compact_layout(
     extraction: ExtractionSpec,
     selection: FspSelection | None,
 ) -> bool:

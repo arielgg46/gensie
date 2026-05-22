@@ -38,6 +38,9 @@ def structured_fsp_case_from_mapping(data: Mapping[str, Any]) -> StructuredFspCa
         instruction=_string(data, "instruction"),
         schema=dict(schema),
         field_examples=_field_examples(data.get("field_examples")),
+        enriched_field_descriptions=_string_mapping(
+            data.get("enriched_field_descriptions")
+        ),
         tags=tuple(_strings(data.get("tags"))),
         judge=_judge_example(data.get("judge")),
     )
@@ -153,6 +156,20 @@ def _strings(value: Any) -> list[str]:
     if not isinstance(value, list):
         raise ValueError("FSP string list field must be an array")
     return [item for item in value if isinstance(item, str)]
+
+
+def _string_mapping(value: Any) -> dict[str, str]:
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise ValueError("FSP string mapping field must be an object")
+    out: dict[str, str] = {}
+    for key, item in value.items():
+        if not isinstance(key, str) or not isinstance(item, str):
+            raise ValueError("FSP string mapping keys and values must be strings")
+        if key.strip() and item.strip():
+            out[key] = item
+    return out
 
 
 def _non_negative_int(data: Mapping[str, Any], key: str, default: int) -> int:

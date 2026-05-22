@@ -7,6 +7,7 @@ from gensie.fsp import (
     FieldExample,
     FieldReasoning,
     RagExtractionFspProvider,
+    ReasoningSectionLabels,
     StaticFSPProvider,
     StructuredFspCase,
 )
@@ -18,6 +19,7 @@ from gensie.pipeline import (
     SchemaPromptMode,
 )
 from gensie.prompts import ExtractionPromptBuilder, render_schema_view
+from gensie.prompts.extraction import ENRICHED_RAG_FIELD_DESCRIPTIONS_ENV
 from gensie.prompts.system import STRICT_ANCHORING_RULE
 from gensie.schemas import (
     build_deep_inline_reasoning_schema,
@@ -83,7 +85,12 @@ def _task() -> Task:
     )
 
 
-def _same_schema_case(case_id: str, source_text: str) -> StructuredFspCase:
+def _same_schema_case(
+    case_id: str,
+    source_text: str,
+    *,
+    enriched_field_descriptions: dict[str, str] | None = None,
+) -> StructuredFspCase:
     values = {
         "person": "Ada Lovelace",
         "year": 1843,
@@ -110,6 +117,7 @@ def _same_schema_case(case_id: str, source_text: str) -> StructuredFspCase:
             )
             for field_name, value in values.items()
         },
+        enriched_field_descriptions=enriched_field_descriptions or {},
     )
 
 
@@ -309,7 +317,7 @@ def test_extraction_prompt_builder_keeps_fsp_separate_from_schema_view():
     assert bundle.metadata["reasoning"] == "top_level"
 
 
-def test_same_schema_rag_prompt_moves_common_contract_to_system():
+def test_same_schema_rag_prompt_moves_common_contract_to_system_and_instruction_to_user():
     builder = ExtractionPromptBuilder(
         fsp_provider=RagExtractionFspProvider(
             cases=[
@@ -339,15 +347,18 @@ def test_same_schema_rag_prompt_moves_common_contract_to_system():
     assert bundle.metadata["layout"] == "same_schema_rag_compact"
     assert bundle.metadata["prompt_layout"] == "same_schema_rag_compact"
     assert combined.count(STRICT_ANCHORING_RULE) == 1
-    assert "INSTRUCCI" in bundle.system
+    assert "INSTRUCCI" not in bundle.system
+    assert "Extract the person, year, and labels." not in bundle.system
     assert "SCHEMA PYDANTIC:" in bundle.system
     assert "person: Reasoned[str]" in bundle.system
     assert "EJEMPLOS FEW-SHOT:" in bundle.user
+    assert "INSTRUCCIÓN DEL EJEMPLO:" in bundle.user
     assert "TEXTO FUENTE DEL EJEMPLO:" in bundle.user
     assert "SALIDA DEL EJEMPLO:" in bundle.user
     assert "SCHEMA PYDANTIC:" not in bundle.user
     assert "SCHEMA PYDANTIC DEL EJEMPLO:" not in bundle.user
-    assert "INSTRUCCI" not in bundle.user
+    assert "TAREA NUEVA:\n\nINSTRUCCIÓN:" in bundle.user
+    assert "INSTRUCCIÓN:\nExtract the person, year, and labels." in bundle.user
     assert "TEXTO FUENTE:\nAda Lovelace published notes" in bundle.user
     assert len(bundle.metadata["fsp_examples"]) == 2
     assert all(
@@ -356,6 +367,44 @@ def test_same_schema_rag_prompt_moves_common_contract_to_system():
     )
     assert "No cites fragmentos irrelevantes" in bundle.system
     assert "estilo de reasoning" in bundle.system
+    assert "Todo `reasoning` debe usar exactamente tres secciones" in bundle.system
+    assert "`EL CAMPO PIDE: ...`" in bundle.system
+    assert "`FRAGMENTOS RELEVANTES: ...`" in bundle.system
+    assert "`VALOR FINAL: ...`" in bundle.system
+
+
+def test_same_schema_rag_reasoning_format_rule_uses_provider_labels():
+    labels = ReasoningSectionLabels(
+        field_asks="CAMPO",
+        relevant_fragments="EVIDENCIA",
+        final_value="RESPUESTA",
+    )
+    builder = ExtractionPromptBuilder(
+        fsp_provider=RagExtractionFspProvider(
+            cases=[
+                _same_schema_case(
+                    "same_schema_one",
+                    "Ada Lovelace published notes in 1843.",
+                )
+            ],
+            labels=labels,
+        )
+    )
+    context = PipelineContext(task=_task(), model="demo", usage=UsageTracker())
+    extraction = ExtractionSpec(
+        name="enriched-inline-reasoning-rag",
+        reasoning=ReasoningMode.TOP_LEVEL,
+        schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+        few_shot=FewShotMode.RAG,
+    )
+
+    bundle = builder.build(context, extraction)
+
+    assert "`CAMPO: ...`" in bundle.system
+    assert "`EVIDENCIA: ...`" in bundle.system
+    assert "`RESPUESTA: ...`" in bundle.system
+    assert "`EL CAMPO PIDE: ...`" not in bundle.system
+    assert '"reasoning": "CAMPO:' in bundle.user
 
 
 def test_same_schema_plain_pydantic_rag_prompt_uses_compact_layout_without_reasoning_rules():
@@ -397,10 +446,60 @@ def test_same_schema_plain_pydantic_rag_prompt_uses_compact_layout_without_reaso
     assert "formato de salida" in bundle.system
     assert "estilo de reasoning" not in combined
     assert "EJEMPLOS FEW-SHOT:" in bundle.user
+    assert "INSTRUCCIÓN DEL EJEMPLO:" in bundle.user
+    assert "TAREA NUEVA:\n\nINSTRUCCIÓN:" in bundle.user
+    assert "INSTRUCCIÓN:\nExtract the person, year, and labels." in bundle.user
+    assert "Extract the person, year, and labels." not in bundle.system
     assert '"person": "Ada Lovelace"' in bundle.user
     assert "SCHEMA PYDANTIC:" not in bundle.user
     assert "SCHEMA PYDANTIC DEL EJEMPLO:" not in bundle.user
     assert len(bundle.metadata["fsp_examples"]) == 2
+
+
+def test_same_schema_rag_prompt_can_use_enriched_field_descriptions(monkeypatch):
+    monkeypatch.setenv(ENRICHED_RAG_FIELD_DESCRIPTIONS_ENV, "1")
+    builder = ExtractionPromptBuilder(
+        fsp_provider=RagExtractionFspProvider(
+            cases=[
+                _same_schema_case(
+                    "same_schema_one",
+                    "Ada Lovelace published notes in 1843.",
+                    enriched_field_descriptions={
+                        "person": "Nombre de persona verbatim con guía enriquecida.",
+                        "mentions[].label": (
+                            "Etiqueta enriquecida para la mención, sin inferir."
+                        ),
+                    },
+                )
+            ],
+        )
+    )
+    context = PipelineContext(task=_task(), model="demo", usage=UsageTracker())
+    extraction = ExtractionSpec(
+        name="enriched-schema-rag",
+        reasoning=ReasoningMode.NONE,
+        schema_prompt=SchemaPromptMode.PYDANTIC,
+        few_shot=FewShotMode.RAG,
+    )
+
+    bundle = builder.build(context, extraction)
+
+    assert bundle.metadata["layout"] == "same_schema_rag_compact"
+    assert (
+        'person: str = Field(..., description="Nombre de persona verbatim '
+        'con guía enriquecida.")'
+        in bundle.system
+    )
+    assert (
+        'label: str = Field(..., description="Etiqueta enriquecida para la '
+        'mención, sin inferir.")'
+        in bundle.system
+    )
+    assert "Verbatim person name" not in bundle.system
+    assert bundle.metadata["schema_view"]["field_description_overrides"] == [
+        "mentions[].label",
+        "person",
+    ]
 
 
 def test_rag_prompt_keeps_default_layout_when_any_selected_case_differs():

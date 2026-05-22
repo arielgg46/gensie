@@ -1,3 +1,6 @@
+from gensie.fsp.examples import ReasoningSectionLabels
+
+
 STRICT_ANCHORING_RULE = (
     "REGLA DE ANCLAJE ESTRICTO:\n"
     "\n"
@@ -32,6 +35,18 @@ REASONING_EXTRACTION_RULES = (
     "- En enums, el `reasoning` debe conectar explícitamente el fragmento textual con la opción elegida.",
     "- Si el schema obliga un valor y la evidencia es limitada, decláralo en el `reasoning` y elige la opción menos especulativa compatible con el schema.",
 )
+
+
+def strict_reasoning_format_rule(labels: ReasoningSectionLabels) -> str:
+    return (
+        "- Todo `reasoning` debe usar exactamente tres secciones, en este orden "
+        "y con estos rótulos literales: "
+        f"`{labels.field_asks}: ...`, "
+        f"`{labels.relevant_fragments}: ...`, "
+        f"`{labels.final_value}: ...`. "
+        "No omitas rótulos, no añadas rótulos extra, no cambies mayúsculas, "
+        "puntuación ni orden; escribe cada sección en una línea separada."
+    )
 
 BASE_EXTRACTION_SYSTEM_PROMPT = (
     "Eres un agente preciso de extracción de información. "

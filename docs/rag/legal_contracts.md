@@ -29,9 +29,9 @@ Los tasks `legal_contracts` son extracciones L5 de acuerdos jurídicos: el model
 | Campo | Description enriquecida |
 | --- | --- |
 | `contract_title` | Título formal del contrato, normalmente el encabezado `#`. Copia el título del acuerdo principal y no subtítulos de secciones, nombres comerciales, anexos ni denominaciones de roles. |
-| `contract_type` | Tipo legal del acuerdo; enum completo: `PRESTACIÓN DE SERVICIOS`, `COMPRAVENTA`, `LABORAL`, `CONFIDENCIALIDAD`, `ACUERDO MARCO` u `OTRO`. Decide por el objeto principal: servicios, venta de bien, relación laboral, reserva de información, marco general; usa `OTRO` para licencias, arrendamientos u operaciones que no encajen. |
+| `contract_type` | Tipo legal del acuerdo; enum completo: `PRESTACIÓN DE SERVICIOS`, `COMPRAVENTA`, `LABORAL`, `CONFIDENCIALIDAD`, `ACUERDO MARCO` u `OTRO`. Decide por el objeto principal: servicios, venta de bien, relación laboral, reserva de información, marco general; usa `OTRO` para operaciones que no encajen con lo anterior, como licencias o arrendamientos. |
 | `effective_date` | Fecha de entrada en vigor, normalizada como `YYYY-MM-DD` si hay fecha completa; si la vigencia se expresa de forma relativa, conserva el texto relevante. No confundas fecha de firma, lugar de reunión, entrega, anexos o duración de obligaciones con vigencia. |
-| `parties` | Entidades o personas que celebran el acuerdo. Incluye firmantes principales y, si el texto las trata conjuntamente como parte, marcas/filiales/matrices; no sustituyas la parte por representantes, cargos, apoderados o nombres de fantasía que solo sean alias secundarios. |
+| `parties` | Entidades o personas que celebran el acuerdo. Incluye firmantes principales y, si el texto las trata conjuntamente como parte, marcas/filiales/matrices; no sustituyas la parte por representantes, cargos, apoderados o alias secundarios. |
 | `total_clauses` | Número de cláusulas numeradas o nombradas. Cuenta `PRIMERA`, `SEGUNDA`, `1.`, etc.; no cuentes comparecencias, exposiciones, anexos, listas internas o párrafos introductorios. |
 | `governing_law_jurisdiction` | Ley aplicable, fuero o tribunal pactado. Devuelve `null` si solo hay domicilios, sedes, lugar de firma o lugares de entrega; si hay fueros alternativos, conserva ambos en una forma compacta. |
 | `has_nda_clause` | `true` cuando haya confidencialidad, reserva, secreto comercial, no divulgación o prohibición de revelar información. `false` si el texto solo habla de documentos, propiedad intelectual, entrega o acceso sin deber de secreto. |
@@ -77,7 +77,7 @@ Ambas partes manifiestan interés en formalizar la transmisión de una cosechado
 La vendedora transmite a la compradora la propiedad de la cosechadora Aurum 420 y de dos cabezales de corte revisados el mes anterior.
 
 **SEGUNDA - Precio y pago:**
-El precio total de la compraventa se fija en 125.000 euros, pagaderos en dos transferencias bancarias: una al firmar y otra contra entrega de la máquina.
+El precio total de la compraventa se fija en 125'000 euros, pagaderos en dos transferencias bancarias: una al firmar y otra contra entrega de la máquina.
 
 **TERCERA - Entrada en vigor y entrega:**
 El contrato entrará en vigor el 2 de mayo de 2026. La entrega se realizará antes del 20 de mayo en la finca de Bellpuig.
@@ -147,7 +147,7 @@ Extrae el resumen del contrato o acto legislativo
   },
   "has_nda_clause": {
     "field_asks": "true si el texto menciona confidencialidad, reserva de información o no divulgación; false si no lo hace.",
-    "relevant_fragments": "\"La vendedora transmite a la compradora la propiedad\", \"El precio total de la compraventa se fija en 125.000 euros\" y \"Responsabilidad, ley aplicable y fuero\".",
+    "relevant_fragments": "\"La vendedora transmite a la compradora la propiedad\", \"El precio total de la compraventa se fija en 125'000 euros\" y \"Responsabilidad, ley aplicable y fuero\".",
     "final_value": "Los fragmentos relevantes cubren objeto, precio, responsabilidad y fuero, pero no establecen confidencialidad ni no divulgación; el valor debe ser false."
   },
   "has_liability_limitation": {
@@ -157,7 +157,7 @@ Extrae el resumen del contrato o acto legislativo
   },
   "monetary_amount": {
     "field_asks": "el importe total del contrato si se especifica numéricamente, o null si no hay cuantía total.",
-    "relevant_fragments": "\"El precio total de la compraventa se fija en 125.000 euros\".",
+    "relevant_fragments": "\"El precio total de la compraventa se fija en 125'000 euros\".",
     "final_value": "Como el fragmento relevante da el precio total, el importe debe ser 125000."
   }
 }

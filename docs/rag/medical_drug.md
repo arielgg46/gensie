@@ -30,13 +30,13 @@ Los tasks `medical_drug` son extracciones L8 desde fichas técnicas de medicamen
 | Campo | Description enriquecida |
 | --- | --- |
 | `common_name` | Principio activo o combinación de principios activos. Extráelo del nombre o de la composición; normaliza combinaciones como `Paracetamol / Codeína` y no uses indicaciones terapéuticas ni excipientes. |
-| `official_name` | Nombre completo de la presentación en `# 1. NOMBRE DEL MEDICAMENTO`. Si aparecen varias presentaciones, conserva la presentación principal del recorte y no mezcles dosis de otras fichas. |
-| `pharmaceutical_format` | Forma farmacéutica literal de `# 3. FORMA FARMACÉUTICA`, por ejemplo `Comprimido`, `Comprimido recubierto con película`, `Solución oral` o `Solución para perfusión`. No la infieras desde la vía ni desde la posología si la sección 3 está presente. |
+| `official_name` | Nombre completo de la presentación, usualmente en `# NOMBRE DEL MEDICAMENTO`. Si aparecen varias presentaciones, conserva la presentación principal del recorte y no mezcles dosis de otras fichas. |
+| `pharmaceutical_format` | Forma farmacéutica literal, usualmente en `# FORMA FARMACÉUTICA`, por ejemplo `Comprimido`, `Comprimido recubierto con película`, `Solución oral`, `Solución para perfusión`, etc. No la infieras desde la vía ni desde la posología si la sección de forma farmacéutica está presente. |
 | `standard_doses` | Lista de concentraciones o dosis estándar de la composición y del nombre oficial. Incluye unidades y principio activo cuando haya combinación; no conviertas pautas de administración, máximos diarios ni intervalos horarios en dosis estándar. |
 | `is_pediatric` | `true` si el texto permite uso o da pauta para niños/adolescentes concretos; `false` si contraindica menores o solo menciona población pediátrica para advertir restricciones. Distingue adolescentes permitidos de niños excluidos cuando el medicamento no es apto para la población pediátrica general. |
-| `side_effects` | Lista de reacciones adversas de `## 4.8. Reacciones adversas`, preferiblemente todas las del recorte. No extraigas efectos desde indicaciones, advertencias, sobredosis o composición; conserva clase de órgano, frecuencia e impacto por cada reacción. |
+| `side_effects` | Lista de reacciones adversas, usualmente en `## Reacciones adversas`, preferiblemente todas las del recorte. No extraigas efectos desde indicaciones, advertencias, sobredosis o composición; conserva clase de órgano, frecuencia e impacto por cada reacción. |
 | `side_effects[].reaction` | Nombre de la reacción adversa, literal o muy fiel al texto. Divide listas separadas por comas cuando sean reacciones distintas (`Trombocitopenia`, `agranulocitosis`) y conserva expresiones clínicas compuestas cuando forman una entidad. |
-| `side_effects[].system_organ_class` | Clase de órgano o sistema bajo la que aparece la reacción; usa `null` si la reacción se menciona en una frase general sin encabezado claro. No confundas principio activo (`Paracetamol`, `Codeína`) con clase de órgano. |
+| `side_effects[].system_organ_class` | Clase de órgano o sistema bajo la que aparece la reacción; usa `null` si la reacción se menciona en una frase general sin encabezado claro. No confundas principio activo (ej: `Paracetamol`, `Codeína`) con clase de órgano. |
 | `side_effects[].probability` | Frecuencia mapeada al enum completo: `HIGH`, `MEDIUM`, `LOW` o `UNKNOWN`. `Frecuentes` suele ser `HIGH`, `Poco frecuentes` `MEDIUM`, `Raras`/`Muy raras` `LOW`, y `Frecuencia no conocida` o casos aislados sin frecuencia tabulada `UNKNOWN`. |
 | `side_effects[].impact` | Impacto clínico inferido y mapeado al enum completo: `MILD`, `MODERATE`, `SEVERE` o `CRITICAL`. Síntomas leves como malestar o náuseas son `MILD`; alteraciones que requieren valoración suelen ser `MODERATE`; hepatotoxicidad, broncoespasmo o reacciones cutáneas graves son `SEVERE`; shock anafiláctico, depresión respiratoria o agranulocitosis pueden ser `CRITICAL`. |
 
@@ -182,7 +182,7 @@ Extrae la descripción estructurada del medicamento, incluyendo su uso en poblac
   "side_effects": {
     "field_asks": "lista estructurada de reacciones adversas de la sección 4.8; cada item debe incluir reacción, clase de órgano o null, probabilidad mapeada a HIGH, MEDIUM, LOW o UNKNOWN, e impacto mapeado a MILD, MODERATE, SEVERE o CRITICAL.",
     "relevant_fragments": "\"Trastornos gastrointestinales: Frecuentes: Náuseas\", \"Trastornos del sistema nervioso: Poco frecuentes: Mareo\", \"Trastornos de la piel y del tejido subcutáneo: Raras: Reacciones cutáneas graves\" y \"casos aislados de edema facial\".",
-    "final_value": "Como los fragmentos relevantes dan las reacciones y sus frecuencias, \"Frecuentes\" se mapea a HIGH, \"Poco frecuentes\" a MEDIUM, \"Raras\" a LOW y los casos aislados sin frecuencia tabulada a UNKNOWN; los impactos se asignan según gravedad clínica: náuseas y mareo MILD, reacciones cutáneas graves SEVERE y edema facial MODERATE."
+    "final_value": "Como los fragmentos relevantes dan las reacciones y sus frecuencias, \"Frecuentes\" se mapea a HIGH, \"Poco frecuentes\" a MEDIUM, \"Raras\" a LOW y los casos aislados sin frecuencia tabulada a UNKNOWN; los impactos se asignan según gravedad clínica: náuseas y mareo MILD, reacciones cutáneas graves SEVERE y edema facial MODERATE. Todos los efectos adversos vienen con clase de órgano o sistema, excepto los casos de edema facial."
   }
 }
 ```
@@ -192,11 +192,7 @@ Extrae la descripción estructurada del medicamento, incluyendo su uso en poblac
 `input_text`:
 
 ```text
-FICHA TÉCNICA PARACETAMOL/ CODEÍNA NOVA 24mg/ml +2,40mg/ml SOLUCIÓN ORAL
-
-Pulse aquí
-                        
-                        para ver el documento en formato PDF.
+FICHA TÉCNICA PARACETAMOL/ CODEÍNA NOVA 24mg/ml +2,40mg/ml SOLUCIÓN ORAL [...]
 
 # 1. NOMBRE DEL MEDICAMENTO
 
@@ -327,12 +323,12 @@ Extrae la información completa del medicamento, incluyendo nombre, indicación 
   },
   "official_name": {
     "field_asks": "el nombre comercial u oficial completo del medicamento.",
-    "relevant_fragments": "\"# 1. NOMBRE DEL MEDICAMENTO\" y \"Paracetamol/codeína Nova 24 mg/ml + 2,40 mg/ml solución oral\".",
+    "relevant_fragments": "\"# 1. NOMBRE DEL MEDICAMENTO\n\nParacetamol/codeína Nova 24 mg/ml + 2,40 mg/ml solución oral\".",
     "final_value": "Como el fragmento relevante de la sección 1 da el nombre completo de la presentación, el valor debe ser \"Paracetamol/codeína Nova 24 mg/ml + 2,40 mg/ml solución oral\"."
   },
   "pharmaceutical_format": {
     "field_asks": "la forma farmacéutica física del medicamento.",
-    "relevant_fragments": "\"# 3. FORMA FARMACÉUTICA\" y \"Solución oral\".",
+    "relevant_fragments": "\"# 3. FORMA FARMACÉUTICA\n\nSolución oral\".",
     "final_value": "Como la sección 3 da la forma farmacéutica, el valor debe ser \"Solución oral\"."
   },
   "standard_doses": {

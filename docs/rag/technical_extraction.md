@@ -18,7 +18,7 @@ Los tasks `technical_extraction` son extracciones L1 de un único fragmento verb
 
 | Campo | Description enriquecida |
 | --- | --- |
-| `answer` | Fragmento único y verbatim que responde exactamente la pregunta. Copia la oración o subfrase mínima suficiente, sin resumir, normalizar, traducir ni añadir puntuación ausente; descarta frases cercanas con tecnologías, licencias, versiones o desarrolladores que no correspondan al aspecto preguntado. |
+| `answer` | Fragmento único y verbatim que responde exactamente la pregunta. Copia la oración o subfrase suficiente, sin resumir, normalizar, traducir ni añadir puntuación ausente; descarta frases cercanas con tecnologías, licencias, versiones o desarrolladores que no correspondan al aspecto preguntado. |
 
 ## Propuesta de los dos ejemplos
 

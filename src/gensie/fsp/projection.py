@@ -36,6 +36,16 @@ def project_structured_fsp_case(
             for name in field_order
             if name in case.field_examples and name in field_set
         },
+        enriched_field_descriptions={
+            path: description
+            for path, description in case.enriched_field_descriptions.items()
+            if _top_level_field_path(path) in field_set
+        },
         tags=case.tags,
         judge=projected_judge,
     )
+
+
+def _top_level_field_path(path: str) -> str:
+    top_level = path.split(".", 1)[0]
+    return top_level.removesuffix("[]")

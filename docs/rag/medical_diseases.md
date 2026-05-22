@@ -30,7 +30,7 @@ Los tasks `medical_diseases` son extracciones L5 de perfiles patológicos: el mo
 | `etiology_type` | Tipo etiológico principal; enum completo: `INFECTIOUS`, `GENETIC`, `AUTOIMMUNE`, `DEGENERATIVE`, `UNKNOWN` u `OTHER`. Usa `INFECTIOUS` para infecciones, `GENETIC` para origen hereditario dominante, `AUTOIMMUNE` para autoinmunidad explícita, `DEGENERATIVE` para deterioro progresivo, `UNKNOWN` cuando no haya causa demostrada y `OTHER` para reacciones, cánceres, tóxicos o mecanismos no cubiertos. |
 | `etiology_description` | Resumen breve de la causa si el texto la explica. Devuelve `null` si solo hay hipótesis, factores asociados, mecanismos no concluyentes o epidemiología sin causa directa. |
 | `symptoms` | Manifestaciones clínicas mencionadas. Separa síntomas definitorios de complicaciones o signos tardíos; no incluyas tratamientos, factores de riesgo, pruebas diagnósticas ni consecuencias epidemiológicas como síntomas. |
-| `symptoms[].severity_level` | Severidad textual cuando esté explícita o sea muy clara; valores esperados: `Mild`, `Moderate` o `Severe`, además de `null` si no se puede justificar. No conviertas cualquier síntoma molesto en severo salvo que el texto hable de alarma, gravedad, incapacidad o riesgo vital. |
+| `symptoms[].severity_level` | Severidad textual cuando esté explícita o sea muy clara; valores esperados: `Mild`, `Moderate` o `Severe`, y `null` si no se puede justificar. No conviertas cualquier síntoma molesto en severo salvo que el texto hable de alarma, gravedad, incapacidad o riesgo vital. |
 | `symptoms[].is_primary` | `true` para síntomas centrales del cuadro; `false` para complicaciones, manifestaciones secundarias, signos de alarma, afectación por extensión o síntomas que solo aparecen en algunos casos. |
 | `diagnosis_methods` | Pruebas, escalas o métodos clínicos concretos usados para diagnosticar. Incluye radiografía, TAC, broncoscopía, test rápido, cultivo, escala clínica, etc.; no incluyas secciones llamadas “Diagnóstico” si no nombran un método. |
 | `is_chronic` | `true` si el texto define la enfermedad como crónica, persistente o de larga duración; `false` si la define como aguda, autolimitada o de pocos días; `null` si no caracteriza duración. |
@@ -147,12 +147,12 @@ Extrae el perfil de la enfermedad.
   },
   "symptoms": {
     "field_asks": "lista estructurada de síntomas, con severidad si se menciona o se infiere claramente como Mild, Moderate o Severe, y marca de si son definitorios o secundarios.",
-    "relevant_fragments": "\"dolor de garganta, fiebre, amígdalas con exudado y ganglios cervicales dolorosos\" y \"La dificultad para tragar saliva y la desviación de la úvula se describen como signos de alarma de formas graves\".",
+    "relevant_fragments": "\"Síntomas\n[...] dolor de garganta, fiebre, amígdalas con exudado y ganglios cervicales dolorosos\" y \"La dificultad para tragar saliva y la desviación de la úvula se describen como signos de alarma de formas graves\".",
     "final_value": "Como el primer fragmento enumera manifestaciones habituales, esos síntomas son primarios y sin severidad explícita. Dificultad para tragar saliva y desviación de la úvula se tratan como secundarios y Severe porque el segundo fragmento los sitúa como signos de alarma de formas graves."
   },
   "diagnosis_methods": {
     "field_asks": "pruebas clínicas o métodos mencionados para identificar la patología.",
-    "relevant_fragments": "\"exploración clínica\" y \"test rápido de antígeno o cultivo faríngeo\".",
+    "relevant_fragments": "\"El diagnóstico se apoya en la exploración clínica y se confirma con test rápido de antígeno o cultivo faríngeo\".",
     "final_value": "Como los fragmentos relevantes nombran métodos diagnósticos, la lista debe incluir exploración clínica, test rápido de antígeno y cultivo faríngeo."
   },
   "is_chronic": {

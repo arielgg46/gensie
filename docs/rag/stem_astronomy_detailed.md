@@ -28,14 +28,14 @@ Los tasks `stem_astronomy_detailed` son extracciones L5 de propiedades físicas 
 
 | Campo | Description enriquecida |
 | --- | --- |
-| `official_name` | Nombre o designación científica principal del cuerpo celeste. Usa el encabezado si es el nombre formal; si el cuerpo tiene designación numerada o científica explícita, prefiérela sobre el nombre popular cuando el schema pida nombre oficial. |
+| `official_name` | Nombre o designación científica principal del cuerpo celeste. Usa el encabezado si es el nombre formal; si el cuerpo tiene designación numerada o científica explícita, prefiérela sobre el nombre popular. |
 | `body_type` | Clasificación del cuerpo; enum completo: `ASTEROIDE`, `COMETA`, `PLANETA`, `LUNA`, `PLANETA ENANO`, `OBJETO INTERESTELAR` u `OTRO`. Decide por la clasificación astronómica explícita y no por historia antigua, reclasificaciones pasadas o comparaciones con otros cuerpos. |
 | `mass_kg` | Masa del cuerpo en kilogramos. Devuelve `null` si el texto solo da masas relativas, rankings, masa de muestras, masa de rocas, masa de otro cuerpo o comparaciones sin conversión directa a kg. |
-| `diameter_km` | Diámetro medio en kilómetros. No uses radios, alturas de montañas, resolución telescópica, distancia orbital o comparaciones de tamaño si no dan un diámetro normalizable. |
-| `eccentricity` | Excentricidad orbital como número decimal. Devuelve `null` ante descripciones como “órbita excéntrica”, “alta excentricidad” o porcentajes vagos sin valor extraíble. |
+| `diameter_km` | Diámetro medio en kilómetros. No uses alturas de montañas, resolución telescópica, distancia orbital o comparaciones de tamaño si no dan un diámetro normalizable. Si en el texto se menciona valor concreto de radio, el diámetro es el doble. |
+| `eccentricity` | Excentricidad orbital como número decimal. Devuelve `null` ante descripciones como “órbita excéntrica”, “alta excentricidad”, “menor/mayor que...” o porcentajes vagos sin valor extraíble. |
 | `orbital_period_days` | Periodo de traslación alrededor del primario, en días terrestres. No lo confundas con periodo de rotación, duración del día, ciclos estacionales, fechas de misión ni periodos de nubes o atmósfera. |
 | `semi_major_axis_au` | Semieje mayor o distancia orbital media al Sol en unidades astronómicas. Extrae valores en `ua`/`UA`; no uses orden de distancia al Sol, perihelio, afelio o referencias geométricas si no son el semieje/distancia media pedida. |
-| `discovery_date` | Fecha de descubrimiento normalizada como `YYYY-MM-DD`. Devuelve `null` para cuerpos conocidos desde la antigüedad, observaciones prehistóricas o menciones de misiones/estudios que no sean el descubrimiento. |
+| `discovery_date` | Fecha de descubrimiento normalizada como `YYYY-MM-DD`. Devuelve `null` para cuerpos conocidos desde la antigüedad (sin fecha exacta), observaciones prehistóricas o menciones de misiones/estudios que no sean el descubrimiento. |
 | `discoverer` | Persona u observatorio presentado como descubridor. No uses astrónomos que midieron órbitas, formularon leyes, exploraron con sondas o predijeron posiciones salvo que el texto los identifique como descubridores. |
 
 ## Propuesta de los dos ejemplos
@@ -124,7 +124,7 @@ Extrae las propiedades físicas y orbitales del cuerpo celeste descrito en el te
   "orbital_period_days": {
     "field_asks": "tiempo que tarda el cuerpo en completar una órbita alrededor de su primario, expresado en días terrestres; no debe confundirse con periodo de rotación, duración del día, fecha de misión ni ciclo estacional.",
     "relevant_fragments": "\"El año marciano dura 686,98 días terrestres\" y \"el periodo de rotación del planeta ronda las 24,6 horas\".",
-    "final_value": "Como el primer fragmento relevante da la duración de la traslación alrededor del Sol y el segundo separa la rotación diaria, el periodo orbital debe ser 686.98."
+    "final_value": "El primer fragmento relevante da la duración del año, que determina la traslación alrededor del Sol (su primario); el segundo solo separa la rotación diaria (que no debe confundirse con período de traslación orbital); por tanto el periodo orbital debe ser 686.98."
   },
   "semi_major_axis_au": {
     "field_asks": "semieje mayor o distancia orbital media al Sol en unidades astronómicas, o null si no hay dato en UA suficiente.",
@@ -157,7 +157,7 @@ Durante décadas fue considerado el noveno planeta, hasta que la Unión Astronó
 
 La descripción histórica comenta su recatalogación, la existencia de Caronte y otras lunas menores, y comparaciones generales de tamaño con la Luna y con otros objetos transneptunianos. También recuerda que las primeras imágenes eran puntos débiles en placas fotográficas, por lo que su naturaleza se discutió durante años antes de quedar integrada en el estudio del cinturón de Kuiper.
 
-Las campañas fotográficas de Lowell sirvieron de base para el hallazgo de Tombaugh. Más tarde, las observaciones de ocultaciones estelares y la visita de una sonda permitieron estudiar su atmósfera tenue y su geología helada, pero la reseña se centra sobre todo en su descubrimiento y reclasificación.
+Las campañas fotográficas de Lowell sirvieron de base para el hallazgo de Tombaugh. Más tarde, las observaciones de ocultaciones estelares y la visita de una sonda permitieron estudiar su atmósfera tenue y su geología helada.
 ```
 
 `instruction`:

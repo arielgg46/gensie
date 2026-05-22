@@ -34,7 +34,7 @@ Los tasks `lifestyle_recipes` son extracciones L10 de recetas o descripciones cu
 | `complexity_score` | Dificultad inferida de 1 a 10 según número de fases, control de textura, técnicas, precisión y tiempo. Una técnica o ingrediente básico puede ser 1-2; guisos con sofrito y hervor 5-6; preparaciones con marinado, reducción, horno o varias fases tienden a 7 o más. |
 | `dietary_tags` | Etiquetas dietéticas inferidas del enum completo: `VEGANO`, `VEGETARIANO`, `SIN GLUTEN`, `SIN LÁCTEOS` o `BAJO EN CARBOHIDRATOS`. Evalúa la preparación básica, no acompañamientos opcionales; carne/pescado bloquea vegano/vegetariano, harina/pan/cerveza bloquea sin gluten, lácteos bloquean sin lácteos. |
 | `technique_sequence` | Secuencia cronológica de técnicas del enum completo: `SOFREÍR`, `HERVIR`, `HORNEAR`, `FREÍR`, `VAPOR` o `COCCIÓN LENTA`. Extrae solo técnicas descritas como preparación del plato; adobo, macerado, reposo o servicio no se fuerzan a un enum si no corresponden. |
-| `total_time_minutes` | Tiempo total en minutos cuando el texto da tiempos explícitos sumables. Devuelve `null` con expresiones vagas como “hasta que esté tierno”, “a fuego bajo”, “calor residual” o ausencia de duración. |
+| `total_time_minutes` | Tiempo total en minutos cuando el texto da tiempos explícitos posiblemente sumables. Devuelve `null` con expresiones vagas como “hasta que esté tierno”, “a fuego bajo”, “calor residual” o ausencia de duración. |
 
 ## Propuesta de los dos ejemplos
 
@@ -281,12 +281,12 @@ Extrae la receta.
   },
   "ingredients": {
     "field_asks": "lista estructurada de ingredientes; cada unidad debe mapearse a g, ml, kg, unidad, pizca, cucharada, otro o null.",
-    "relevant_fragments": "\"costillas\", \"sal, pimienta y pimentón\", \"cebolla y ajo con mantequilla\", \"un vaso de cerveza negra, miel y laurel\".",
-    "final_value": "Como los fragmentos relevantes listan ingredientes sin cantidades numéricas salvo \"un vaso\", la mayoría queda con amount y unit null; \"un vaso\" se normaliza como amount 1 y unit \"otro\"."
+    "relevant_fragments": "\"costillas\", \"sal, pimienta y pimentón\", \"cebolla y ajo con mantequilla\", \"un vaso de cerveza negra, miel y laurel\" y \"En algunas casas se sirve con pan tostado\".",
+    "final_value": "Como los fragmentos relevantes listan ingredientes sin cantidades numéricas salvo \"un vaso\", la mayoría queda con amount y unit null; \"un vaso\" se normaliza como amount 1 y unit \"otro\". El último fragmento habla de cómo se sirve en algunos lugares, pero no se incluye pan tostado como parte principal de la receta o plato."
   },
   "complexity_score": {
     "field_asks": "dificultad inferida de 1 a 10 según pasos, técnicas y tiempo.",
-    "relevant_fragments": "\"se sofríen cebolla y ajo\", \"queda a fuego muy bajo hasta que la salsa se vuelve espesa\" y \"se terminan en el horno fuerte\".",
+    "relevant_fragments": "\"se sofríen cebolla y ajo\", \"queda a fuego muy bajo hasta que la salsa se vuelve espesa\", \"se pintan con la salsa reducida\" y \"se terminan en el horno fuerte\".",
     "final_value": "Como los fragmentos relevantes combinan varias fases y control de textura, la dificultad debe ser relativamente alta: 7."
   },
   "dietary_tags": {
@@ -300,7 +300,7 @@ Extrae la receta.
     "final_value": "Como los fragmentos relevantes describen primero sofrito, luego cocción lenta y al final horno, la secuencia debe ser [\"SOFREÍR\", \"COCCIÓN LENTA\", \"HORNEAR\"]."
   },
   "total_time_minutes": {
-    "field_asks": "duración total normalizada en minutos, o null si no hay tiempo suficiente.",
+    "field_asks": "duración total normalizada en minutos, o null si no hay tiempo suficientemente concreto.",
     "relevant_fragments": "\"hasta que la salsa se vuelve espesa\" y \"hasta que la superficie quede brillante\".",
     "final_value": "Los fragmentos relevantes expresan puntos de textura, pero no una duración total ni tiempos sumables; el valor debe ser null."
   }

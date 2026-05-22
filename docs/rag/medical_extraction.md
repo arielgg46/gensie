@@ -28,7 +28,7 @@ cinco.
 
 | Campo | Description enriquecida |
 | --- | --- |
-| `answer` | Fragmento literal que responde la pregunta. Copia la línea completa y exacta, incluyendo dos puntos, punto final, coma decimal, unidad y nombre de la presentación o sustancia; no normalices cantidades, no devuelvas solo el número y no confundas presentaciones cercanas como 500 mg vs 650 mg o principio activo vs excipiente. |
+| `answer` | Fragmento único y verbatim que responde exactamente la pregunta. Copia la oración o sintagma completo del texto fuente, conservando unidades, tildes y puntuación; no resumas, no normalices cantidades y no añadas contexto externo. |
 
 ## Input, output y reasoning propuestos
 

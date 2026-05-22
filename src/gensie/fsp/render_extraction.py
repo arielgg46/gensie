@@ -89,6 +89,8 @@ def render_same_schema_extraction_fsp_example(
     output = build_extraction_output(case, extraction.reasoning, labels=labels)
     output_json = json.dumps(output, ensure_ascii=False, indent=2)
     return (
+        "INSTRUCCIÓN DEL EJEMPLO:\n"
+        f"{case.instruction}\n\n"
         "TEXTO FUENTE DEL EJEMPLO:\n"
         f"{case.source_text}\n\n"
         "SALIDA DEL EJEMPLO:\n"

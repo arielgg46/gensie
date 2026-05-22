@@ -91,8 +91,8 @@ Extrae el resumen del contrato o acto legislativo.
 {
   "official_title": {
     "field_asks": "el título oficial completo de la norma.",
-    "relevant_fragments": "\"El Real Decreto-ley 14/2022, de 1 de agosto, de medidas de sostenibilidad económica en el ámbito del transporte, en materia de becas y ayudas al estudio, así como de medidas de ahorro, eficiencia energética y de reducción de la dependencia energética del gas natural\".",
-    "final_value": "Como el fragmento relevante da el título formal completo de la norma principal, el valor debe ser ese título íntegro."
+    "relevant_fragments": "\"# Real decreto-ley de ahorro energético de 2022\" y \"El Real Decreto-ley 14/2022, de 1 de agosto, de medidas de sostenibilidad económica en el ámbito del transporte, en materia de becas y ayudas al estudio, así como de medidas de ahorro, eficiencia energética y de reducción de la dependencia energética del gas natural\".",
+    "final_value": "El primer fragmento relevante es solo el título del artículo, no el nombre completo de la norma; el segundo fragmento da el título formal completo de la norma principal, el valor debe ser ese título íntegro."
   },
   "law_range": {
     "field_asks": "el rango jurídico de la norma, mapeado a uno de estos valores: LEY ORGÁNICA, LEY ORDINARIA, REAL DECRETO, REAL DECRETO-LEY, CONSTITUCIÓN u OTRA.",
@@ -131,7 +131,7 @@ Extrae el resumen del contrato o acto legislativo.
 
 Source: https://es.wikipedia.org/wiki/Ley_de_patios_verdes_valenciana
 
-La llamada ley de patios verdes fue citada en prensa durante años como una iniciativa escolar de la Generalitat. En la ficha consolidada aparece con su título formal, Ley 6/2009, de huertos escolares y educación ambiental de la Comunitat Valenciana, una ley autonómica ordinaria tramitada por Les Corts tras varias campañas municipales de compostaje. La crónica parlamentaria sitúa su aprobación en la primavera de 2009, mientras que la publicación oficial se produjo el 14 de julio de ese año.
+La llamada ley de patios verdes fue citada en prensa durante años como una iniciativa escolar de la Generalitat. En la ficha consolidada aparece con su título formal, Ley 6/2009, de huertos escolares y educación ambiental de la Comunitat Valenciana; es una ley autonómica ordinaria tramitada por Les Corts tras varias campañas municipales de compostaje. La crónica parlamentaria sitúa su aprobación en la primavera de 2009, mientras que la publicación oficial se produjo el 14 de julio de ese año.
 
 Objeto y aplicación
 El texto creó una red de huertos escolares, reguló convenios con ayuntamientos y encargó a la conselleria educativa preparar guías para centros públicos y concertados. También citaba programas europeos de sostenibilidad urbana y una orden estatal sobre residuos orgánicos, pero esas referencias funcionaban como contexto técnico, no como rango de la norma.
@@ -181,7 +181,7 @@ Extrae el resumen del contrato o acto legislativo.
   "jurisdiction": {
     "field_asks": "el ámbito de aplicación, mapeado a uno de estos valores: NACIONAL, AUTONÓMICO, LOCAL o EUROPEO.",
     "relevant_fragments": "\"iniciativa escolar de la Generalitat\", \"Comunitat Valenciana\" y \"ley autonómica ordinaria tramitada por Les Corts\".",
-    "final_value": "Como los fragmentos relevantes sitúan la norma en instituciones y ámbito valencianos, el valor del enum debe ser \"AUTONÓMICO\"."
+    "final_value": "Como los fragmentos relevantes sitúan la norma como autonómica, en instituciones y ámbito valencianos, el valor del enum debe ser \"AUTONÓMICO\"."
   },
   "is_repealed": {
     "field_asks": "true si el texto menciona que la norma ya no está en vigor, fue derogada o fue sustituida; false en caso contrario.",

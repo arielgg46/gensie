@@ -64,7 +64,7 @@ Los tasks `cultural_media` piden extraer metadatos y crítica subjetiva desde un
 ```text
 # 'La noche de los mapas' se estrella como thriller de ciencia ficción: mucho decorado y cero pulso
 
-La noche de los mapas parecía tener todos los ingredientes para levantar una película de intriga espacial: estaciones abandonadas, conspiraciones cartográficas y una ciudad subterránea llena de secretos. También carga con la sombra de mejores aventuras de ciencia ficción, pero esas comparaciones solo dejan más claro lo poco que esta obra encuentra una voz propia. [...] Clara Varela dirige una película empeñada en parecer enorme, aunque casi nunca consigue que sus piezas encajen. El guion anuncia misterios y luego los resuelve con explicaciones torpes, y cada persecución llega sin tensión. La puesta en escena intenta vender urgencia con luces rojas y música insistente, pero todo parece una maqueta de algo que nunca arranca. [...] El reparto se pierde entre frases solemnes y órdenes gritadas, siempre tratado como un bloque sin presencia individual. La película se compara con modas antiguas del género y con sagas conocidas, pero ninguna fecha queda ligada a su lanzamiento. Lo único rotundo es la nota: después de dos horas de ruido, apenas merece un 3 sobre 10. [...] Ni siquiera sus ideas más llamativas funcionan. La ciudad subterránea no tiene personalidad, el humor cae siempre tarde y el clímax final convierte la conspiración en una sucesión de puertas que se abren solas. Al salir queda una sensación simple: La noche de los mapas es un intento fallido sin pulso ni personalidad.
+La noche de los mapas parecía tener todos los ingredientes para levantar una película de intriga espacial: estaciones abandonadas, conspiraciones cartográficas y una ciudad subterránea llena de secretos. También carga con la sombra de mejores aventuras de ciencia ficción, pero esas comparaciones solo dejan más claro lo poco que esta obra encuentra una voz propia. [...] Clara Varela dirige una película empeñada en parecer enorme, aunque casi nunca consigue que sus piezas encajen. El guion anuncia misterios y luego los resuelve con explicaciones torpes, y cada persecución llega sin tensión. La puesta en escena intenta vender urgencia con luces rojas y música insistente, pero todo parece una maqueta de algo que nunca arranca. [...] El reparto se pierde entre frases solemnes y órdenes gritadas, siempre tratado como un bloque sin presencia individual. La película se compara con modas antiguas del género y con sagas conocidas, pero su lanzamiento este año no marcará un antes ni un después. Lo único rotundo es la nota: después de dos horas de ruido, apenas merece un 3 sobre 10. [...] Ni siquiera sus ideas más llamativas funcionan. La ciudad subterránea no tiene personalidad, el humor cae siempre tarde y el clímax final convierte la conspiración en una sucesión de puertas que se abren solas. Al salir queda una sensación simple: La noche de los mapas es un intento fallido sin pulso ni personalidad.
 ```
 
 `output`:
@@ -115,8 +115,8 @@ La noche de los mapas parecía tener todos los ingredientes para levantar una pe
   },
   "release_year": {
     "field_asks": "el año de estreno o lanzamiento de la obra, o null si no hay evidencia suficiente.",
-    "relevant_fragments": "\"La película se compara con modas antiguas del género y con sagas conocidas, pero ninguna fecha queda ligada a su lanzamiento\".",
-    "final_value": "El texto menciona referencias temporales ajenas, pero no un año de estreno o lanzamiento de la película; el valor debe ser null."
+    "relevant_fragments": "\"La película se compara con modas antiguas del género y con sagas conocidas, pero su lanzamiento este año no marcará un antes ni un después\".",
+    "final_value": "El texto menciona referencias temporales ajenas, y que el lanzamiento de la película fue 'este año', pero esto es relativo a cuando se escribió la crítica, ningún valor numérico explícito de dicho año se menciona; el valor debe ser null."
   },
   "rating": {
     "field_asks": "la puntuación dada por el crítico, normalizada a escala 0-10.",
@@ -126,11 +126,11 @@ La noche de los mapas parecía tener todos los ingredientes para levantar una pe
   "sentiment": {
     "field_asks": "el tono global de la reseña, mapeado a uno de estos valores: POSITIVE, NEUTRAL o NEGATIVE.",
     "relevant_fragments": "\"se estrella\", \"cero pulso\" y \"un intento fallido sin pulso ni personalidad\".",
-    "final_value": "Como los fragmentos relevantes expresan una valoración claramente desfavorable, el valor del enum debe ser \"NEGATIVE\"."
+    "final_value": "Como los fragmentos relevantes expresan una valoración claramente desfavorable, y no hay fragmentos favorables que balanceen, el valor del enum debe ser \"NEGATIVE\"."
   },
   "pros": {
     "field_asks": "aspectos positivos concretos destacados por la crítica.",
-    "relevant_fragments": "\"lo poco que esta obra encuentra una voz propia\", \"todo parece una maqueta\" y \"Ni siquiera sus ideas más llamativas funcionan\".",
+    "relevant_fragments": "\"carga con la sombra de mejores aventuras de ciencia ficción, pero esas comparaciones solo dejan más claro lo poco que esta obra encuentra una voz propia\", \"todo parece una maqueta\" y \"Ni siquiera sus ideas más llamativas funcionan\".",
     "final_value": "El texto revisa los posibles méritos y los formula como fallos; no hay aspectos positivos concretos suficientemente grounded, así que la lista es vacía."
   },
   "cons": {
@@ -153,7 +153,7 @@ La noche de los mapas parecía tener todos los ingredientes para levantar una pe
 ```text
 # 'Los días de la estación' confirma a sus protagonistas como un hallazgo, aunque la serie no siempre sabe cerrar lo que abre
 
-Cada temporada aparece una serie pequeña que no pretende cambiar la televisión, pero sí encontrar un tono propio. 'Los días de la estación', estrenada en 2025 en Horizonte Play, pertenece a esa familia: seis episodios sobre una vieja estación de tren convertida en refugio vecinal, con una mirada cálida hacia sus personajes. [...] La serie fue creada por Irene Salvatierra y escrita junto a Pablo León para Horizonte Play. Entre el reparto, Nadia Ríos sostiene la historia con una interpretación contenida, Bruno Castañeda aporta una comicidad seca que evita el sentimentalismo y Laura Otero convierte una subtrama mínima en el momento más delicado de la temporada. [...] Cuando 'Los días de la estación' se concentra en la convivencia, funciona de maravilla. Hay diálogos precisos, una atmósfera melancólica que nunca se vuelve postal y un uso muy bonito del espacio de la estación como memoria compartida. [...] El problema es que el tramo central se estira más de la cuenta. Algunas subtramas familiares quedan abiertas sin verdadera consecuencia y el quinto episodio repite información que ya estaba clara. La serie no se hunde por eso, pero sí pierde parte de la ligereza que había construido. El balance queda en una zona intermedia: una serie notable en sus personajes, pero irregular en su desarrollo.
+Cada temporada aparece una serie pequeña que no pretende cambiar la televisión, pero sí encontrar un tono propio. 'Los días de la estación', estrenada en 2025 en Horizonte Play, pertenece a esa familia: seis episodios sobre una vieja estación de tren convertida en refugio vecinal, con una mirada cálida hacia sus personajes. [...] La serie fue creada por Irene Salvatierra y escrita junto a Pablo León para Horizonte Play. Entre el reparto, Nadia Ríos sostiene la historia con una interpretación contenida y Bruno Castañeda aporta una comicidad seca que evita el sentimentalismo. [...] Cuando 'Los días de la estación' se concentra en la convivencia, funciona de maravilla. Hay diálogos precisos, una atmósfera melancólica que nunca se vuelve postal y un uso muy bonito del espacio de la estación como memoria compartida. [...] El problema es que el tramo central se estira más de la cuenta. Algunas subtramas familiares quedan abiertas sin verdadera consecuencia y el quinto episodio repite información que ya estaba clara. La serie no se hunde por eso, pero sí pierde parte de la ligereza que había construido. El balance queda en una zona intermedia: una serie notable en sus personajes, pero irregular en su desarrollo.
 ```
 
 `output`:
@@ -165,15 +165,14 @@ Cada temporada aparece una serie pequeña que no pretende cambiar la televisión
   "director": null,
   "main_cast": [
     "Nadia Ríos",
-    "Bruno Castañeda",
-    "Laura Otero"
+    "Bruno Castañeda"
   ],
   "release_year": 2025,
   "rating": null,
   "sentiment": "NEUTRAL",
   "pros": [
     "Nadia Ríos sostiene la historia con una interpretación contenida",
-    "Bruno Castañeda aporta una comicidad seca que evita el sentimentalismo",
+    "Bruno Castañeda aporta una comicidad seca que evita el sentimentalismo"
     "Hay diálogos precisos",
     "un uso muy bonito del espacio de la estación como memoria compartida"
   ],
@@ -208,8 +207,8 @@ Cada temporada aparece una serie pequeña que no pretende cambiar la televisión
   },
   "main_cast": {
     "field_asks": "los actores o intérpretes principales mencionados en la reseña.",
-    "relevant_fragments": "\"Entre el reparto, Nadia Ríos sostiene la historia\", \"Bruno Castañeda aporta una comicidad seca\" y \"Laura Otero convierte una subtrama mínima\".",
-    "final_value": "Los nombres mencionados como reparto son Nadia Ríos, Bruno Castañeda y Laura Otero."
+    "relevant_fragments": "\"Entre el reparto, Nadia Ríos sostiene la historia y Bruno Castañeda aporta una comicidad seca\".",
+    "final_value": "Los nombres mencionados como reparto son Nadia Ríos y Bruno Castañeda."
   },
   "release_year": {
     "field_asks": "el año de estreno o lanzamiento de la obra, o null si no hay evidencia suficiente.",

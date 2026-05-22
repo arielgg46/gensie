@@ -31,14 +31,14 @@ Los tasks `general_disasters` usan el schema general de noticias L4 para fenóme
 | --- | --- |
 | `headline` | Titular principal de la noticia, normalmente el encabezado `#`. Cópialo sin el marcador Markdown y no añadas contexto del cuerpo ni cifras que no estén en el titular. |
 | `summary` | Resumen breve en 1-3 oraciones con fenómeno, ubicación, consecuencias humanas y respuesta cuando aparezcan. No conviertas listas largas de velocidades, distancias o daños materiales en el foco si las víctimas o afectados son el hecho central. |
-| `category` | Categoría temática del enum completo: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. Para huracanes, temporales, aludes, terremotos, inundaciones y emergencias similares usa `DISASTER`, aunque el texto cite gobiernos, policía o centros meteorológicos. |
+| `category` | Categoría temática del enum completo: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. Para huracanes, temporales, aludes, terremotos, inundaciones, matanzas o accidentes terribles, y emergencias similares usa `DISASTER`, aunque el texto cite gobiernos, policía o centros meteorológicos. |
 | `location` | Lugar principal del evento o impacto. Extrae ciudad, región, país o zona marítima concreta si está grounded; devuelve `null` si solo hay aguas abiertas, direcciones, puertos genéricos o referencias demasiado amplias sin lugar nombrado. |
-| `date` | Fecha explícita del hecho o periodo cuando el texto la da. Devuelve `null` para `este jueves`, `en las próximas horas`, `temporada`, duración del temporal o fechas de boletines si no son una fecha absoluta del evento. |
+| `date` | Fecha explícita del hecho o periodo cuando el texto la da. Devuelve `null` para expresiones temporales poco concretas o relativas como `este jueves`, `en las próximas horas`, `temporada`, duración del temporal o fechas de boletines si no son una fecha absoluta del evento. |
 | `key_people` | Personas individuales nombradas y relevantes. No incluyas cargos sin nombre, grupos, equipos de rescate ni organismos; sí incluye autoridades, especialistas o testigos con nombre propio. |
-| `key_organizations` | Organizaciones, gobiernos, centros meteorológicos, medios, hospitales o agencias nombradas. No incluyas instalaciones genéricas, equipos sin nombre propio, países donantes como si fueran organizaciones ni fenómenos meteorológicos. |
+| `key_organizations` | Organizaciones, gobiernos, centros meteorológicos, medios, hospitales o agencias nombradas. No incluyas instalaciones genéricas, equipos sin nombre propio, o países (a menos que se hable expresamente de su gobierno) como si fueran organizaciones. |
 | `casualties` | Número de muertes humanas reportadas. No uses desaparecidos, animales muertos, viviendas destruidas, balances aproximados del titular si el cuerpo da una cifra más precisa, ni muertes no confirmadas. |
 | `injured` | Número de personas heridas o lesionadas. No uses evacuados, damnificados, personas expuestas, desaparecidos ni atendidos preventivamente si no se describen como heridos. |
-| `affected_count` | Número de personas afectadas, damnificadas, evacuadas o desplazadas. No uses velocidades del viento, kilómetros, alturas de oleaje, casas, rutas, toneladas, dinero ni familias si el schema espera personas y no hay conversión segura. |
+| `affected_count` | Número de personas afectadas, damnificadas, evacuadas o desplazadas. No uses velocidades del viento, kilómetros, alturas de oleaje, casas, rutas, toneladas, dinero ni familias, cuando no haya conversión segura a cantidad de personas. |
 
 ## Propuesta de los dos ejemplos
 
@@ -120,12 +120,12 @@ Extrae la información estructurada de este artículo de noticias sobre un desas
   },
   "location": {
     "field_asks": "la ubicación geográfica donde ocurrió el evento, o null si no hay evidencia suficiente.",
-    "relevant_fragments": "\"en Santa Lidia, departamento de Nariño, Colombia\".",
+    "relevant_fragments": "\"Un deslizamiento de lodo [...] en Santa Lidia, departamento de Nariño, Colombia\".",
     "final_value": "Como el fragmento relevante ubica el alud en Santa Lidia, Nariño, Colombia, el valor debe ser \"Santa Lidia, Nariño, Colombia\"."
   },
   "date": {
     "field_asks": "la fecha mencionada en el artículo, o null si no hay evidencia suficiente.",
-    "relevant_fragments": "\"el 9 de febrero de 2026\".",
+    "relevant_fragments": "\"Un deslizamiento de lodo [...] el 9 de febrero de 2026\".",
     "final_value": "Como el fragmento relevante da una fecha completa del deslizamiento, el valor debe ser \"9 de febrero de 2026\"."
   },
   "key_people": {
@@ -145,12 +145,12 @@ Extrae la información estructurada de este artículo de noticias sobre un desas
   },
   "injured": {
     "field_asks": "número de personas heridas mencionadas, o null si no se menciona ninguna cifra de heridos humanos.",
-    "relevant_fragments": "\"43 heridos\".",
+    "relevant_fragments": "\"El primer balance oficial reportó [...] 43 heridos\".",
     "final_value": "Como el fragmento relevante cuantifica heridos, el valor debe ser 43."
   },
   "affected_count": {
     "field_asks": "número de personas afectadas, evacuadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
-    "relevant_fragments": "\"1 800 personas evacuadas hacia escuelas y coliseos\".",
+    "relevant_fragments": "\"El primer balance oficial reportó [...] 1 800 personas evacuadas hacia escuelas y coliseos\".",
     "final_value": "Como el fragmento relevante cuantifica personas evacuadas, el valor debe ser 1800."
   }
 }
@@ -234,18 +234,18 @@ Extrae la información estructurada de este artículo de noticias sobre un fenó
   },
   "casualties": {
     "field_asks": "número de muertes mencionadas, o null si no se menciona ninguna cifra de muertes humanas.",
-    "relevant_fragments": "\"mantuvieron bandera amarilla, suspendieron salidas pequeñas y revisaron amarres\".",
-    "final_value": "El fragmento relevante describe medidas preventivas portuarias, pero no cifras de muertes humanas; el valor debe ser null."
+    "relevant_fragments": "No hay fragmentos relevantes.",
+    "final_value": "En el texto no se hace alusión a cifras de muertes humanas; el valor debe ser null."
   },
   "injured": {
     "field_asks": "número de personas heridas mencionadas, o null si no se menciona ninguna cifra de heridos humanos.",
-    "relevant_fragments": "\"se aleja de las rutas de ferry\" y \"Equipos de puerto retiraron boyas sueltas\".",
-    "final_value": "Los fragmentos relevantes tratan reducción de riesgo y preparación, pero no personas heridas; el valor debe ser null."
+    "relevant_fragments": "No hay fragmentos relevantes.",
+    "final_value": "En el texto no se hace alusión a personas heridas; el valor debe ser null."
   },
   "affected_count": {
     "field_asks": "número de personas afectadas, evacuadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
-    "relevant_fragments": "\"oleaje cercano a cuatro metros\" y \"suspendieron salidas pequeñas\".",
-    "final_value": "Los fragmentos relevantes dan una medida de oleaje y una suspensión operativa, pero no una cifra de personas afectadas, evacuadas o desplazadas; el valor debe ser null."
+    "relevant_fragments": "No hay fragmentos relevantes.",
+    "final_value": "En el texto no se hace alusión a cifras de personas afectadas, evacuadas o desplazadas; el valor debe ser null."
   }
 }
 ```

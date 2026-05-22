@@ -33,12 +33,12 @@ Los tasks `environmental_ecology` usan el schema general de noticias L4 para art
 | `summary` | Resumen breve en 1-3 oraciones de los hechos principales. Debe sintetizar evento, causa, actores y consecuencias cuando estén en el texto, sin copiar todo ni inventar contexto ambiental no mencionado. |
 | `category` | Categoría temática del enum: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. En este prefijo suele ser `ENVIRONMENT`, pero usa `SPORTS` para competencias, `SCIENCE` para estudios como foco central, y no fuerces ambiente si la noticia trata principalmente otro ámbito. |
 | `location` | Lugar principal del hecho noticioso. Extrae ciudad, región o país cuando el evento esté ubicado; devuelve `null` ante declaraciones globales o listados de lugares secundarios sin un sitio central. |
-| `date` | Fecha explícita del hecho o rango claramente fechado. Devuelve `null` para referencias relativas como `este jueves`, `recientemente`, `últimos días` o periodos históricos sin fecha absoluta suficiente. |
+| `date` | Fecha explícita del hecho o rango claramente fechado. Devuelve `null` para expresiones temporales poco concretas o relativas como `este jueves`, `en las próximas horas`, `recientemente`, `últimos días` o periodos históricos sin fecha absoluta suficiente. |
 | `key_people` | Nombres propios de personas individuales mencionadas, aunque aparezcan en párrafos laterales. No incluyas cargos, equipos, comunidades, animales ni grupos anónimos. |
-| `key_organizations` | Organizaciones, instituciones, empresas, gobiernos, medios o equipos con nombre propio. No confundas lugares, fenómenos naturales, especies, cargos genéricos o descripciones como `un laboratorio universitario` con organizaciones nombradas. |
+| `key_organizations` | Organizaciones, instituciones, empresas, gobiernos, medios o equipos con nombre propio. No confundas lugares, fenómenos naturales, especies o cargos genéricos. No incluyas instalaciones genéricas, equipos sin nombre propio, o países (a menos que se hable expresamente de su gobierno) como si fueran organizaciones. |
 | `casualties` | Número de muertes humanas mencionadas. Devuelve `null` si solo hay animales muertos, daños ecológicos, riesgos o cifras de especies. |
 | `injured` | Número de personas heridas o lesionadas. Devuelve `null` si el texto solo menciona enfermedades animales, exposición ambiental sin lesión cuantificada o medidas preventivas. |
-| `affected_count` | Número de personas afectadas, evacuadas, atendidas o sin servicios. No uses cifras ambientales, animales, hectáreas, kilómetros, muestras, focos o toneladas salvo que el texto las formule como personas afectadas. |
+| `affected_count` | Número de personas afectadas, evacuadas, atendidas o sin servicios. No uses cifras ambientales, animales, hectáreas, kilómetros, muestras, focos o toneladas, cuando no haya conversión segura a cantidad de personas. |
 
 ## Propuesta de los dos ejemplos
 
@@ -142,13 +142,13 @@ Extrae la información estructurada de este artículo de noticias sobre un event
   },
   "casualties": {
     "field_asks": "número de muertes mencionadas, o null si no se menciona ninguna cifra de muertes humanas.",
-    "relevant_fragments": "\"1 200 vecinos\" y \"mortandad de truchas en dos criaderos familiares\".",
+    "relevant_fragments": "\"repartieron bidones y pastillas potabilizadoras a 1 200 vecinos\" y \"mortandad de truchas en dos criaderos familiares\".",
     "final_value": "Los fragmentos relevantes dan población atendida y muerte de peces, pero no muertes humanas; el valor debe ser null."
   },
   "injured": {
     "field_asks": "número de personas heridas mencionadas, o null si no se menciona ninguna cifra de heridos humanos.",
-    "relevant_fragments": "\"repartieron bidones y pastillas potabilizadoras a 1 200 vecinos\" y \"suspender el uso de las acequias\".",
-    "final_value": "Los fragmentos relevantes describen prevención y asistencia, pero no personas heridas; el valor debe ser null."
+    "relevant_fragments": "\"repartieron bidones y pastillas potabilizadoras a 1 200 vecinos\".",
+    "final_value": "El fragmento relevante describe asistencia, pero no personas heridas; el valor debe ser null."
   },
   "affected_count": {
     "field_asks": "número de personas afectadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
@@ -183,7 +183,7 @@ Extrae la información estructurada de este artículo de noticias sobre medio am
 ```json
 {
   "headline": "Científicos vinculan incendios de turberas con daños respiratorios duraderos",
-  "summary": "Lara Méndez presentó un estudio sobre incendios de turberas coordinado con Rui Tanaka y difundido como preprint revisado por pares. El equipo analizó 3 400 muestras, registros médicos, sensores de partículas y datos de viento asociados a 620 focos de combustión lenta, vinculando esos episodios con 18 muertes y 146 personas heridas por inhalación de humo. El artículo distingue el humo de turberas del de incendios forestales de superficie y explica que una hectárea de turba seca puede liberar hasta tres veces más carbono que un bosque joven.",
+  "summary": "La investigadora Lara Méndez presentó un estudio sobre incendios de turberas coordinado con Rui Tanaka y difundido como preprint revisado por pares. El equipo analizó 3 400 muestras, registros médicos, sensores de partículas y datos de viento asociados a 620 focos de combustión lenta, vinculando esos episodios con 18 muertes y 146 personas heridas por inhalación de humo. El artículo distingue el humo de turberas del de incendios forestales de superficie y explica que una hectárea de turba seca puede liberar hasta tres veces más carbono que un bosque joven.",
   "category": "SCIENCE",
   "location": null,
   "date": null,
@@ -219,7 +219,7 @@ Extrae la información estructurada de este artículo de noticias sobre medio am
   },
   "location": {
     "field_asks": "la ubicación geográfica donde ocurrió el evento, o null si no hay evidencia suficiente.",
-    "relevant_fragments": "\"humedales boreales y tropicales\".",
+    "relevant_fragments": "\"comparó 3 400 muestras de humo y suelo tomadas en humedales boreales y tropicales\".",
     "final_value": "El fragmento relevante describe un ámbito de estudio amplio y genérico, pero no una ubicación concreta del evento noticioso; el valor debe ser null."
   },
   "date": {
@@ -244,7 +244,7 @@ Extrae la información estructurada de este artículo de noticias sobre medio am
   },
   "injured": {
     "field_asks": "número de personas heridas mencionadas, o null si no se menciona ninguna cifra de heridos humanos.",
-    "relevant_fragments": "\"146 personas heridas por inhalación de humo denso\".",
+    "relevant_fragments": "\"esos episodios estuvieron vinculados con [...] 146 personas heridas por inhalación de humo denso\".",
     "final_value": "Como el fragmento relevante cuantifica a las personas heridas por inhalación, el valor debe ser 146."
   },
   "affected_count": {

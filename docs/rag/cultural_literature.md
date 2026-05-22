@@ -38,8 +38,8 @@ Los tasks `cultural_literature` son extracciones L2 de metadatos bibliográficos
 | --- | --- |
 | `title` | Título oficial de la obra descrita. Prioriza el título presentado como obra principal; no confundas encabezados populares, alias, títulos de partes, continuaciones, ediciones o estudios críticos con el título oficial esperado. |
 | `author` | Autor o creador principal explícitamente atribuido a la obra. Si el texto dice `Anónimo`, usa ese valor; no confundas copistas, editores, traductores, críticos, personajes o autores de obras comparadas con autoría. |
-| `publication_year` | Año exacto de primera publicación de la obra. Devuelve `null` si solo hay siglo, fecha de composición, éxito editorial, premio, reedición, continuación, edición escolar o estudio posterior. |
-| `genres` | Géneros o clasificaciones literarias explícitas en el texto, como `novela`, `tragicomedia` o `comedia humanística`. Usa `[]` si solo aparecen forma material, argumento, recepción o temas sin etiqueta de género clara. |
+| `publication_year` | Año exacto de primera publicación de la obra. Devuelve `null` SI SOLO HAY siglo, fecha de composición, éxito editorial, premio, reedición, continuación, edición escolar o estudio posterior. |
+| `genres` | Géneros o clasificaciones literarias explícitas en el texto, como `novela`, `tragicomedia`, `comedia humanística`, etc. Usa `[]` si solo aparecen forma material, argumento, recepción o temas sin etiqueta de género clara. |
 | `key_themes` | Temas principales nombrados por el texto, no interpretaciones externas. Extrae conceptos como injusticia social, tradición caballeresca, pobreza o memoria solo cuando el fragmento los presenta como asuntos de la obra. |
 | `original_language` | Lengua original de redacción, solo si el texto la afirma o da evidencia textual fuerte sobre la lengua de la obra. Nacionalidad del autor, país, literatura nacional o traducciones no bastan por sí solos. |
 
@@ -100,7 +100,7 @@ Extrae los metadatos bibliográficos y temas principales de la obra literaria de
   },
   "genres": {
     "field_asks": "los géneros literarios asociados con la obra, como lista vacía si no hay géneros explícitos.",
-    "relevant_fragments": "\"La ficha de esa colección la presentaba como novela breve\" y \"se la situó entre la narrativa fantástica rioplatense\".",
+    "relevant_fragments": "\"La ciudad de los espejos es una novela breve\", \"La ficha de esa colección la presentaba como novela breve\" y \"se la situó entre la narrativa fantástica rioplatense\".",
     "final_value": "Como los fragmentos relevantes nombran géneros o clasificaciones literarias explícitas, la lista debe incluir \"novela breve\" y \"narrativa fantástica rioplatense\"."
   },
   "key_themes": {

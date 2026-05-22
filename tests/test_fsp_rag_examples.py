@@ -21,6 +21,7 @@ from gensie.fsp.render_extraction import (
     render_extraction_fsp_example,
     render_same_schema_extraction_fsp_example,
 )
+from gensie.fsp.resources import load_fsp_case_resource
 from gensie.fsp.render_judge import render_judge_candidate_summary
 from gensie.pipeline import (
     ExtractionResult,
@@ -145,6 +146,19 @@ def test_default_extraction_fsp_cases_load_resources_without_quijote_fixed_case(
     assert "cultural_literature_quijote" not in case_ids
     assert "technical_software_lince_editor" in case_ids
     assert "stem_astronomy_detailed_marte" in case_ids
+
+
+def test_fsp_case_resource_can_load_enriched_field_descriptions():
+    case = load_fsp_case_resource("medical_extraction_lactosa_comprimido.json")
+
+    assert case.enriched_field_descriptions == {
+        "answer": (
+            "Fragmento único y verbatim que responde exactamente la pregunta. "
+            "Copia la oración o sintagma completo del texto fuente, conservando "
+            "unidades, tildes y puntuación; no resumas, no normalices cantidades "
+            "y no añadas contexto externo."
+        )
+    }
 
 
 def test_structured_case_renders_none_and_top_level_outputs_from_same_base():
@@ -304,10 +318,11 @@ def test_same_schema_extraction_fsp_renderer_omits_repeated_schema_contract():
 
     rendered = render_same_schema_extraction_fsp_example(case, extraction)
 
+    assert "INSTRUCCIÓN DEL EJEMPLO:" in rendered
+    assert "Extrae los campos solicitados." in rendered
     assert "TEXTO FUENTE DEL EJEMPLO:" in rendered
     assert "SALIDA DEL EJEMPLO:" in rendered
     assert '"reasoning": "EL CAMPO PIDE:' in rendered
-    assert "INSTRUCCI" not in rendered
     assert "SCHEMA" not in rendered
 
 

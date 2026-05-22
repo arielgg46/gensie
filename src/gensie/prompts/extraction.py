@@ -1,8 +1,14 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
+from typing import Mapping
 
 from gensie.fsp import FSPExample, FSPProvider, NoFSPProvider
+from gensie.fsp.examples import (
+    DEFAULT_REASONING_SECTION_LABELS,
+    ReasoningSectionLabels,
+)
 from gensie.fsp.selection import FspSelection
 from gensie.pipeline.context import PipelineContext
 from gensie.pipeline.specs import ExtractionSpec, FewShotMode, ReasoningMode
@@ -10,6 +16,7 @@ from gensie.prompts.base import PromptBundle, PromptBuilder
 from gensie.prompts.extraction_layouts import (
     build_default_extraction_user_prompt,
     build_extraction_prompt_layout,
+    should_use_same_schema_rag_compact_layout,
 )
 from gensie.prompts.schema_views import SchemaView, render_schema_view
 from gensie.prompts.system import (
@@ -19,6 +26,11 @@ from gensie.prompts.system import (
     INLINE_REASONING_SYSTEM_PROMPT,
     REASONING_EXTRACTION_RULES,
     STRICT_ANCHORING_RULE,
+    strict_reasoning_format_rule,
+)
+
+ENRICHED_RAG_FIELD_DESCRIPTIONS_ENV = (
+    "GENSIE_FSP_RAG_USE_ENRICHED_DESCRIPTIONS"
 )
 
 
@@ -36,16 +48,25 @@ class ExtractionPromptBuilder(PromptBuilder):
             reasoning=extraction.reasoning,
         )
         system = system_prompt_for_reasoning(extraction.reasoning)
-        rules = _rules_for_reasoning(extraction.reasoning)
         fsp_selection = _select_fsp_selection(
             context,
             extraction,
             self.fsp_provider,
         )
+        rules = _rules_for_reasoning(
+            extraction.reasoning,
+            labels=_reasoning_labels_for_selection(fsp_selection),
+        )
         fsp_examples = (
             ()
             if fsp_selection is not None
             else _select_fsp_examples(context, extraction, self.fsp_provider)
+        )
+        schema_view = _schema_view_with_enriched_rag_descriptions(
+            context=context,
+            extraction=extraction,
+            schema_view=schema_view,
+            fsp_selection=fsp_selection,
         )
         layout = build_extraction_prompt_layout(
             context=context,
@@ -91,7 +112,10 @@ def build_extraction_prompt(
         context=context,
         extraction=extraction,
         schema_view=schema_view,
-        default_rules=_rules_for_reasoning(extraction.reasoning),
+        default_rules=_rules_for_reasoning(
+            extraction.reasoning,
+            labels=_reasoning_labels_for_selection(fsp_selection),
+        ),
         include_default_rules=include_default_rules,
         fsp_examples=fsp_examples,
         fsp_selection=fsp_selection,
@@ -107,13 +131,24 @@ def system_prompt_for_reasoning(reasoning: ReasoningMode | str) -> str:
     return BASE_EXTRACTION_SYSTEM_PROMPT
 
 
-def _rules_for_reasoning(reasoning: ReasoningMode) -> list[str]:
+def _rules_for_reasoning(
+    reasoning: ReasoningMode,
+    *,
+    labels: ReasoningSectionLabels = DEFAULT_REASONING_SECTION_LABELS,
+) -> list[str]:
     mode = ReasoningMode(reasoning)
     rules = [*EXTRACTION_RULES]
     if mode is not ReasoningMode.NONE:
-        rules.extend(REASONING_EXTRACTION_RULES)
+        rules.extend((REASONING_EXTRACTION_RULES[0], strict_reasoning_format_rule(labels)))
+        rules.extend(REASONING_EXTRACTION_RULES[1:])
     rules.append(STRICT_ANCHORING_RULE)
     return rules
+
+
+def _reasoning_labels_for_selection(
+    selection: FspSelection | None,
+) -> ReasoningSectionLabels:
+    return selection.labels if selection is not None else DEFAULT_REASONING_SECTION_LABELS
 
 
 def _select_fsp_examples(
@@ -134,3 +169,43 @@ def _select_fsp_selection(
         return None
     selection = select(context, extraction)
     return selection if isinstance(selection, FspSelection) else None
+
+
+def _schema_view_with_enriched_rag_descriptions(
+    *,
+    context: PipelineContext,
+    extraction: ExtractionSpec,
+    schema_view: SchemaView,
+    fsp_selection: FspSelection | None,
+) -> SchemaView:
+    if not _use_enriched_rag_field_descriptions():
+        return schema_view
+    if not should_use_same_schema_rag_compact_layout(extraction, fsp_selection):
+        return schema_view
+
+    descriptions = _merged_enriched_field_descriptions(fsp_selection)
+    if not descriptions:
+        return schema_view
+    return render_schema_view(
+        context.task.target_schema,
+        extraction.schema_prompt,
+        reasoning=extraction.reasoning,
+        field_description_overrides=descriptions,
+    )
+
+
+def _use_enriched_rag_field_descriptions() -> bool:
+    value = os.getenv(ENRICHED_RAG_FIELD_DESCRIPTIONS_ENV, "")
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _merged_enriched_field_descriptions(
+    selection: FspSelection | None,
+) -> Mapping[str, str]:
+    if selection is None:
+        return {}
+    descriptions: dict[str, str] = {}
+    for selected in selection.cases:
+        for path, description in selected.case.enriched_field_descriptions.items():
+            descriptions.setdefault(path, description)
+    return descriptions

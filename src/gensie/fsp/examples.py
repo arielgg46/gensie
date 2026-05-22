@@ -127,6 +127,7 @@ class StructuredFspCase:
     instruction: str
     schema: JsonDict
     field_examples: Mapping[str, FieldExample]
+    enriched_field_descriptions: Mapping[str, str] = field(default_factory=dict)
     tags: tuple[str, ...] = ()
     judge: JudgeExample | None = None
 
@@ -139,6 +140,15 @@ class StructuredFspCase:
             raise ValueError("StructuredFspCase.instruction must not be empty")
         object.__setattr__(self, "schema", copy.deepcopy(self.schema))
         object.__setattr__(self, "field_examples", dict(self.field_examples))
+        object.__setattr__(
+            self,
+            "enriched_field_descriptions",
+            {
+                str(path): str(description)
+                for path, description in self.enriched_field_descriptions.items()
+                if str(path).strip() and str(description).strip()
+            },
+        )
         object.__setattr__(self, "tags", tuple(self.tags))
 
 

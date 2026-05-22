@@ -31,12 +31,12 @@ Los tasks `technical_software` son extracciones L9 de descripciones de aplicacio
 | `official_name` | Nombre oficial del software. Usa el encabezado si ya es el nombre formal, o el nombre completo del cuerpo cuando el encabezado sea una abreviatura o alias; no mezcles siglas históricas con el nombre actual. |
 | `app_category` | Categoría funcional principal; enum completo: `ARCHIVER`, `WEB_BROWSER`, `OFFICE_SUITE`, `IDE_EDITOR`, `GRAPHICS_EDITOR`, `MEDIA_PLAYER`, `SYSTEM_TOOL` u `OTHER`. Decide por la función descrita (archivador, navegador, suite ofimática, editor/IDE, editor gráfico, reproductor, herramienta de sistema) y usa `OTHER` solo si no encaja claramente. |
 | `license` | Licencia específica mencionada, preferiblemente literal (`GPLv2.1+`, `GNU LGPL`, `MPL 2.0`). No inventes licencia desde “software libre” si no aparece una formulación suficiente, y no uses licencias de plugins, formatos o proyectos relacionados como licencia de la aplicación principal. |
-| `platforms` | Sistemas operativos o plataformas soportadas nombradas explícitamente. No pobles la lista con “instaladores”, “paquetes”, repositorios, dispositivos genéricos o historia de desarrollo si no se nombran sistemas como GNU/Linux, macOS, Windows, BSD, iOS o Android. |
+| `platforms` | Sistemas operativos o plataformas soportadas nombradas explícitamente. No pobles la lista con “instaladores”, “paquetes”, repositorios, dispositivos genéricos o historia de desarrollo si no se nombran sistemas como GNU/Linux, macOS, Windows, BSD, iOS, Android, etc. |
 | `primary_developer` | Persona, comunidad, proyecto u organización que desarrolla el software. Diferencia creador histórico, coordinador, organización sin ánimo de lucro y empresa; elige quien el texto presenta como responsable principal del desarrollo. |
 | `features` | Capacidades técnicas mencionadas, en frases breves y fieles al texto. Extrae funciones como reproducción, streaming, compresión, edición, formatos o herramientas; no incluyas historia, licencia, plataformas, checksum ni cargos corporativos como features. |
-| `exact_release_date` | Fecha exacta del primer lanzamiento en `DD/MM/YYYY`. Devuelve `null` si solo hay año, versión posterior, fecha de liberación de código distinta del primer lanzamiento o referencias relativas sin día/mes/año completos. |
+| `exact_release_date` | Fecha exacta del primer lanzamiento en `DD/MM/YYYY`. Devuelve `null` SI SOLO HAY año, versión posterior, fecha de liberación de código distinta del primer lanzamiento o referencias relativas sin día/mes/año completos. |
 | `latest_stable_version_sha256` | SHA256 del instalador estable más reciente, solo si el texto lo dice explícitamente. Devuelve `null` para hashes de commit, firmas PGP, checksums de nightly/beta, identificadores cortos o valores sin relación con el instalador estable. |
-| `current_ceo_name` | Nombre del CEO actual de la organización desarrolladora, solo si se afirma explícitamente. Fundador, creador, mantenedor, líder del proyecto, presidente de fundación o coordinador técnico no equivalen a CEO actual. |
+| `current_ceo_name` | Nombre del CEO actual de la organización desarrolladora, solo si se afirma explícitamente. Fundador, creador, mantenedor, líder del proyecto, presidente de fundación o coordinador técnico no necesariamente equivalen a CEO actual. |
 
 ## Propuesta de los dos ejemplos
 
@@ -134,7 +134,7 @@ Analiza la descripción del software para extraer detalles técnicos, desarrolla
   },
   "features": {
     "field_asks": "capacidades técnicas o funciones específicas mencionadas.",
-    "relevant_fragments": "\"== Características ==\" y \"Entre sus características se citan resaltado de sintaxis, terminal integrada, búsqueda por expresiones regulares y sincronización de espacios de trabajo mediante archivos de configuración\".",
+    "relevant_fragments": "\"== Características ==\nEntre sus características se citan resaltado de sintaxis, terminal integrada, búsqueda por expresiones regulares y sincronización de espacios de trabajo mediante archivos de configuración\".",
     "final_value": "Como el fragmento relevante introduce una sección de características y enumera capacidades técnicas concretas, la lista debe conservar los cuatro rasgos verbatim: \"resaltado de sintaxis\", \"terminal integrada\", \"búsqueda por expresiones regulares\" y \"sincronización de espacios de trabajo mediante archivos de configuración\"."
   },
   "exact_release_date": {
