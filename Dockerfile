@@ -14,13 +14,23 @@ COPY pyproject.toml uv.lock README.md ./
 # We use --no-install-project if we were using uv sync, 
 # but with uv pip we can just install the requirements.
 # To avoid building the project, we use uv pip install on the dependencies.
-RUN uv pip install --system -r pyproject.toml
+RUN uv pip install --system --group dev -r pyproject.toml
 
 # 3. Copy the actual source code into a subfolder
 COPY . /app/gensie-lib
 
 # 4. Install the project in editable mode
 RUN uv pip install --system -e /app/gensie-lib
+
+
+ENV FASTEMBED_CACHE_PATH=/app/.cache/fastembed
+
+RUN mkdir -p "$FASTEMBED_CACHE_PATH" && \
+    python -c "\
+from fastembed import TextEmbedding; \
+m = TextEmbedding(model_name='BAAI/bge-small-en-v1.5'); \
+list(m.embed(['warmup'])); \
+print('fastembed cache warmed')"
 
 # Expose the FastAPI port
 EXPOSE 8000
