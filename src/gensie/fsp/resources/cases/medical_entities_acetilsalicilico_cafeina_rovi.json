@@ -1,0 +1,118 @@
+{
+  "id": "medical_entities_acetilsalicilico_cafeina_rovi",
+  "domain": "medical_entities",
+  "language": "es",
+  "tags": [
+    "complex_object_array",
+    "entity_array"
+  ],
+  "source_text": "FICHA TECNICA ACETILSALICILICO/ CAFEINA ROVI 500 mg + 30 mg COMPRIMIDOS EFERVESCENTES [...] # 1. NOMBRE DEL MEDICAMENTO\n\nAcetilsalicílico/cafeína Rovi 500 mg + 30 mg comprimidos efervescentes.\n\n# 2. COMPOSICIÓN CUALITATIVA Y CUANTITATIVA\n\nCada comprimido efervescente contiene:\n\nPrincipios activos:\n\nÁcido acetilsalicílico........................................ 500 mg.\n\nCafeína........................................................ 30 mg.\n\n### 2.2.1. Excipiente(s) con efecto conocido\n\nSodio hidrogenocarbonato (E-500) (410 mg), ácido cítrico anhidro (320 mg), sacarina sódica (E-954)(8 mg), sorbitol líquido no cristalizable (E-420)(25 mg) y aroma de limón.\n\nPara consultar la lista completa de excipientes ver sección 6.1.\n\n# 3. FORMA FARMACÉUTICA\n\nComprimido efervescente. Comprimidos blancos, redondos, con olor característico a limón.\n\n# 4. DATOS CLÍNICOS\n\n## 4.1. Indicaciones terapéuticas\n\nTratamiento sintomático del dolor ocasional leve o moderado cuando no se considere suficiente el uso de paracetamol en monofármaco.",
+  "instruction": "Identifica las entidades nombradas (nombres de medicamentos, sustancias, marcas y otros) mencionadas en este fragmento de ficha técnica farmacéutica.",
+  "schema": {
+    "$defs": {
+      "Entity": {
+        "additionalProperties": false,
+        "description": "A single named entity mention.",
+        "properties": {
+          "text": {
+            "description": "The verbatim text mention from the source",
+            "title": "Text",
+            "type": "string"
+          },
+          "label": {
+            "$ref": "#/$defs/EntityType",
+            "description": "The category of the entity"
+          }
+        },
+        "required": [
+          "text",
+          "label"
+        ],
+        "title": "Entity",
+        "type": "object"
+      },
+      "EntityType": {
+        "enum": [
+          "PERSON",
+          "ORGANIZATION",
+          "LOCATION",
+          "DATE",
+          "EVENT",
+          "MISCELLANEOUS"
+        ],
+        "title": "EntityType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts named entity mentions categorized by type in a single list.\nComplexity: L5 (Hierarchical Grouping).",
+    "properties": {
+      "entities": {
+        "description": "List of all recognized named entities",
+        "items": {
+          "$ref": "#/$defs/Entity"
+        },
+        "title": "Entities",
+        "type": "array"
+      }
+    },
+    "title": "NamedEntities",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "entities": "Lista única de menciones nombradas explícitas en la ficha técnica. Incluye medicamentos, principios activos, excipientes, códigos, laboratorios, agencias, direcciones, países y fechas cuando aparecen; evita extraer encabezados, números de sección, enlaces genéricos o entidades inferidas desde conocimiento externo.",
+    "entities[].text": "Mención verbatim tomada del texto, con tildes, mayúsculas/minúsculas, dosis, barras, paréntesis, códigos E, siglas y formas legales tal como figuran. Prefiere la mención completa curada, por ejemplo medicamento con concentración, excipiente con código o organismo con sigla; no atomices direcciones o nombres técnicos salvo que la fuente los presente separados.",
+    "entities[].label": "Etiqueta del enum completo: `PERSON`, `ORGANIZATION`, `LOCATION`, `DATE`, `EVENT` o `MISCELLANEOUS`. En fichas CIMA, medicamentos, sustancias, formas farmacéuticas y códigos suelen ser `MISCELLANEOUS`; laboratorios y agencias `ORGANIZATION`; direcciones, localidades y países `LOCATION`; meses o fechas de autorización/revisión `DATE`. Usa `PERSON` o `EVENT` solo si una persona o evento aparece explícitamente, no por forzar cobertura."
+  },
+  "field_examples": {
+    "entities": {
+      "value": [
+        {
+          "text": "Acetilsalicílico/cafeína Rovi 500 mg + 30 mg comprimidos efervescentes",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Ácido acetilsalicílico",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Cafeína",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Sodio hidrogenocarbonato (E-500)",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "ácido cítrico anhidro",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "sacarina sódica (E-954)",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "sorbitol líquido no cristalizable (E-420)",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "aroma de limón",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "paracetamol",
+          "label": "MISCELLANEOUS"
+        }
+      ],
+      "tags": [
+        "complex_object_array",
+        "entity_array"
+      ],
+      "reasoning": {
+        "field_asks": "lista de menciones nombradas de medicamentos, sustancias, marcas y otros elementos farmacéuticos, con texto verbatim y etiqueta del enum permitido.",
+        "relevant_fragments": "\"# 1. NOMBRE DEL MEDICAMENTO\n\nAcetilsalicílico/cafeína Rovi 500 mg + 30 mg comprimidos efervescentes\" (nombre completo del medicamento), \"Principios activos:\n\nÁcido acetilsalicílico [...] Cafeína\" (principios activos), \"### 2.2.1. Excipiente(s) con efecto conocido\n\nSodio hidrogenocarbonato (E-500) [...], ácido cítrico anhidro [...], sacarina sódica (E-954) [...], sorbitol líquido no cristalizable (E-420) [...] y aroma de limón\" (excipientes con códigos y nombres técnicos) y \"uso de paracetamol en monofármaco\" (medicamento comparador nombrado en indicación).",
+        "final_value": "Como los fragmentos relevantes son el nombre del medicamento, principios activos, excipientes y un analgésico comparador, todas esas menciones deben conservarse verbatim y etiquetarse como MISCELLANEOUS."
+      }
+    }
+  }
+}

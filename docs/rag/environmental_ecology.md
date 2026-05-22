@@ -112,7 +112,7 @@ Extrae la información estructurada de este artículo de noticias sobre un event
   },
   "summary": {
     "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
-    "relevant_fragments": "\"declaró el 18 de abril de 2026 una alerta ambiental [...] después de que una poza de relaves de la mina Santa Isidora cediera\", \"Brigadas [...] repartieron bidones y pastillas potabilizadoras a 1 200 vecinos\" y \"La Universidad Nacional Daniel Alcides Carrión tomó muestras de agua, suelo y peces\".",
+    "relevant_fragments": "\"El Ministerio del Ambiente declaró el 18 de abril de 2026 una alerta ambiental en la cuenca del río San Juan, en Pasco, Perú, después de que una poza de relaves de la mina Santa Isidora cediera durante las lluvias\", \"Brigadas de la Municipalidad Provincial de Pasco repartieron bidones y pastillas potabilizadoras a 1 200 vecinos de Huayllay, Rancas y San Miguel\" y \"La Universidad Nacional Daniel Alcides Carrión tomó muestras de agua, suelo y peces para comparar los resultados con registros de 2023\".",
     "final_value": "Como los fragmentos relevantes cubren el hecho principal, las medidas inmediatas, la población afectada y el monitoreo, el resumen debe condensarlos en tres oraciones."
   },
   "category": {
@@ -209,7 +209,7 @@ Extrae la información estructurada de este artículo de noticias sobre medio am
   },
   "summary": {
     "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
-    "relevant_fragments": "\"presentó este martes un estudio sobre incendios de turberas\", \"comparó 3 400 muestras de humo y suelo\", \"18 muertes y 146 personas heridas\" y \"una hectárea de turba seca puede liberar hasta tres veces más carbono que un bosque joven\".",
+    "relevant_fragments": "\"La investigadora Lara Méndez presentó este martes un estudio sobre incendios de turberas ante una red internacional de salud ambiental\", \"El trabajo, coordinado con Rui Tanaka y difundido como preprint revisado por pares, comparó 3 400 muestras de humo y suelo tomadas en humedales boreales y tropicales durante los últimos cinco años\", \"Según la base consolidada, esos episodios estuvieron vinculados con 18 muertes y 146 personas heridas por inhalación de humo denso\" y \"Los autores calculan que una hectárea de turba seca puede liberar hasta tres veces más carbono que un bosque joven\".",
     "final_value": "Como los fragmentos relevantes cubren autoría del estudio, método, consecuencias humanas y hallazgos técnicos, el resumen debe sintetizar esos hechos en tres oraciones."
   },
   "category": {
@@ -249,7 +249,7 @@ Extrae la información estructurada de este artículo de noticias sobre medio am
   },
   "affected_count": {
     "field_asks": "número de personas afectadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
-    "relevant_fragments": "\"3 400 muestras de humo y suelo\", \"620 focos de combustión lenta\", \"18 muertes\" y \"146 personas heridas\".",
+    "relevant_fragments": "\"comparó 3 400 muestras de humo y suelo tomadas en humedales boreales y tropicales\", \"620 focos de combustión lenta\" y \"18 muertes y 146 personas heridas por inhalación de humo denso\".",
     "final_value": "Los fragmentos relevantes dan muestras, focos, muertes y heridos, pero no una cifra separada de personas afectadas o desplazadas; el valor debe ser null."
   }
 }

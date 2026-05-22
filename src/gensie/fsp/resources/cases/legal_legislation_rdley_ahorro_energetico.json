@@ -3,14 +3,15 @@
   "domain": "legal_legislation",
   "language": "es",
   "tags": [
-    "legal_metadata",
-    "enum_classification",
+    "boolean_inference",
     "date_normalization",
     "direct_string",
+    "enum_classification",
+    "nullable",
     "simple_array",
-    "not_repealed"
+    "summary_string"
   ],
-  "source_text": "# Real decreto-ley de ahorro energético de 2022\n\nSource: Boletín Oficial del Estado\n\nEl Real Decreto-ley 14/2022, de 1 de agosto, de medidas de sostenibilidad económica en el ámbito del transporte, en materia de becas y ayudas al estudio, así como de medidas de ahorro, eficiencia energética y de reducción de la dependencia energética del gas natural, fue aprobado por el Consejo de Ministros el 1 de agosto de 2022. La norma se dictó con alcance estatal tras la subida del precio del gas y fue convalidada semanas después por el Congreso de los Diputados.\n\nContenido y tramitación\nLa exposición de motivos relaciona el paquete con el plan europeo de reducción de demanda energética, pero el texto se presenta como norma española de urgencia. Entre las medidas de mayor eco, el artículo 29 fijó límites de climatización para recintos administrativos, comercios y estaciones; el artículo 30 exigió sistemas automáticos de cierre en edificios con acceso desde la calle; y la disposición adicional tercera prorrogó ayudas al transporte colectivo.\n\nLa edición consolidada incorpora correcciones menores y remisiones a órdenes ministeriales posteriores. No obstante, el sumario del BOE mantiene la disposición como vigente y solo marca algunos apartados como modificados.",
+  "source_text": "# Real decreto-ley de ahorro energético de 2022\n\nSource: https://es.wikipedia.org/wiki/Real_Decreto-ley_14/2022\n\nEl Real Decreto-ley 14/2022, de 1 de agosto, de medidas de sostenibilidad económica en el ámbito del transporte, en materia de becas y ayudas al estudio, así como de medidas de ahorro, eficiencia energética y de reducción de la dependencia energética del gas natural, fue aprobado por el Consejo de Ministros el 1 de agosto de 2022. La norma se dictó con alcance estatal tras la subida del precio del gas y fue convalidada semanas después por el Congreso de los Diputados.\n\nContenido y tramitación\nLa exposición de motivos relaciona el paquete con el plan europeo de reducción de demanda energética, pero el texto se presenta como norma española de urgencia. Entre las medidas de mayor eco, el artículo 29 fijó límites de climatización para recintos administrativos, comercios y estaciones; el artículo 30 exigió sistemas automáticos de cierre en edificios con acceso desde la calle; y la disposición adicional tercera prorrogó ayudas al transporte colectivo.\n\nLa edición consolidada incorpora correcciones menores y remisiones a órdenes ministeriales posteriores. No obstante, el sumario del BOE mantiene la disposición como vigente y solo marca algunos apartados como modificados.",
   "instruction": "Extrae el resumen del contrato o acto legislativo.",
   "schema": {
     "$defs": {
@@ -89,22 +90,31 @@
     "title": "LegislativeAct",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "official_title": "Título oficial completo de la norma principal, aunque el encabezado use un nombre popular. Prefiere la formulación formal en la introducción; no confundas reformas, normas citadas como contexto, leyes futuras ni títulos de secciones con la norma principal.",
+    "law_range": "Rango jurídico de la norma principal; enum completo: `LEY ORGÁNICA`, `LEY ORDINARIA`, `REAL DECRETO`, `REAL DECRETO-LEY`, `CONSTITUCIÓN` u `OTRA`. Usa el tipo explícito del título formal y no arrastres el rango de reglamentos, decretos, artículos constitucionales o normas supletorias citadas.",
+    "sanction_date": "Fecha de sanción, promulgación o aprobación formal de la norma, normalizada como `YYYY-MM-DD`. No uses la fecha de publicación, entrada en vigor, recursos, suspensiones o reformas si el texto no las identifica como fecha formal de la norma principal.",
+    "jurisdiction": "Ámbito de la norma principal; enum completo: `NACIONAL`, `AUTONÓMICO`, `LOCAL` o `EUROPEO`. Decide por la institución que aprueba la norma y su ámbito, no por referencias a Constitución, Unión Europea, ayuntamientos o administraciones citadas como contexto.",
+    "is_repealed": "`true` solo si el texto dice que la norma fue derogada, anulada íntegramente, sustituida o perdió vigencia. Suspensiones parciales, recursos, modificaciones, propuestas de derogación o artículos inconstitucionales no bastan por sí solos.",
+    "affected_articles": "Artículos, disposiciones o apartados concretos citados como relevantes, modificados, desarrollados o anulados. Conserva la forma del texto (`artículo 92`, `artículo 149.1.32`, `Disposición Transitoria Segunda`) y no incluyas leyes completas, secciones genéricas ni referencias históricas sin función normativa directa."
+  },
   "field_examples": {
     "official_title": {
       "value": "Real Decreto-ley 14/2022, de 1 de agosto, de medidas de sostenibilidad económica en el ámbito del transporte, en materia de becas y ayudas al estudio, así como de medidas de ahorro, eficiencia energética y de reducción de la dependencia energética del gas natural",
       "tags": [
         "direct_string",
-        "long_title"
+        "summary_string"
       ],
       "reasoning": {
         "field_asks": "el título oficial completo de la norma.",
-        "relevant_fragments": "\"El Real Decreto-ley 14/2022, de 1 de agosto, de medidas de sostenibilidad económica en el ámbito del transporte, en materia de becas y ayudas al estudio, así como de medidas de ahorro, eficiencia energética y de reducción de la dependencia energética del gas natural\".",
-        "final_value": "Como el fragmento relevante da el título formal completo de la norma principal, el valor debe ser ese título íntegro."
+        "relevant_fragments": "\"# Real decreto-ley de ahorro energético de 2022\" y \"El Real Decreto-ley 14/2022, de 1 de agosto, de medidas de sostenibilidad económica en el ámbito del transporte, en materia de becas y ayudas al estudio, así como de medidas de ahorro, eficiencia energética y de reducción de la dependencia energética del gas natural\".",
+        "final_value": "El primer fragmento relevante es solo el título del artículo, no el nombre completo de la norma; el segundo fragmento da el título formal completo de la norma principal, el valor debe ser ese título íntegro."
       }
     },
     "law_range": {
       "value": "REAL DECRETO-LEY",
       "tags": [
+        "direct_string",
         "enum_classification"
       ],
       "reasoning": {
@@ -116,7 +126,9 @@
     "sanction_date": {
       "value": "2022-08-01",
       "tags": [
-        "date_normalization"
+        "date_normalization",
+        "direct_string",
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "la fecha de sanción o aprobación de la norma en formato YYYY-MM-DD, o null si no hay evidencia suficiente.",
@@ -127,6 +139,7 @@
     "jurisdiction": {
       "value": "NACIONAL",
       "tags": [
+        "direct_string",
         "enum_classification"
       ],
       "reasoning": {
@@ -138,7 +151,7 @@
     "is_repealed": {
       "value": false,
       "tags": [
-        "not_repealed"
+        "boolean_inference"
       ],
       "reasoning": {
         "field_asks": "true si el texto menciona que la norma ya no está en vigor, fue derogada o fue sustituida; false en caso contrario.",
@@ -153,8 +166,7 @@
         "disposición adicional tercera"
       ],
       "tags": [
-        "simple_array",
-        "direct_string"
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "lista de artículos, disposiciones o apartados concretos mencionados como modificados o relevantes.",

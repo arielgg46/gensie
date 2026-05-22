@@ -1,0 +1,48 @@
+{
+  "id": "legal_extraction_capitalidad_valdoria",
+  "domain": "legal_extraction",
+  "language": "es",
+  "tags": [
+    "direct_string",
+    "long_verbatim_evidence",
+    "summary_string",
+    "verbatim_answer"
+  ],
+  "source_text": "## Artículo 7\n\nLa capitalidad administrativa de la Comunidad Autónoma corresponde a la ciudad de Valdoria.\n\n\n## Artículo 8\n\n1. La bandera de la Comunidad estará formada por tres franjas horizontales de igual anchura, de colores verde, blanco y azul.\n\n2. El escudo y el himno serán regulados por ley de la Asamblea, respetando la tradición histórica de sus municipios.\n\n3. Las instituciones públicas podrán utilizar sus símbolos propios en los actos oficiales, de acuerdo con lo que establezcan sus normas internas.\n\n\n## Artículo 9\n\nLos poderes públicos promoverán el conocimiento de la historia, la cultura y las modalidades lingüísticas propias, especialmente en el sistema educativo y en los medios de titularidad pública.",
+  "instruction": "¿A qué ciudad corresponde la capitalidad administrativa de la Comunidad Autónoma?",
+  "schema": {
+    "additionalProperties": false,
+    "description": "Extracts a single verbatim fragment that answers the provided instruction.\nComplexity: L1 (Literal Extraction).",
+    "properties": {
+      "answer": {
+        "description": "The verbatim fragment from the source text that answers the question",
+        "title": "Answer",
+        "type": "string"
+      }
+    },
+    "required": [
+      "answer"
+    ],
+    "title": "TextAnswer",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "answer": "Fragmento legal verbatim que responde exactamente la pregunta. Copia la oración o apartado completo que contiene la regla jurídica, sin resumir, modernizar, normalizar tildes ni reducir la respuesta a una palabra o cifra aislada; ignora artículos vecinos con materias parecidas que no respondan la pregunta."
+  },
+  "field_examples": {
+    "answer": {
+      "value": "La capitalidad administrativa de la Comunidad Autónoma corresponde a la ciudad de Valdoria.",
+      "tags": [
+        "direct_string",
+        "long_verbatim_evidence",
+        "summary_string",
+        "verbatim_answer"
+      ],
+      "reasoning": {
+        "field_asks": "un fragmento verbatim del texto que responda a qué ciudad corresponde la capitalidad administrativa de la Comunidad Autónoma.",
+        "relevant_fragments": "\"La capitalidad administrativa de la Comunidad Autónoma corresponde a la ciudad de Valdoria.\"",
+        "final_value": "Como el fragmento relevante responde directamente la pregunta y nombra la ciudad, el valor debe conservar la oración legal completa."
+      }
+    }
+  }
+}

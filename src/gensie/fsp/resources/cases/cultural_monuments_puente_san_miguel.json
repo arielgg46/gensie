@@ -3,13 +3,14 @@
   "domain": "cultural_monuments",
   "language": "es",
   "tags": [
+    "boolean_inference",
+    "date_normalization",
     "direct_string",
     "enum_classification",
-    "registration_code",
-    "date_normalization",
-    "boolean_status"
+    "nullable",
+    "sentinel_pattern"
   ],
-  "source_text": "# Puente de San Miguel\n\nOfficial Name: Puente de San Miguel\nMunicipality: Teruel\nCategory: Monumento\nRegistration Code: RI-51-0012386\nDeclaration Date: 12 de marzo de 1998\nStatus: Declarado\nCoordinates: 40°20′45″N 1°06′22″O / 40.3458, -1.1061 (Puente Viejo)\nSource: Wikipedia Annex List\n\nFicha revisada en la edición de 2024. El entorno de protección se describe junto al cauce del Alfambra y el puente aparece citado en algunas notas locales como Puente Viejo. No detailed article available.",
+  "source_text": "# Puente de San Miguel\n\nMunicipality: Teruel\nCategory: Monumento\nRegistration Code: RI-51-0012386\nDeclaration Date: 12 de marzo de 1998\nStatus: Declarado\nSource: Wikipedia Annex List\n\nNo detailed article available.\nAdditional detail line 1.\nAdditional detail line 2.\nAdditional detail line 3.\nCoordinates: 40°20′45″N 1°06′22″O / 40.3458, -1.1061 (Puente Viejo)",
   "instruction": "Extrae la información del monumento o bien de interés cultural a partir del texto proporcionado, siguiendo el esquema indicado.",
   "schema": {
     "$defs": {
@@ -78,17 +79,24 @@
     "title": "MonumentBIC",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "official_name": "Nombre del bien protegido, normalmente el encabezado `#`. Si aparece `Official Name`, úsalo como nombre oficial; no mezcles coordenadas, alias entre paréntesis ni líneas de fuente.",
+    "municipality": "Municipio o localidad del bien. En estos registros los campos pueden estar desplazados: a veces `Municipality` contiene la categoría y `Category` contiene el municipio; elige el valor que sea lugar, aunque esté en otra línea.",
+    "bic_category": "Categoría legal mapeada al enum completo: `MONUMENTO`, `JARDÍN HISTÓRICO`, `CONJUNTO HISTÓRICO`, `SITIO HISTÓRICO`, `ZONA ARQUEOLÓGICA` u `OTRO`. `Monumento` -> `MONUMENTO`; `Arte Rupestre` o etiquetas fuera del enum -> `OTRO`; no uses municipios, coordenadas ni códigos como categoría.",
+    "registration_code": "Código registral BIC con patrón exacto `RI-\\d{2}-\\d{7}`, por ejemplo `RI-51-0009449`. Si solo hay coordenadas, campo vacío o nada que cumpla el patrón, usa `NONE`; si el código aparece desplazado en `Declaration Date` u otro campo, extráelo igualmente.",
+    "declaration_date": "Fecha legal de declaración normalizada a `YYYY-MM-DD`. Devuelve `null` si el campo está vacío, contiene coordenadas, contiene un código BIC o solo hay líneas de relleno sin fecha.",
+    "is_declared": "`true` si el estado es declarado o si el registro solo muestra ficha BIC sin indicio de incoación. `false` solo cuando aparezca `Incoado`, pendiente u otra señal explícita de no declarado."
+  },
   "field_examples": {
     "official_name": {
       "value": "Puente de San Miguel",
       "tags": [
-        "direct_string",
-        "alias_disambiguation"
+        "direct_string"
       ],
       "reasoning": {
         "field_asks": "el nombre oficial del monumento o sitio protegido.",
-        "relevant_fragments": "\"Official Name: Puente de San Miguel\" y \"el puente aparece citado en algunas notas locales como Puente Viejo\".",
-        "final_value": "Como el fragmento relevante da \"Puente de San Miguel\" como nombre oficial y \"Puente Viejo\" solo como cita local, el valor debe ser \"Puente de San Miguel\"."
+        "relevant_fragments": "\"# Puente de San Miguel\" y \"Coordinates: 40°20′45″N 1°06′22″O / 40.3458, -1.1061 (Puente Viejo)\".",
+        "final_value": "Como el encabezado da \"Puente de San Miguel\" como bien principal y \"Puente Viejo\" aparece solo entre paréntesis dentro de las coordenadas, el valor debe ser \"Puente de San Miguel\"."
       }
     },
     "municipality": {
@@ -98,13 +106,14 @@
       ],
       "reasoning": {
         "field_asks": "el municipio o ciudad donde se encuentra el bien.",
-        "relevant_fragments": "\"Municipality: Teruel\" y \"junto al cauce del Alfambra\".",
-        "final_value": "Como el fragmento relevante etiqueta \"Teruel\" como municipio y el cauce solo describe el entorno, el valor debe ser \"Teruel\"."
+        "relevant_fragments": "\"Municipality: Teruel\".",
+        "final_value": "Como el fragmento relevante etiqueta \"Teruel\" como municipio, el valor debe ser \"Teruel\"."
       }
     },
     "bic_category": {
       "value": "MONUMENTO",
       "tags": [
+        "direct_string",
         "enum_classification"
       ],
       "reasoning": {
@@ -116,19 +125,21 @@
     "registration_code": {
       "value": "RI-51-0012386",
       "tags": [
-        "registration_code",
-        "direct_string"
+        "direct_string",
+        "sentinel_pattern"
       ],
       "reasoning": {
-        "field_asks": "el código oficial de registro con patrón de mayúsculas, números y guiones; si no hay código válido extraíble, usar NONE.",
-        "relevant_fragments": "\"Registration Code: RI-51-0012386\" y \"Coordinates: 40°20′45″N 1°06′22″O / 40.3458, -1.1061\".",
+        "field_asks": "el código oficial de registro con patrón RI-\\d{2}-\\d{7}; si no hay código válido extraíble, usar NONE.",
+        "relevant_fragments": "\"Registration Code: RI-51-0012386\" y \"Coordinates: 40°20′45″N 1°06′22″O / 40.3458, -1.1061 (Puente Viejo)\".",
         "final_value": "Como el fragmento relevante contiene el código registral válido y las coordenadas están en otro campo, el valor debe ser \"RI-51-0012386\"."
       }
     },
     "declaration_date": {
       "value": "1998-03-12",
       "tags": [
-        "date_normalization"
+        "date_normalization",
+        "direct_string",
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "la fecha de declaración legal normalizada en formato YYYY-MM-DD, o null si no hay fecha suficiente.",
@@ -139,7 +150,7 @@
     "is_declared": {
       "value": true,
       "tags": [
-        "boolean_status"
+        "boolean_inference"
       ],
       "reasoning": {
         "field_asks": "true si el estado es Declarado; false si el estado es Incoado o pendiente.",

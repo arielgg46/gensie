@@ -3,13 +3,15 @@
   "domain": "cultural_monuments",
   "language": "es",
   "tags": [
-    "alias_disambiguation",
+    "boolean_inference",
+    "date_normalization",
+    "direct_string",
     "enum_classification",
-    "fallback_none",
     "grounded_null",
-    "boolean_status"
+    "nullable",
+    "sentinel_pattern"
   ],
-  "source_text": "# Abrigos de la Solana\n\nOfficial Name: Abrigos rupestres de la Solana del Molino\nMunicipality: Ares del Maestrat\nType: Arte Rupestre\nLocation: Barranco de la Gasulla; Mas de la Solana\nRegistration Code: 40°27′11″N 0°06′52″O / 40.4531, -0.1144 (Abrigos de la Solana)\nDeclaration Date:\nStatus: Incoado\nSource: Wikipedia Annex List\n\nEl anexo conserva la denominación abreviada del encabezado, mientras la ficha administrativa usa el nombre completo. La revisión de 2022 añade una nota sobre paneles pintados y acceso por senda rural. No detailed article available.",
+  "source_text": "# Abrigos de la Solana\n\nMunicipality: Ares del Maestrat\nType: Arte Rupestre\nLocation: Barranco de la Gasulla; Mas de la Solana\nRegistration Code: 40°27′11″N 0°06′52″O / 40.4531, -0.1144 (Abrigos de la Solana)\nDeclaration Date:\nStatus: Incoado\nSource: Wikipedia Annex List\n\nNo detailed article available.\nAdditional detail line 1.\nAdditional detail line 2.\nOfficial Name: Abrigos rupestres de la Solana del Molino",
   "instruction": "Extrae la información del monumento o bien de interés cultural a partir del texto proporcionado, siguiendo el esquema indicado.",
   "schema": {
     "$defs": {
@@ -78,24 +80,30 @@
     "title": "MonumentBIC",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "official_name": "Nombre del bien protegido, normalmente el encabezado `#`. Si aparece `Official Name`, úsalo como nombre oficial; no mezcles coordenadas, alias entre paréntesis ni líneas de fuente.",
+    "municipality": "Municipio o localidad del bien. En estos registros los campos pueden estar desplazados: a veces `Municipality` contiene la categoría y `Category` contiene el municipio; elige el valor que sea lugar, aunque esté en otra línea.",
+    "bic_category": "Categoría legal mapeada al enum completo: `MONUMENTO`, `JARDÍN HISTÓRICO`, `CONJUNTO HISTÓRICO`, `SITIO HISTÓRICO`, `ZONA ARQUEOLÓGICA` u `OTRO`. `Monumento` -> `MONUMENTO`; `Arte Rupestre` o etiquetas fuera del enum -> `OTRO`; no uses municipios, coordenadas ni códigos como categoría.",
+    "registration_code": "Código registral BIC con patrón exacto `RI-\\d{2}-\\d{7}`, por ejemplo `RI-51-0009449`. Si solo hay coordenadas, campo vacío o nada que cumpla el patrón, usa `NONE`; si el código aparece desplazado en `Declaration Date` u otro campo, extráelo igualmente.",
+    "declaration_date": "Fecha legal de declaración normalizada a `YYYY-MM-DD`. Devuelve `null` si el campo está vacío, contiene coordenadas, contiene un código BIC o solo hay líneas de relleno sin fecha.",
+    "is_declared": "`true` si el estado es declarado o si el registro solo muestra ficha BIC sin indicio de incoación. `false` solo cuando aparezca `Incoado`, pendiente u otra señal explícita de no declarado."
+  },
   "field_examples": {
     "official_name": {
       "value": "Abrigos rupestres de la Solana del Molino",
       "tags": [
-        "direct_string",
-        "alias_disambiguation"
+        "direct_string"
       ],
       "reasoning": {
         "field_asks": "el nombre oficial del monumento o sitio protegido.",
         "relevant_fragments": "\"# Abrigos de la Solana\" y \"Official Name: Abrigos rupestres de la Solana del Molino\".",
-        "final_value": "Como el fragmento relevante diferencia el encabezado abreviado del nombre oficial de la ficha, el valor debe ser \"Abrigos rupestres de la Solana del Molino\"."
+        "final_value": "Como el fragmento relevante diferencia el encabezado abreviado del nombre oficial añadido en la ficha, el valor debe ser \"Abrigos rupestres de la Solana del Molino\"."
       }
     },
     "municipality": {
       "value": "Ares del Maestrat",
       "tags": [
-        "direct_string",
-        "location_disambiguation"
+        "direct_string"
       ],
       "reasoning": {
         "field_asks": "el municipio o ciudad donde se encuentra el bien.",
@@ -106,8 +114,8 @@
     "bic_category": {
       "value": "OTRO",
       "tags": [
-        "enum_classification",
-        "other_mapping"
+        "direct_string",
+        "enum_classification"
       ],
       "reasoning": {
         "field_asks": "la categoría legal de protección, mapeada a uno de estos valores: MONUMENTO, JARDÍN HISTÓRICO, CONJUNTO HISTÓRICO, SITIO HISTÓRICO, ZONA ARQUEOLÓGICA u OTRO.",
@@ -118,11 +126,11 @@
     "registration_code": {
       "value": "NONE",
       "tags": [
-        "fallback_none",
-        "grounded_null"
+        "direct_string",
+        "sentinel_pattern"
       ],
       "reasoning": {
-        "field_asks": "el código oficial de registro con patrón de mayúsculas, números y guiones; si no hay código válido extraíble, usar NONE.",
+        "field_asks": "el código oficial de registro con patrón RI-\\d{2}-\\d{7}; si no hay código válido extraíble, usar NONE.",
         "relevant_fragments": "\"Registration Code: 40°27′11″N 0°06′52″O / 40.4531, -0.1144 (Abrigos de la Solana)\".",
         "final_value": "Como el fragmento relevante contiene coordenadas y no un código registral válido, el valor debe ser \"NONE\"."
       }
@@ -130,8 +138,10 @@
     "declaration_date": {
       "value": null,
       "tags": [
+        "date_normalization",
+        "direct_string",
         "grounded_null",
-        "date_normalization"
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "la fecha de declaración legal normalizada en formato YYYY-MM-DD, o null si no hay fecha suficiente.",
@@ -142,7 +152,7 @@
     "is_declared": {
       "value": false,
       "tags": [
-        "boolean_status"
+        "boolean_inference"
       ],
       "reasoning": {
         "field_asks": "true si el estado es Declarado; false si el estado es Incoado o pendiente.",

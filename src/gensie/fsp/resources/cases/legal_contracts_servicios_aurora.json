@@ -1,0 +1,245 @@
+{
+  "id": "legal_contracts_servicios_aurora",
+  "domain": "legal_contracts",
+  "language": "es",
+  "tags": [
+    "boolean_inference",
+    "date_normalization",
+    "direct_string",
+    "entity_array",
+    "enum_classification",
+    "grounded_null",
+    "nullable",
+    "numeric_normalization",
+    "simple_array",
+    "summary_string"
+  ],
+  "source_text": "# CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVALUACIÓN DEL PROTOTIPO AURORA\n\nDocumento preparado tras la reunión de validación del prototipo Aurora en una sala segura del hospital.\n\n**COMPARECEN**\n\nDe una parte, Atlas BioData S.L., desarrolladora del prototipo Aurora, actuando como prestadora del servicio y representada por su directora técnica.\n\nDe otra parte, Clínica Norte S.A., interesada en evaluar la viabilidad de una prueba piloto con pacientes simulados, actuando como cliente y representada por su responsable de innovación.\n\n**CLÁUSULAS**\n\n**PRIMERA - Objeto:**\nAtlas BioData S.L. prestará soporte técnico, preparación de entorno de pruebas y análisis de registros simulados para que Clínica Norte S.A. valore una colaboración futura.\n\n**SEGUNDA - Confidencialidad y no divulgación:**\nClínica Norte S.A. tratará toda la información recibida como confidencial, no la comunicará a terceros y limitará su acceso al equipo médico autorizado para la revisión del prototipo.\n\n**TERCERA - Conservación y devolución:**\nLas obligaciones de reserva se mantendrán durante dos años desde la entrega de cada lote documental. Los soportes físicos deberán devolverse o destruirse cuando finalice la evaluación interna.",
+  "instruction": "Extrae el resumen del contrato o acto legislativo",
+  "schema": {
+    "$defs": {
+      "ContractType": {
+        "enum": [
+          "PRESTACIÓN DE SERVICIOS",
+          "COMPRAVENTA",
+          "LABORAL",
+          "CONFIDENCIALIDAD",
+          "ACUERDO MARCO",
+          "OTRO"
+        ],
+        "title": "ContractType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Identifies the core parameters and semantic structure of an agreement.\nComplexity: L5 (Hierarchical & Semantic Extraction).",
+    "properties": {
+      "contract_title": {
+        "description": "The formal title or heading of the contract",
+        "title": "Contract Title",
+        "type": "string"
+      },
+      "contract_type": {
+        "$ref": "#/$defs/ContractType",
+        "description": "The broad legal category of the agreement"
+      },
+      "effective_date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The date the contract goes into effect (YYYY-MM-DD or verbatim)",
+        "title": "Effective Date"
+      },
+      "parties": {
+        "description": "The names of the individuals or organizations entering into the agreement",
+        "items": {
+          "type": "string"
+        },
+        "title": "Parties",
+        "type": "array"
+      },
+      "total_clauses": {
+        "description": "Total number of numbered or named sections (e.g., PRIMERO, SEGUNDO...)",
+        "title": "Total Clauses",
+        "type": "integer"
+      },
+      "governing_law_jurisdiction": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The state, country, or jurisdiction whose laws govern the contract",
+        "title": "Governing Law Jurisdiction"
+      },
+      "has_nda_clause": {
+        "default": false,
+        "description": "True if the text explicitly mentions confidentiality or non-disclosure",
+        "title": "Has Nda Clause",
+        "type": "boolean"
+      },
+      "has_liability_limitation": {
+        "default": false,
+        "description": "True if there is an explicit clause limiting or exempting liability",
+        "title": "Has Liability Limitation",
+        "type": "boolean"
+      },
+      "monetary_amount": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Total amount of the contract if specified numerically",
+        "title": "Monetary Amount"
+      }
+    },
+    "required": [
+      "contract_title",
+      "contract_type",
+      "parties",
+      "total_clauses"
+    ],
+    "title": "ContractSummary",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "contract_title": "Título formal del contrato, normalmente el encabezado `#`. Copia el título del acuerdo principal y no subtítulos de secciones, nombres comerciales, anexos ni denominaciones de roles.",
+    "contract_type": "Tipo legal del acuerdo; enum completo: `PRESTACIÓN DE SERVICIOS`, `COMPRAVENTA`, `LABORAL`, `CONFIDENCIALIDAD`, `ACUERDO MARCO` u `OTRO`. Decide por el objeto principal: servicios, venta de bien, relación laboral, reserva de información, marco general; usa `OTRO` para operaciones que no encajen con lo anterior, como licencias o arrendamientos.",
+    "effective_date": "Fecha de entrada en vigor, normalizada como `YYYY-MM-DD` si hay fecha completa; si la vigencia se expresa de forma relativa, conserva el texto relevante. No confundas fecha de firma, lugar de reunión, entrega, anexos o duración de obligaciones con vigencia.",
+    "parties": "Entidades o personas que celebran el acuerdo. Incluye firmantes principales y, si el texto las trata conjuntamente como parte, marcas/filiales/matrices; no sustituyas la parte por representantes, cargos, apoderados o alias secundarios.",
+    "total_clauses": "Número de cláusulas numeradas o nombradas. Cuenta `PRIMERA`, `SEGUNDA`, `1.`, etc.; no cuentes comparecencias, exposiciones, anexos, listas internas o párrafos introductorios.",
+    "governing_law_jurisdiction": "Ley aplicable, fuero o tribunal pactado. Devuelve `null` si solo hay domicilios, sedes, lugar de firma o lugares de entrega; si hay fueros alternativos, conserva ambos en una forma compacta.",
+    "has_nda_clause": "`true` cuando haya confidencialidad, reserva, secreto comercial, no divulgación o prohibición de revelar información. `false` si el texto solo habla de documentos, propiedad intelectual, entrega o acceso sin deber de secreto.",
+    "has_liability_limitation": "`true` cuando una cláusula limite, excluya, tope o exonere responsabilidad. No basta con multas, garantías, incumplimientos, devolución de soportes o sanciones si no hay límite/exclusión explícita.",
+    "monetary_amount": "Importe total del contrato como número. Devuelve `null` para multas, penalizaciones, depósitos, precios parciales, impuestos, presupuestos no totales o cuantías accesorias que no sean el valor contractual principal."
+  },
+  "field_examples": {
+    "contract_title": {
+      "value": "CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVALUACIÓN DEL PROTOTIPO AURORA",
+      "tags": [
+        "direct_string",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "el título formal o encabezado del contrato.",
+        "relevant_fragments": "\"# CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVALUACIÓN DEL PROTOTIPO AURORA\".",
+        "final_value": "Como el fragmento relevante es el encabezado formal, el título debe ser \"CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVALUACIÓN DEL PROTOTIPO AURORA\"."
+      }
+    },
+    "contract_type": {
+      "value": "PRESTACIÓN DE SERVICIOS",
+      "tags": [
+        "direct_string",
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "la categoría legal amplia del acuerdo, mapeada a uno de estos valores: PRESTACIÓN DE SERVICIOS, COMPRAVENTA, LABORAL, CONFIDENCIALIDAD, ACUERDO MARCO u OTRO.",
+        "relevant_fragments": "\"CONTRATO DE PRESTACIÓN DE SERVICIOS\" y \"Atlas BioData S.L. prestará soporte técnico, preparación de entorno de pruebas y análisis de registros simulados\".",
+        "final_value": "Como los fragmentos relevantes sitúan el soporte técnico y análisis como objeto principal del contrato, el valor del enum debe ser \"PRESTACIÓN DE SERVICIOS\"; la cláusula de confidencialidad no desplaza el tipo contractual."
+      }
+    },
+    "effective_date": {
+      "value": null,
+      "tags": [
+        "date_normalization",
+        "direct_string",
+        "grounded_null",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "la fecha en que el contrato entra en vigor, en formato YYYY-MM-DD si es normalizable o verbatim si solo aparece de forma relativa.",
+        "relevant_fragments": "\"Documento preparado tras la reunión de validación del prototipo Aurora\" y \"Las obligaciones de reserva se mantendrán durante dos años desde la entrega de cada lote documental\".",
+        "final_value": "Los fragmentos relevantes hablan de una reunión de validación y de duración de las obligaciones desde entregas documentales, pero no fijan una fecha de entrada en vigor del acuerdo; el valor debe ser null."
+      }
+    },
+    "parties": {
+      "value": [
+        "Atlas BioData S.L.",
+        "Clínica Norte S.A."
+      ],
+      "tags": [
+        "entity_array",
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "los nombres de las personas u organizaciones que celebran el acuerdo.",
+        "relevant_fragments": "\"Atlas BioData S.L. [...] actuando como prestadora del servicio\" y \"Clínica Norte S.A. [...] actuando como cliente\".",
+        "final_value": "Como los fragmentos relevantes nombran a las dos entidades que celebran el acuerdo, la lista debe incluir \"Atlas BioData S.L.\" y \"Clínica Norte S.A.\"."
+      }
+    },
+    "total_clauses": {
+      "value": 3,
+      "tags": [
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "el número total de cláusulas numeradas o nombradas del contrato.",
+        "relevant_fragments": "\"PRIMERA - Objeto:\", \"SEGUNDA - Confidencialidad y no divulgación:\" y \"TERCERA - Conservación y devolución:\".",
+        "final_value": "Como los fragmentos relevantes muestran tres cláusulas numeradas, el total debe ser 3."
+      }
+    },
+    "governing_law_jurisdiction": {
+      "value": null,
+      "tags": [
+        "direct_string",
+        "grounded_null",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "el país, estado o jurisdicción cuya ley o tribunales gobiernan el contrato, o null si no hay pacto de ley aplicable o fuero.",
+        "relevant_fragments": "\"PRIMERA - Objeto:\", \"SEGUNDA - Confidencialidad y no divulgación:\" y \"TERCERA - Conservación y devolución:\".",
+        "final_value": "Los fragmentos relevantes delimitan las tres cláusulas sustantivas del acuerdo y ninguna fija ley aplicable, fuero o jurisdicción; el valor debe ser null."
+      }
+    },
+    "has_nda_clause": {
+      "value": true,
+      "tags": [
+        "boolean_inference"
+      ],
+      "reasoning": {
+        "field_asks": "true si el texto menciona confidencialidad, reserva de información o no divulgación; false si no lo hace.",
+        "relevant_fragments": "\"Clínica Norte S.A. tratará toda la información recibida como confidencial, no la comunicará a terceros\".",
+        "final_value": "Como el fragmento relevante establece confidencialidad y no divulgación dentro del contrato de servicios, el valor debe ser true."
+      }
+    },
+    "has_liability_limitation": {
+      "value": false,
+      "tags": [
+        "boolean_inference"
+      ],
+      "reasoning": {
+        "field_asks": "true si el texto limita, excluye o topa responsabilidad; false si no hay limitación explícita.",
+        "relevant_fragments": "\"Clínica Norte S.A. tratará toda la información recibida como confidencial\" y \"Los soportes físicos deberán devolverse o destruirse\".",
+        "final_value": "Los fragmentos relevantes imponen deberes de reserva y devolución, pero no limitan ni excluyen responsabilidad; el valor debe ser false."
+      }
+    },
+    "monetary_amount": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "el importe total del contrato si se especifica numéricamente, o null si no hay cuantía total.",
+        "relevant_fragments": "\"valore una colaboración futura\" y \"Las obligaciones de reserva se mantendrán durante dos años\".",
+        "final_value": "Los fragmentos relevantes describen una evaluación futura y duración de obligaciones, pero no fijan un precio total del contrato; el valor debe ser null."
+      }
+    }
+  }
+}

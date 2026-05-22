@@ -17,8 +17,8 @@ Los tasks `cultural_literature` son extracciones L2 de metadatos bibliográficos
 | `title` | Requerido, `string`, no nullable. La dualidad útil es título oficial directo vs título popular/distractor: en Quijote hay títulos de partes, y en Celestina el nombre popular no coincide con el título oficial esperado. |
 | `author` | Requerido, `string`, no nullable. Conviene variar autor nombrado directamente vs atribución o autoría especial, por ejemplo `Anónimo` cuando el texto lo dice; no debe inventarse null porque el schema no lo permite. |
 | `publication_year` | `integer` vs `null`. Bit principal: año exacto de primera publicación frente a referencias vagas como siglo, últimos años de un siglo, premios o ediciones posteriores. |
-| `genres` | `[]` vs lista poblada. En los ejemplos revisados siempre aparece alguna etiqueta de género, pero el schema permite lista vacía si el texto no da géneros literarios explícitos. Cuando haya lista, preferir fragmentos verbatim o casi verbatim. |
-| `key_themes` | `[]` vs lista poblada. Bit principal: temas explícitos frente a una descripción que solo da datos bibliográficos o recepción. Cuando haya lista, debe salir de conceptos nombrados en el texto, no de interpretación externa. |
+| `genres` | Lista de géneros explícitos. Como los ejemplos revisados suelen incluir alguna clasificación, la dualidad más fiel es uno vs varios géneros, o género directo en primera frase vs clasificación en recepción crítica; `[]` queda solo para textos sin etiqueta literaria clara, no como contraste principal. |
+| `key_themes` | Lista de temas explícitos. La dualidad útil es pocos vs varios temas nombrados y contraste entre temas reales y rasgos formales/estilísticos que no deben extraerse; `[]` solo si el texto no presenta temas principales. |
 | `original_language` | `string` vs `null`. Bit principal: lengua original explícitamente afirmada frente a nacionalidad del autor, literatura nacional o país de publicación, que no bastan por grounding estricto. |
 
 ## Propuesta de los dos ejemplos
@@ -28,8 +28,8 @@ Los tasks `cultural_literature` son extracciones L2 de metadatos bibliográficos
 | `title` | Case nuevo, no Quijote. Título oficial directo desde encabezado y primera oración, con títulos de partes internas como distractores menores. | Case nuevo con alias o título popular en el encabezado y título oficial en el cuerpo; el output debe elegir el título oficial afirmado por el texto. |
 | `author` | Autor nombrado directamente con nombre propio. | Autoría especial: texto que diga explícitamente `Anónimo` o una atribución controlada, para no enseñar solo nombres propios de autor. |
 | `publication_year` | Valor no null: año exacto de primera publicación explícito. | `null`: texto con siglo, fecha de composición, premio o edición posterior, pero sin año exacto de primera publicación. |
-| `genres` | Lista poblada con uno o dos géneros verbatim o casi verbatim. | `[]`: el texto describe recepción, lengua y temas, pero no nombra géneros literarios explícitos. |
-| `key_themes` | `[]`: el texto da metadatos y género, pero no temas principales explícitos. | Lista poblada con temas textuales, por ejemplo `exilio`, `memoria familiar` o `pobreza urbana`, no interpretaciones amplias. |
+| `genres` | Lista poblada con dos géneros verbatim o casi verbatim. | Lista poblada con un género explícito en catálogo, para contrastar granularidad sin forzar `[]`. |
+| `key_themes` | Lista breve con temas explícitos; rasgos como tono, prosa o cambios de narrador no se extraen como temas. | Lista poblada con varios temas textuales, por ejemplo `exilio`, `memoria familiar` o `pobreza urbana`, no interpretaciones amplias. |
 | `original_language` | `null`: el texto habla de país, literatura nacional o autora, pero no afirma lengua original. | Valor no null: lengua original mencionada de forma explícita, por ejemplo `gallego`, `catalán` o `español`. |
 
 ## Descriptions enriquecidas para RAG
@@ -55,6 +55,8 @@ Los tasks `cultural_literature` son extracciones L2 de metadatos bibliográficos
 ## Introducción
 
 La ciudad de los espejos es una novela breve de la escritora argentina Elena Márquez. Fue publicada por primera vez en 1978 por Editorial Sur. El volumen salió dividido en dos partes, "El barrio de la lluvia" y "Las habitaciones repetidas"; la edición escolar de 1991 añadió una nota de la autora y un apéndice crítico. En reseñas de la época se la situó entre la narrativa fantástica rioplatense, aunque también se subrayó su tono urbano y su prosa contenida. Recibió el Premio Municipal de Literatura en 1980 y volvió a circular en una colección dedicada a escritoras del Cono Sur. La ficha de esa colección la presentaba como novela breve; otros paratextos destacaban sus cambios de narrador y su estructura de episodios encadenados.
+
+Una nota crítica posterior señala como temas principales el desarraigo urbano y la memoria de infancia, sin convertir sus cambios de narrador en tema autónomo.
 ```
 
 `instruction`:
@@ -74,7 +76,10 @@ Extrae los metadatos bibliográficos y temas principales de la obra literaria de
     "novela breve",
     "narrativa fantástica rioplatense"
   ],
-  "key_themes": [],
+  "key_themes": [
+    "desarraigo urbano",
+    "memoria de infancia"
+  ],
   "original_language": null
 }
 ```
@@ -105,8 +110,8 @@ Extrae los metadatos bibliográficos y temas principales de la obra literaria de
   },
   "key_themes": {
     "field_asks": "los temas principales explorados en la obra, como lista vacía si el texto no los menciona explícitamente.",
-    "relevant_fragments": "\"se subrayó su tono urbano y su prosa contenida\" y \"otros paratextos destacaban sus cambios de narrador y su estructura de episodios encadenados\".",
-    "final_value": "Los fragmentos relevantes describen tono, prosa, narrador y estructura, pero no enumeran temas principales de la obra; la lista debe ser vacía."
+    "relevant_fragments": "\"Una nota crítica posterior señala como temas principales el desarraigo urbano y la memoria de infancia\" y \"sin convertir sus cambios de narrador en tema autónomo\".",
+    "final_value": "Como el primer fragmento relevante nombra temas principales, la lista debe incluir \"desarraigo urbano\" y \"memoria de infancia\". El segundo fragmento aclara que los cambios de narrador son rasgo formal, no tema autónomo."
   },
   "original_language": {
     "field_asks": "la lengua en que la obra fue escrita originalmente, o null si no hay evidencia suficiente.",
@@ -125,7 +130,7 @@ Extrae los metadatos bibliográficos y temas principales de la obra literaria de
 
 ## Introducción
 
-La balada del puerto es el nombre con que se conoce popularmente el Libro de la niebla, obra anónima conservada en tres manuscritos de finales del siglo XIV. La tradición manuscrita más antigua lo transmite en gallego, con rúbricas latinas añadidas al margen y una nota de copista firmada por Xil Pérez. Sus pasajes centrales tratan el exilio, la memoria familiar y la pobreza urbana de los barrios portuarios; otras secciones reúnen plegarias, listas de deudas y nombres de embarcaciones. La copia más citada lleva una miniatura añadida en el siglo XV. Un estudio de 1923 la difundió con su alias moderno, pero los catálogos conservan el título Libro de la niebla.
+La balada del puerto es el nombre con que se conoce popularmente el Libro de la niebla, obra anónima conservada en tres manuscritos de finales del siglo XIV. Los catálogos la describen como poema narrativo tardomedieval. La tradición manuscrita más antigua lo transmite en gallego, con rúbricas latinas añadidas al margen y una nota de copista firmada por Xil Pérez. Sus pasajes centrales tratan el exilio, la memoria familiar y la pobreza urbana de los barrios portuarios; otras secciones reúnen plegarias, listas de deudas y nombres de embarcaciones. La copia más citada lleva una miniatura añadida en el siglo XV. Un estudio de 1923 la difundió con su alias moderno, pero los catálogos conservan el título Libro de la niebla.
 ```
 
 `instruction`:
@@ -141,7 +146,9 @@ Extrae los metadatos bibliográficos y temas principales de la obra literaria de
   "title": "Libro de la niebla",
   "author": "Anónimo",
   "publication_year": null,
-  "genres": [],
+  "genres": [
+    "poema narrativo tardomedieval"
+  ],
   "key_themes": [
     "exilio",
     "memoria familiar",
@@ -172,8 +179,8 @@ Extrae los metadatos bibliográficos y temas principales de la obra literaria de
   },
   "genres": {
     "field_asks": "los géneros literarios asociados con la obra, como lista vacía si no hay géneros explícitos.",
-    "relevant_fragments": "\"obra anónima conservada en tres manuscritos\" y \"otras secciones reúnen plegarias, listas de deudas y nombres de embarcaciones\".",
-    "final_value": "Los fragmentos relevantes aportan soporte material y contenido interno, pero no nombran géneros literarios explícitos; la lista debe ser vacía."
+    "relevant_fragments": "\"Los catálogos la describen como poema narrativo tardomedieval\".",
+    "final_value": "Como el fragmento relevante nombra una clasificación literaria explícita, la lista debe incluir \"poema narrativo tardomedieval\"."
   },
   "key_themes": {
     "field_asks": "los temas principales explorados en la obra, como lista vacía si el texto no los menciona explícitamente.",

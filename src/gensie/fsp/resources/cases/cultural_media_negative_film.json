@@ -3,17 +3,19 @@
   "domain": "cultural_media",
   "language": "es",
   "tags": [
+    "bounded_score",
+    "date_normalization",
     "direct_string",
+    "empty_array",
     "enum_classification",
     "grounded_null",
-    "empty_array",
+    "nullable",
     "numeric_normalization",
-    "bounded_score",
-    "summary_string",
-    "simple_array"
+    "simple_array",
+    "summary_string"
   ],
-  "source_text": "# 'La noche de los mapas' se estrella como thriller de ciencia ficción: mucho decorado y cero pulso\n\nLa noche de los mapas parecía tener todos los ingredientes para levantar una película de intriga espacial: estaciones abandonadas, conspiraciones cartográficas y una ciudad subterránea llena de secretos. También carga con la sombra de mejores aventuras de ciencia ficción, pero esas comparaciones solo dejan más claro lo poco que esta obra encuentra una voz propia. [...]\n\n## Un viaje sin rumbo\n\nClara Varela dirige una película empeñada en parecer enorme, aunque casi nunca consigue que sus piezas encajen. El guion anuncia misterios y luego los resuelve con explicaciones torpes, y cada persecución llega sin tensión. La puesta en escena intenta vender urgencia con luces rojas y música insistente, pero todo parece una maqueta de algo que nunca arranca.\n\nEl reparto se pierde entre frases solemnes y órdenes gritadas, siempre tratado como un bloque sin presencia individual. La película se compara con modas antiguas del género y con sagas conocidas, pero ninguna fecha queda ligada a su lanzamiento. Lo único rotundo es la nota: después de dos horas de ruido, apenas merece un 3 sobre 10.\n\nNi siquiera sus ideas más llamativas funcionan. La ciudad subterránea no tiene personalidad, el humor cae siempre tarde y el clímax final convierte la conspiración en una sucesión de puertas que se abren solas. Al salir queda una sensación simple: La noche de los mapas es un intento fallido sin pulso ni personalidad.",
-  "instruction": "Extrae la información de la crítica cultural, identificando la obra, medio, dirección, reparto, año, puntuación, valoración y veredicto final.",
+  "source_text": "# 'La noche de los mapas' se estrella como thriller de ciencia ficción: mucho decorado y cero pulso\n\nLa noche de los mapas parecía tener todos los ingredientes para levantar una película de intriga espacial: estaciones abandonadas, conspiraciones cartográficas y una ciudad subterránea llena de secretos. También carga con la sombra de mejores aventuras de ciencia ficción, pero esas comparaciones solo dejan más claro lo poco que esta obra encuentra una voz propia. [...] Clara Varela dirige una película empeñada en parecer enorme, aunque casi nunca consigue que sus piezas encajen. El guion anuncia misterios y luego los resuelve con explicaciones torpes, y cada persecución llega sin tensión. La puesta en escena intenta vender urgencia con luces rojas y música insistente, pero todo parece una maqueta de algo que nunca arranca. [...] El reparto se pierde entre frases solemnes y órdenes gritadas, siempre tratado como un bloque sin presencia individual. La película se compara con modas antiguas del género y con sagas conocidas, pero su lanzamiento este año no marcará un antes ni un después. Lo único rotundo es la nota: después de dos horas de ruido, apenas merece un 3 sobre 10. [...] Ni siquiera sus ideas más llamativas funcionan. La ciudad subterránea no tiene personalidad, el humor cae siempre tarde y el clímax final convierte la conspiración en una sucesión de puertas que se abren solas. Al salir queda una sensación simple: La noche de los mapas es un intento fallido sin pulso ni personalidad.",
+  "instruction": "Extrae la informaci?n de la cr?tica cultural, identificando la obra, medio, direcci?n, reparto, a?o, puntuaci?n, valoraci?n y veredicto final.",
   "schema": {
     "$defs": {
       "MediumType": {
@@ -130,6 +132,18 @@
     "title": "MediaReview",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "work_title": "Título de la obra reseñada, no de las comparaciones. Prioriza el título del encabezado y las menciones repetidas como foco del artículo; ignora obras citadas como referentes, plagios, homenajes o distractores.",
+    "medium": "Tipo de medio de la obra principal: `MOVIE`, `BOOK`, `TV_SERIES` o `VIDEO_GAME`. Usa pistas como \"película\", \"serie\", \"episodios\", \"temporada\", \"novela\" o plataforma, pero no clasifiques por obras mencionadas alrededor.",
+    "director": "Persona que dirige la obra, solo si el texto usa evidencia de dirección o \"tras las cámaras\" para esa obra. No sustituyas por creador, showrunner, guionista, productor ejecutivo, fotografía, plataforma o autor de la novela adaptada.",
+    "main_cast": "Actores o intérpretes nombrados como reparto, protagonistas o presencia actoral de la obra reseñada. No incluyas personajes ficticios, directores, creadores, autores ni nombres de otras obras; usa `[]` si el reparto se menciona sin nombres.",
+    "release_year": "Año de estreno o lanzamiento de la obra principal. Devuelve `null` si solo hay fechas de otras obras, época en que transcurre la trama, fecha futura ambigua, plataforma actual o contexto histórico sin vínculo explícito al estreno.",
+    "rating": "Puntuación explícita del crítico normalizada a 0-10. No inventes nota a partir de adjetivos; si aparece `3/10` usa `3.0`, si aparece una escala distinta conviértela solo cuando la escala esté clara.",
+    "sentiment": "Tono global de la reseña: `POSITIVE`, `NEUTRAL` o `NEGATIVE`. Decide por el balance final, no por una frase aislada: elogios con reservas fuertes suelen ser `NEUTRAL`; condena dominante es `NEGATIVE`; recomendación clara es `POSITIVE`.",
+    "pros": "Aspectos positivos concretos destacados por el crítico, preferiblemente fragmentos verbatim o casi verbatim. No conviertas premisas atractivas en pros si el texto las presenta como fallidas o insuficientes.",
+    "cons": "Defectos concretos mencionados por el crítico, con formulación cercana al texto. Evita críticas genéricas no citadas y separa defectos distintos cuando el texto los enumera claramente.",
+    "key_verdict": "Juicio final conciso de la reseña. Suele salir del titular o cierre; puede ser casi verbatim si resume el balance, pero no debe copiar una frase larga con detalles secundarios."
+  },
   "field_examples": {
     "work_title": {
       "value": "La noche de los mapas",
@@ -145,6 +159,7 @@
     "medium": {
       "value": "MOVIE",
       "tags": [
+        "direct_string",
         "enum_classification"
       ],
       "reasoning": {
@@ -156,7 +171,8 @@
     "director": {
       "value": "Clara Varela",
       "tags": [
-        "direct_string"
+        "direct_string",
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "la persona que dirigió la película o serie, o null si no aparece.",
@@ -167,7 +183,8 @@
     "main_cast": {
       "value": [],
       "tags": [
-        "empty_array"
+        "empty_array",
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "los actores o intérpretes principales mencionados en la reseña.",
@@ -178,20 +195,23 @@
     "release_year": {
       "value": null,
       "tags": [
+        "date_normalization",
         "grounded_null",
-        "date_normalization"
+        "nullable",
+        "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "el año de estreno o lanzamiento de la obra, o null si no hay evidencia suficiente.",
-        "relevant_fragments": "\"La película se compara con modas antiguas del género y con sagas conocidas, pero ninguna fecha queda ligada a su lanzamiento\".",
-        "final_value": "El texto menciona referencias temporales ajenas, pero no un año de estreno o lanzamiento de la película; el valor debe ser null."
+        "relevant_fragments": "\"La película se compara con modas antiguas del género y con sagas conocidas, pero su lanzamiento este año no marcará un antes ni un después\".",
+        "final_value": "El texto menciona referencias temporales ajenas, y que el lanzamiento de la película fue 'este año', pero esto es relativo a cuando se escribió la crítica, ningún valor numérico explícito de dicho año se menciona; el valor debe ser null."
       }
     },
     "rating": {
       "value": 3.0,
       "tags": [
-        "numeric_normalization",
-        "bounded_score"
+        "bounded_score",
+        "nullable",
+        "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "la puntuación dada por el crítico, normalizada a escala 0-10.",
@@ -202,23 +222,24 @@
     "sentiment": {
       "value": "NEGATIVE",
       "tags": [
-        "enum_classification",
-        "summary_string"
+        "direct_string",
+        "enum_classification"
       ],
       "reasoning": {
         "field_asks": "el tono global de la reseña, mapeado a uno de estos valores: POSITIVE, NEUTRAL o NEGATIVE.",
         "relevant_fragments": "\"se estrella\", \"cero pulso\" y \"un intento fallido sin pulso ni personalidad\".",
-        "final_value": "Como los fragmentos relevantes expresan una valoración claramente desfavorable, el valor del enum debe ser \"NEGATIVE\"."
+        "final_value": "Como los fragmentos relevantes expresan una valoración claramente desfavorable, y no hay fragmentos favorables que balanceen, el valor del enum debe ser \"NEGATIVE\"."
       }
     },
     "pros": {
       "value": [],
       "tags": [
-        "empty_array"
+        "empty_array",
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "aspectos positivos concretos destacados por la crítica.",
-        "relevant_fragments": "\"lo poco que esta obra encuentra una voz propia\", \"todo parece una maqueta\" y \"Ni siquiera sus ideas más llamativas funcionan\".",
+        "relevant_fragments": "\"carga con la sombra de mejores aventuras de ciencia ficción, pero esas comparaciones solo dejan más claro lo poco que esta obra encuentra una voz propia\", \"todo parece una maqueta\" y \"Ni siquiera sus ideas más llamativas funcionan\".",
         "final_value": "El texto revisa los posibles méritos y los formula como fallos; no hay aspectos positivos concretos suficientemente grounded, así que la lista es vacía."
       }
     },
@@ -230,8 +251,7 @@
         "el clímax final convierte la conspiración en una sucesión de puertas que se abren solas"
       ],
       "tags": [
-        "simple_array",
-        "summary_string"
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "defectos o aspectos negativos mencionados en la reseña.",
@@ -242,8 +262,8 @@
     "key_verdict": {
       "value": "un intento fallido sin pulso ni personalidad",
       "tags": [
-        "summary_string",
-        "direct_string"
+        "direct_string",
+        "summary_string"
       ],
       "reasoning": {
         "field_asks": "un resumen conciso del juicio final de la reseña.",

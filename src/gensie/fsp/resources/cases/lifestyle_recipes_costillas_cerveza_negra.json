@@ -3,14 +3,18 @@
   "domain": "lifestyle_recipes",
   "language": "es",
   "tags": [
-    "lifestyle_recipes",
-    "holistic_reasoning",
-    "nested_array",
-    "enum_classification",
+    "bounded_score",
+    "complex_object_array",
+    "direct_string",
+    "empty_array",
+    "enum_array",
+    "grounded_null",
+    "nested_numeric_object_array",
+    "nullable",
     "numeric_normalization",
-    "grounded_null"
+    "simple_array"
   ],
-  "source_text": "# Costillas con cerveza negra\n\nSource: https://ejemplo.org/wiki/Costillas_con_cerveza_negra\n\nLas costillas con cerveza negra son una preparación de carne guisada y acabada al horno, habitual en recetarios domésticos de invierno.\n\n== Preparación ==\nLas costillas con cerveza negra se preparan frotando la carne con sal, pimienta y pimentón. En una cazuela amplia se sofríen cebolla y ajo con mantequilla hasta que toman color; después se añade la carne, un vaso de cerveza negra, miel y laurel. La cazuela queda a fuego muy bajo hasta que la salsa se vuelve espesa y la carne empieza a separarse del hueso.\n\nAl final se pasan las costillas a una bandeja, se pintan con la salsa reducida y se terminan en el horno fuerte para que la superficie quede brillante. En algunas casas se sirve con pan tostado para recoger la salsa.",
+  "source_text": "# Costillas con cerveza negra\n\nSource: https://es.wikipedia.org/wiki/Costillas_con_cerveza_negra\n\nLas costillas con cerveza negra son una preparación de carne guisada y acabada al horno, habitual en recetarios domésticos de invierno.\n\n== Historia ==\nLa receta se documenta en cuadernos familiares de cocina centroeuropea y se adaptó en bares españoles como plato de temporada. Suele relacionarse con comidas de domingo y con el aprovechamiento de cortes con hueso que necesitan una cocción prolongada.\n\n== Preparación ==\nLas costillas con cerveza negra se preparan frotando la carne con sal, pimienta y pimentón. En una cazuela amplia se sofríen cebolla y ajo con mantequilla hasta que toman color; después se añade la carne, un vaso de cerveza negra, miel y laurel. La cazuela queda a fuego muy bajo hasta que la salsa se vuelve espesa y la carne empieza a separarse del hueso.\n\nAl final se pasan las costillas a una bandeja, se pintan con la salsa reducida y se terminan en el horno fuerte para que la superficie quede brillante. En algunas casas se sirve con pan tostado para recoger la salsa.",
   "instruction": "Extrae la receta.",
   "schema": {
     "$defs": {
@@ -166,6 +170,16 @@
     "title": "RecipeProcedural",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "dish_name": "Nombre del plato, técnica o preparación principal, normalmente el encabezado `#`. Si el encabezado es genérico, usa el nombre de receta que el cuerpo presenta como preparación central; no elijas variantes, guarniciones ni platos listados en “véase también”.",
+    "servings": "Número de raciones o porciones si aparece explícito. Devuelve `null` en entradas enciclopédicas sin cantidad de servicio; no infieras raciones desde número de ingredientes, tamaño de cazuela o costumbre familiar.",
+    "ingredients": "Ingredientes de la preparación básica, con `amount` y `unit` cuando existan. No incluyas variantes opcionales, acompañamientos, platos derivados, notas históricas ni ingredientes de otras acepciones regionales si el texto los separa de la receta principal.",
+    "ingredients[].unit": "Unidad normalizada; enum completo: `g`, `ml`, `kg`, `unidad`, `pizca`, `cucharada` u `otro`, además de `null` cuando no haya unidad. Usa `otro` para unidades textuales no incluidas como vaso o taza; no inventes unidades cuando el texto solo nombra el ingrediente.",
+    "complexity_score": "Dificultad inferida de 1 a 10 según número de fases, control de textura, técnicas, precisión y tiempo. Usa 1-2 para mezcla, montaje o cocción muy simple; 3-4 para una o dos técnicas básicas con poco control fino, como cortar, vapor y aliño; 5-6 para guisos, sofritos con hervor o varias fases moderadas; 7-8 para marinado, reducción, horno, reposos o control de textura; 9-10 para técnicas precisas o profesionales.",
+    "dietary_tags": "Etiquetas dietéticas inferidas del enum completo: `VEGANO`, `VEGETARIANO`, `SIN GLUTEN`, `SIN LÁCTEOS` o `BAJO EN CARBOHIDRATOS`. Evalúa la preparación básica, no acompañamientos opcionales; carne/pescado bloquea vegano/vegetariano; harina, pan o cerveza bloquean sin gluten; leche, yogur, queso, mantequilla, nata/crema, suero o leche en polvo bloquean sin lácteos si forman parte de la preparación principal.",
+    "technique_sequence": "Secuencia cronológica de técnicas del enum completo: `SOFREÍR`, `HERVIR`, `HORNEAR`, `FREÍR`, `VAPOR` o `COCCIÓN LENTA`. Extrae solo técnicas descritas como preparación del plato; adobo, macerado, reposo o servicio no se fuerzan a un enum si no corresponden.",
+    "total_time_minutes": "Tiempo total en minutos cuando el texto da tiempos explícitos posiblemente sumables. Devuelve `null` con expresiones vagas como “hasta que esté tierno”, “a fuego bajo”, “calor residual” o ausencia de duración."
+  },
   "field_examples": {
     "dish_name": {
       "value": "Costillas con cerveza negra",
@@ -181,8 +195,9 @@
     "servings": {
       "value": null,
       "tags": [
-        "numeric_normalization",
-        "grounded_null"
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "número de raciones o porciones, o null si no se indica.",
@@ -244,40 +259,38 @@
         }
       ],
       "tags": [
-        "nested_array",
-        "numeric_normalization",
-        "grounded_null"
+        "complex_object_array",
+        "nested_numeric_object_array"
       ],
       "reasoning": {
         "field_asks": "lista estructurada de ingredientes; cada unidad debe mapearse a g, ml, kg, unidad, pizca, cucharada, otro o null.",
-        "relevant_fragments": "\"costillas\", \"sal, pimienta y pimentón\", \"cebolla y ajo con mantequilla\", \"un vaso de cerveza negra, miel y laurel\".",
-        "final_value": "Como los fragmentos relevantes listan ingredientes sin cantidades numéricas salvo \"un vaso\", la mayoría queda con amount y unit null; \"un vaso\" se normaliza como amount 1 y unit \"otro\"."
+        "relevant_fragments": "\"costillas\", \"sal, pimienta y pimentón\", \"cebolla y ajo con mantequilla\", \"un vaso de cerveza negra, miel y laurel\" y \"En algunas casas se sirve con pan tostado\".",
+        "final_value": "Como los fragmentos relevantes listan ingredientes sin cantidades numéricas salvo \"un vaso\", la mayoría queda con amount y unit null; \"un vaso\" se normaliza como amount 1 y unit \"otro\". El último fragmento habla de cómo se sirve en algunos lugares, pero no se incluye pan tostado como parte principal de la receta o plato."
       }
     },
     "complexity_score": {
       "value": 7,
       "tags": [
-        "holistic_reasoning",
+        "bounded_score",
         "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "dificultad inferida de 1 a 10 según pasos, técnicas y tiempo.",
-        "relevant_fragments": "\"se sofríen cebolla y ajo\", \"queda a fuego muy bajo hasta que la salsa se vuelve espesa\" y \"se terminan en el horno fuerte\".",
+        "relevant_fragments": "\"se sofríen cebolla y ajo\", \"queda a fuego muy bajo hasta que la salsa se vuelve espesa\", \"se pintan con la salsa reducida\" y \"se terminan en el horno fuerte\".",
         "final_value": "Como los fragmentos relevantes combinan varias fases y control de textura, la dificultad debe ser relativamente alta: 7."
       }
     },
     "dietary_tags": {
       "value": [],
       "tags": [
-        "enum_classification",
-        "simple_array",
-        "holistic_reasoning",
-        "grounded_null"
+        "empty_array",
+        "enum_array",
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "etiquetas dietéticas inferidas, usando solo estos valores: VEGANO, VEGETARIANO, SIN GLUTEN, SIN LÁCTEOS o BAJO EN CARBOHIDRATOS.",
         "relevant_fragments": "\"costillas\", \"mantequilla\", \"cerveza negra\" y \"pan tostado\".",
-        "final_value": "Como los fragmentos relevantes contienen carne, lácteos y elementos con gluten, no corresponde ninguna de las etiquetas dietéticas permitidas; la lista debe ser vacía."
+        "final_value": "Como los fragmentos relevantes de la preparación principal contienen carne, mantequilla como lácteo y cerveza negra con gluten, no corresponde ninguna de las etiquetas dietéticas permitidas; la lista debe ser vacía. El pan tostado es acompañamiento opcional y no decide la etiqueta por sí solo."
       }
     },
     "technique_sequence": {
@@ -287,7 +300,7 @@
         "HORNEAR"
       ],
       "tags": [
-        "enum_classification",
+        "enum_array",
         "simple_array"
       ],
       "reasoning": {
@@ -299,12 +312,12 @@
     "total_time_minutes": {
       "value": null,
       "tags": [
-        "numeric_normalization",
-        "holistic_reasoning",
-        "grounded_null"
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
       ],
       "reasoning": {
-        "field_asks": "duración total normalizada en minutos, o null si no hay tiempo suficiente.",
+        "field_asks": "duración total normalizada en minutos, o null si no hay tiempo suficientemente concreto.",
         "relevant_fragments": "\"hasta que la salsa se vuelve espesa\" y \"hasta que la superficie quede brillante\".",
         "final_value": "Los fragmentos relevantes expresan puntos de textura, pero no una duración total ni tiempos sumables; el valor debe ser null."
       }

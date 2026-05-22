@@ -1,0 +1,286 @@
+{
+  "id": "general_disasters_tifon_luma",
+  "domain": "general_disasters",
+  "language": "es",
+  "tags": [
+    "date_normalization",
+    "direct_string",
+    "empty_array",
+    "entity_array",
+    "enum_classification",
+    "grounded_null",
+    "nullable",
+    "numeric_normalization",
+    "simple_array",
+    "summary_string"
+  ],
+  "source_text": "# El tifón Luma pierde fuerza mar adentro tras activar avisos costeros\n\nEl tifón Luma avanzó este jueves sobre aguas abiertas con rachas de viento cada vez menos organizadas y oleaje cercano a cuatro metros. La meteoróloga Ana Kei explicó en una rueda técnica que el sistema se aleja de las rutas de ferry y que los modelos reducen la probabilidad de impacto directo durante la noche.\n\nLos puertos pesqueros del norte mantuvieron bandera amarilla, suspendieron salidas pequeñas y revisaron amarres en los muelles expuestos. Como medida preventiva, 320 pescadores y trabajadores de muelle fueron trasladados a refugios temporales sin que se reportaran heridos. En las próximas horas se esperan bandas de lluvia irregulares y corrientes fuertes, aunque el núcleo del tifón continuará mar adentro. Equipos de puerto retiraron boyas sueltas y pidieron a las embarcaciones deportivas esperar el boletín de la mañana antes de volver al agua.",
+  "instruction": "Extrae la información estructurada de este artículo de noticias sobre un fenómeno meteorológico, incluyendo el titular, resumen, categoría, ubicación, organizaciones clave, y cualquier cifra de víctimas o afectados mencionada.",
+  "schema": {
+    "$defs": {
+      "NewsCategory": {
+        "enum": [
+          "JUDICIAL",
+          "DISASTER",
+          "HEALTH",
+          "ENVIRONMENT",
+          "POLITICS",
+          "ECONOMY",
+          "SCIENCE",
+          "CULTURE",
+          "SPORTS",
+          "OTHER"
+        ],
+        "title": "NewsCategory",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts structured information from general news articles.\nComplexity: L4 (Sparse Extraction) - Some fields may be null/missing.",
+    "properties": {
+      "headline": {
+        "description": "The main headline or title of the news article",
+        "title": "Headline",
+        "type": "string"
+      },
+      "summary": {
+        "description": "A brief summary of the main facts reported (1-3 sentences)",
+        "title": "Summary",
+        "type": "string"
+      },
+      "category": {
+        "$ref": "#/$defs/NewsCategory",
+        "description": "The thematic category of the news story"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Geographic location where the event occurred (city, country, or region)",
+        "title": "Location"
+      },
+      "date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Date mentioned in the article (may be implicit or explicit)",
+        "title": "Date"
+      },
+      "key_people": {
+        "description": "Names of key individuals mentioned in the article",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key People",
+        "type": "array"
+      },
+      "key_organizations": {
+        "description": "Names of organizations, companies, or governments mentioned",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key Organizations",
+        "type": "array"
+      },
+      "casualties": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of deaths mentioned, if any",
+        "title": "Casualties"
+      },
+      "injured": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of people injured, if any",
+        "title": "Injured"
+      },
+      "affected_count": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of people affected or displaced, if applicable",
+        "title": "Affected Count"
+      }
+    },
+    "required": [
+      "headline",
+      "summary",
+      "category"
+    ],
+    "title": "NewsArticle",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "headline": "Titular principal de la noticia, normalmente el encabezado `#`. Cópialo sin el marcador Markdown y no añadas contexto del cuerpo ni cifras que no estén en el titular.",
+    "summary": "Resumen breve en 1-3 oraciones con fenómeno, ubicación, consecuencias humanas y respuesta cuando aparezcan. No conviertas listas largas de velocidades, distancias o daños materiales en el foco si las víctimas o afectados son el hecho central.",
+    "category": "Categoría temática del enum completo: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. Para huracanes, temporales, aludes, terremotos, inundaciones, matanzas o accidentes terribles, y emergencias similares usa `DISASTER`, aunque el texto cite gobiernos, policía o centros meteorológicos.",
+    "location": "Lugar principal del evento o impacto. Extrae ciudad, región, país o zona marítima concreta si está grounded; devuelve `null` si solo hay aguas abiertas, direcciones, puertos genéricos o referencias demasiado amplias sin lugar nombrado.",
+    "date": "Fecha explícita del hecho o periodo cuando el texto la da. Devuelve `null` para expresiones temporales poco concretas o relativas como `este jueves`, `en las próximas horas`, `temporada`, duración del temporal o fechas de boletines si no son una fecha absoluta del evento.",
+    "key_people": "Personas individuales nombradas y relevantes. No incluyas cargos sin nombre, grupos, equipos de rescate ni organismos; sí incluye autoridades, especialistas o testigos con nombre propio.",
+    "key_organizations": "Organizaciones, gobiernos, centros meteorológicos, medios, hospitales o agencias nombradas. No incluyas instalaciones genéricas, equipos sin nombre propio, o países (a menos que se hable expresamente de su gobierno) como si fueran organizaciones.",
+    "casualties": "Número de muertes humanas reportadas. No uses desaparecidos, animales muertos, viviendas destruidas, balances aproximados del titular si el cuerpo da una cifra más precisa, ni muertes no confirmadas.",
+    "injured": "Número de personas heridas o lesionadas. No uses evacuados, damnificados, personas expuestas, desaparecidos ni atendidos preventivamente si no se describen como heridos.",
+    "affected_count": "Número de personas afectadas, damnificadas, evacuadas o desplazadas. No uses velocidades del viento, kilómetros, alturas de oleaje, casas, rutas, toneladas, dinero ni familias, cuando no haya conversión segura a cantidad de personas."
+  },
+  "field_examples": {
+    "headline": {
+      "value": "El tifón Luma pierde fuerza mar adentro tras activar avisos costeros",
+      "tags": [
+        "direct_string",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "el titular principal del artículo de noticias.",
+        "relevant_fragments": "\"# El tifón Luma pierde fuerza mar adentro tras activar avisos costeros\".",
+        "final_value": "Como el fragmento relevante es el encabezado principal, el titular debe ser \"El tifón Luma pierde fuerza mar adentro tras activar avisos costeros\"."
+      }
+    },
+    "summary": {
+      "value": "El tifón Luma avanzó este jueves sobre aguas abiertas con rachas menos organizadas y oleaje cercano a cuatro metros. Ana Kei explicó que el sistema se aleja de las rutas de ferry y que los modelos reducen la probabilidad de impacto directo durante la noche. Los puertos pesqueros del norte mantuvieron avisos preventivos y 320 pescadores y trabajadores de muelle fueron trasladados a refugios temporales sin reporte de heridos.",
+      "tags": [
+        "direct_string",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
+        "relevant_fragments": "\"El tifón Luma avanzó este jueves sobre aguas abiertas con rachas de viento cada vez menos organizadas y oleaje cercano a cuatro metros\", \"La meteoróloga Ana Kei explicó [...] que el sistema se aleja de las rutas de ferry y que los modelos reducen la probabilidad de impacto directo durante la noche\" y \"Como medida preventiva, 320 pescadores y trabajadores de muelle fueron trasladados a refugios temporales sin que se reportaran heridos\".",
+        "final_value": "Como los fragmentos relevantes cubren evolución del tifón, menor riesgo directo, evacuación preventiva y ausencia de heridos, el resumen debe sintetizar esos puntos en tres oraciones."
+      }
+    },
+    "category": {
+      "value": "DISASTER",
+      "tags": [
+        "direct_string",
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "la categoría temática de la noticia, mapeada a uno de estos valores: JUDICIAL, DISASTER, HEALTH, ENVIRONMENT, POLITICS, ECONOMY, SCIENCE, CULTURE, SPORTS u OTHER.",
+        "relevant_fragments": "\"El tifón Luma\" y \"avisos costeros\".",
+        "final_value": "Como los fragmentos relevantes tratan un fenómeno meteorológico peligroso, el valor del enum debe ser \"DISASTER\"."
+      }
+    },
+    "location": {
+      "value": null,
+      "tags": [
+        "direct_string",
+        "grounded_null",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "la ubicación geográfica donde ocurrió el evento, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"sobre aguas abiertas\", \"mar adentro\" y \"Los puertos pesqueros del norte\".",
+        "final_value": "Los fragmentos relevantes describen el desplazamiento y avisos de forma genérica, sin ciudad, país, región nombrada o ubicación geográfica suficientemente específica; el valor debe ser null."
+      }
+    },
+    "date": {
+      "value": null,
+      "tags": [
+        "date_normalization",
+        "direct_string",
+        "grounded_null",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "la fecha mencionada en el artículo, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"este jueves\", \"durante la noche\" y \"el boletín de la mañana\".",
+        "final_value": "Los fragmentos relevantes dan referencias relativas y momentos del día, pero no una fecha absoluta; el valor debe ser null."
+      }
+    },
+    "key_people": {
+      "value": [
+        "Ana Kei"
+      ],
+      "tags": [
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "nombres de personas individuales clave mencionadas en el artículo.",
+        "relevant_fragments": "\"La meteoróloga Ana Kei explicó\".",
+        "final_value": "Como el fragmento relevante nombra a una persona individual, la lista debe incluir \"Ana Kei\"."
+      }
+    },
+    "key_organizations": {
+      "value": [],
+      "tags": [
+        "empty_array",
+        "entity_array",
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "nombres de organizaciones, empresas, instituciones o gobiernos mencionados.",
+        "relevant_fragments": "\"Los puertos pesqueros del norte\" y \"Equipos de puerto\".",
+        "final_value": "Los fragmentos relevantes mencionan instalaciones y equipos genéricos, pero no organizaciones con nombre propio; la lista debe ser vacía."
+      }
+    },
+    "casualties": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de muertes mencionadas, o null si no se menciona ninguna cifra de muertes humanas.",
+        "relevant_fragments": "No hay fragmentos relevantes.",
+        "final_value": "En el texto no se hace alusión a cifras de muertes humanas; el valor debe ser null."
+      }
+    },
+    "injured": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de personas heridas mencionadas, o null si no se menciona ninguna cifra de heridos humanos.",
+        "relevant_fragments": "\"320 pescadores y trabajadores de muelle fueron trasladados a refugios temporales sin que se reportaran heridos\".",
+        "final_value": "El fragmento relevante niega reporte de heridos, aunque sí cuantifica personas trasladadas preventivamente; el valor debe ser null."
+      }
+    },
+    "affected_count": {
+      "value": 320,
+      "tags": [
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de personas afectadas, evacuadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
+        "relevant_fragments": "\"Como medida preventiva, 320 pescadores y trabajadores de muelle fueron trasladados a refugios temporales\".",
+        "final_value": "Como el fragmento relevante cuantifica personas trasladadas preventivamente a refugios, el valor debe ser 320."
+      }
+    }
+  }
+}

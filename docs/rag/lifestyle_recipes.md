@@ -31,8 +31,8 @@ Los tasks `lifestyle_recipes` son extracciones L10 de recetas o descripciones cu
 | `servings` | Número de raciones o porciones si aparece explícito. Devuelve `null` en entradas enciclopédicas sin cantidad de servicio; no infieras raciones desde número de ingredientes, tamaño de cazuela o costumbre familiar. |
 | `ingredients` | Ingredientes de la preparación básica, con `amount` y `unit` cuando existan. No incluyas variantes opcionales, acompañamientos, platos derivados, notas históricas ni ingredientes de otras acepciones regionales si el texto los separa de la receta principal. |
 | `ingredients[].unit` | Unidad normalizada; enum completo: `g`, `ml`, `kg`, `unidad`, `pizca`, `cucharada` u `otro`, además de `null` cuando no haya unidad. Usa `otro` para unidades textuales no incluidas como vaso o taza; no inventes unidades cuando el texto solo nombra el ingrediente. |
-| `complexity_score` | Dificultad inferida de 1 a 10 según número de fases, control de textura, técnicas, precisión y tiempo. Una técnica o ingrediente básico puede ser 1-2; guisos con sofrito y hervor 5-6; preparaciones con marinado, reducción, horno o varias fases tienden a 7 o más. |
-| `dietary_tags` | Etiquetas dietéticas inferidas del enum completo: `VEGANO`, `VEGETARIANO`, `SIN GLUTEN`, `SIN LÁCTEOS` o `BAJO EN CARBOHIDRATOS`. Evalúa la preparación básica, no acompañamientos opcionales; carne/pescado bloquea vegano/vegetariano, harina/pan/cerveza bloquea sin gluten, lácteos bloquean sin lácteos. |
+| `complexity_score` | Dificultad inferida de 1 a 10 según número de fases, control de textura, técnicas, precisión y tiempo. Usa 1-2 para mezcla, montaje o cocción muy simple; 3-4 para una o dos técnicas básicas con poco control fino, como cortar, vapor y aliño; 5-6 para guisos, sofritos con hervor o varias fases moderadas; 7-8 para marinado, reducción, horno, reposos o control de textura; 9-10 para técnicas precisas o profesionales. |
+| `dietary_tags` | Etiquetas dietéticas inferidas del enum completo: `VEGANO`, `VEGETARIANO`, `SIN GLUTEN`, `SIN LÁCTEOS` o `BAJO EN CARBOHIDRATOS`. Evalúa la preparación básica, no acompañamientos opcionales; carne/pescado bloquea vegano/vegetariano; harina, pan o cerveza bloquean sin gluten; leche, yogur, queso, mantequilla, nata/crema, suero o leche en polvo bloquean sin lácteos si forman parte de la preparación principal. |
 | `technique_sequence` | Secuencia cronológica de técnicas del enum completo: `SOFREÍR`, `HERVIR`, `HORNEAR`, `FREÍR`, `VAPOR` o `COCCIÓN LENTA`. Extrae solo técnicas descritas como preparación del plato; adobo, macerado, reposo o servicio no se fuerzan a un enum si no corresponden. |
 | `total_time_minutes` | Tiempo total en minutos cuando el texto da tiempos explícitos posiblemente sumables. Devuelve `null` con expresiones vagas como “hasta que esté tierno”, “a fuego bajo”, “calor residual” o ausencia de duración. |
 
@@ -292,7 +292,7 @@ Extrae la receta.
   "dietary_tags": {
     "field_asks": "etiquetas dietéticas inferidas, usando solo estos valores: VEGANO, VEGETARIANO, SIN GLUTEN, SIN LÁCTEOS o BAJO EN CARBOHIDRATOS.",
     "relevant_fragments": "\"costillas\", \"mantequilla\", \"cerveza negra\" y \"pan tostado\".",
-    "final_value": "Como los fragmentos relevantes contienen carne, lácteos y elementos con gluten, no corresponde ninguna de las etiquetas dietéticas permitidas; la lista debe ser vacía."
+    "final_value": "Como los fragmentos relevantes de la preparación principal contienen carne, mantequilla como lácteo y cerveza negra con gluten, no corresponde ninguna de las etiquetas dietéticas permitidas; la lista debe ser vacía. El pan tostado es acompañamiento opcional y no decide la etiqueta por sí solo."
   },
   "technique_sequence": {
     "field_asks": "secuencia cronológica de técnicas principales, usando solo estos valores: SOFREÍR, HERVIR, HORNEAR, FREÍR, VAPOR o COCCIÓN LENTA.",

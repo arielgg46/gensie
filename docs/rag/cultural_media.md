@@ -172,7 +172,7 @@ Cada temporada aparece una serie pequeña que no pretende cambiar la televisión
   "sentiment": "NEUTRAL",
   "pros": [
     "Nadia Ríos sostiene la historia con una interpretación contenida",
-    "Bruno Castañeda aporta una comicidad seca que evita el sentimentalismo"
+    "Bruno Castañeda aporta una comicidad seca que evita el sentimentalismo",
     "Hay diálogos precisos",
     "un uso muy bonito del espacio de la estación como memoria compartida"
   ],

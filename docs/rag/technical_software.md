@@ -22,7 +22,7 @@ Los tasks `technical_software` son extracciones L9 de descripciones de aplicacio
 | `features` | `[]` vs lista poblada. Debe incluir capacidades técnicas mencionadas, preferentemente verbatim o casi verbatim; si el texto solo da historia, licencia y checksum, puede quedar vacío. |
 | `exact_release_date` | `string` `DD/MM/YYYY` vs `null`. Trampa central: si solo aparece año, mes o fecha de versión posterior, debe ser `null`; si aparece fecha exacta de primer lanzamiento, se normaliza. |
 | `latest_stable_version_sha256` | `string` vs `null`. Solo debe poblarse si el texto da explícitamente un SHA256 del instalador estable más reciente; hashes de commit, firmas PGP o checksum de versión beta no aplican. |
-| `current_ceo_name` | `string` vs `null`. Solo debe poblarse si el texto dice explícitamente que alguien es CEO actual de la organización desarrolladora; fundador, mantenedor, creador o líder del proyecto no basta. |
+| `current_ceo_name` | `string` vs `null`. Solo debe poblarse si el texto dice explícitamente que alguien es CEO actual, es decir, director ejecutivo o máxima persona ejecutiva de la organización desarrolladora; fundador, mantenedor, creador o líder del proyecto no basta. |
 
 ## Descriptions enriquecidas para RAG
 
@@ -36,7 +36,7 @@ Los tasks `technical_software` son extracciones L9 de descripciones de aplicacio
 | `features` | Capacidades técnicas mencionadas, en frases breves y fieles al texto. Extrae funciones como reproducción, streaming, compresión, edición, formatos o herramientas; no incluyas historia, licencia, plataformas, checksum ni cargos corporativos como features. |
 | `exact_release_date` | Fecha exacta del primer lanzamiento en `DD/MM/YYYY`. Devuelve `null` SI SOLO HAY año, versión posterior, fecha de liberación de código distinta del primer lanzamiento o referencias relativas sin día/mes/año completos. |
 | `latest_stable_version_sha256` | SHA256 del instalador estable más reciente, solo si el texto lo dice explícitamente. Devuelve `null` para hashes de commit, firmas PGP, checksums de nightly/beta, identificadores cortos o valores sin relación con el instalador estable. |
-| `current_ceo_name` | Nombre del CEO actual de la organización desarrolladora, solo si se afirma explícitamente. Fundador, creador, mantenedor, líder del proyecto, presidente de fundación o coordinador técnico no necesariamente equivalen a CEO actual. |
+| `current_ceo_name` | Nombre del CEO actual de la organización desarrolladora, solo si se afirma explícitamente; CEO significa director ejecutivo o máxima persona ejecutiva de una empresa u organización. Fundador, creador, mantenedor, líder del proyecto, presidente de fundación o coordinador técnico no equivalen a CEO actual salvo que el texto diga claramente que esa persona ocupa ese cargo. |
 
 ## Propuesta de los dos ejemplos
 

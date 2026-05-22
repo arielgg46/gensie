@@ -1,0 +1,239 @@
+{
+  "id": "legal_contracts_compraventa_maquinaria_agricola",
+  "domain": "legal_contracts",
+  "language": "es",
+  "tags": [
+    "boolean_inference",
+    "date_normalization",
+    "direct_string",
+    "entity_array",
+    "enum_classification",
+    "nullable",
+    "numeric_normalization",
+    "simple_array"
+  ],
+  "source_text": "# CONTRATO DE COMPRAVENTA DE MAQUINARIA AGRÍCOLA\n\nEn Barcelona, a 2 de mayo de 2026.\n\n**REUNIDOS**\n\nDe una parte, Talleres Montseny S.L., representada por Clara Vidal, como parte vendedora.\n\nDe otra parte, Cooperativa Vall del Segre, representada por Joan Riera, como parte compradora.\n\nAmbas partes manifiestan interés en formalizar la transmisión de una cosechadora modelo Aurum 420, con sus accesorios descritos en el inventario anexo y revisados por el perito mecánico de la cooperativa.\n\n**CLÁUSULAS**\n\n**PRIMERA - Objeto:**\nLa vendedora transmite a la compradora la propiedad de la cosechadora Aurum 420 y de dos cabezales de corte revisados el mes anterior.\n\n**SEGUNDA - Precio y pago:**\nEl precio total de la compraventa se fija en 125'000 euros, pagaderos en dos transferencias bancarias: una al firmar y otra contra entrega de la máquina.\n\n**TERCERA - Entrada en vigor y entrega:**\nEl contrato entrará en vigor el 2 de mayo de 2026. La entrega se realizará antes del 20 de mayo en la finca de Bellpuig.\n\n**CUARTA - Responsabilidad, ley aplicable y fuero:**\nLa responsabilidad de la vendedora por defectos ocultos quedará limitada al importe efectivamente pagado por la compradora. El contrato se regirá por las leyes de España y las partes se someten a los juzgados y tribunales de Barcelona.",
+  "instruction": "Extrae el resumen del contrato o acto legislativo",
+  "schema": {
+    "$defs": {
+      "ContractType": {
+        "enum": [
+          "PRESTACIÓN DE SERVICIOS",
+          "COMPRAVENTA",
+          "LABORAL",
+          "CONFIDENCIALIDAD",
+          "ACUERDO MARCO",
+          "OTRO"
+        ],
+        "title": "ContractType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Identifies the core parameters and semantic structure of an agreement.\nComplexity: L5 (Hierarchical & Semantic Extraction).",
+    "properties": {
+      "contract_title": {
+        "description": "The formal title or heading of the contract",
+        "title": "Contract Title",
+        "type": "string"
+      },
+      "contract_type": {
+        "$ref": "#/$defs/ContractType",
+        "description": "The broad legal category of the agreement"
+      },
+      "effective_date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The date the contract goes into effect (YYYY-MM-DD or verbatim)",
+        "title": "Effective Date"
+      },
+      "parties": {
+        "description": "The names of the individuals or organizations entering into the agreement",
+        "items": {
+          "type": "string"
+        },
+        "title": "Parties",
+        "type": "array"
+      },
+      "total_clauses": {
+        "description": "Total number of numbered or named sections (e.g., PRIMERO, SEGUNDO...)",
+        "title": "Total Clauses",
+        "type": "integer"
+      },
+      "governing_law_jurisdiction": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "The state, country, or jurisdiction whose laws govern the contract",
+        "title": "Governing Law Jurisdiction"
+      },
+      "has_nda_clause": {
+        "default": false,
+        "description": "True if the text explicitly mentions confidentiality or non-disclosure",
+        "title": "Has Nda Clause",
+        "type": "boolean"
+      },
+      "has_liability_limitation": {
+        "default": false,
+        "description": "True if there is an explicit clause limiting or exempting liability",
+        "title": "Has Liability Limitation",
+        "type": "boolean"
+      },
+      "monetary_amount": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Total amount of the contract if specified numerically",
+        "title": "Monetary Amount"
+      }
+    },
+    "required": [
+      "contract_title",
+      "contract_type",
+      "parties",
+      "total_clauses"
+    ],
+    "title": "ContractSummary",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "contract_title": "Título formal del contrato, normalmente el encabezado `#`. Copia el título del acuerdo principal y no subtítulos de secciones, nombres comerciales, anexos ni denominaciones de roles.",
+    "contract_type": "Tipo legal del acuerdo; enum completo: `PRESTACIÓN DE SERVICIOS`, `COMPRAVENTA`, `LABORAL`, `CONFIDENCIALIDAD`, `ACUERDO MARCO` u `OTRO`. Decide por el objeto principal: servicios, venta de bien, relación laboral, reserva de información, marco general; usa `OTRO` para operaciones que no encajen con lo anterior, como licencias o arrendamientos.",
+    "effective_date": "Fecha de entrada en vigor, normalizada como `YYYY-MM-DD` si hay fecha completa; si la vigencia se expresa de forma relativa, conserva el texto relevante. No confundas fecha de firma, lugar de reunión, entrega, anexos o duración de obligaciones con vigencia.",
+    "parties": "Entidades o personas que celebran el acuerdo. Incluye firmantes principales y, si el texto las trata conjuntamente como parte, marcas/filiales/matrices; no sustituyas la parte por representantes, cargos, apoderados o alias secundarios.",
+    "total_clauses": "Número de cláusulas numeradas o nombradas. Cuenta `PRIMERA`, `SEGUNDA`, `1.`, etc.; no cuentes comparecencias, exposiciones, anexos, listas internas o párrafos introductorios.",
+    "governing_law_jurisdiction": "Ley aplicable, fuero o tribunal pactado. Devuelve `null` si solo hay domicilios, sedes, lugar de firma o lugares de entrega; si hay fueros alternativos, conserva ambos en una forma compacta.",
+    "has_nda_clause": "`true` cuando haya confidencialidad, reserva, secreto comercial, no divulgación o prohibición de revelar información. `false` si el texto solo habla de documentos, propiedad intelectual, entrega o acceso sin deber de secreto.",
+    "has_liability_limitation": "`true` cuando una cláusula limite, excluya, tope o exonere responsabilidad. No basta con multas, garantías, incumplimientos, devolución de soportes o sanciones si no hay límite/exclusión explícita.",
+    "monetary_amount": "Importe total del contrato como número. Devuelve `null` para multas, penalizaciones, depósitos, precios parciales, impuestos, presupuestos no totales o cuantías accesorias que no sean el valor contractual principal."
+  },
+  "field_examples": {
+    "contract_title": {
+      "value": "CONTRATO DE COMPRAVENTA DE MAQUINARIA AGRÍCOLA",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el título formal o encabezado del contrato.",
+        "relevant_fragments": "\"# CONTRATO DE COMPRAVENTA DE MAQUINARIA AGRÍCOLA\".",
+        "final_value": "Como el fragmento relevante es el encabezado formal, el título debe ser \"CONTRATO DE COMPRAVENTA DE MAQUINARIA AGRÍCOLA\"."
+      }
+    },
+    "contract_type": {
+      "value": "COMPRAVENTA",
+      "tags": [
+        "direct_string",
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "la categoría legal amplia del acuerdo, mapeada a uno de estos valores: PRESTACIÓN DE SERVICIOS, COMPRAVENTA, LABORAL, CONFIDENCIALIDAD, ACUERDO MARCO u OTRO.",
+        "relevant_fragments": "\"CONTRATO DE COMPRAVENTA\" y \"formalizar la transmisión de una cosechadora modelo Aurum 420\".",
+        "final_value": "Como los fragmentos relevantes describen transmisión de un bien a cambio de precio, el valor del enum debe ser \"COMPRAVENTA\"."
+      }
+    },
+    "effective_date": {
+      "value": "2026-05-02",
+      "tags": [
+        "date_normalization",
+        "direct_string",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "la fecha en que el contrato entra en vigor, en formato YYYY-MM-DD si es normalizable o verbatim si solo aparece de forma relativa.",
+        "relevant_fragments": "\"El contrato entrará en vigor el 2 de mayo de 2026\".",
+        "final_value": "Como el fragmento relevante da una fecha completa de entrada en vigor, debe normalizarse a \"2026-05-02\"."
+      }
+    },
+    "parties": {
+      "value": [
+        "Talleres Montseny S.L.",
+        "Cooperativa Vall del Segre"
+      ],
+      "tags": [
+        "entity_array",
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "los nombres de las personas u organizaciones que celebran el acuerdo.",
+        "relevant_fragments": "\"De una parte, Talleres Montseny S.L., representada por Clara Vidal, como parte vendedora\" y \"De otra parte, Cooperativa Vall del Segre, representada por Joan Riera, como parte compradora\".",
+        "final_value": "Como el fragmento relevante presenta a las dos sociedades como partes y a Clara Vidal y Joan Riera como representantes, la lista debe incluir \"Talleres Montseny S.L.\" y \"Cooperativa Vall del Segre\"."
+      }
+    },
+    "total_clauses": {
+      "value": 4,
+      "tags": [
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "el número total de cláusulas numeradas o nombradas del contrato.",
+        "relevant_fragments": "\"PRIMERA - Objeto:\", \"SEGUNDA - Precio y pago:\", \"TERCERA - Entrada en vigor y entrega:\" y \"CUARTA - Responsabilidad, ley aplicable y fuero:\".",
+        "final_value": "Como los fragmentos relevantes muestran cuatro cláusulas numeradas, el total debe ser 4."
+      }
+    },
+    "governing_law_jurisdiction": {
+      "value": "España; juzgados y tribunales de Barcelona",
+      "tags": [
+        "direct_string",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "el país, estado o jurisdicción cuya ley o tribunales gobiernan el contrato, o null si no hay pacto de ley aplicable o fuero.",
+        "relevant_fragments": "\"El contrato se regirá por las leyes de España\" y \"las partes se someten a los juzgados y tribunales de Barcelona\".",
+        "final_value": "Como los fragmentos relevantes fijan ley española y fuero en Barcelona, el valor debe ser \"España; juzgados y tribunales de Barcelona\"."
+      }
+    },
+    "has_nda_clause": {
+      "value": false,
+      "tags": [
+        "boolean_inference"
+      ],
+      "reasoning": {
+        "field_asks": "true si el texto menciona confidencialidad, reserva de información o no divulgación; false si no lo hace.",
+        "relevant_fragments": "\"La vendedora transmite a la compradora la propiedad\", \"El precio total de la compraventa se fija en 125'000 euros\" y \"Responsabilidad, ley aplicable y fuero\".",
+        "final_value": "Los fragmentos relevantes cubren objeto, precio, responsabilidad y fuero, pero no establecen confidencialidad ni no divulgación; el valor debe ser false."
+      }
+    },
+    "has_liability_limitation": {
+      "value": true,
+      "tags": [
+        "boolean_inference"
+      ],
+      "reasoning": {
+        "field_asks": "true si el texto limita, excluye o topa responsabilidad; false si no hay limitación explícita.",
+        "relevant_fragments": "\"La responsabilidad de la vendedora por defectos ocultos quedará limitada al importe efectivamente pagado por la compradora\".",
+        "final_value": "Como el fragmento relevante limita expresamente la responsabilidad de la vendedora, el valor debe ser true."
+      }
+    },
+    "monetary_amount": {
+      "value": 125000,
+      "tags": [
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "el importe total del contrato si se especifica numéricamente, o null si no hay cuantía total.",
+        "relevant_fragments": "\"El precio total de la compraventa se fija en 125'000 euros\".",
+        "final_value": "Como el fragmento relevante da el precio total, el importe debe ser 125000."
+      }
+    }
+  }
+}

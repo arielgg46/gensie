@@ -1,0 +1,288 @@
+{
+  "id": "legal_judicial_estafa_cuenta_clara",
+  "domain": "legal_judicial",
+  "language": "es",
+  "tags": [
+    "date_normalization",
+    "direct_string",
+    "entity_array",
+    "enum_classification",
+    "grounded_null",
+    "nullable",
+    "numeric_normalization",
+    "simple_array",
+    "summary_string"
+  ],
+  "source_text": "# Condenan a Sofía Ledesma por la estafa digital de Cuenta Clara\n\nLa Audiencia Provincial de Valencia condenó el 15 de marzo de 2026 a Sofía Ledesma a nueve años de prisión por dirigir una red que copiaba credenciales bancarias mediante la falsa plataforma Cuenta Clara. La sentencia sitúa la causa en Valencia, España, y describe transferencias pequeñas realizadas durante seis meses desde cuentas del Banco Marisma.\n\nEl fiscal Rafael Orts sostuvo que la acusada coordinó dominios web, mensajes de verificación y monederos virtuales usados para retirar el dinero. El fallo reconoce 3 600 clientes perjudicados y ordena indemnizaciones individuales, además del decomiso de equipos informáticos. La Fiscalía Provincial de Valencia anunció que estudiará recurrir la absolución de dos colaboradores técnicos.",
+  "instruction": "Extrae la información estructurada de este artículo de noticias judiciales, identificando personas clave, organizaciones involucradas y cifras humanas mencionadas.",
+  "schema": {
+    "$defs": {
+      "NewsCategory": {
+        "enum": [
+          "JUDICIAL",
+          "DISASTER",
+          "HEALTH",
+          "ENVIRONMENT",
+          "POLITICS",
+          "ECONOMY",
+          "SCIENCE",
+          "CULTURE",
+          "SPORTS",
+          "OTHER"
+        ],
+        "title": "NewsCategory",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts structured information from general news articles.\nComplexity: L4 (Sparse Extraction) - Some fields may be null/missing.",
+    "properties": {
+      "headline": {
+        "description": "The main headline or title of the news article",
+        "title": "Headline",
+        "type": "string"
+      },
+      "summary": {
+        "description": "A brief summary of the main facts reported (1-3 sentences)",
+        "title": "Summary",
+        "type": "string"
+      },
+      "category": {
+        "$ref": "#/$defs/NewsCategory",
+        "description": "The thematic category of the news story"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Geographic location where the event occurred (city, country, or region)",
+        "title": "Location"
+      },
+      "date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Date mentioned in the article (may be implicit or explicit)",
+        "title": "Date"
+      },
+      "key_people": {
+        "description": "Names of key individuals mentioned in the article",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key People",
+        "type": "array"
+      },
+      "key_organizations": {
+        "description": "Names of organizations, companies, or governments mentioned",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key Organizations",
+        "type": "array"
+      },
+      "casualties": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of deaths mentioned, if any",
+        "title": "Casualties"
+      },
+      "injured": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of people injured, if any",
+        "title": "Injured"
+      },
+      "affected_count": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of people affected or displaced, if applicable",
+        "title": "Affected Count"
+      }
+    },
+    "required": [
+      "headline",
+      "summary",
+      "category"
+    ],
+    "title": "NewsArticle",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "headline": "Titular principal de la noticia, normalmente el encabezado `#`. Cópialo sin alterar comillas, alias o nombres propios; no resumas ni limpies titulares largos.",
+    "summary": "Resumen breve en 1-3 oraciones con decisión judicial, operativo, acusación, personas clave y consecuencias. Prioriza el hecho procesal o policial central y no conviertas la crónica en una lista exhaustiva de nombres.",
+    "category": "Categoría temática del enum completo: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. Usa `JUDICIAL` para sentencias, investigaciones, operativos, procesos penales, fiscalías, tribunales, detenciones o actuaciones policiales.",
+    "location": "Lugar principal del proceso, operativo o hecho investigado. Extrae tribunal, ciudad, distrito, región o país cuando estén grounded; devuelve `null` si solo hay instituciones nacionales o referencias vagas sin ubicación suficiente.",
+    "date": "Fecha explícita de la sentencia, operativo o hecho. Devuelve `null` para `hoy`, `esta madrugada`, `ayer`, aniversarios o referencias procesales sin fecha absoluta suficiente, salvo que el dataset preserve una fecha parcial claramente usada en el texto.",
+    "key_people": "Personas individuales nombradas: acusados, condenados, jueces, fiscales, víctimas, autoridades o testigos. No incluyas cargos sin nombre, grupos, alias sin persona asociada cuando el texto no los individualiza, ni organizaciones criminales como personas.",
+    "key_organizations": "Tribunales, fiscalías, policías, fuerzas armadas, bandas, medios, empresas, clubes o instituciones nombradas. Conserva nombres oficiales y alias organizacionales; no incluyas cargos, delitos ni lugares solos como organizaciones.",
+    "casualties": "Número de muertes humanas vinculadas al hecho narrado. No uses años de prisión, condenados, detenidos, desaparecidos, fallecidos históricos no cuantificados como saldo actual o muertes hipotéticas.",
+    "injured": "Número de personas heridas. No uses detenidos, imputados, absueltos, perjudicados económicos, personas desaparecidas ni agentes movilizados.",
+    "affected_count": "Número de personas afectadas, perjudicadas, víctimas o involucradas cuando el texto las cuantifica como tal. No uses años de condena, armas, vehículos, líneas telefónicas, registros, sospechosos o detenidos salvo que el texto los trate explícitamente como personas afectadas."
+  },
+  "field_examples": {
+    "headline": {
+      "value": "Condenan a Sofía Ledesma por la estafa digital de Cuenta Clara",
+      "tags": [
+        "direct_string",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "el titular principal del artículo de noticias.",
+        "relevant_fragments": "\"# Condenan a Sofía Ledesma por la estafa digital de Cuenta Clara\".",
+        "final_value": "Como el fragmento relevante es el encabezado principal, el titular debe ser \"Condenan a Sofía Ledesma por la estafa digital de Cuenta Clara\"."
+      }
+    },
+    "summary": {
+      "value": "La Audiencia Provincial de Valencia condenó el 15 de marzo de 2026 a Sofía Ledesma a nueve años de prisión por dirigir una red que copiaba credenciales bancarias mediante la plataforma falsa Cuenta Clara. El fiscal Rafael Orts sostuvo que la acusada coordinó dominios, mensajes y monederos virtuales usados para retirar dinero de cuentas del Banco Marisma. El fallo reconoce 3 600 clientes perjudicados, ordena indemnizaciones y la Fiscalía Provincial de Valencia estudiará recurrir la absolución de dos colaboradores técnicos.",
+      "tags": [
+        "direct_string",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
+        "relevant_fragments": "\"La Audiencia Provincial de Valencia condenó el 15 de marzo de 2026 a Sofía Ledesma a nueve años de prisión por dirigir una red que copiaba credenciales bancarias mediante la falsa plataforma Cuenta Clara\", \"El fiscal Rafael Orts sostuvo que la acusada coordinó dominios web, mensajes de verificación y monederos virtuales usados para retirar el dinero\" y \"El fallo reconoce 3 600 clientes perjudicados y ordena indemnizaciones individuales, además del decomiso de equipos informáticos\".",
+        "final_value": "Como los fragmentos relevantes cubren condena, mecanismo de estafa y cantidad de perjudicados, el resumen debe sintetizar esos hechos y la posible apelación."
+      }
+    },
+    "category": {
+      "value": "JUDICIAL",
+      "tags": [
+        "direct_string",
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "la categoría temática de la noticia, mapeada a uno de estos valores: JUDICIAL, DISASTER, HEALTH, ENVIRONMENT, POLITICS, ECONOMY, SCIENCE, CULTURE, SPORTS u OTHER.",
+        "relevant_fragments": "\"condenó [...] a nueve años de prisión\", \"La sentencia\" y \"La Fiscalía Provincial de Valencia\".",
+        "final_value": "Como los fragmentos relevantes tratan una condena, una sentencia y actuación fiscal, el valor del enum debe ser \"JUDICIAL\"."
+      }
+    },
+    "location": {
+      "value": "Valencia, España",
+      "tags": [
+        "direct_string",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "la ubicación geográfica donde ocurrió el evento, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"La sentencia sitúa la causa en Valencia, España\".",
+        "final_value": "Como el fragmento relevante ubica la causa en Valencia, España, el valor debe ser \"Valencia, España\"."
+      }
+    },
+    "date": {
+      "value": "15 de marzo de 2026",
+      "tags": [
+        "date_normalization",
+        "direct_string",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "la fecha mencionada en el artículo, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"condenó el 15 de marzo de 2026\".",
+        "final_value": "Como el fragmento relevante da una fecha completa de la condena, el valor debe ser \"15 de marzo de 2026\"."
+      }
+    },
+    "key_people": {
+      "value": [
+        "Sofía Ledesma",
+        "Rafael Orts"
+      ],
+      "tags": [
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "nombres de personas individuales clave mencionadas en el artículo.",
+        "relevant_fragments": "\"Sofía Ledesma\" y \"El fiscal Rafael Orts\".",
+        "final_value": "Como los fragmentos relevantes nombran a la condenada y al fiscal, la lista debe incluir \"Sofía Ledesma\" y \"Rafael Orts\"."
+      }
+    },
+    "key_organizations": {
+      "value": [
+        "Audiencia Provincial de Valencia",
+        "Cuenta Clara",
+        "Banco Marisma",
+        "Fiscalía Provincial de Valencia"
+      ],
+      "tags": [
+        "entity_array",
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "nombres de organizaciones, empresas, instituciones o gobiernos mencionados.",
+        "relevant_fragments": "\"Audiencia Provincial de Valencia\", \"Cuenta Clara\", \"Banco Marisma\" y \"Fiscalía Provincial de Valencia\".",
+        "final_value": "Como los fragmentos relevantes nombran tribunal, plataforma, banco y fiscalía, la lista debe incluir esas organizaciones o entidades."
+      }
+    },
+    "casualties": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de muertes mencionadas, o null si no se menciona ninguna cifra de muertes humanas.",
+        "relevant_fragments": "\"a nueve años de prisión\" y \"3 600 clientes perjudicados\".",
+        "final_value": "Los fragmentos relevantes dan una pena y perjudicados económicos, pero no muertes humanas; el valor debe ser null."
+      }
+    },
+    "injured": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de personas heridas mencionadas, o null si no se menciona ninguna cifra de heridos humanos.",
+        "relevant_fragments": "\"copiaba credenciales bancarias\" y \"ordena indemnizaciones individuales\".",
+        "final_value": "Los fragmentos relevantes describen fraude económico e indemnizaciones, pero no lesiones personales; el valor debe ser null."
+      }
+    },
+    "affected_count": {
+      "value": 3600,
+      "tags": [
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de personas afectadas, perjudicadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
+        "relevant_fragments": "\"El fallo reconoce 3 600 clientes perjudicados\".",
+        "final_value": "Como el fragmento relevante cuantifica clientes perjudicados por la estafa, el valor debe ser 3600."
+      }
+    }
+  }
+}

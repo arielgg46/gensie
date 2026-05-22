@@ -1,0 +1,48 @@
+{
+  "id": "technical_extraction_arczip_blake3",
+  "domain": "technical_extraction",
+  "language": "es",
+  "tags": [
+    "direct_string",
+    "long_verbatim_evidence",
+    "summary_string",
+    "verbatim_answer"
+  ],
+  "source_text": "# ArcZip\n\nArcZip es un archivador experimental para copias incrementales en servidores pequeños. La versión 4.2 cambió su índice de bloques y añadió verificación paralela de contenedores .azp. El manual aclara que LZMA queda reservado para la compresión final y que Zstandard se usa solo en paquetes temporales de red. En la sección de almacenamiento se lee: el motor deduplica bloques mediante el algoritmo BLAKE3-Rolling antes de escribir el contenedor definitivo. La herramienta también conserva un modo ZIP clásico para interoperar con clientes antiguos.",
+  "instruction": "¿Qué algoritmo usa ArcZip para deduplicar bloques?",
+  "schema": {
+    "additionalProperties": false,
+    "description": "Extracts a single verbatim fragment that answers the provided instruction.\nComplexity: L1 (Literal Extraction).",
+    "properties": {
+      "answer": {
+        "description": "The verbatim fragment from the source text that answers the question",
+        "title": "Answer",
+        "type": "string"
+      }
+    },
+    "required": [
+      "answer"
+    ],
+    "title": "TextAnswer",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "answer": "Fragmento único y verbatim que responde exactamente la pregunta. Copia la oración o subfrase suficiente, sin resumir, normalizar, traducir ni añadir puntuación ausente; descarta frases cercanas con tecnologías, licencias, versiones o desarrolladores que no correspondan al aspecto preguntado."
+  },
+  "field_examples": {
+    "answer": {
+      "value": "el motor deduplica bloques mediante el algoritmo BLAKE3-Rolling",
+      "tags": [
+        "direct_string",
+        "long_verbatim_evidence",
+        "summary_string",
+        "verbatim_answer"
+      ],
+      "reasoning": {
+        "field_asks": "un único fragmento verbatim del texto que responda directamente la pregunta.",
+        "relevant_fragments": "\"LZMA queda reservado para la compresión final\", \"Zstandard se usa solo en paquetes temporales de red\" y \"el motor deduplica bloques mediante el algoritmo BLAKE3-Rolling antes de escribir el contenedor definitivo\".",
+        "final_value": "Como el fragmento relevante sobre deduplicación identifica BLAKE3-Rolling y los otros algoritmos se asignan a compresión o paquetes temporales, la respuesta debe copiar la subfrase \"el motor deduplica bloques mediante el algoritmo BLAKE3-Rolling\"."
+      }
+    }
+  }
+}

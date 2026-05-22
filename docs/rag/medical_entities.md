@@ -130,7 +130,7 @@ Identifica las entidades nombradas (nombres de medicamentos, sustancias, marcas 
 {
   "entities": {
     "field_asks": "lista de menciones nombradas de medicamentos, sustancias, marcas y otros elementos farmacéuticos, con texto verbatim y etiqueta del enum permitido.",
-    "relevant_fragments": "\"Acetilsalicílico/cafeína Rovi 500 mg + 30 mg comprimidos efervescentes\", \"Ácido acetilsalicílico\", \"Cafeína\", \"Sodio hidrogenocarbonato (E-500)\", \"ácido cítrico anhidro\", \"sacarina sódica (E-954)\", \"sorbitol líquido no cristalizable (E-420)\", \"aroma de limón\" y \"paracetamol\".",
+    "relevant_fragments": "\"# 1. NOMBRE DEL MEDICAMENTO\n\nAcetilsalicílico/cafeína Rovi 500 mg + 30 mg comprimidos efervescentes\" (nombre completo del medicamento), \"Principios activos:\n\nÁcido acetilsalicílico [...] Cafeína\" (principios activos), \"### 2.2.1. Excipiente(s) con efecto conocido\n\nSodio hidrogenocarbonato (E-500) [...], ácido cítrico anhidro [...], sacarina sódica (E-954) [...], sorbitol líquido no cristalizable (E-420) [...] y aroma de limón\" (excipientes con códigos y nombres técnicos) y \"uso de paracetamol en monofármaco\" (medicamento comparador nombrado en indicación).",
     "final_value": "Como los fragmentos relevantes son el nombre del medicamento, principios activos, excipientes y un analgésico comparador, todas esas menciones deben conservarse verbatim y etiquetarse como MISCELLANEOUS."
   }
 }
@@ -227,7 +227,7 @@ Extrae los nombres de medicamentos, laboratorios, ubicaciones, fechas y organiza
 {
   "entities": {
     "field_asks": "lista de menciones nombradas de medicamento, laboratorio, ubicaciones, fechas y organizaciones en un fragmento técnico farmacéutico.",
-    "relevant_fragments": "\"omeprazol norte 20 mg cápsulas duras gastrorresistentes EFG\", \"Norte Pharma, S.L.\", \"Avenida de los Ensayos, 24. Parque Tecnológico del Ebro\", \"50197-Zaragoza (Aragón) – España\", \"Mayo 2011\", \"Enero 2026\" y \"Agencia Española de Medicamentos y Productos Sanitarios (AEMPS)\".",
+    "relevant_fragments": "\"# 1. NOMBRE DEL MEDICAMENTO\n\nomeprazol norte 20 mg cápsulas duras gastrorresistentes EFG\" (nombre del medicamento), \"# 7. TITULAR DE LA AUTORIZACIÓN DE COMERCIALIZACIÓN\n\nNorte Pharma, S.L.\" (titular/laboratorio), \"Avenida de los Ensayos, 24. Parque Tecnológico del Ebro\n\n50197-Zaragoza (Aragón) – España\" (dirección, localidad/región y país), \"# 9. FECHA DE LA PRIMERA AUTORIZACIÓN/ RENOVACIÓN DE LA AUTORIZACIÓN\n\nMayo 2011\" (fecha administrativa), \"# 10. FECHA DE LA REVISIÓN DEL TEXTO\n\nEnero 2026\" (fecha de revisión) y \"Agencia Española de Medicamentos y Productos Sanitarios (AEMPS)\" (agencia reguladora).",
     "final_value": "Como los fragmentos relevantes incluyen el medicamento, el titular, ubicaciones administrativas, fechas de autorización/revisión y la agencia reguladora, la lista debe conservar esas menciones verbatim con etiquetas MISCELLANEOUS, ORGANIZATION, LOCATION y DATE."
   }
 }

@@ -3,14 +3,14 @@
   "domain": "cultural_literature",
   "language": "es",
   "tags": [
+    "date_normalization",
     "direct_string",
-    "distractor_title",
+    "grounded_null",
+    "nullable",
     "numeric_normalization",
-    "simple_array",
-    "empty_array",
-    "grounded_null"
+    "simple_array"
   ],
-  "source_text": "# La ciudad de los espejos\n\n## Introducción\n\nLa ciudad de los espejos es una novela breve de la escritora argentina Elena Márquez. Fue publicada por primera vez en 1978 por Editorial Sur. El volumen salió dividido en dos partes, \"El barrio de la lluvia\" y \"Las habitaciones repetidas\"; la edición escolar de 1991 añadió una nota de la autora y un apéndice crítico. En reseñas de la época se la situó entre la narrativa fantástica rioplatense, aunque también se subrayó su tono urbano y su prosa contenida. Recibió el Premio Municipal de Literatura en 1980 y volvió a circular en una colección dedicada a escritoras del Cono Sur. La ficha de esa colección la presentaba como novela breve; otros paratextos destacaban sus cambios de narrador y su estructura de episodios encadenados.",
+  "source_text": "# La ciudad de los espejos\n\n## Introducción\n\nLa ciudad de los espejos es una novela breve de la escritora argentina Elena Márquez. Fue publicada por primera vez en 1978 por Editorial Sur. El volumen salió dividido en dos partes, \"El barrio de la lluvia\" y \"Las habitaciones repetidas\"; la edición escolar de 1991 añadió una nota de la autora y un apéndice crítico. En reseñas de la época se la situó entre la narrativa fantástica rioplatense, aunque también se subrayó su tono urbano y su prosa contenida. Recibió el Premio Municipal de Literatura en 1980 y volvió a circular en una colección dedicada a escritoras del Cono Sur. La ficha de esa colección la presentaba como novela breve; otros paratextos destacaban sus cambios de narrador y su estructura de episodios encadenados.\n\nUna nota crítica posterior señala como temas principales el desarraigo urbano y la memoria de infancia, sin convertir sus cambios de narrador en tema autónomo.",
   "instruction": "Extrae los metadatos bibliográficos y temas principales de la obra literaria descrita.",
   "schema": {
     "additionalProperties": false,
@@ -40,7 +40,7 @@
         "title": "Publication Year"
       },
       "genres": {
-        "description": "Literary genres associated with the work",
+        "description": "Literary genres associated with the work (e.g., 'Science Fiction', 'Romance')",
         "items": {
           "type": "string"
         },
@@ -76,12 +76,19 @@
     "title": "LiteraryWork",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "title": "Título oficial de la obra descrita. Prioriza el título presentado como obra principal; no confundas encabezados populares, alias, títulos de partes, continuaciones, ediciones o estudios críticos con el título oficial esperado.",
+    "author": "Autor o creador principal explícitamente atribuido a la obra. Si el texto dice `Anónimo`, usa ese valor; no confundas copistas, editores, traductores, críticos, personajes o autores de obras comparadas con autoría.",
+    "publication_year": "Año exacto de primera publicación de la obra. Devuelve `null` SI SOLO HAY siglo, fecha de composición, éxito editorial, premio, reedición, continuación, edición escolar o estudio posterior.",
+    "genres": "Géneros o clasificaciones literarias explícitas en el texto, como `novela`, `tragicomedia`, `comedia humanística`, etc. Usa `[]` si solo aparecen forma material, argumento, recepción o temas sin etiqueta de género clara.",
+    "key_themes": "Temas principales nombrados por el texto, no interpretaciones externas. Extrae conceptos como injusticia social, tradición caballeresca, pobreza o memoria solo cuando el fragmento los presenta como asuntos de la obra.",
+    "original_language": "Lengua original de redacción, solo si el texto la afirma o da evidencia textual fuerte sobre la lengua de la obra. Nacionalidad del autor, país, literatura nacional o traducciones no bastan por sí solos."
+  },
   "field_examples": {
     "title": {
       "value": "La ciudad de los espejos",
       "tags": [
-        "direct_string",
-        "distractor_title"
+        "direct_string"
       ],
       "reasoning": {
         "field_asks": "el título oficial de la obra literaria.",
@@ -104,6 +111,7 @@
       "value": 1978,
       "tags": [
         "date_normalization",
+        "nullable",
         "numeric_normalization"
       ],
       "reasoning": {
@@ -122,26 +130,30 @@
       ],
       "reasoning": {
         "field_asks": "los géneros literarios asociados con la obra, como lista vacía si no hay géneros explícitos.",
-        "relevant_fragments": "\"La ficha de esa colección la presentaba como novela breve\" y \"se la situó entre la narrativa fantástica rioplatense\".",
+        "relevant_fragments": "\"La ciudad de los espejos es una novela breve\", \"La ficha de esa colección la presentaba como novela breve\" y \"se la situó entre la narrativa fantástica rioplatense\".",
         "final_value": "Como los fragmentos relevantes nombran géneros o clasificaciones literarias explícitas, la lista debe incluir \"novela breve\" y \"narrativa fantástica rioplatense\"."
       }
     },
     "key_themes": {
-      "value": [],
+      "value": [
+        "desarraigo urbano",
+        "memoria de infancia"
+      ],
       "tags": [
-        "empty_array",
-        "grounded_null"
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "los temas principales explorados en la obra, como lista vacía si el texto no los menciona explícitamente.",
-        "relevant_fragments": "\"se subrayó su tono urbano y su prosa contenida\" y \"otros paratextos destacaban sus cambios de narrador y su estructura de episodios encadenados\".",
-        "final_value": "Los fragmentos relevantes describen tono, prosa, narrador y estructura, pero no enumeran temas principales de la obra; la lista debe ser vacía."
+        "relevant_fragments": "\"Una nota crítica posterior señala como temas principales el desarraigo urbano y la memoria de infancia\" y \"sin convertir sus cambios de narrador en tema autónomo\".",
+        "final_value": "Como el primer fragmento relevante nombra temas principales, la lista debe incluir \"desarraigo urbano\" y \"memoria de infancia\". El segundo fragmento aclara que los cambios de narrador son rasgo formal, no tema autónomo."
       }
     },
     "original_language": {
       "value": null,
       "tags": [
-        "grounded_null"
+        "direct_string",
+        "grounded_null",
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "la lengua en que la obra fue escrita originalmente, o null si no hay evidencia suficiente.",

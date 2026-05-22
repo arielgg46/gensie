@@ -1,0 +1,122 @@
+{
+  "id": "legal_entities_rd_48_2026",
+  "domain": "legal_entities",
+  "language": "es",
+  "tags": [
+    "complex_object_array",
+    "entity_array"
+  ],
+  "source_text": "REAL DECRETO 48/2026, de 15 de enero, por el que se regula la concesión directa de subvenciones para la restauración de archivos municipales afectados por inundaciones.\n\nEl Ministerio de Cultura, a propuesta de la Comunidad Autónoma de Aragón, considera necesario articular un procedimiento extraordinario para proteger fondos documentales dañados en diversos municipios de Zaragoza.\n\nLa presente disposición se dicta al amparo de la Ley 16/1985, de 25 de junio, del Patrimonio Histórico Español, y será publicada en el «Boletín Oficial del Estado».\n\nArtículo 1. Objeto.\n\nSe autoriza la concesión directa de ayudas a los ayuntamientos incluidos en el anexo, de acuerdo con las disponibilidades presupuestarias y con los informes técnicos emitidos por la Dirección General de Patrimonio Cultural.",
+  "instruction": "Identifica las entidades nombradas (normas, organismos, lugares y fechas) mencionadas en el fragmento del real decreto.",
+  "schema": {
+    "$defs": {
+      "Entity": {
+        "additionalProperties": false,
+        "description": "A single named entity mention.",
+        "properties": {
+          "text": {
+            "description": "The verbatim text mention from the source",
+            "title": "Text",
+            "type": "string"
+          },
+          "label": {
+            "$ref": "#/$defs/EntityType",
+            "description": "The category of the entity"
+          }
+        },
+        "required": [
+          "text",
+          "label"
+        ],
+        "title": "Entity",
+        "type": "object"
+      },
+      "EntityType": {
+        "enum": [
+          "PERSON",
+          "ORGANIZATION",
+          "LOCATION",
+          "DATE",
+          "EVENT",
+          "MISCELLANEOUS"
+        ],
+        "title": "EntityType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts named entity mentions categorized by type in a single list.\nComplexity: L5 (Hierarchical Grouping).",
+    "properties": {
+      "entities": {
+        "description": "List of all recognized named entities",
+        "items": {
+          "$ref": "#/$defs/Entity"
+        },
+        "title": "Entities",
+        "type": "array"
+      }
+    },
+    "title": "NamedEntities",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "entities": "Lista única de menciones nombradas explícitas del texto legal. Extrae personas, órganos, instituciones, territorios, países, fechas, normas, boletines y sujetos jurídicos cuando aparecen; evita duplicar una entidad repetida sin una mención distinta útil y no expandas instituciones con palabras que el texto no contiene.",
+    "entities[].text": "Mención verbatim, preservando mayúsculas, tildes, artículos, tratamientos, numeración normativa, comillas españolas y frases institucionales completas. No normalices `DON`, `LAS CORTES` o `EL PUEBLO ESPAÑOL`, y no conviertas conceptos legales en nombres inventados.",
+    "entities[].label": "Etiqueta del enum completo: `PERSON`, `ORGANIZATION`, `LOCATION`, `DATE`, `EVENT` o `MISCELLANEOUS`. Personas reales son `PERSON`; Cortes, ministerios, direcciones generales y boletines oficiales son `ORGANIZATION`; países, territorios y lugares son `LOCATION`; fechas son `DATE`; actos o procesos nombrados explícitamente pueden ser `EVENT`; constituciones, reales decretos, leyes, pueblos o nación como sujeto jurídico suelen ser `MISCELLANEOUS`."
+  },
+  "field_examples": {
+    "entities": {
+      "value": [
+        {
+          "text": "REAL DECRETO 48/2026",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "15 de enero",
+          "label": "DATE"
+        },
+        {
+          "text": "Ministerio de Cultura",
+          "label": "ORGANIZATION"
+        },
+        {
+          "text": "Comunidad Autónoma de Aragón",
+          "label": "ORGANIZATION"
+        },
+        {
+          "text": "Zaragoza",
+          "label": "LOCATION"
+        },
+        {
+          "text": "Ley 16/1985",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "25 de junio",
+          "label": "DATE"
+        },
+        {
+          "text": "Patrimonio Histórico Español",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Boletín Oficial del Estado",
+          "label": "ORGANIZATION"
+        },
+        {
+          "text": "Dirección General de Patrimonio Cultural",
+          "label": "ORGANIZATION"
+        }
+      ],
+      "tags": [
+        "complex_object_array",
+        "entity_array"
+      ],
+      "reasoning": {
+        "field_asks": "lista de entidades nombradas en el fragmento legal, incluyendo normas, organismos, lugares y fechas con texto verbatim.",
+        "relevant_fragments": "\"REAL DECRETO 48/2026, de 15 de enero\" (norma y fecha), \"El Ministerio de Cultura, a propuesta de la Comunidad Autónoma de Aragón\" (órganos o administraciones), \"municipios de Zaragoza\" (lugar), \"Ley 16/1985, de 25 de junio, del Patrimonio Histórico Español\" (norma, fecha y materia jurídica), \"será publicada en el «Boletín Oficial del Estado»\" (boletín oficial como organización) y \"informes técnicos emitidos por la Dirección General de Patrimonio Cultural\" (órgano administrativo).",
+        "final_value": "Como los fragmentos relevantes nombran normas, fechas, órganos administrativos, un territorio y el boletín oficial, la lista debe conservar esas menciones verbatim con etiquetas MISCELLANEOUS para normas o conceptos legales, DATE para fechas, ORGANIZATION para órganos y boletín, y LOCATION para Zaragoza."
+      }
+    }
+  }
+}

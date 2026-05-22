@@ -3,14 +3,16 @@
   "domain": "lifestyle_recipes",
   "language": "es",
   "tags": [
-    "lifestyle_recipes",
-    "holistic_reasoning",
-    "nested_array",
-    "enum_classification",
+    "bounded_score",
+    "complex_object_array",
+    "direct_string",
+    "enum_array",
+    "nested_numeric_object_array",
+    "nullable",
     "numeric_normalization",
-    "grounded_null"
+    "simple_array"
   ],
-  "source_text": "# Berenjenas al vapor con tahini\n\nSource: https://ejemplo.org/wiki/Berenjenas_al_vapor_con_tahini\n\nLas berenjenas al vapor con tahini son una preparación vegetal de servicio templado, habitual como entrante. Para 2 raciones se usan 2 berenjenas pequeñas, 2 cucharadas de tahini, 30 ml de zumo de limón, 1 cucharada de aceite de oliva, 1 pizca de sal y hojas de perejil picadas.\n\n== Contexto ==\nLa receta se asocia a mesas mediterráneas donde las hortalizas cocidas se sirven con salsas de semillas o frutos secos. A diferencia de las berenjenas rebozadas, no emplea harina ni huevo; la grasa procede del tahini y del aceite de oliva.\n\n== Preparación ==\nLas berenjenas se cortan en tiras gruesas y se cocinan al vapor durante 18 minutos, hasta que la pulpa queda tierna pero conserva la forma. Después se colocan en una fuente y reposan 7 minutos antes de cubrirlas con la salsa de tahini, limón, aceite y sal.\n\nEn algunas versiones se espolvorea sésamo tostado o granos de granada; en bares se sirve a veces con pan de pita, aunque esos añadidos no forman parte de la preparación básica.",
+  "source_text": "# Berenjenas al vapor con tahini\n\nSource: https://es.wikipedia.org/wiki/Berenjenas_al_vapor_con_tahini\n\nLas berenjenas al vapor con tahini son una preparación vegetal de servicio templado, habitual como entrante. Para 2 raciones se usan 2 berenjenas pequeñas, 2 cucharadas de tahini, 30 ml de zumo de limón, 1 cucharada de aceite de oliva, 1 pizca de sal y hojas de perejil picadas.\n\n== Contexto ==\nLa receta se asocia a mesas mediterráneas donde las hortalizas cocidas se sirven con salsas de semillas o frutos secos. A diferencia de las berenjenas rebozadas, no emplea harina ni huevo; la grasa procede del tahini y del aceite de oliva.\n\n== Preparación ==\nLas berenjenas se cortan en tiras gruesas y se cocinan al vapor durante 18 minutos, hasta que la pulpa queda tierna pero conserva la forma. Después se colocan en una fuente y reposan 7 minutos antes de cubrirlas con la salsa de tahini, limón, aceite y sal.\n\nEn algunas versiones se espolvorea sésamo tostado o granos de granada; en bares se sirve a veces con pan de pita, aunque esos añadidos no forman parte de la preparación básica.",
   "instruction": "Extrae la receta.",
   "schema": {
     "$defs": {
@@ -166,6 +168,16 @@
     "title": "RecipeProcedural",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "dish_name": "Nombre del plato, técnica o preparación principal, normalmente el encabezado `#`. Si el encabezado es genérico, usa el nombre de receta que el cuerpo presenta como preparación central; no elijas variantes, guarniciones ni platos listados en “véase también”.",
+    "servings": "Número de raciones o porciones si aparece explícito. Devuelve `null` en entradas enciclopédicas sin cantidad de servicio; no infieras raciones desde número de ingredientes, tamaño de cazuela o costumbre familiar.",
+    "ingredients": "Ingredientes de la preparación básica, con `amount` y `unit` cuando existan. No incluyas variantes opcionales, acompañamientos, platos derivados, notas históricas ni ingredientes de otras acepciones regionales si el texto los separa de la receta principal.",
+    "ingredients[].unit": "Unidad normalizada; enum completo: `g`, `ml`, `kg`, `unidad`, `pizca`, `cucharada` u `otro`, además de `null` cuando no haya unidad. Usa `otro` para unidades textuales no incluidas como vaso o taza; no inventes unidades cuando el texto solo nombra el ingrediente.",
+    "complexity_score": "Dificultad inferida de 1 a 10 según número de fases, control de textura, técnicas, precisión y tiempo. Usa 1-2 para mezcla, montaje o cocción muy simple; 3-4 para una o dos técnicas básicas con poco control fino, como cortar, vapor y aliño; 5-6 para guisos, sofritos con hervor o varias fases moderadas; 7-8 para marinado, reducción, horno, reposos o control de textura; 9-10 para técnicas precisas o profesionales.",
+    "dietary_tags": "Etiquetas dietéticas inferidas del enum completo: `VEGANO`, `VEGETARIANO`, `SIN GLUTEN`, `SIN LÁCTEOS` o `BAJO EN CARBOHIDRATOS`. Evalúa la preparación básica, no acompañamientos opcionales; carne/pescado bloquea vegano/vegetariano; harina, pan o cerveza bloquean sin gluten; leche, yogur, queso, mantequilla, nata/crema, suero o leche en polvo bloquean sin lácteos si forman parte de la preparación principal.",
+    "technique_sequence": "Secuencia cronológica de técnicas del enum completo: `SOFREÍR`, `HERVIR`, `HORNEAR`, `FREÍR`, `VAPOR` o `COCCIÓN LENTA`. Extrae solo técnicas descritas como preparación del plato; adobo, macerado, reposo o servicio no se fuerzan a un enum si no corresponden.",
+    "total_time_minutes": "Tiempo total en minutos cuando el texto da tiempos explícitos posiblemente sumables. Devuelve `null` con expresiones vagas como “hasta que esté tierno”, “a fuego bajo”, “calor residual” o ausencia de duración."
+  },
   "field_examples": {
     "dish_name": {
       "value": "Berenjenas al vapor con tahini",
@@ -181,6 +193,7 @@
     "servings": {
       "value": 2,
       "tags": [
+        "nullable",
         "numeric_normalization"
       ],
       "reasoning": {
@@ -223,9 +236,8 @@
         }
       ],
       "tags": [
-        "nested_array",
-        "numeric_normalization",
-        "grounded_null"
+        "complex_object_array",
+        "nested_numeric_object_array"
       ],
       "reasoning": {
         "field_asks": "lista estructurada de ingredientes; cada unidad debe mapearse a g, ml, kg, unidad, pizca, cucharada, otro o null.",
@@ -236,7 +248,7 @@
     "complexity_score": {
       "value": 4,
       "tags": [
-        "holistic_reasoning",
+        "bounded_score",
         "numeric_normalization"
       ],
       "reasoning": {
@@ -253,9 +265,8 @@
         "SIN LÁCTEOS"
       ],
       "tags": [
-        "enum_classification",
-        "simple_array",
-        "holistic_reasoning"
+        "enum_array",
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "etiquetas dietéticas inferidas, usando solo estos valores: VEGANO, VEGETARIANO, SIN GLUTEN, SIN LÁCTEOS o BAJO EN CARBOHIDRATOS.",
@@ -268,7 +279,7 @@
         "VAPOR"
       ],
       "tags": [
-        "enum_classification",
+        "enum_array",
         "simple_array"
       ],
       "reasoning": {
@@ -280,8 +291,8 @@
     "total_time_minutes": {
       "value": 25,
       "tags": [
-        "numeric_normalization",
-        "holistic_reasoning"
+        "nullable",
+        "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "duración total normalizada en minutos, o null si no hay tiempo suficiente.",

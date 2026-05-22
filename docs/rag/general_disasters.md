@@ -45,7 +45,7 @@ Los tasks `general_disasters` usan el schema general de noticias L4 para fenóme
 | Campo | Ejemplo 1 | Ejemplo 2 |
 | --- | --- | --- |
 | `headline` | Titular de alud con impacto humano local. | Titular de tifón que pierde fuerza mar adentro. |
-| `summary` | Tres oraciones con hecho, cifras humanas y respuesta. | Dos o tres oraciones de seguimiento preventivo y condiciones marítimas. |
+| `summary` | Tres oraciones con hecho, muertes/heridos y respuesta, sin cifra total de evacuados. | Dos o tres oraciones de seguimiento preventivo, condiciones marítimas y evacuación preventiva. |
 | `category` | `DISASTER`. | `DISASTER`. |
 | `location` | Valor no null: Santa Lidia, Nariño, Colombia. | `null`: solo aguas abiertas y referencias genéricas a puertos del norte. |
 | `date` | Valor no null: 9 de febrero de 2026. | `null`: referencia relativa `este jueves`. |
@@ -53,7 +53,7 @@ Los tasks `general_disasters` usan el schema general de noticias L4 para fenóme
 | `key_organizations` | Lista poblada con organismos de respuesta y hospital. | `[]`: servicios o equipos genéricos sin nombre propio. |
 | `casualties` | `7`. | `null`. |
 | `injured` | `43`. | `null`. |
-| `affected_count` | `1800`. | `null`. |
+| `affected_count` | `null`: hay asistencia y habilitación de albergues, pero no cifra total de afectados/evacuados. | `320`: personas trasladadas preventivamente a refugios temporales. |
 
 ## Input, output y reasoning propuestos
 
@@ -66,7 +66,7 @@ Los tasks `general_disasters` usan el schema general de noticias L4 para fenóme
 
 Un deslizamiento de lodo bajó por la quebrada El Pinar el 9 de febrero de 2026 y golpeó los barrios La Esperanza y San Roque, en Santa Lidia, departamento de Nariño, Colombia. El alcalde Mateo Rojas dijo que la ladera ya venía agrietándose desde la madrugada, pero el corte de la carretera impidió llegar a todas las viviendas antes del desprendimiento.
 
-Bomberos Voluntarios de Santa Lidia, la Defensa Civil Colombiana y cuadrillas del Hospital San Gabriel trabajaron durante la noche con maquinaria ligera. El primer balance oficial reportó 7 fallecidos, 43 heridos y 1 800 personas evacuadas hacia escuelas y coliseos. La Unidad Nacional para la Gestión del Riesgo anunció carpas, agua y una evaluación geológica para decidir si los vecinos podrán regresar a la zona baja del valle.
+Bomberos Voluntarios de Santa Lidia, la Defensa Civil Colombiana y cuadrillas del Hospital San Gabriel trabajaron durante la noche con maquinaria ligera. El primer balance oficial reportó 7 fallecidos y 43 heridos, mientras varias familias fueron llevadas hacia escuelas y coliseos habilitados como albergues. La Unidad Nacional para la Gestión del Riesgo anunció carpas, agua y una evaluación geológica para decidir si los vecinos podrán regresar a la zona baja del valle.
 ```
 
 `instruction`:
@@ -80,7 +80,7 @@ Extrae la información estructurada de este artículo de noticias sobre un desas
 ```json
 {
   "headline": "Un alud arrasa dos barrios de Santa Lidia tras tres días de lluvias",
-  "summary": "Un deslizamiento de lodo bajó por la quebrada El Pinar el 9 de febrero de 2026 y golpeó dos barrios de Santa Lidia, en Nariño, Colombia. El balance oficial reportó 7 fallecidos, 43 heridos y 1 800 personas evacuadas, mientras equipos de bomberos, defensa civil y hospital trabajaron durante la noche. La Unidad Nacional para la Gestión del Riesgo anunció asistencia y una evaluación geológica antes de permitir el regreso a la zona baja del valle.",
+  "summary": "Un deslizamiento de lodo bajó por la quebrada El Pinar el 9 de febrero de 2026 y golpeó dos barrios de Santa Lidia, en Nariño, Colombia. El balance oficial reportó 7 fallecidos y 43 heridos, mientras equipos de bomberos, defensa civil y hospital trabajaron durante la noche. La Unidad Nacional para la Gestión del Riesgo anunció asistencia y una evaluación geológica antes de permitir el regreso a la zona baja del valle.",
   "category": "DISASTER",
   "location": "Santa Lidia, Nariño, Colombia",
   "date": "9 de febrero de 2026",
@@ -95,7 +95,7 @@ Extrae la información estructurada de este artículo de noticias sobre un desas
   ],
   "casualties": 7,
   "injured": 43,
-  "affected_count": 1800
+  "affected_count": null
 }
 ```
 
@@ -110,8 +110,8 @@ Extrae la información estructurada de este artículo de noticias sobre un desas
   },
   "summary": {
     "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
-    "relevant_fragments": "\"Un deslizamiento de lodo bajó por la quebrada El Pinar\", \"El primer balance oficial reportó 7 fallecidos, 43 heridos y 1 800 personas evacuadas\" y \"anunció carpas, agua y una evaluación geológica\".",
-    "final_value": "Como los fragmentos relevantes cubren el evento, las cifras humanas y la respuesta institucional, el resumen debe condensar esos hechos en tres oraciones."
+    "relevant_fragments": "\"Un deslizamiento de lodo bajó por la quebrada El Pinar el 9 de febrero de 2026 y golpeó los barrios La Esperanza y San Roque, en Santa Lidia, departamento de Nariño, Colombia\", \"El primer balance oficial reportó 7 fallecidos y 43 heridos, mientras varias familias fueron llevadas hacia escuelas y coliseos habilitados como albergues\" y \"La Unidad Nacional para la Gestión del Riesgo anunció carpas, agua y una evaluación geológica para decidir si los vecinos podrán regresar\".",
+    "final_value": "Como los fragmentos relevantes cubren evento, lugar, fecha, cifras humanas y respuesta institucional, el resumen debe condensar esos hechos en tres oraciones sin inventar una cifra total de evacuados."
   },
   "category": {
     "field_asks": "la categoría temática de la noticia, mapeada a uno de estos valores: JUDICIAL, DISASTER, HEALTH, ENVIRONMENT, POLITICS, ECONOMY, SCIENCE, CULTURE, SPORTS u OTHER.",
@@ -150,8 +150,8 @@ Extrae la información estructurada de este artículo de noticias sobre un desas
   },
   "affected_count": {
     "field_asks": "número de personas afectadas, evacuadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
-    "relevant_fragments": "\"El primer balance oficial reportó [...] 1 800 personas evacuadas hacia escuelas y coliseos\".",
-    "final_value": "Como el fragmento relevante cuantifica personas evacuadas, el valor debe ser 1800."
+    "relevant_fragments": "\"varias familias fueron llevadas hacia escuelas y coliseos habilitados como albergues\".",
+    "final_value": "El fragmento relevante confirma traslado a albergues, pero no da una cifra de personas afectadas, evacuadas o desplazadas; el valor debe ser null."
   }
 }
 ```
@@ -165,7 +165,7 @@ Extrae la información estructurada de este artículo de noticias sobre un desas
 
 El tifón Luma avanzó este jueves sobre aguas abiertas con rachas de viento cada vez menos organizadas y oleaje cercano a cuatro metros. La meteoróloga Ana Kei explicó en una rueda técnica que el sistema se aleja de las rutas de ferry y que los modelos reducen la probabilidad de impacto directo durante la noche.
 
-Los puertos pesqueros del norte mantuvieron bandera amarilla, suspendieron salidas pequeñas y revisaron amarres en los muelles expuestos. En las próximas horas se esperan bandas de lluvia irregulares y corrientes fuertes, aunque el núcleo del tifón continuará mar adentro. Equipos de puerto retiraron boyas sueltas y pidieron a las embarcaciones deportivas esperar el boletín de la mañana antes de volver al agua.
+Los puertos pesqueros del norte mantuvieron bandera amarilla, suspendieron salidas pequeñas y revisaron amarres en los muelles expuestos. Como medida preventiva, 320 pescadores y trabajadores de muelle fueron trasladados a refugios temporales sin que se reportaran heridos. En las próximas horas se esperan bandas de lluvia irregulares y corrientes fuertes, aunque el núcleo del tifón continuará mar adentro. Equipos de puerto retiraron boyas sueltas y pidieron a las embarcaciones deportivas esperar el boletín de la mañana antes de volver al agua.
 ```
 
 `instruction`:
@@ -179,7 +179,7 @@ Extrae la información estructurada de este artículo de noticias sobre un fenó
 ```json
 {
   "headline": "El tifón Luma pierde fuerza mar adentro tras activar avisos costeros",
-  "summary": "El tifón Luma avanzó este jueves sobre aguas abiertas con rachas menos organizadas y oleaje cercano a cuatro metros. Ana Kei explicó que el sistema se aleja de las rutas de ferry y que los modelos reducen la probabilidad de impacto directo durante la noche. Los puertos pesqueros del norte mantuvieron avisos preventivos, suspendieron salidas pequeñas y revisaron amarres.",
+  "summary": "El tifón Luma avanzó este jueves sobre aguas abiertas con rachas menos organizadas y oleaje cercano a cuatro metros. Ana Kei explicó que el sistema se aleja de las rutas de ferry y que los modelos reducen la probabilidad de impacto directo durante la noche. Los puertos pesqueros del norte mantuvieron avisos preventivos y 320 pescadores y trabajadores de muelle fueron trasladados a refugios temporales sin reporte de heridos.",
   "category": "DISASTER",
   "location": null,
   "date": null,
@@ -189,7 +189,7 @@ Extrae la información estructurada de este artículo de noticias sobre un fenó
   "key_organizations": [],
   "casualties": null,
   "injured": null,
-  "affected_count": null
+  "affected_count": 320
 }
 ```
 
@@ -204,8 +204,8 @@ Extrae la información estructurada de este artículo de noticias sobre un fenó
   },
   "summary": {
     "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
-    "relevant_fragments": "\"El tifón Luma avanzó este jueves sobre aguas abiertas\", \"el sistema se aleja de las rutas de ferry\" y \"mantuvieron bandera amarilla, suspendieron salidas pequeñas y revisaron amarres\".",
-    "final_value": "Como los fragmentos relevantes cubren evolución del tifón, menor riesgo directo y medidas preventivas, el resumen debe sintetizar esos puntos en tres oraciones."
+    "relevant_fragments": "\"El tifón Luma avanzó este jueves sobre aguas abiertas con rachas de viento cada vez menos organizadas y oleaje cercano a cuatro metros\", \"La meteoróloga Ana Kei explicó [...] que el sistema se aleja de las rutas de ferry y que los modelos reducen la probabilidad de impacto directo durante la noche\" y \"Como medida preventiva, 320 pescadores y trabajadores de muelle fueron trasladados a refugios temporales sin que se reportaran heridos\".",
+    "final_value": "Como los fragmentos relevantes cubren evolución del tifón, menor riesgo directo, evacuación preventiva y ausencia de heridos, el resumen debe sintetizar esos puntos en tres oraciones."
   },
   "category": {
     "field_asks": "la categoría temática de la noticia, mapeada a uno de estos valores: JUDICIAL, DISASTER, HEALTH, ENVIRONMENT, POLITICS, ECONOMY, SCIENCE, CULTURE, SPORTS u OTHER.",
@@ -239,13 +239,13 @@ Extrae la información estructurada de este artículo de noticias sobre un fenó
   },
   "injured": {
     "field_asks": "número de personas heridas mencionadas, o null si no se menciona ninguna cifra de heridos humanos.",
-    "relevant_fragments": "No hay fragmentos relevantes.",
-    "final_value": "En el texto no se hace alusión a personas heridas; el valor debe ser null."
+    "relevant_fragments": "\"320 pescadores y trabajadores de muelle fueron trasladados a refugios temporales sin que se reportaran heridos\".",
+    "final_value": "El fragmento relevante niega reporte de heridos, aunque sí cuantifica personas trasladadas preventivamente; el valor debe ser null."
   },
   "affected_count": {
     "field_asks": "número de personas afectadas, evacuadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
-    "relevant_fragments": "No hay fragmentos relevantes.",
-    "final_value": "En el texto no se hace alusión a cifras de personas afectadas, evacuadas o desplazadas; el valor debe ser null."
+    "relevant_fragments": "\"Como medida preventiva, 320 pescadores y trabajadores de muelle fueron trasladados a refugios temporales\".",
+    "final_value": "Como el fragmento relevante cuantifica personas trasladadas preventivamente a refugios, el valor debe ser 320."
   }
 }
 ```

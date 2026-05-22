@@ -1,0 +1,48 @@
+{
+  "id": "cultural_extraction_vega_directora",
+  "domain": "cultural_extraction",
+  "language": "es",
+  "tags": [
+    "direct_string",
+    "long_verbatim_evidence",
+    "summary_string",
+    "verbatim_answer"
+  ],
+  "source_text": "# 'La última noche de Vega' convierte un apagón en una pequeña joya de ciencia ficción doméstica\n\nHay películas que anuncian el fin del mundo con meteoritos y ejércitos digitales, y otras que entienden que basta con apagar una calle para que todo empiece a crujir. 'La última noche de Vega' pertenece a este segundo grupo: una cinta modesta, algo irregular, pero con intuición visual para convertir un barrio corriente en territorio de sospecha.\n\n## Luces fuera\n\nLa película sigue a Clara, una operadora de radio que vuelve a casa justo cuando una tormenta deja sin electricidad a media ciudad. El guion no siempre evita el lugar común, pero la puesta en escena compensa muchas torpezas con sombras, silencios y buen uso del sonido. Vera Luján sostiene casi todo el peso emocional, mientras Daniel Arce aparece como vecino ambiguo.\n\nLo más interesante es que, detrás de una premisa de serie B, la película habla de vigilancia, dependencia tecnológica y culpa colectiva sin convertir cada diálogo en una pancarta. En ese equilibrio se nota la mano de su responsable: la directora de 'La última noche de Vega' es Paula Medina, que ya había probado en cortos su gusto por los espacios cerrados y las amenazas apenas visibles. El tramo final explica demasiado, pero cuando confía en esa atmósfera respira con personalidad.",
+  "instruction": "¿Quién dirigió la película 'La última noche de Vega'?",
+  "schema": {
+    "additionalProperties": false,
+    "description": "Extracts a single verbatim fragment that answers the provided instruction.\nComplexity: L1 (Literal Extraction).",
+    "properties": {
+      "answer": {
+        "description": "The verbatim fragment from the source text that answers the question",
+        "title": "Answer",
+        "type": "string"
+      }
+    },
+    "required": [
+      "answer"
+    ],
+    "title": "TextAnswer",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "answer": "Fragmento verbatim que responde directamente la pregunta cultural. Copia la cláusula u oración suficiente para establecer la relación pedida, por ejemplo quién dirigió o quién protagoniza, sin reducirla a nombres aislados ni añadir paráfrasis; ignora actores, títulos, creadores o comparaciones cercanas que sean distractores."
+  },
+  "field_examples": {
+    "answer": {
+      "value": "la directora de 'La última noche de Vega' es Paula Medina",
+      "tags": [
+        "direct_string",
+        "long_verbatim_evidence",
+        "summary_string",
+        "verbatim_answer"
+      ],
+      "reasoning": {
+        "field_asks": "un fragmento verbatim del texto que responda quién dirigió la película 'La última noche de Vega'.",
+        "relevant_fragments": "\"la directora de 'La última noche de Vega' es Paula Medina\".",
+        "final_value": "Como el fragmento relevante identifica explícitamente a Paula Medina como directora de la película, el valor debe conservar esa cláusula verbatim completa."
+      }
+    }
+  }
+}

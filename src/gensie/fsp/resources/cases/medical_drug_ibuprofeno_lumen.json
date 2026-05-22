@@ -3,11 +3,11 @@
   "domain": "medical_drug",
   "language": "es",
   "tags": [
-    "medical_safety",
-    "nested_array",
-    "enum_classification",
-    "numeric_normalization",
-    "grounded_null"
+    "boolean_inference",
+    "complex_object_array",
+    "direct_string",
+    "simple_array",
+    "summary_string"
   ],
   "source_text": "FICHA TÉCNICA IBUPROFENO LUMEN 400 mg COMPRIMIDOS RECUBIERTOS CON PELÍCULA EFG\n\nPulse aquí\n                        \n                        para ver el documento en formato PDF.\n\n# 1. NOMBRE DEL MEDICAMENTO\n\nIbuprofeno Lumen 400 mg comprimidos recubiertos con película EFG. [...] \n\n# 2. COMPOSICIÓN CUALITATIVA Y CUANTITATIVA\n\nCada comprimido recubierto contiene 400 mg de ibuprofeno. Excipiente con efecto conocido: cada comprimido contiene lactosa monohidrato. [...] \n\n# 3. FORMA FARMACÉUTICA\n\nComprimido recubierto con película. Comprimidos blancos, oblongos y ranurados por una cara. La ranura no debe utilizarse para fraccionar dosis iguales. [...] \n\n## 4.2. Posología y forma de administración\n\nPosología\n\nAdultos: 1 comprimido cada 6-8 horas, si fuera necesario. No superar 1.200 mg al día sin supervisión médica.\n\nPoblación pediátrica:\n\nNiños a partir de 12 años y peso igual o superior a 40 kg: 1 comprimido cada 6-8 horas, con un máximo de 3 comprimidos al día. En menores de 12 años se recomiendan otras presentaciones ajustadas al peso. [...] \n\n## 4.8. Reacciones adversas\n\nLas reacciones adversas se agrupan por frecuencia y sistema orgánico. Frecuentes (>=1/100 a <1/10), poco frecuentes (>=1/1.000 a <1/100), raras (>=1/10.000 a <1/1.000).\n\nTrastornos gastrointestinales:\nFrecuentes: Náuseas.\n\nTrastornos del sistema nervioso:\nPoco frecuentes: Mareo.\n\nTrastornos de la piel y del tejido subcutáneo:\nRaras: Reacciones cutáneas graves.\n\nTras la comercialización también se han comunicado casos aislados de edema facial.",
   "instruction": "Extrae la descripción estructurada del medicamento, incluyendo su uso en población pediátrica y la lista detallada de efectos adversos.",
@@ -122,6 +122,18 @@
     "title": "DrugDescription",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "common_name": "Principio activo o combinación de principios activos. Extráelo del nombre o de la composición; normaliza combinaciones como `Paracetamol / Codeína` y no uses indicaciones terapéuticas ni excipientes.",
+    "official_name": "Nombre completo de la presentación, usualmente en `# NOMBRE DEL MEDICAMENTO`. Si aparecen varias presentaciones, conserva la presentación principal del recorte y no mezcles dosis de otras fichas.",
+    "pharmaceutical_format": "Forma farmacéutica literal, usualmente en `# FORMA FARMACÉUTICA`, por ejemplo `Comprimido`, `Comprimido recubierto con película`, `Solución oral`, `Solución para perfusión`, etc. No la infieras desde la vía ni desde la posología si la sección de forma farmacéutica está presente.",
+    "standard_doses": "Lista de concentraciones o dosis estándar de la composición y del nombre oficial. Incluye unidades y principio activo cuando haya combinación; no conviertas pautas de administración, máximos diarios ni intervalos horarios en dosis estándar.",
+    "is_pediatric": "`true` si el texto permite uso o da pauta para niños/adolescentes concretos; `false` si contraindica menores o solo menciona población pediátrica para advertir restricciones. Distingue adolescentes permitidos de niños excluidos cuando el medicamento no es apto para la población pediátrica general.",
+    "side_effects": "Lista de reacciones adversas de la sección `## 4.8. Reacciones adversas`, preferiblemente todas las del recorte. No extraigas efectos desde indicaciones, advertencias, sobredosis o composición; conserva clase de órgano, frecuencia e impacto por cada reacción.",
+    "side_effects[].reaction": "Nombre de la reacción adversa, literal o muy fiel al texto. Divide listas separadas por comas cuando sean reacciones distintas (`Trombocitopenia`, `agranulocitosis`) y conserva expresiones clínicas compuestas cuando forman una entidad.",
+    "side_effects[].system_organ_class": "Clase de órgano o sistema bajo la que aparece la reacción; usa `null` si la reacción se menciona en una frase general sin encabezado claro. No confundas principio activo (ej: `Paracetamol`, `Codeína`) con clase de órgano.",
+    "side_effects[].probability": "Frecuencia mapeada al enum completo: `HIGH`, `MEDIUM`, `LOW` o `UNKNOWN`. `Frecuentes` suele ser `HIGH`, `Poco frecuentes` `MEDIUM`, `Raras`/`Muy raras` `LOW`, y `Frecuencia no conocida` o casos aislados sin frecuencia tabulada `UNKNOWN`.",
+    "side_effects[].impact": "Impacto clínico inferido y mapeado al enum completo: `MILD`, `MODERATE`, `SEVERE` o `CRITICAL`. Síntomas leves como malestar o náuseas son `MILD`; alteraciones que requieren valoración suelen ser `MODERATE`; hepatotoxicidad, broncoespasmo o reacciones cutáneas graves son `SEVERE`; shock anafiláctico, depresión respiratoria o agranulocitosis pueden ser `CRITICAL`."
+  },
   "field_examples": {
     "common_name": {
       "value": "Ibuprofeno",
@@ -137,7 +149,8 @@
     "official_name": {
       "value": "Ibuprofeno Lumen 400 mg comprimidos recubiertos con película EFG",
       "tags": [
-        "direct_string"
+        "direct_string",
+        "summary_string"
       ],
       "reasoning": {
         "field_asks": "el nombre comercial u oficial completo del medicamento.",
@@ -161,8 +174,7 @@
         "400 mg"
       ],
       "tags": [
-        "simple_array",
-        "numeric_normalization"
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "lista de dosis o concentraciones estándar mencionadas.",
@@ -209,14 +221,12 @@
         }
       ],
       "tags": [
-        "nested_array",
-        "enum_classification",
-        "clinical_severity_inference"
+        "complex_object_array"
       ],
       "reasoning": {
         "field_asks": "lista estructurada de reacciones adversas de la sección 4.8; cada item debe incluir reacción, clase de órgano o null, probabilidad mapeada a HIGH, MEDIUM, LOW o UNKNOWN, e impacto mapeado a MILD, MODERATE, SEVERE o CRITICAL.",
         "relevant_fragments": "\"Trastornos gastrointestinales: Frecuentes: Náuseas\", \"Trastornos del sistema nervioso: Poco frecuentes: Mareo\", \"Trastornos de la piel y del tejido subcutáneo: Raras: Reacciones cutáneas graves\" y \"casos aislados de edema facial\".",
-        "final_value": "Como los fragmentos relevantes dan las reacciones y sus frecuencias, \"Frecuentes\" se mapea a HIGH, \"Poco frecuentes\" a MEDIUM, \"Raras\" a LOW y los casos aislados sin frecuencia tabulada a UNKNOWN; los impactos se asignan según gravedad clínica: náuseas y mareo MILD, reacciones cutáneas graves SEVERE y edema facial MODERATE."
+        "final_value": "Como los fragmentos relevantes dan las reacciones y sus frecuencias, \"Frecuentes\" se mapea a HIGH, \"Poco frecuentes\" a MEDIUM, \"Raras\" a LOW y los casos aislados sin frecuencia tabulada a UNKNOWN; los impactos se asignan según gravedad clínica: náuseas y mareo MILD, reacciones cutáneas graves SEVERE y edema facial MODERATE. Todos los efectos adversos vienen con clase de órgano o sistema, excepto los casos de edema facial."
       }
     }
   }

@@ -3,10 +3,10 @@
   "domain": "medical_extraction",
   "language": "es",
   "tags": [
-    "verbatim_answer",
     "direct_string",
     "long_verbatim_evidence",
-    "sentinel_pattern"
+    "summary_string",
+    "verbatim_answer"
   ],
   "source_text": "# 1. NOMBRE DEL MEDICAMENTO\n\nGlucosal 50 mg/ml solución inyectable\n\nGlucosal 100 mg/ml solución inyectable\n\n# 2. COMPOSICIÓN CUALITATIVA Y CUANTITATIVA\n\nCada ampolla de 2 ml de Glucosal 50 mg/ml contiene:\n\nGlucosa monohidrato ............... 110 mg (equivalentes a 100 mg de glucosa).\n\nCada ampolla de 5 ml de Glucosal 100 mg/ml contiene:\n\nGlucosa monohidrato ............... 550 mg (equivalentes a 500 mg de glucosa).\n\nExcipientes: cloruro de sodio, agua para preparaciones inyectables y ácido clorhídrico para ajuste de pH.\n\nPara consultar la lista completa de excipientes, ver sección 6.1.",
   "instruction": "¿Qué frase inicia la composición de la ampolla de 5 ml de Glucosal 100 mg/ml?",
@@ -26,13 +26,17 @@
     "title": "TextAnswer",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "answer": "Fragmento literal que responde la pregunta. Copia la línea completa y exacta, incluyendo dos puntos, punto final, coma decimal, unidad y nombre de la presentación o sustancia; no normalices cantidades, no devuelvas solo el número y no confundas presentaciones cercanas como 50 mg/ml vs 100 mg/ml o principio activo vs excipiente."
+  },
   "field_examples": {
     "answer": {
       "value": "Cada ampolla de 5 ml de Glucosal 100 mg/ml contiene:",
       "tags": [
-        "verbatim_answer",
         "direct_string",
-        "sentinel_pattern"
+        "long_verbatim_evidence",
+        "summary_string",
+        "verbatim_answer"
       ],
       "reasoning": {
         "field_asks": "el fragmento verbatim del texto que responde a la pregunta.",

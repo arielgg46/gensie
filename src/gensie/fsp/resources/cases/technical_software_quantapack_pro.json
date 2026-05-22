@@ -3,12 +3,15 @@
   "domain": "technical_software",
   "language": "es",
   "tags": [
-    "technical_software",
-    "enum_classification",
-    "grounded_null",
-    "simple_array",
+    "bounded_score",
     "date_normalization",
-    "checksum_extraction"
+    "direct_string",
+    "empty_array",
+    "enum_classification",
+    "nullable",
+    "sentinel_pattern",
+    "simple_array",
+    "summary_string"
   ],
   "source_text": "# QPack\n\nQPack es el nombre abreviado usado en foros para QuantaPack Pro, un archivador de ficheros desarrollado por Aster Labs. El formato QPK fue diseñado por Bruno Kehl y se popularizó en repositorios internos de documentación técnica.\n\n== Historia ==\nEl primer lanzamiento público de QuantaPack Pro se realizó el 04 de marzo de 2019 durante la feria DataTools. Desde la rama 5.4, Aster Labs distribuye el programa bajo la licencia GNU LGPL. El portal de clientes agrupa instaladores firmados, notas de migración y paquetes antiguos en un archivo de descargas.\n\nPara verificar la descarga estable 5.4, la ficha publica el SHA256 del instalador: 9f2a7b1c4d6e8f00112233445566778899aabbccddeeff001122334455667788. En el aviso corporativo de 2024, Aster Labs identifica a Marina Soler como CEO actual de la compañía desarrolladora.",
   "instruction": "Resume los datos técnicos de QPack, centrándote en su tipo de software, desarrollador y plataformas soportadas.",
@@ -116,6 +119,17 @@
     "title": "SoftwareDescription",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "official_name": "Nombre oficial del software. Usa el encabezado si ya es el nombre formal, o el nombre completo del cuerpo cuando el encabezado sea una abreviatura o alias; no mezcles siglas históricas con el nombre actual.",
+    "app_category": "Categoría funcional principal; enum completo: `ARCHIVER`, `WEB_BROWSER`, `OFFICE_SUITE`, `IDE_EDITOR`, `GRAPHICS_EDITOR`, `MEDIA_PLAYER`, `SYSTEM_TOOL` u `OTHER`. Decide por la función descrita (archivador, navegador, suite ofimática, editor/IDE, editor gráfico, reproductor, herramienta de sistema) y usa `OTHER` solo si no encaja claramente.",
+    "license": "Licencia específica mencionada, preferiblemente literal (`GPLv2.1+`, `GNU LGPL`, `MPL 2.0`). No inventes licencia desde “software libre” si no aparece una formulación suficiente, y no uses licencias de plugins, formatos o proyectos relacionados como licencia de la aplicación principal.",
+    "platforms": "Sistemas operativos o plataformas soportadas nombradas explícitamente. No pobles la lista con “instaladores”, “paquetes”, repositorios, dispositivos genéricos o historia de desarrollo si no se nombran sistemas como GNU/Linux, macOS, Windows, BSD, iOS, Android, etc.",
+    "primary_developer": "Persona, comunidad, proyecto u organización que desarrolla el software. Diferencia creador histórico, coordinador, organización sin ánimo de lucro y empresa; elige quien el texto presenta como responsable principal del desarrollo.",
+    "features": "Capacidades técnicas mencionadas, en frases breves y fieles al texto. Extrae funciones como reproducción, streaming, compresión, edición, formatos o herramientas; no incluyas historia, licencia, plataformas, checksum ni cargos corporativos como features.",
+    "exact_release_date": "Fecha exacta del primer lanzamiento en `DD/MM/YYYY`. Devuelve `null` SI SOLO HAY año, versión posterior, fecha de liberación de código distinta del primer lanzamiento o referencias relativas sin día/mes/año completos.",
+    "latest_stable_version_sha256": "SHA256 del instalador estable más reciente, solo si el texto lo dice explícitamente. Devuelve `null` para hashes de commit, firmas PGP, checksums de nightly/beta, identificadores cortos o valores sin relación con el instalador estable.",
+    "current_ceo_name": "Nombre del CEO actual de la organización desarrolladora, solo si se afirma explícitamente; CEO significa director ejecutivo o máxima persona ejecutiva de una empresa u organización. Fundador, creador, mantenedor, líder del proyecto, presidente de fundación o coordinador técnico no equivalen a CEO actual salvo que el texto diga claramente que esa persona ocupa ese cargo."
+  },
   "field_examples": {
     "official_name": {
       "value": "QuantaPack Pro",
@@ -131,6 +145,7 @@
     "app_category": {
       "value": "ARCHIVER",
       "tags": [
+        "direct_string",
         "enum_classification"
       ],
       "reasoning": {
@@ -153,8 +168,9 @@
     "platforms": {
       "value": [],
       "tags": [
-        "simple_array",
-        "grounded_null"
+        "bounded_score",
+        "empty_array",
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "sistemas operativos mencionados como soportados.",
@@ -176,8 +192,8 @@
     "features": {
       "value": [],
       "tags": [
-        "simple_array",
-        "grounded_null"
+        "empty_array",
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "capacidades técnicas o funciones específicas mencionadas.",
@@ -188,7 +204,9 @@
     "exact_release_date": {
       "value": "04/03/2019",
       "tags": [
-        "date_normalization"
+        "date_normalization",
+        "direct_string",
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "la fecha exacta del primer lanzamiento en formato DD/MM/YYYY, o null si solo se menciona el año.",
@@ -199,7 +217,10 @@
     "latest_stable_version_sha256": {
       "value": "9f2a7b1c4d6e8f00112233445566778899aabbccddeeff001122334455667788",
       "tags": [
-        "checksum_extraction"
+        "direct_string",
+        "nullable",
+        "sentinel_pattern",
+        "summary_string"
       ],
       "reasoning": {
         "field_asks": "el checksum SHA256 del instalador estable más reciente, o null si no está explícitamente en el texto.",
@@ -210,7 +231,8 @@
     "current_ceo_name": {
       "value": "Marina Soler",
       "tags": [
-        "direct_string"
+        "direct_string",
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "el nombre del CEO actual de la organización desarrolladora, o null si no está explícitamente en el texto.",

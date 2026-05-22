@@ -1,0 +1,114 @@
+{
+  "id": "medical_entities_omeprazol_norte",
+  "domain": "medical_entities",
+  "language": "es",
+  "tags": [
+    "complex_object_array",
+    "entity_array"
+  ],
+  "source_text": "FICHA TECNICA OMEPRAZOL NORTE 20 mg CAPSULAS DURAS GASTRORRESISTENTES EFG\n\nPulse aquí\n                        \n                        para ver el documento en formato PDF.\n\n# 1. NOMBRE DEL MEDICAMENTO\n\nomeprazol norte 20 mg cápsulas duras gastrorresistentes EFG\n\n# 2. COMPOSICIÓN CUALITATIVA Y CUANTITATIVA [...] # 7. TITULAR DE LA AUTORIZACIÓN DE COMERCIALIZACIÓN\n\nNorte Pharma, S.L.\n\nAvenida de los Ensayos, 24. Parque Tecnológico del Ebro\n\n50197-Zaragoza (Aragón) – España\n\n# 8. NÚMERO(S) DE AUTORIZACIÓN DE COMERCIALIZACIÓN\n\n72.184\n\n# 9. FECHA DE LA PRIMERA AUTORIZACIÓN/ RENOVACIÓN DE LA AUTORIZACIÓN\n\nMayo 2011.\n\n# 10. FECHA DE LA REVISIÓN DEL TEXTO\n\nEnero 2026\n\nLa información detallada y actualizada de este medicamento está disponible en la página web de la Agencia Española de Medicamentos y Productos Sanitarios (AEMPS) http://www.aemps.gob.es/",
+  "instruction": "Extrae los nombres de medicamentos, laboratorios, ubicaciones, fechas y organizaciones mencionados en este fragmento técnico.",
+  "schema": {
+    "$defs": {
+      "Entity": {
+        "additionalProperties": false,
+        "description": "A single named entity mention.",
+        "properties": {
+          "text": {
+            "description": "The verbatim text mention from the source",
+            "title": "Text",
+            "type": "string"
+          },
+          "label": {
+            "$ref": "#/$defs/EntityType",
+            "description": "The category of the entity"
+          }
+        },
+        "required": [
+          "text",
+          "label"
+        ],
+        "title": "Entity",
+        "type": "object"
+      },
+      "EntityType": {
+        "enum": [
+          "PERSON",
+          "ORGANIZATION",
+          "LOCATION",
+          "DATE",
+          "EVENT",
+          "MISCELLANEOUS"
+        ],
+        "title": "EntityType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts named entity mentions categorized by type in a single list.\nComplexity: L5 (Hierarchical Grouping).",
+    "properties": {
+      "entities": {
+        "description": "List of all recognized named entities",
+        "items": {
+          "$ref": "#/$defs/Entity"
+        },
+        "title": "Entities",
+        "type": "array"
+      }
+    },
+    "title": "NamedEntities",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "entities": "Lista única de menciones nombradas explícitas en la ficha técnica. Incluye medicamentos, principios activos, excipientes, códigos, laboratorios, agencias, direcciones, países y fechas cuando aparecen; evita extraer encabezados, números de sección, enlaces genéricos o entidades inferidas desde conocimiento externo.",
+    "entities[].text": "Mención verbatim tomada del texto, con tildes, mayúsculas/minúsculas, dosis, barras, paréntesis, códigos E, siglas y formas legales tal como figuran. Prefiere la mención completa curada, por ejemplo medicamento con concentración, excipiente con código o organismo con sigla; no atomices direcciones o nombres técnicos salvo que la fuente los presente separados.",
+    "entities[].label": "Etiqueta del enum completo: `PERSON`, `ORGANIZATION`, `LOCATION`, `DATE`, `EVENT` o `MISCELLANEOUS`. En fichas CIMA, medicamentos, sustancias, formas farmacéuticas y códigos suelen ser `MISCELLANEOUS`; laboratorios y agencias `ORGANIZATION`; direcciones, localidades y países `LOCATION`; meses o fechas de autorización/revisión `DATE`. Usa `PERSON` o `EVENT` solo si una persona o evento aparece explícitamente, no por forzar cobertura."
+  },
+  "field_examples": {
+    "entities": {
+      "value": [
+        {
+          "text": "omeprazol norte 20 mg cápsulas duras gastrorresistentes EFG",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Norte Pharma, S.L.",
+          "label": "ORGANIZATION"
+        },
+        {
+          "text": "Avenida de los Ensayos, 24. Parque Tecnológico del Ebro",
+          "label": "LOCATION"
+        },
+        {
+          "text": "Zaragoza (Aragón)",
+          "label": "LOCATION"
+        },
+        {
+          "text": "España",
+          "label": "LOCATION"
+        },
+        {
+          "text": "Mayo 2011",
+          "label": "DATE"
+        },
+        {
+          "text": "Enero 2026",
+          "label": "DATE"
+        },
+        {
+          "text": "Agencia Española de Medicamentos y Productos Sanitarios (AEMPS)",
+          "label": "ORGANIZATION"
+        }
+      ],
+      "tags": [
+        "complex_object_array",
+        "entity_array"
+      ],
+      "reasoning": {
+        "field_asks": "lista de menciones nombradas de medicamento, laboratorio, ubicaciones, fechas y organizaciones en un fragmento técnico farmacéutico.",
+        "relevant_fragments": "\"# 1. NOMBRE DEL MEDICAMENTO\n\nomeprazol norte 20 mg cápsulas duras gastrorresistentes EFG\" (nombre del medicamento), \"# 7. TITULAR DE LA AUTORIZACIÓN DE COMERCIALIZACIÓN\n\nNorte Pharma, S.L.\" (titular/laboratorio), \"Avenida de los Ensayos, 24. Parque Tecnológico del Ebro\n\n50197-Zaragoza (Aragón) – España\" (dirección, localidad/región y país), \"# 9. FECHA DE LA PRIMERA AUTORIZACIÓN/ RENOVACIÓN DE LA AUTORIZACIÓN\n\nMayo 2011\" (fecha administrativa), \"# 10. FECHA DE LA REVISIÓN DEL TEXTO\n\nEnero 2026\" (fecha de revisión) y \"Agencia Española de Medicamentos y Productos Sanitarios (AEMPS)\" (agencia reguladora).",
+        "final_value": "Como los fragmentos relevantes incluyen el medicamento, el titular, ubicaciones administrativas, fechas de autorización/revisión y la agencia reguladora, la lista debe conservar esas menciones verbatim con etiquetas MISCELLANEOUS, ORGANIZATION, LOCATION y DATE."
+      }
+    }
+  }
+}

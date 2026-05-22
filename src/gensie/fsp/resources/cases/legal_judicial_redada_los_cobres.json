@@ -1,0 +1,285 @@
+{
+  "id": "legal_judicial_redada_los_cobres",
+  "domain": "legal_judicial",
+  "language": "es",
+  "tags": [
+    "date_normalization",
+    "direct_string",
+    "empty_array",
+    "entity_array",
+    "enum_classification",
+    "grounded_null",
+    "nullable",
+    "numeric_normalization",
+    "simple_array",
+    "summary_string"
+  ],
+  "source_text": "# Dos agentes mueren en una redada contra la banda Los Cobres\n\nUna redada realizada esta madrugada en el barrio Las Canteras, en Rosario, Argentina, terminó con dos agentes muertos y cinco personas heridas, entre ellas un vecino alcanzado por esquirlas. La Policía Federal Argentina informó que el operativo buscaba capturar a integrantes de Los Cobres, una banda investigada por extorsiones a transportistas y lavado de dinero.\n\nLa Fiscalía de Rosario señaló que se incautaron nueve armas, tres vehículos y cuadernos con anotaciones de cobros semanales. Ocho sospechosos fueron detenidos y trasladados a dependencias judiciales, mientras peritos revisaban una vivienda usada como depósito. El jefe del operativo declaró ante la prensa que la pesquisa continuará con el análisis de teléfonos y cámaras de seguridad de la zona.",
+  "instruction": "Extrae la información estructurada de este artículo de noticias sobre un operativo policial, incluyendo el titular, resumen, categoría, ubicación, organizaciones clave, y cualquier cifra de víctimas o heridos mencionada.",
+  "schema": {
+    "$defs": {
+      "NewsCategory": {
+        "enum": [
+          "JUDICIAL",
+          "DISASTER",
+          "HEALTH",
+          "ENVIRONMENT",
+          "POLITICS",
+          "ECONOMY",
+          "SCIENCE",
+          "CULTURE",
+          "SPORTS",
+          "OTHER"
+        ],
+        "title": "NewsCategory",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts structured information from general news articles.\nComplexity: L4 (Sparse Extraction) - Some fields may be null/missing.",
+    "properties": {
+      "headline": {
+        "description": "The main headline or title of the news article",
+        "title": "Headline",
+        "type": "string"
+      },
+      "summary": {
+        "description": "A brief summary of the main facts reported (1-3 sentences)",
+        "title": "Summary",
+        "type": "string"
+      },
+      "category": {
+        "$ref": "#/$defs/NewsCategory",
+        "description": "The thematic category of the news story"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Geographic location where the event occurred (city, country, or region)",
+        "title": "Location"
+      },
+      "date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Date mentioned in the article (may be implicit or explicit)",
+        "title": "Date"
+      },
+      "key_people": {
+        "description": "Names of key individuals mentioned in the article",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key People",
+        "type": "array"
+      },
+      "key_organizations": {
+        "description": "Names of organizations, companies, or governments mentioned",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key Organizations",
+        "type": "array"
+      },
+      "casualties": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of deaths mentioned, if any",
+        "title": "Casualties"
+      },
+      "injured": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of people injured, if any",
+        "title": "Injured"
+      },
+      "affected_count": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of people affected or displaced, if applicable",
+        "title": "Affected Count"
+      }
+    },
+    "required": [
+      "headline",
+      "summary",
+      "category"
+    ],
+    "title": "NewsArticle",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "headline": "Titular principal de la noticia, normalmente el encabezado `#`. Cópialo sin alterar comillas, alias o nombres propios; no resumas ni limpies titulares largos.",
+    "summary": "Resumen breve en 1-3 oraciones con decisión judicial, operativo, acusación, personas clave y consecuencias. Prioriza el hecho procesal o policial central y no conviertas la crónica en una lista exhaustiva de nombres.",
+    "category": "Categoría temática del enum completo: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. Usa `JUDICIAL` para sentencias, investigaciones, operativos, procesos penales, fiscalías, tribunales, detenciones o actuaciones policiales.",
+    "location": "Lugar principal del proceso, operativo o hecho investigado. Extrae tribunal, ciudad, distrito, región o país cuando estén grounded; devuelve `null` si solo hay instituciones nacionales o referencias vagas sin ubicación suficiente.",
+    "date": "Fecha explícita de la sentencia, operativo o hecho. Devuelve `null` para `hoy`, `esta madrugada`, `ayer`, aniversarios o referencias procesales sin fecha absoluta suficiente, salvo que el dataset preserve una fecha parcial claramente usada en el texto.",
+    "key_people": "Personas individuales nombradas: acusados, condenados, jueces, fiscales, víctimas, autoridades o testigos. No incluyas cargos sin nombre, grupos, alias sin persona asociada cuando el texto no los individualiza, ni organizaciones criminales como personas.",
+    "key_organizations": "Tribunales, fiscalías, policías, fuerzas armadas, bandas, medios, empresas, clubes o instituciones nombradas. Conserva nombres oficiales y alias organizacionales; no incluyas cargos, delitos ni lugares solos como organizaciones.",
+    "casualties": "Número de muertes humanas vinculadas al hecho narrado. No uses años de prisión, condenados, detenidos, desaparecidos, fallecidos históricos no cuantificados como saldo actual o muertes hipotéticas.",
+    "injured": "Número de personas heridas. No uses detenidos, imputados, absueltos, perjudicados económicos, personas desaparecidas ni agentes movilizados.",
+    "affected_count": "Número de personas afectadas, perjudicadas, víctimas o involucradas cuando el texto las cuantifica como tal. No uses años de condena, armas, vehículos, líneas telefónicas, registros, sospechosos o detenidos salvo que el texto los trate explícitamente como personas afectadas."
+  },
+  "field_examples": {
+    "headline": {
+      "value": "Dos agentes mueren en una redada contra la banda Los Cobres",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el titular principal del artículo de noticias.",
+        "relevant_fragments": "\"# Dos agentes mueren en una redada contra la banda Los Cobres\".",
+        "final_value": "Como el fragmento relevante es el encabezado principal, el titular debe ser \"Dos agentes mueren en una redada contra la banda Los Cobres\"."
+      }
+    },
+    "summary": {
+      "value": "Una redada realizada esta madrugada en el barrio Las Canteras, en Rosario, Argentina, terminó con dos agentes muertos y cinco personas heridas. La Policía Federal Argentina informó que el operativo buscaba capturar a integrantes de Los Cobres, investigada por extorsiones y lavado de dinero. La Fiscalía de Rosario señaló que se incautaron armas, vehículos y cuadernos, y ocho sospechosos fueron detenidos.",
+      "tags": [
+        "direct_string",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
+        "relevant_fragments": "\"Una redada realizada esta madrugada en el barrio Las Canteras, en Rosario, Argentina, terminó con dos agentes muertos y cinco personas heridas\", \"La Policía Federal Argentina informó que el operativo buscaba capturar a integrantes de Los Cobres, una banda investigada por extorsiones a transportistas y lavado de dinero\" y \"La Fiscalía de Rosario señaló que se incautaron nueve armas, tres vehículos y cuadernos con anotaciones de cobros semanales. Ocho sospechosos fueron detenidos\".",
+        "final_value": "Como los fragmentos relevantes cubren operativo, víctimas, objetivo policial e incautaciones/detenciones, el resumen debe condensar esos puntos."
+      }
+    },
+    "category": {
+      "value": "JUDICIAL",
+      "tags": [
+        "direct_string",
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "la categoría temática de la noticia, mapeada a uno de estos valores: JUDICIAL, DISASTER, HEALTH, ENVIRONMENT, POLITICS, ECONOMY, SCIENCE, CULTURE, SPORTS u OTHER.",
+        "relevant_fragments": "\"redada\", \"operativo\", \"banda investigada por extorsiones\" y \"dependencias judiciales\".",
+        "final_value": "Como los fragmentos relevantes tratan un operativo policial y una investigación penal, el valor del enum debe ser \"JUDICIAL\"."
+      }
+    },
+    "location": {
+      "value": "barrio Las Canteras, Rosario, Argentina",
+      "tags": [
+        "direct_string",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "la ubicación geográfica donde ocurrió el evento, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"en el barrio Las Canteras, en Rosario, Argentina\".",
+        "final_value": "Como el fragmento relevante ubica la redada en el barrio Las Canteras, Rosario, Argentina, el valor debe ser \"barrio Las Canteras, Rosario, Argentina\"."
+      }
+    },
+    "date": {
+      "value": null,
+      "tags": [
+        "date_normalization",
+        "direct_string",
+        "grounded_null",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "la fecha mencionada en el artículo, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"esta madrugada\".",
+        "final_value": "El fragmento relevante da una referencia temporal relativa, pero no una fecha absoluta; el valor debe ser null."
+      }
+    },
+    "key_people": {
+      "value": [],
+      "tags": [
+        "empty_array",
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "nombres de personas individuales clave mencionadas en el artículo.",
+        "relevant_fragments": "\"dos agentes\", \"un vecino\" y \"El jefe del operativo\".",
+        "final_value": "Los fragmentos relevantes mencionan roles o personas genéricas sin nombres individuales; la lista debe ser vacía."
+      }
+    },
+    "key_organizations": {
+      "value": [
+        "Policía Federal Argentina",
+        "Los Cobres",
+        "Fiscalía de Rosario"
+      ],
+      "tags": [
+        "entity_array",
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "nombres de organizaciones, empresas, instituciones o gobiernos mencionados.",
+        "relevant_fragments": "\"Policía Federal Argentina\", \"Los Cobres\" y \"Fiscalía de Rosario\".",
+        "final_value": "Como los fragmentos relevantes nombran una fuerza policial, una banda y una fiscalía, la lista debe incluir esas organizaciones."
+      }
+    },
+    "casualties": {
+      "value": 2,
+      "tags": [
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de muertes mencionadas, o null si no se menciona ninguna cifra de muertes humanas.",
+        "relevant_fragments": "\"terminó con dos agentes muertos\".",
+        "final_value": "Como el fragmento relevante cuantifica dos muertes humanas, el valor debe ser 2."
+      }
+    },
+    "injured": {
+      "value": 5,
+      "tags": [
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de personas heridas mencionadas, o null si no se menciona ninguna cifra de heridos humanos.",
+        "relevant_fragments": "\"cinco personas heridas, entre ellas un vecino alcanzado por esquirlas\".",
+        "final_value": "Como el fragmento relevante cuantifica cinco personas heridas, el valor debe ser 5."
+      }
+    },
+    "affected_count": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de personas afectadas, perjudicadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
+        "relevant_fragments": "\"Ocho sospechosos fueron detenidos\" y \"se incautaron nueve armas, tres vehículos\".",
+        "final_value": "Los fragmentos relevantes dan detenidos e incautaciones, pero no una cifra de personas afectadas, perjudicadas o desplazadas; el valor debe ser null."
+      }
+    }
+  }
+}

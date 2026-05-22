@@ -3,14 +3,14 @@
   "domain": "cultural_literature",
   "language": "es",
   "tags": [
-    "alias_title",
-    "normalized_author",
+    "date_normalization",
+    "direct_string",
     "grounded_null",
-    "empty_array",
-    "simple_array",
-    "language_disambiguation"
+    "nullable",
+    "numeric_normalization",
+    "simple_array"
   ],
-  "source_text": "# La balada del puerto\n\n## Introducción\n\nLa balada del puerto es el nombre con que se conoce popularmente el Libro de la niebla, obra anónima conservada en tres manuscritos de finales del siglo XIV. La tradición manuscrita más antigua lo transmite en gallego, con rúbricas latinas añadidas al margen y una nota de copista firmada por Xil Pérez. Sus pasajes centrales tratan el exilio, la memoria familiar y la pobreza urbana de los barrios portuarios; otras secciones reúnen plegarias, listas de deudas y nombres de embarcaciones. La copia más citada lleva una miniatura añadida en el siglo XV. Un estudio de 1923 la difundió con su alias moderno, pero los catálogos conservan el título Libro de la niebla.",
+  "source_text": "# La balada del puerto\n\n## Introducción\n\nLa balada del puerto es el nombre con que se conoce popularmente el Libro de la niebla, obra anónima conservada en tres manuscritos de finales del siglo XIV. Los catálogos la describen como poema narrativo tardomedieval. La tradición manuscrita más antigua lo transmite en gallego, con rúbricas latinas añadidas al margen y una nota de copista firmada por Xil Pérez. Sus pasajes centrales tratan el exilio, la memoria familiar y la pobreza urbana de los barrios portuarios; otras secciones reúnen plegarias, listas de deudas y nombres de embarcaciones. La copia más citada lleva una miniatura añadida en el siglo XV. Un estudio de 1923 la difundió con su alias moderno, pero los catálogos conservan el título Libro de la niebla.",
   "instruction": "Extrae los metadatos bibliográficos y temas principales de la obra literaria descrita.",
   "schema": {
     "additionalProperties": false,
@@ -40,7 +40,7 @@
         "title": "Publication Year"
       },
       "genres": {
-        "description": "Literary genres associated with the work",
+        "description": "Literary genres associated with the work (e.g., 'Science Fiction', 'Romance')",
         "items": {
           "type": "string"
         },
@@ -76,11 +76,18 @@
     "title": "LiteraryWork",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "title": "Título oficial de la obra descrita. Prioriza el título presentado como obra principal; no confundas encabezados populares, alias, títulos de partes, continuaciones, ediciones o estudios críticos con el título oficial esperado.",
+    "author": "Autor o creador principal explícitamente atribuido a la obra. Si el texto dice `Anónimo`, usa ese valor; no confundas copistas, editores, traductores, críticos, personajes o autores de obras comparadas con autoría.",
+    "publication_year": "Año exacto de primera publicación de la obra. Devuelve `null` SI SOLO HAY siglo, fecha de composición, éxito editorial, premio, reedición, continuación, edición escolar o estudio posterior.",
+    "genres": "Géneros o clasificaciones literarias explícitas en el texto, como `novela`, `tragicomedia`, `comedia humanística`, etc. Usa `[]` si solo aparecen forma material, argumento, recepción o temas sin etiqueta de género clara.",
+    "key_themes": "Temas principales nombrados por el texto, no interpretaciones externas. Extrae conceptos como injusticia social, tradición caballeresca, pobreza o memoria solo cuando el fragmento los presenta como asuntos de la obra.",
+    "original_language": "Lengua original de redacción, solo si el texto la afirma o da evidencia textual fuerte sobre la lengua de la obra. Nacionalidad del autor, país, literatura nacional o traducciones no bastan por sí solos."
+  },
   "field_examples": {
     "title": {
       "value": "Libro de la niebla",
       "tags": [
-        "alias_title",
         "direct_string"
       ],
       "reasoning": {
@@ -92,7 +99,7 @@
     "author": {
       "value": "Anónimo",
       "tags": [
-        "normalized_author"
+        "direct_string"
       ],
       "reasoning": {
         "field_asks": "el autor o creador principal de la obra.",
@@ -103,8 +110,10 @@
     "publication_year": {
       "value": null,
       "tags": [
+        "date_normalization",
         "grounded_null",
-        "date_normalization"
+        "nullable",
+        "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "el año en que la obra fue publicada por primera vez, o null si no hay evidencia suficiente.",
@@ -113,15 +122,16 @@
       }
     },
     "genres": {
-      "value": [],
+      "value": [
+        "poema narrativo tardomedieval"
+      ],
       "tags": [
-        "empty_array",
-        "grounded_null"
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "los géneros literarios asociados con la obra, como lista vacía si no hay géneros explícitos.",
-        "relevant_fragments": "\"obra anónima conservada en tres manuscritos\" y \"otras secciones reúnen plegarias, listas de deudas y nombres de embarcaciones\".",
-        "final_value": "Los fragmentos relevantes aportan soporte material y contenido interno, pero no nombran géneros literarios explícitos; la lista debe ser vacía."
+        "relevant_fragments": "\"Los catálogos la describen como poema narrativo tardomedieval\".",
+        "final_value": "Como el fragmento relevante nombra una clasificación literaria explícita, la lista debe incluir \"poema narrativo tardomedieval\"."
       }
     },
     "key_themes": {
@@ -143,7 +153,7 @@
       "value": "gallego",
       "tags": [
         "direct_string",
-        "language_disambiguation"
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "la lengua en que la obra fue escrita originalmente, o null si no hay evidencia suficiente.",

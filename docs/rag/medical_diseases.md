@@ -147,8 +147,8 @@ Extrae el perfil de la enfermedad.
   },
   "symptoms": {
     "field_asks": "lista estructurada de síntomas, con severidad si se menciona o se infiere claramente como Mild, Moderate o Severe, y marca de si son definitorios o secundarios.",
-    "relevant_fragments": "\"Síntomas\n[...] dolor de garganta, fiebre, amígdalas con exudado y ganglios cervicales dolorosos\" y \"La dificultad para tragar saliva y la desviación de la úvula se describen como signos de alarma de formas graves\".",
-    "final_value": "Como el primer fragmento enumera manifestaciones habituales, esos síntomas son primarios y sin severidad explícita. Dificultad para tragar saliva y desviación de la úvula se tratan como secundarios y Severe porque el segundo fragmento los sitúa como signos de alarma de formas graves."
+    "relevant_fragments": "\"El inicio suele ser brusco, con dolor de garganta, fiebre, amígdalas con exudado y ganglios cervicales dolorosos\", \"La tos y la rinorrea orientan más a cuadros virales, aunque pueden coexistir en niños pequeños\" y \"La dificultad para tragar saliva y la desviación de la úvula se describen como signos de alarma de formas graves\".",
+    "final_value": "Como el primer fragmento enumera manifestaciones habituales de la faringitis estreptocócica, esos síntomas son primarios y sin severidad explícita. Tos y rinorrea no se incluyen porque el texto las presenta como orientación hacia cuadros virales, aunque puedan coexistir en niños pequeños. Dificultad para tragar saliva y desviación de la úvula se tratan como secundarios y Severe porque el tercer fragmento los sitúa como signos de alarma de formas graves."
   },
   "diagnosis_methods": {
     "field_asks": "pruebas clínicas o métodos mencionados para identificar la patología.",

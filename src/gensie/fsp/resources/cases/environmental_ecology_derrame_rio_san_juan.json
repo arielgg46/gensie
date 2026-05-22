@@ -3,16 +3,18 @@
   "domain": "environmental_ecology",
   "language": "es",
   "tags": [
-    "news_article",
-    "summary_string",
-    "enum_classification",
+    "date_normalization",
     "direct_string",
-    "simple_array",
     "empty_array",
+    "entity_array",
+    "enum_classification",
     "grounded_null",
-    "numeric_normalization"
+    "nullable",
+    "numeric_normalization",
+    "simple_array",
+    "summary_string"
   ],
-  "source_text": "# Declaran alerta ambiental por derrame de relaves en la cuenca del río San Juan\n\nEl Ministerio del Ambiente declaró el 18 de abril de 2026 una alerta ambiental en la cuenca del río San Juan, en Pasco, Perú, después de que una poza de relaves de la mina Santa Isidora cediera durante lluvias intensas y tiñera de gris varios tramos del cauce. Técnicos de la Autoridad Nacional del Agua midieron alta turbidez en doce kilómetros del río y recomendaron suspender el uso de las acequias hasta recibir nuevos análisis.\n\nBrigadas de la Municipalidad Provincial de Pasco repartieron bidones y pastillas potabilizadoras a 1 200 vecinos de Huayllay, Rancas y San Miguel. La Cooperativa Río Claro, operadora de la mina, informó que instaló tres barreras de contención y retiró sedimentos de la ribera, mientras comuneros reclamaron que el olor metálico llegó a los canales de riego antes del amanecer. En la tarde, camiones cisterna reemplazaron la toma habitual de agua y se señalizaron los accesos al río para impedir que el ganado bebiera en las orillas.\n\nLa Universidad Nacional Daniel Alcides Carrión tomó muestras de agua, suelo y peces para comparar los resultados con registros de 2023. El reporte preliminar también menciona la mortandad de truchas en dos criaderos familiares y la presencia de lodo rojizo cerca de una bocatoma. El gobierno regional pidió ampliar el monitoreo a los manantiales usados por las escuelas rurales y anunció que la restricción al riego se revisará el próximo lunes.",
+  "source_text": "# Declaran alerta ambiental por derrame de relaves en la cuenca del río San Juan\n\nEl Ministerio del Ambiente declaró el 18 de abril de 2026 una alerta ambiental en la cuenca del río San Juan, en Pasco, Perú, después de que una poza de relaves de la mina Santa Isidora cediera durante las lluvias y tiñera de gris varios tramos del cauce.\nTécnicos de la Autoridad Nacional del Agua midieron alta turbidez en doce kilómetros del río y recomendaron suspender el uso de las acequias hasta recibir nuevos análisis.\n\nBrigadas de la Municipalidad Provincial de Pasco repartieron bidones y pastillas potabilizadoras a 1 200 vecinos de Huayllay, Rancas y San Miguel. La Cooperativa Río Claro, operadora de la mina, informó que instaló tres barreras de contención, mientras comuneros reclamaron que el olor metálico llegó a los canales de riego antes del amanecer.\n\nLa Universidad Nacional Daniel Alcides Carrión tomó muestras de agua, suelo y peces para comparar los resultados con registros de 2023. El reporte preliminar también menciona la mortandad de truchas en dos criaderos familiares y lodo rojizo cerca de una bocatoma.",
   "instruction": "Extrae la información estructurada de este artículo de noticias sobre un evento medioambiental, incluyendo el titular, resumen, categoría, ubicación, personas y organizaciones clave mencionadas, y cualquier cifra de víctimas o afectados si se menciona.",
   "schema": {
     "$defs": {
@@ -140,11 +142,24 @@
     "title": "NewsArticle",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "headline": "Titular principal del artículo, normalmente el encabezado `#`. Cópialo sin el marcador Markdown y no incorpores subtítulos, primeras frases ni nombres secundarios que aparezcan después.",
+    "summary": "Resumen breve en 1-3 oraciones de los hechos principales. Debe sintetizar evento, causa, actores y consecuencias cuando estén en el texto, sin copiar todo ni inventar contexto ambiental no mencionado.",
+    "category": "Categoría temática del enum: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. En este prefijo suele ser `ENVIRONMENT`, pero usa `SPORTS` para competencias, `SCIENCE` para estudios como foco central, y no fuerces ambiente si la noticia trata principalmente otro ámbito.",
+    "location": "Lugar principal del hecho noticioso. Extrae ciudad, región o país cuando el evento esté ubicado; devuelve `null` ante declaraciones globales o listados de lugares secundarios sin un sitio central.",
+    "date": "Fecha explícita del hecho o rango claramente fechado. Devuelve `null` para expresiones temporales poco concretas o relativas como `este jueves`, `en las próximas horas`, `recientemente`, `últimos días` o periodos históricos sin fecha absoluta suficiente.",
+    "key_people": "Nombres propios de personas individuales mencionadas, aunque aparezcan en párrafos laterales. No incluyas cargos, equipos, comunidades, animales ni grupos anónimos.",
+    "key_organizations": "Organizaciones, instituciones, empresas, gobiernos, medios o equipos con nombre propio. No confundas lugares, fenómenos naturales, especies o cargos genéricos. No incluyas instalaciones genéricas, equipos sin nombre propio, o países (a menos que se hable expresamente de su gobierno) como si fueran organizaciones.",
+    "casualties": "Número de muertes humanas mencionadas. Devuelve `null` si solo hay animales muertos, daños ecológicos, riesgos o cifras de especies.",
+    "injured": "Número de personas heridas o lesionadas. Devuelve `null` si el texto solo menciona enfermedades animales, exposición ambiental sin lesión cuantificada o medidas preventivas.",
+    "affected_count": "Número de personas afectadas, evacuadas, atendidas o sin servicios. No uses cifras ambientales, animales, hectáreas, kilómetros, muestras, focos o toneladas, cuando no haya conversión segura a cantidad de personas."
+  },
   "field_examples": {
     "headline": {
       "value": "Declaran alerta ambiental por derrame de relaves en la cuenca del río San Juan",
       "tags": [
-        "direct_string"
+        "direct_string",
+        "summary_string"
       ],
       "reasoning": {
         "field_asks": "el titular principal del artículo de noticias.",
@@ -153,19 +168,21 @@
       }
     },
     "summary": {
-      "value": "El Ministerio del Ambiente declaró una alerta ambiental en la cuenca del río San Juan, en Pasco, Perú, tras el derrame de relaves de la mina Santa Isidora durante lluvias intensas. Autoridades ambientales detectaron alta turbidez, suspendieron el uso de acequias y distribuyeron agua y pastillas potabilizadoras a 1 200 vecinos de tres comunidades. La Cooperativa Río Claro instaló barreras de contención y la Universidad Nacional Daniel Alcides Carrión tomó muestras para comparar el daño con registros previos.",
+      "value": "El Ministerio del Ambiente declaró una alerta ambiental en la cuenca del río San Juan, en Pasco, Perú, tras el derrame de relaves de la mina Santa Isidora durante lluvias. Autoridades ambientales detectaron alta turbidez, suspendieron el uso de acequias y distribuyeron agua y pastillas potabilizadoras a 1 200 vecinos de tres comunidades. La Cooperativa Río Claro instaló barreras de contención y la Universidad Nacional Daniel Alcides Carrión tomó muestras para comparar el daño con registros previos.",
       "tags": [
+        "direct_string",
         "summary_string"
       ],
       "reasoning": {
         "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
-        "relevant_fragments": "\"declaró el 18 de abril de 2026 una alerta ambiental [...] después de que una poza de relaves de la mina Santa Isidora cediera\", \"Brigadas [...] repartieron bidones y pastillas potabilizadoras a 1 200 vecinos\" y \"La Universidad Nacional Daniel Alcides Carrión tomó muestras de agua, suelo y peces\".",
+        "relevant_fragments": "\"El Ministerio del Ambiente declaró el 18 de abril de 2026 una alerta ambiental en la cuenca del río San Juan, en Pasco, Perú, después de que una poza de relaves de la mina Santa Isidora cediera durante las lluvias\", \"Brigadas de la Municipalidad Provincial de Pasco repartieron bidones y pastillas potabilizadoras a 1 200 vecinos de Huayllay, Rancas y San Miguel\" y \"La Universidad Nacional Daniel Alcides Carrión tomó muestras de agua, suelo y peces para comparar los resultados con registros de 2023\".",
         "final_value": "Como los fragmentos relevantes cubren el hecho principal, las medidas inmediatas, la población afectada y el monitoreo, el resumen debe condensarlos en tres oraciones."
       }
     },
     "category": {
       "value": "ENVIRONMENT",
       "tags": [
+        "direct_string",
         "enum_classification"
       ],
       "reasoning": {
@@ -177,7 +194,8 @@
     "location": {
       "value": "cuenca del río San Juan, Pasco, Perú",
       "tags": [
-        "direct_string"
+        "direct_string",
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "la ubicación geográfica donde ocurrió el evento, o null si no hay evidencia suficiente.",
@@ -188,8 +206,9 @@
     "date": {
       "value": "18 de abril de 2026",
       "tags": [
+        "date_normalization",
         "direct_string",
-        "date_extraction"
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "la fecha mencionada en el artículo, o null si no hay evidencia suficiente.",
@@ -201,7 +220,7 @@
       "value": [],
       "tags": [
         "empty_array",
-        "grounded_null"
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "nombres de personas individuales clave mencionadas en el artículo.",
@@ -218,8 +237,8 @@
         "Universidad Nacional Daniel Alcides Carrión"
       ],
       "tags": [
-        "simple_array",
-        "named_entities"
+        "entity_array",
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "nombres de organizaciones, empresas, instituciones o gobiernos mencionados.",
@@ -230,28 +249,33 @@
     "casualties": {
       "value": null,
       "tags": [
-        "grounded_null"
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "número de muertes mencionadas, o null si no se menciona ninguna cifra de muertes humanas.",
-        "relevant_fragments": "\"1 200 vecinos\" y \"mortandad de truchas en dos criaderos familiares\".",
+        "relevant_fragments": "\"repartieron bidones y pastillas potabilizadoras a 1 200 vecinos\" y \"mortandad de truchas en dos criaderos familiares\".",
         "final_value": "Los fragmentos relevantes dan población atendida y muerte de peces, pero no muertes humanas; el valor debe ser null."
       }
     },
     "injured": {
       "value": null,
       "tags": [
-        "grounded_null"
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "número de personas heridas mencionadas, o null si no se menciona ninguna cifra de heridos humanos.",
-        "relevant_fragments": "\"repartieron bidones y pastillas potabilizadoras a 1 200 vecinos\" y \"suspender el uso de las acequias\".",
-        "final_value": "Los fragmentos relevantes describen prevención y asistencia, pero no personas heridas; el valor debe ser null."
+        "relevant_fragments": "\"repartieron bidones y pastillas potabilizadoras a 1 200 vecinos\".",
+        "final_value": "El fragmento relevante describe asistencia, pero no personas heridas; el valor debe ser null."
       }
     },
     "affected_count": {
       "value": 1200,
       "tags": [
+        "nullable",
         "numeric_normalization"
       ],
       "reasoning": {

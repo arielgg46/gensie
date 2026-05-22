@@ -121,7 +121,7 @@ Extrae las entidades nombradas del texto técnico y clasifícalas por tipo.
 {
   "entities": {
     "field_asks": "lista de menciones de entidades nombradas con su etiqueta, usando exactamente uno de estos valores para cada label: PERSON, ORGANIZATION, LOCATION, DATE, EVENT o MISCELLANEOUS.",
-    "relevant_fragments": "\"Nube Clara 2.0 es una biblioteca de sincronización [...] creada por Inés Lobo y mantenida por la Fundación BitÁgora\", \"En 2024 reemplazó su cola interna por PostgreSQL y añadió un operador para Kubernetes\", \"Durante la OpenInfra Summit celebrada en Madrid el 12 de junio de 2025\", \"presentó Río, un módulo compatible con S3 y WebDAV\", \"GitLab como repositorio espejo\" y \"Ed25519\".",
+    "relevant_fragments": "\"Nube Clara 2.0 es una biblioteca de sincronización [...] creada por Inés Lobo y mantenida por la Fundación BitÁgora\" (software creado por persona y mantenido por organización), \"En 2024 reemplazó su cola interna por PostgreSQL y añadió un operador para Kubernetes\" (fecha asociada a cambio técnico con base de datos y plataforma), \"Durante la OpenInfra Summit celebrada en Madrid el 12 de junio de 2025\" (evento celebrado en lugar y fecha), \"presentó Río, un módulo compatible con S3 y WebDAV\" (módulo técnico compatible con protocolos), \"GitLab como repositorio espejo\" (plataforma/organización nombrada como repositorio) y \"Ed25519\" (identificador técnico).",
     "final_value": "Como los fragmentos relevantes nombran una persona, una organización mantenedora, dos fechas, un evento, una ubicación y varios productos, protocolos o identificadores técnicos, la lista debe conservar esas menciones verbatim y etiquetarlas con el enum correspondiente."
   }
 }
@@ -210,7 +210,7 @@ Extrae las entidades nombradas del texto técnico y clasifícalas por tipo.
 {
   "entities": {
     "field_asks": "lista de menciones de entidades nombradas con su etiqueta, usando exactamente uno de estos valores para cada label: PERSON, ORGANIZATION, LOCATION, DATE, EVENT o MISCELLANEOUS.",
-    "relevant_fragments": "\"Sierra-IX de Orbis Automation [...] ejecuta el firmware DeltaBus sobre Linux o FreeRTOS\", \"perfiles Modbus TCP, exportación a Prometheus y plantillas de despliegue para Ansible\", \"En el banco de pruebas de Valencia\", \"instaló el paquete Hydra-Bridge para traducir mensajes entre MQTT y CANopen\" y \"modelo ACME-R2 como hardware anterior\".",
+    "relevant_fragments": "\"El controlador Sierra-IX de Orbis Automation [...] ejecuta el firmware DeltaBus sobre Linux o FreeRTOS\" (controlador técnico asociado a empresa, firmware y sistemas), \"perfiles Modbus TCP, exportación a Prometheus y plantillas de despliegue para Ansible\" (protocolos y herramientas técnicas), \"En el banco de pruebas de Valencia\" (ubicación del banco de pruebas), \"instaló el paquete Hydra-Bridge para traducir mensajes entre MQTT y CANopen\" (paquete técnico que conecta protocolos) y \"modelo ACME-R2 como hardware anterior\" (modelo técnico usado como referencia).",
     "final_value": "Como los fragmentos relevantes nombran una empresa, una ubicación y varias tecnologías, firmwares, protocolos o modelos, la lista debe incluir esas menciones verbatim; al no haber nombres de personas, fechas absolutas ni eventos nombrados, no se añaden entidades de esos labels."
   }
 }

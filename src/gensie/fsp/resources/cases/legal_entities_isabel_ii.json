@@ -1,0 +1,110 @@
+{
+  "id": "legal_entities_isabel_ii",
+  "domain": "legal_entities",
+  "language": "es",
+  "tags": [
+    "complex_object_array",
+    "entity_array"
+  ],
+  "source_text": "DOÑA ISABEL II, REINA DE ESPAÑA, A TODOS LOS QUE LA PRESENTE VIEREN Y ENTENDIEREN,\n\nSABED: QUE LAS CORTES GENERALES HAN APROBADO Y EL PUEBLO ESPAÑOL RATIFICADO LA SIGUIENTE LEY FUNDAMENTAL:\n\n**PREÁMBULO**\n\nLa Nación española, deseando asegurar la libertad civil, la justicia y la concordia entre los territorios que la integran, proclama su voluntad de:\n\nGarantizar la convivencia democrática dentro de la Ley Fundamental y de las normas que emanen de la voluntad popular.\n\nProteger a todos los españoles y pueblos de España en el ejercicio de sus derechos, culturas, lenguas e instituciones.\n\nPromover el progreso de la cultura y de la economía para asegurar una digna calidad de vida.\n\nColaborar en el fortalecimiento de unas relaciones pacíficas entre todos los pueblos de Europa.",
+  "instruction": "Extrae las entidades nombradas (personas, organizaciones, lugares) mencionadas en el encabezado y preámbulo de la Ley Fundamental.",
+  "schema": {
+    "$defs": {
+      "Entity": {
+        "additionalProperties": false,
+        "description": "A single named entity mention.",
+        "properties": {
+          "text": {
+            "description": "The verbatim text mention from the source",
+            "title": "Text",
+            "type": "string"
+          },
+          "label": {
+            "$ref": "#/$defs/EntityType",
+            "description": "The category of the entity"
+          }
+        },
+        "required": [
+          "text",
+          "label"
+        ],
+        "title": "Entity",
+        "type": "object"
+      },
+      "EntityType": {
+        "enum": [
+          "PERSON",
+          "ORGANIZATION",
+          "LOCATION",
+          "DATE",
+          "EVENT",
+          "MISCELLANEOUS"
+        ],
+        "title": "EntityType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts named entity mentions categorized by type in a single list.\nComplexity: L5 (Hierarchical Grouping).",
+    "properties": {
+      "entities": {
+        "description": "List of all recognized named entities",
+        "items": {
+          "$ref": "#/$defs/Entity"
+        },
+        "title": "Entities",
+        "type": "array"
+      }
+    },
+    "title": "NamedEntities",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "entities": "Lista única de menciones nombradas explícitas del texto legal. Extrae personas, órganos, instituciones, territorios, países, fechas, normas, boletines y sujetos jurídicos cuando aparecen; evita duplicar una entidad repetida sin una mención distinta útil y no expandas instituciones con palabras que el texto no contiene.",
+    "entities[].text": "Mención verbatim, preservando mayúsculas, tildes, artículos, tratamientos, numeración normativa, comillas españolas y frases institucionales completas. No normalices `DON`, `LAS CORTES` o `EL PUEBLO ESPAÑOL`, y no conviertas conceptos legales en nombres inventados.",
+    "entities[].label": "Etiqueta del enum completo: `PERSON`, `ORGANIZATION`, `LOCATION`, `DATE`, `EVENT` o `MISCELLANEOUS`. Personas reales son `PERSON`; Cortes, ministerios, direcciones generales y boletines oficiales son `ORGANIZATION`; países, territorios y lugares son `LOCATION`; fechas son `DATE`; actos o procesos nombrados explícitamente pueden ser `EVENT`; constituciones, reales decretos, leyes, pueblos o nación como sujeto jurídico suelen ser `MISCELLANEOUS`."
+  },
+  "field_examples": {
+    "entities": {
+      "value": [
+        {
+          "text": "DOÑA ISABEL II",
+          "label": "PERSON"
+        },
+        {
+          "text": "ESPAÑA",
+          "label": "LOCATION"
+        },
+        {
+          "text": "LAS CORTES GENERALES",
+          "label": "ORGANIZATION"
+        },
+        {
+          "text": "EL PUEBLO ESPAÑOL",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "LEY FUNDAMENTAL",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "La Nación española",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Europa",
+          "label": "LOCATION"
+        }
+      ],
+      "tags": [
+        "complex_object_array",
+        "entity_array"
+      ],
+      "reasoning": {
+        "field_asks": "lista de entidades nombradas del encabezado y preámbulo legal, con menciones verbatim y etiquetas PERSON, ORGANIZATION, LOCATION, DATE, EVENT o MISCELLANEOUS.",
+        "relevant_fragments": "\"DOÑA ISABEL II, REINA DE ESPAÑA\" (persona titular y país/reino nombrado), \"SABED: QUE LAS CORTES GENERALES HAN APROBADO Y EL PUEBLO ESPAÑOL RATIFICADO LA SIGUIENTE LEY FUNDAMENTAL\" (órgano legislativo, sujeto jurídico y norma), \"La Nación española [...] proclama su voluntad\" (sujeto constitucional/conceptual) y \"relaciones pacíficas entre todos los pueblos de Europa\" (lugar o región nombrada).",
+        "final_value": "Como los fragmentos relevantes nombran una persona, un lugar, una organización institucional, sujetos constitucionales y una norma, la lista debe conservar esas menciones verbatim. La repetición posterior de España dentro de \"pueblos de España\" no se incluye de nuevo porque ya aparece como primera mención completa en mayúsculas."
+      }
+    }
+  }
+}

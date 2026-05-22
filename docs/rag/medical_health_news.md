@@ -107,7 +107,7 @@ Extrae la información estructurada de este artículo de noticias sobre salud p�
   },
   "summary": {
     "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
-    "relevant_fragments": "\"ordenó el 4 de julio de 2026 retirar el suplemento EnerPlus Forte\", \"relaciona los cuadros con un lote producido por Laboratorios NovaFit\" y \"confirmó 4 fallecidos y 23 personas hospitalizadas\".",
+    "relevant_fragments": "\"La Secretaría de Salud de Villa Mar ordenó el 4 de julio de 2026 retirar el suplemento EnerPlus Forte después de que varios pacientes llegaran al Hospital General del Puerto con insuficiencia hepática aguda\", \"La investigación preliminar relaciona los cuadros con un lote producido por Laboratorios NovaFit y vendido en gimnasios y tiendas naturistas de la ciudad\" y \"El balance sanitario confirmó 4 fallecidos y 23 personas hospitalizadas con síntomas compatibles\".",
     "final_value": "Como los fragmentos relevantes cubren retiro, causa investigada, organizaciones y balance sanitario, el resumen debe condensar esos hechos."
   },
   "category": {
@@ -147,7 +147,7 @@ Extrae la información estructurada de este artículo de noticias sobre salud p�
   },
   "affected_count": {
     "field_asks": "número de personas afectadas, perjudicadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
-    "relevant_fragments": "\"inmovilizó 9 500 frascos\" y \"pidió conservar los envases comprados durante las últimas seis semanas\".",
+    "relevant_fragments": "\"La autoridad local inmovilizó 9 500 frascos\" y \"pidió conservar los envases comprados durante las últimas seis semanas para rastrear el lote contaminado\".",
     "final_value": "Los fragmentos relevantes cuantifican productos y envases, pero no una cifra total de personas afectadas; el valor debe ser null."
   }
 }
@@ -201,7 +201,7 @@ Extrae la información estructurada de este artículo de noticias de salud sigui
   },
   "summary": {
     "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
-    "relevant_fragments": "\"Mara Céspedes presentó este martes un análisis sobre 860 trabajadores\", \"turnos nocturnos frecuentes se asociaron con picos de glucosa más prolongados\" y \"recomendó que las consultas laborales incluyan diarios de sueño\".",
+    "relevant_fragments": "\"La endocrinóloga Mara Céspedes presentó este martes un análisis sobre 860 trabajadores con seguimiento metabólico durante dieciocho meses\", \"Según la revisión, los turnos nocturnos frecuentes se asociaron con picos de glucosa más prolongados y mayor dificultad para ajustar la medicación en personas con diabetes tipo 2\" y \"Céspedes recomendó que las consultas laborales incluyan diarios de sueño y horarios de comida antes de cambiar tratamientos\".",
     "final_value": "Como los fragmentos relevantes cubren autoría, muestra, hallazgo y recomendación, el resumen debe sintetizar esos puntos."
   },
   "category": {
@@ -231,7 +231,7 @@ Extrae la información estructurada de este artículo de noticias de salud sigui
   },
   "casualties": {
     "field_asks": "número de muertes mencionadas, o null si no se menciona ninguna cifra de muertes humanas.",
-    "relevant_fragments": "\"860 trabajadores con seguimiento metabólico\" y \"personas con diabetes tipo 2\".",
+    "relevant_fragments": "\"un análisis sobre 860 trabajadores con seguimiento metabólico durante dieciocho meses\" y \"personas con diabetes tipo 2\".",
     "final_value": "Los fragmentos relevantes describen una muestra de estudio y población clínica, pero no muertes humanas; el valor debe ser null."
   },
   "injured": {
@@ -241,7 +241,7 @@ Extrae la información estructurada de este artículo de noticias de salud sigui
   },
   "affected_count": {
     "field_asks": "número de personas afectadas, perjudicadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
-    "relevant_fragments": "\"un análisis sobre 860 trabajadores\" y \"seguimiento metabólico durante dieciocho meses\".",
+    "relevant_fragments": "\"un análisis sobre 860 trabajadores con seguimiento metabólico durante dieciocho meses\".",
     "final_value": "Los fragmentos relevantes cuantifican participantes analizados, pero no personas afectadas o desplazadas; el valor debe ser null."
   }
 }

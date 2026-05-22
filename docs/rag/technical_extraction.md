@@ -94,7 +94,7 @@ DeltaDB es una base de datos embebida para series temporales industriales. Sus p
 {
   "answer": {
     "field_asks": "un único fragmento verbatim del texto que responda directamente la pregunta.",
-    "relevant_fragments": "\"Sus primeras versiones dependían de AtlasQL para ejecutar filtros simples\" y \"Desde la versión 2.7, DeltaDB usa el motor QuasarSQL para planificar consultas sobre índices temporales.\".",
+    "relevant_fragments": "\"Sus primeras versiones dependían de AtlasQL para ejecutar filtros simples\" y \"Desde la versión 2.7, DeltaDB usa el motor QuasarSQL para planificar consultas sobre índices temporales.\"",
     "final_value": "Como el fragmento relevante distingue el motor legado AtlasQL del motor usado para planificar consultas, la respuesta debe copiar la oración completa sobre QuasarSQL."
   }
 }

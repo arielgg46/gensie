@@ -40,8 +40,8 @@ En este schema la alternancia de `null` solo aplica directamente a `declaration_
 | --- | --- |
 | `official_name` | Nombre del bien protegido, normalmente el encabezado `#`. Si aparece `Official Name`, úsalo como nombre oficial; no mezcles coordenadas, alias entre paréntesis ni líneas de fuente. |
 | `municipality` | Municipio o localidad del bien. En estos registros los campos pueden estar desplazados: a veces `Municipality` contiene la categoría y `Category` contiene el municipio; elige el valor que sea lugar, aunque esté en otra línea. |
-| `bic_category` | Categoría legal mapeada al enum. `Monumento` -> `MONUMENTO`; `Arte Rupestre` o etiquetas fuera del enum -> `OTRO`; no uses municipios, coordenadas ni códigos como categoría. |
-| `registration_code` | Código registral BIC con patrón de mayúsculas, números y guiones, por ejemplo `RI-51-0009449`. Si solo hay coordenadas, campo vacío o nada que cumpla el patrón, usa `NONE`; si el código aparece desplazado en `Declaration Date` u otro, extráelo igualmente. |
+| `bic_category` | Categoría legal mapeada al enum completo: `MONUMENTO`, `JARDÍN HISTÓRICO`, `CONJUNTO HISTÓRICO`, `SITIO HISTÓRICO`, `ZONA ARQUEOLÓGICA` u `OTRO`. `Monumento` -> `MONUMENTO`; `Arte Rupestre` o etiquetas fuera del enum -> `OTRO`; no uses municipios, coordenadas ni códigos como categoría. |
+| `registration_code` | Código registral BIC con patrón exacto `RI-\d{2}-\d{7}`, por ejemplo `RI-51-0009449`. Si solo hay coordenadas, campo vacío o nada que cumpla el patrón, usa `NONE`; si el código aparece desplazado en `Declaration Date` u otro campo, extráelo igualmente. |
 | `declaration_date` | Fecha legal de declaración normalizada a `YYYY-MM-DD`. Devuelve `null` si el campo está vacío, contiene coordenadas, contiene un código BIC o solo hay líneas de relleno sin fecha. |
 | `is_declared` | `true` si el estado es declarado o si el registro solo muestra ficha BIC sin indicio de incoación. `false` solo cuando aparezca `Incoado`, pendiente u otra señal explícita de no declarado. |
 
@@ -107,7 +107,7 @@ Extrae la información del monumento o bien de interés cultural a partir del te
     "final_value": "Como el fragmento relevante da la categoría \"Monumento\", el valor del enum debe ser \"MONUMENTO\"."
   },
   "registration_code": {
-    "field_asks": "el código oficial de registro con patrón de mayúsculas, números y guiones; si no hay código válido extraíble, usar NONE.",
+    "field_asks": "el código oficial de registro con patrón RI-\\d{2}-\\d{7}; si no hay código válido extraíble, usar NONE.",
     "relevant_fragments": "\"Registration Code: RI-51-0012386\" y \"Coordinates: 40°20′45″N 1°06′22″O / 40.3458, -1.1061 (Puente Viejo)\".",
     "final_value": "Como el fragmento relevante contiene el código registral válido y las coordenadas están en otro campo, el valor debe ser \"RI-51-0012386\"."
   },
@@ -184,7 +184,7 @@ Extrae la información del monumento o bien de interés cultural a partir del te
     "final_value": "Como \"Arte Rupestre\" no coincide con las categorías legales enumeradas, el valor del enum debe ser \"OTRO\"."
   },
   "registration_code": {
-    "field_asks": "el código oficial de registro con patrón de mayúsculas, números y guiones; si no hay código válido extraíble, usar NONE.",
+    "field_asks": "el código oficial de registro con patrón RI-\\d{2}-\\d{7}; si no hay código válido extraíble, usar NONE.",
     "relevant_fragments": "\"Registration Code: 40°27′11″N 0°06′52″O / 40.4531, -0.1144 (Abrigos de la Solana)\".",
     "final_value": "Como el fragmento relevante contiene coordenadas y no un código registral válido, el valor debe ser \"NONE\"."
   },

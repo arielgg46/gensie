@@ -1,0 +1,242 @@
+{
+  "id": "medical_diseases_migrana_cronica",
+  "domain": "medical_diseases",
+  "language": "es",
+  "tags": [
+    "boolean_inference",
+    "complex_object_array",
+    "direct_string",
+    "empty_array",
+    "enum_classification",
+    "grounded_null",
+    "nullable",
+    "simple_array"
+  ],
+  "source_text": "# Migraña crónica\n\nSource: https://es.wikipedia.org/wiki/Migraña_crónica\n\nLa migraña crónica es un trastorno neurológico persistente en el que la cefalea ocupa muchos días del mes y limita la actividad cotidiana. Se usa el término cuando el patrón se mantiene durante meses, con crisis que alternan intensidad variable y periodos de mayor carga.\n\nEtiopatogenia\nSus mecanismos se relacionan con sensibilización del sistema trigeminovascular, predisposición individual y cambios en circuitos de dolor. También se mencionan sueño irregular, estrés y abuso de analgésicos como factores que pueden favorecer la cronificación, aunque no se atribuye a una causa única demostrada.\n\nCuadro clínico\nLos pacientes describen cefalea pulsátil intensa, náuseas, fotofobia y fonofobia. Algunas crisis se acompañan de aura visual o dificultad para concentrarse; en los periodos de mayor carga el dolor se califica como incapacitante.\n\nTratamiento y evolución\nLa reseña comenta medidas preventivas, higiene del sueño, reducción de desencadenantes y ajustes del tratamiento cuando las crisis se repiten con frecuencia.",
+  "instruction": "Extrae el perfil de la enfermedad.",
+  "schema": {
+    "$defs": {
+      "EtiologyType": {
+        "enum": [
+          "INFECTIOUS",
+          "GENETIC",
+          "AUTOIMMUNE",
+          "DEGENERATIVE",
+          "UNKNOWN",
+          "OTHER"
+        ],
+        "title": "EtiologyType",
+        "type": "string"
+      },
+      "Symptom": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "description": "Verbatim name of the symptom",
+            "title": "Name",
+            "type": "string"
+          },
+          "severity_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Inferred severity if mentioned (Mild, Moderate, Severe)",
+            "title": "Severity Level"
+          },
+          "is_primary": {
+            "default": true,
+            "description": "True if this is a defining symptom of the disease",
+            "title": "Is Primary",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "Symptom",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Hierarchical extraction of pathology details from medical summaries.\nComplexity: L5 (Hierarchical Grouping).",
+    "properties": {
+      "pathology_name": {
+        "description": "The medical name of the disease or disorder",
+        "title": "Pathology Name",
+        "type": "string"
+      },
+      "etiology_type": {
+        "$ref": "#/$defs/EtiologyType",
+        "description": "The primary origin or cause of the disease"
+      },
+      "etiology_description": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "A brief summary of how the disease is caused",
+        "title": "Etiology Description"
+      },
+      "symptoms": {
+        "description": "Structured list of reported symptoms",
+        "items": {
+          "$ref": "#/$defs/Symptom"
+        },
+        "title": "Symptoms",
+        "type": "array"
+      },
+      "diagnosis_methods": {
+        "description": "Clinical tests or methods mentioned for identifying the pathology",
+        "items": {
+          "type": "string"
+        },
+        "title": "Diagnosis Methods",
+        "type": "array"
+      },
+      "is_chronic": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "True if the text explicitly defines the disease as chronic or long-term",
+        "title": "Is Chronic"
+      }
+    },
+    "required": [
+      "pathology_name",
+      "etiology_type"
+    ],
+    "title": "DiseaseProfile",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "pathology_name": "Nombre médico principal de la patología. Usa el encabezado o el sinónimo formal de la primera frase; no elijas categorías amplias, ejemplos secundarios ni complicaciones como si fueran la enfermedad principal.",
+    "etiology_type": "Tipo etiológico principal; enum completo: `INFECTIOUS`, `GENETIC`, `AUTOIMMUNE`, `DEGENERATIVE`, `UNKNOWN` u `OTHER`. Usa `INFECTIOUS` para infecciones, `GENETIC` para origen hereditario dominante, `AUTOIMMUNE` para autoinmunidad explícita, `DEGENERATIVE` para deterioro progresivo, `UNKNOWN` cuando no haya causa demostrada y `OTHER` para reacciones, cánceres, tóxicos o mecanismos no cubiertos.",
+    "etiology_description": "Resumen breve de la causa si el texto la explica. Devuelve `null` si solo hay hipótesis, factores asociados, mecanismos no concluyentes o epidemiología sin causa directa.",
+    "symptoms": "Manifestaciones clínicas mencionadas. Separa síntomas definitorios de complicaciones o signos tardíos; no incluyas tratamientos, factores de riesgo, pruebas diagnósticas ni consecuencias epidemiológicas como síntomas.",
+    "symptoms[].severity_level": "Severidad textual cuando esté explícita o sea muy clara; valores esperados: `Mild`, `Moderate` o `Severe`, y `null` si no se puede justificar. No conviertas cualquier síntoma molesto en severo salvo que el texto hable de alarma, gravedad, incapacidad o riesgo vital.",
+    "symptoms[].is_primary": "`true` para síntomas centrales del cuadro; `false` para complicaciones, manifestaciones secundarias, signos de alarma, afectación por extensión o síntomas que solo aparecen en algunos casos.",
+    "diagnosis_methods": "Pruebas, escalas o métodos clínicos concretos usados para diagnosticar. Incluye radiografía, TAC, broncoscopía, test rápido, cultivo, escala clínica, etc.; no incluyas secciones llamadas “Diagnóstico” si no nombran un método.",
+    "is_chronic": "`true` si el texto define la enfermedad como crónica, persistente o de larga duración; `false` si la define como aguda, autolimitada o de pocos días; `null` si no caracteriza duración."
+  },
+  "field_examples": {
+    "pathology_name": {
+      "value": "Migraña crónica",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre médico de la enfermedad o trastorno.",
+        "relevant_fragments": "\"# Migraña crónica\".",
+        "final_value": "Como el fragmento relevante es el encabezado del perfil, el nombre debe ser \"Migraña crónica\"."
+      }
+    },
+    "etiology_type": {
+      "value": "UNKNOWN",
+      "tags": [
+        "direct_string",
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "el origen principal de la enfermedad, mapeado a uno de estos valores: INFECTIOUS, GENETIC, AUTOIMMUNE, DEGENERATIVE, UNKNOWN u OTHER.",
+        "relevant_fragments": "\"se relacionan con sensibilización del sistema trigeminovascular, predisposición individual y cambios en circuitos de dolor\" y \"no se atribuye a una causa única demostrada\".",
+        "final_value": "Como los fragmentos relevantes mencionan mecanismos y predisposición sin causa única demostrada, el valor del enum debe ser \"UNKNOWN\"."
+      }
+    },
+    "etiology_description": {
+      "value": null,
+      "tags": [
+        "direct_string",
+        "grounded_null",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "resumen breve de cómo se causa la enfermedad, o null si no hay causa explicada.",
+        "relevant_fragments": "\"se relacionan con sensibilización del sistema trigeminovascular, predisposición individual y cambios en circuitos de dolor\" y \"no se atribuye a una causa única demostrada\".",
+        "final_value": "Aunque los fragmentos relevantes mencionan mecanismos y factores asociados, también niegan una causa demostrada de la enfermedad; por eso no hay una descripción etiológica cerrada y el valor debe ser null."
+      }
+    },
+    "symptoms": {
+      "value": [
+        {
+          "name": "cefalea pulsátil intensa",
+          "severity_level": "Severe",
+          "is_primary": true
+        },
+        {
+          "name": "náuseas",
+          "severity_level": null,
+          "is_primary": true
+        },
+        {
+          "name": "fotofobia",
+          "severity_level": null,
+          "is_primary": true
+        },
+        {
+          "name": "fonofobia",
+          "severity_level": null,
+          "is_primary": true
+        },
+        {
+          "name": "aura visual",
+          "severity_level": null,
+          "is_primary": false
+        },
+        {
+          "name": "dificultad para concentrarse",
+          "severity_level": null,
+          "is_primary": false
+        }
+      ],
+      "tags": [
+        "complex_object_array"
+      ],
+      "reasoning": {
+        "field_asks": "lista estructurada de síntomas, con severidad si se menciona o se infiere claramente como Mild, Moderate o Severe, y marca de si son definitorios o secundarios.",
+        "relevant_fragments": "\"cefalea pulsátil intensa, náuseas, fotofobia y fonofobia\", \"Algunas crisis se acompañan de aura visual o dificultad para concentrarse\" y \"el dolor se califica como incapacitante\".",
+        "final_value": "Como el primer fragmento da síntomas centrales, esos son primarios; la cefalea queda con severidad Severe porque se describe como intensa e incapacitante. Aura visual y dificultad para concentrarse se marcan como secundarios por aparecer solo en algunas crisis."
+      }
+    },
+    "diagnosis_methods": {
+      "value": [],
+      "tags": [
+        "empty_array",
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "pruebas clínicas o métodos mencionados para identificar la patología.",
+        "relevant_fragments": "\"medidas preventivas, higiene del sueño, reducción de desencadenantes y ajustes del tratamiento\".",
+        "final_value": "El fragmento relevante describe manejo, prevención y tratamiento, pero no pruebas clínicas ni métodos para identificar la patología; la lista debe ser vacía."
+      }
+    },
+    "is_chronic": {
+      "value": true,
+      "tags": [
+        "boolean_inference",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "true si el texto define la enfermedad como crónica o de larga duración; false si la define como aguda; null si no se especifica.",
+        "relevant_fragments": "\"La migraña crónica es un trastorno neurológico persistente\".",
+        "final_value": "Como el fragmento relevante define el trastorno como crónico y persistente, el valor debe ser true."
+      }
+    }
+  }
+}

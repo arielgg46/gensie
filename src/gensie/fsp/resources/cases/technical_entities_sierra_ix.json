@@ -1,0 +1,134 @@
+{
+  "id": "technical_entities_sierra_ix",
+  "domain": "technical_entities",
+  "language": "es",
+  "tags": [
+    "complex_object_array",
+    "entity_array"
+  ],
+  "source_text": "# Controlador Sierra-IX\n\nEl controlador Sierra-IX de Orbis Automation se usa en estaciones de bombeo y ejecuta el firmware DeltaBus sobre Linux o FreeRTOS. La guía técnica describe perfiles Modbus TCP, exportación a Prometheus y plantillas de despliegue para Ansible. En el banco de pruebas de Valencia, el equipo instaló el paquete Hydra-Bridge para traducir mensajes entre MQTT y CANopen. El texto compara el modelo ACME-R2 como hardware anterior, pero lo trata como referencia de compatibilidad.",
+  "instruction": "Extrae las entidades nombradas del texto técnico y clasifícalas por tipo.",
+  "schema": {
+    "$defs": {
+      "Entity": {
+        "additionalProperties": false,
+        "description": "A single named entity mention.",
+        "properties": {
+          "text": {
+            "description": "The verbatim text mention from the source",
+            "title": "Text",
+            "type": "string"
+          },
+          "label": {
+            "$ref": "#/$defs/EntityType",
+            "description": "The category of the entity"
+          }
+        },
+        "required": [
+          "text",
+          "label"
+        ],
+        "title": "Entity",
+        "type": "object"
+      },
+      "EntityType": {
+        "enum": [
+          "PERSON",
+          "ORGANIZATION",
+          "LOCATION",
+          "DATE",
+          "EVENT",
+          "MISCELLANEOUS"
+        ],
+        "title": "EntityType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts named entity mentions categorized by type in a single list.\nComplexity: L5 (Hierarchical Grouping).",
+    "properties": {
+      "entities": {
+        "description": "List of all recognized named entities",
+        "items": {
+          "$ref": "#/$defs/Entity"
+        },
+        "title": "Entities",
+        "type": "array"
+      }
+    },
+    "title": "NamedEntities",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "entities": "Lista de entidades nombradas presentes en el texto técnico. Extrae menciones concretas y propias; no incluyas términos genéricos como “biblioteca”, “formato”, “repositorio”, “sistema operativo” o “motor” salvo que formen parte de un nombre propio.",
+    "entities[].text": "Mención verbatim tal como aparece en el texto. Conserva mayúsculas, tildes, números, versiones, guiones y siglas; no traduzcas, normalices, expandas ni fusiones menciones distintas como nombre completo y alias si aparecen separadas.",
+    "entities[].label": "Etiqueta de la entidad; enum completo: `PERSON`, `ORGANIZATION`, `LOCATION`, `DATE`, `EVENT` o `MISCELLANEOUS`. Personas individuales son `PERSON`; proyectos, fundaciones y empresas son `ORGANIZATION`; ciudades o lugares son `LOCATION`; fechas explícitas son `DATE`; conferencias o eventos nombrados son `EVENT`; software, protocolos, formatos, motores, módulos, versiones y algoritmos suelen ser `MISCELLANEOUS`."
+  },
+  "field_examples": {
+    "entities": {
+      "value": [
+        {
+          "text": "Sierra-IX",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Orbis Automation",
+          "label": "ORGANIZATION"
+        },
+        {
+          "text": "DeltaBus",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Linux",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "FreeRTOS",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Modbus TCP",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Prometheus",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Ansible",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Valencia",
+          "label": "LOCATION"
+        },
+        {
+          "text": "Hydra-Bridge",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "MQTT",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "CANopen",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "ACME-R2",
+          "label": "MISCELLANEOUS"
+        }
+      ],
+      "tags": [
+        "complex_object_array",
+        "entity_array"
+      ],
+      "reasoning": {
+        "field_asks": "lista de menciones de entidades nombradas con su etiqueta, usando exactamente uno de estos valores para cada label: PERSON, ORGANIZATION, LOCATION, DATE, EVENT o MISCELLANEOUS.",
+        "relevant_fragments": "\"El controlador Sierra-IX de Orbis Automation [...] ejecuta el firmware DeltaBus sobre Linux o FreeRTOS\" (controlador técnico asociado a empresa, firmware y sistemas), \"perfiles Modbus TCP, exportación a Prometheus y plantillas de despliegue para Ansible\" (protocolos y herramientas técnicas), \"En el banco de pruebas de Valencia\" (ubicación del banco de pruebas), \"instaló el paquete Hydra-Bridge para traducir mensajes entre MQTT y CANopen\" (paquete técnico que conecta protocolos) y \"modelo ACME-R2 como hardware anterior\" (modelo técnico usado como referencia).",
+        "final_value": "Como los fragmentos relevantes nombran una empresa, una ubicación y varias tecnologías, firmwares, protocolos o modelos, la lista debe incluir esas menciones verbatim; al no haber nombres de personas, fechas absolutas ni eventos nombrados, no se añaden entidades de esos labels."
+      }
+    }
+  }
+}

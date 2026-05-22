@@ -1,0 +1,48 @@
+{
+  "id": "legal_extraction_iniciativa_popular",
+  "domain": "legal_extraction",
+  "language": "es",
+  "tags": [
+    "direct_string",
+    "long_verbatim_evidence",
+    "summary_string",
+    "verbatim_answer"
+  ],
+  "source_text": "## Artículo 21\n\n1. Los vecinos tendrán derecho a participar en los asuntos municipales mediante los procedimientos establecidos en la ley.\n\n2. La iniciativa popular deberá estar suscrita por, al menos, el diez por ciento de los vecinos inscritos en el censo municipal.\n\n3. No podrán ser objeto de iniciativa popular las materias tributarias, presupuestarias ni las relativas a la organización interna del Ayuntamiento.\n\n\n\n## Artículo 22\n\n1. El Pleno celebrará sesión ordinaria una vez al mes y sesión extraordinaria cuando lo solicite la Alcaldía o una cuarta parte de sus miembros.\n\n2. Las sesiones serán públicas, salvo en los supuestos en que el debate pueda afectar al derecho fundamental de los ciudadanos al honor, a la intimidad personal o familiar o a la propia imagen.\n\n3. Los acuerdos se adoptarán por mayoría simple, salvo que una norma con rango de ley exija mayoría absoluta.",
+  "instruction": "¿Qué porcentaje de vecinos debe suscribir la iniciativa popular?",
+  "schema": {
+    "additionalProperties": false,
+    "description": "Extracts a single verbatim fragment that answers the provided instruction.\nComplexity: L1 (Literal Extraction).",
+    "properties": {
+      "answer": {
+        "description": "The verbatim fragment from the source text that answers the question",
+        "title": "Answer",
+        "type": "string"
+      }
+    },
+    "required": [
+      "answer"
+    ],
+    "title": "TextAnswer",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "answer": "Fragmento legal verbatim que responde exactamente la pregunta. Copia la oración o apartado completo que contiene la regla jurídica, sin resumir, modernizar, normalizar tildes ni reducir la respuesta a una palabra o cifra aislada; ignora artículos vecinos con materias parecidas que no respondan la pregunta."
+  },
+  "field_examples": {
+    "answer": {
+      "value": "La iniciativa popular deberá estar suscrita por, al menos, el diez por ciento de los vecinos inscritos en el censo municipal.",
+      "tags": [
+        "direct_string",
+        "long_verbatim_evidence",
+        "summary_string",
+        "verbatim_answer"
+      ],
+      "reasoning": {
+        "field_asks": "un fragmento verbatim del texto que responda qué porcentaje de vecinos debe suscribir la iniciativa popular.",
+        "relevant_fragments": "\"La iniciativa popular deberá estar suscrita por, al menos, el diez por ciento de los vecinos inscritos en el censo municipal.\"",
+        "final_value": "Como el fragmento relevante incluye la regla completa y el porcentaje requerido, el valor debe conservar ese apartado como oración verbatim."
+      }
+    }
+  }
+}

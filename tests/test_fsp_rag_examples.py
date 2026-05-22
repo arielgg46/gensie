@@ -153,10 +153,11 @@ def test_fsp_case_resource_can_load_enriched_field_descriptions():
 
     assert case.enriched_field_descriptions == {
         "answer": (
-            "Fragmento único y verbatim que responde exactamente la pregunta. "
-            "Copia la oración o sintagma completo del texto fuente, conservando "
-            "unidades, tildes y puntuación; no resumas, no normalices cantidades "
-            "y no añadas contexto externo."
+            "Fragmento literal que responde la pregunta. Copia la línea completa "
+            "y exacta, incluyendo dos puntos, punto final, coma decimal, unidad "
+            "y nombre de la presentación o sustancia; no normalices cantidades, "
+            "no devuelvas solo el número y no confundas presentaciones cercanas "
+            "como 50 mg/ml vs 100 mg/ml o principio activo vs excipiente."
         )
     }
 

@@ -1,0 +1,287 @@
+{
+  "id": "medical_health_news_turnos_glucosa",
+  "domain": "medical_health_news",
+  "language": "es",
+  "tags": [
+    "date_normalization",
+    "direct_string",
+    "empty_array",
+    "entity_array",
+    "enum_classification",
+    "grounded_null",
+    "nullable",
+    "numeric_normalization",
+    "simple_array",
+    "summary_string"
+  ],
+  "source_text": "# Un estudio relaciona los turnos nocturnos con peor control de glucosa\n\nLa endocrinóloga Mara Céspedes presentó este martes un análisis sobre 860 trabajadores con seguimiento metabólico durante dieciocho meses. El equipo comparó horarios de sueño, comidas fuera de turno y mediciones continuas de glucosa en personal de hospitales y fábricas, con especial atención a quienes rotaban entre madrugada y mañana.\n\nSegún la revisión, los turnos nocturnos frecuentes se asociaron con picos de glucosa más prolongados y mayor dificultad para ajustar la medicación en personas con diabetes tipo 2. Céspedes recomendó que las consultas laborales incluyan diarios de sueño y horarios de comida antes de cambiar tratamientos. El informe se discutió en una mesa clínica de medicina del trabajo y será enviado a una revista especializada.",
+  "instruction": "Extrae la información estructurada de este artículo de noticias de salud siguiendo el esquema proporcionado.",
+  "schema": {
+    "$defs": {
+      "NewsCategory": {
+        "enum": [
+          "JUDICIAL",
+          "DISASTER",
+          "HEALTH",
+          "ENVIRONMENT",
+          "POLITICS",
+          "ECONOMY",
+          "SCIENCE",
+          "CULTURE",
+          "SPORTS",
+          "OTHER"
+        ],
+        "title": "NewsCategory",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts structured information from general news articles.\nComplexity: L4 (Sparse Extraction) - Some fields may be null/missing.",
+    "properties": {
+      "headline": {
+        "description": "The main headline or title of the news article",
+        "title": "Headline",
+        "type": "string"
+      },
+      "summary": {
+        "description": "A brief summary of the main facts reported (1-3 sentences)",
+        "title": "Summary",
+        "type": "string"
+      },
+      "category": {
+        "$ref": "#/$defs/NewsCategory",
+        "description": "The thematic category of the news story"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Geographic location where the event occurred (city, country, or region)",
+        "title": "Location"
+      },
+      "date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Date mentioned in the article (may be implicit or explicit)",
+        "title": "Date"
+      },
+      "key_people": {
+        "description": "Names of key individuals mentioned in the article",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key People",
+        "type": "array"
+      },
+      "key_organizations": {
+        "description": "Names of organizations, companies, or governments mentioned",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key Organizations",
+        "type": "array"
+      },
+      "casualties": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of deaths mentioned, if any",
+        "title": "Casualties"
+      },
+      "injured": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of people injured, if any",
+        "title": "Injured"
+      },
+      "affected_count": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of people affected or displaced, if applicable",
+        "title": "Affected Count"
+      }
+    },
+    "required": [
+      "headline",
+      "summary",
+      "category"
+    ],
+    "title": "NewsArticle",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "headline": "Titular principal de la noticia, normalmente el encabezado `#`. Cópialo de forma literal, conservando nombres de enfermedades, organismos y cifras si aparecen en el titular.",
+    "summary": "Resumen breve en 1-3 oraciones con alerta, hallazgo, medida sanitaria, organismos y cifras humanas relevantes. No conviertas detalles secundarios como ventas, dosis, vuelos o contratos en el centro si no son el hecho principal.",
+    "category": "Categoría temática del enum completo: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. Usa `HEALTH` para alertas sanitarias, brotes, estudios clínicos, programas médicos, medicamentos, vacunas o decisiones de salud pública, aunque haya elementos políticos o económicos.",
+    "location": "Lugar principal de la alerta, estudio o evento sanitario. Extrae país, ciudad o región cuando el texto lo sitúe; devuelve `null` si solo hay muestras multicéntricas, instituciones genéricas o contexto internacional sin ubicación del evento.",
+    "date": "Fecha explícita de la alerta, medida sanitaria, publicación o evento. Devuelve `null` para `este martes`, `ayer`, periodos de seguimiento, años de programas o aniversarios si no hay fecha absoluta suficiente.",
+    "key_people": "Personas individuales nombradas: médicos, investigadores, ministros, directores o autoridades sanitarias. No incluyas pacientes anónimos, grupos de trabajadores, cargos sin nombre ni autores colectivos.",
+    "key_organizations": "Organizaciones sanitarias, ministerios, hospitales, revistas, farmacéuticas, programas o medios nombrados. No incluyas grupos genéricos como “el equipo”, “centros de salud” o “autoridades” si no tienen nombre propio.",
+    "casualties": "Número de muertes humanas mencionadas por el evento sanitario. No uses ventas, dosis, contratos, muestras, participantes, infectados o muertes históricas si no son el balance relevante de la noticia.",
+    "injured": "Número de personas heridas, intoxicadas, hospitalizadas o clínicamente afectadas de forma aguda cuando el texto lo cuantifica. No uses participantes de estudio, personas vacunadas, médicos desplazados o infectados si el campo se reserva para hospitalizados/lesionados y no hay equivalencia clara.",
+    "affected_count": "Número de personas afectadas, infectadas, damnificadas, desplazadas o perjudicadas si el texto las presenta como tal. No uses frascos, dosis, ventas, municipios, vuelos, hospitales, muestras o participantes analizados si no se describen como afectados."
+  },
+  "field_examples": {
+    "headline": {
+      "value": "Un estudio relaciona los turnos nocturnos con peor control de glucosa",
+      "tags": [
+        "direct_string",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "el titular principal del artículo de noticias.",
+        "relevant_fragments": "\"# Un estudio relaciona los turnos nocturnos con peor control de glucosa\".",
+        "final_value": "Como el fragmento relevante es el encabezado principal, el titular debe ser \"Un estudio relaciona los turnos nocturnos con peor control de glucosa\"."
+      }
+    },
+    "summary": {
+      "value": "La endocrinóloga Mara Céspedes presentó un análisis de 860 trabajadores con seguimiento metabólico durante dieciocho meses. El estudio asoció los turnos nocturnos frecuentes con picos de glucosa más prolongados y mayor dificultad para ajustar la medicación en personas con diabetes tipo 2. Céspedes recomendó incorporar diarios de sueño y horarios de comida en las consultas laborales antes de cambiar tratamientos.",
+      "tags": [
+        "direct_string",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
+        "relevant_fragments": "\"La endocrinóloga Mara Céspedes presentó este martes un análisis sobre 860 trabajadores con seguimiento metabólico durante dieciocho meses\", \"Según la revisión, los turnos nocturnos frecuentes se asociaron con picos de glucosa más prolongados y mayor dificultad para ajustar la medicación en personas con diabetes tipo 2\" y \"Céspedes recomendó que las consultas laborales incluyan diarios de sueño y horarios de comida antes de cambiar tratamientos\".",
+        "final_value": "Como los fragmentos relevantes cubren autoría, muestra, hallazgo y recomendación, el resumen debe sintetizar esos puntos."
+      }
+    },
+    "category": {
+      "value": "HEALTH",
+      "tags": [
+        "direct_string",
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "la categoría temática de la noticia, mapeada a uno de estos valores: JUDICIAL, DISASTER, HEALTH, ENVIRONMENT, POLITICS, ECONOMY, SCIENCE, CULTURE, SPORTS u OTHER.",
+        "relevant_fragments": "\"seguimiento metabólico\", \"mediciones continuas de glucosa\" y \"personas con diabetes tipo 2\".",
+        "final_value": "Como los fragmentos relevantes tratan salud metabólica y diabetes, el valor del enum debe ser \"HEALTH\"."
+      }
+    },
+    "location": {
+      "value": null,
+      "tags": [
+        "direct_string",
+        "grounded_null",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "la ubicación geográfica donde ocurrió el evento, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"personal de hospitales y fábricas\" y \"una mesa clínica de medicina del trabajo\".",
+        "final_value": "Los fragmentos relevantes describen tipos de centros y un espacio clínico, pero no nombran una ciudad, país o región del evento; el valor debe ser null."
+      }
+    },
+    "date": {
+      "value": null,
+      "tags": [
+        "date_normalization",
+        "direct_string",
+        "grounded_null",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "la fecha mencionada en el artículo, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"presentó este martes\" y \"durante dieciocho meses\".",
+        "final_value": "Los fragmentos relevantes dan una referencia relativa y un periodo de seguimiento, pero no una fecha absoluta; el valor debe ser null."
+      }
+    },
+    "key_people": {
+      "value": [
+        "Mara Céspedes"
+      ],
+      "tags": [
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "nombres de personas individuales clave mencionadas en el artículo.",
+        "relevant_fragments": "\"La endocrinóloga Mara Céspedes\".",
+        "final_value": "Como el fragmento relevante nombra a una persona individual, la lista debe incluir \"Mara Céspedes\"."
+      }
+    },
+    "key_organizations": {
+      "value": [],
+      "tags": [
+        "empty_array",
+        "entity_array",
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "nombres de organizaciones, empresas, instituciones o gobiernos mencionados.",
+        "relevant_fragments": "\"El equipo\", \"personal de hospitales y fábricas\", \"una mesa clínica de medicina del trabajo\" y \"una revista especializada\".",
+        "final_value": "Los fragmentos relevantes describen grupos o espacios genéricos, pero no organizaciones con nombre propio; la lista debe ser vacía."
+      }
+    },
+    "casualties": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de muertes mencionadas, o null si no se menciona ninguna cifra de muertes humanas.",
+        "relevant_fragments": "\"un análisis sobre 860 trabajadores con seguimiento metabólico durante dieciocho meses\" y \"personas con diabetes tipo 2\".",
+        "final_value": "Los fragmentos relevantes describen una muestra de estudio y población clínica, pero no muertes humanas; el valor debe ser null."
+      }
+    },
+    "injured": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de personas heridas, lesionadas u hospitalizadas por el evento, o null si no se menciona ninguna cifra clínica equivalente.",
+        "relevant_fragments": "\"picos de glucosa más prolongados\" y \"mayor dificultad para ajustar la medicación\".",
+        "final_value": "Los fragmentos relevantes describen resultados metabólicos, pero no personas heridas u hospitalizadas por un evento; el valor debe ser null."
+      }
+    },
+    "affected_count": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de personas afectadas, perjudicadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
+        "relevant_fragments": "\"un análisis sobre 860 trabajadores con seguimiento metabólico durante dieciocho meses\".",
+        "final_value": "Los fragmentos relevantes cuantifican participantes analizados, pero no personas afectadas o desplazadas; el valor debe ser null."
+      }
+    }
+  }
+}

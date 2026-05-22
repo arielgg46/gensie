@@ -1,0 +1,285 @@
+{
+  "id": "medical_health_news_suplemento_villa_mar",
+  "domain": "medical_health_news",
+  "language": "es",
+  "tags": [
+    "date_normalization",
+    "direct_string",
+    "empty_array",
+    "entity_array",
+    "enum_classification",
+    "grounded_null",
+    "nullable",
+    "numeric_normalization",
+    "simple_array",
+    "summary_string"
+  ],
+  "source_text": "# Retiran un suplemento tras intoxicaciones vinculadas a daño hepático en Villa Mar\n\nLa Secretaría de Salud de Villa Mar ordenó el 4 de julio de 2026 retirar el suplemento EnerPlus Forte después de que varios pacientes llegaran al Hospital General del Puerto con insuficiencia hepática aguda. La investigación preliminar relaciona los cuadros con un lote producido por Laboratorios NovaFit y vendido en gimnasios y tiendas naturistas de la ciudad.\n\nEl balance sanitario confirmó 4 fallecidos y 23 personas hospitalizadas con síntomas compatibles, entre ellos ictericia intensa, dolor abdominal y alteración de enzimas hepáticas. La autoridad local inmovilizó 9 500 frascos, abrió una línea telefónica para reportes y pidió conservar los envases comprados durante las últimas seis semanas para rastrear el lote contaminado.",
+  "instruction": "Extrae la información estructurada de este artículo de noticias sobre salud pública, siguiendo el esquema proporcionado. Devuelve null para los campos que no se mencionan en el texto.",
+  "schema": {
+    "$defs": {
+      "NewsCategory": {
+        "enum": [
+          "JUDICIAL",
+          "DISASTER",
+          "HEALTH",
+          "ENVIRONMENT",
+          "POLITICS",
+          "ECONOMY",
+          "SCIENCE",
+          "CULTURE",
+          "SPORTS",
+          "OTHER"
+        ],
+        "title": "NewsCategory",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts structured information from general news articles.\nComplexity: L4 (Sparse Extraction) - Some fields may be null/missing.",
+    "properties": {
+      "headline": {
+        "description": "The main headline or title of the news article",
+        "title": "Headline",
+        "type": "string"
+      },
+      "summary": {
+        "description": "A brief summary of the main facts reported (1-3 sentences)",
+        "title": "Summary",
+        "type": "string"
+      },
+      "category": {
+        "$ref": "#/$defs/NewsCategory",
+        "description": "The thematic category of the news story"
+      },
+      "location": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Geographic location where the event occurred (city, country, or region)",
+        "title": "Location"
+      },
+      "date": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Date mentioned in the article (may be implicit or explicit)",
+        "title": "Date"
+      },
+      "key_people": {
+        "description": "Names of key individuals mentioned in the article",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key People",
+        "type": "array"
+      },
+      "key_organizations": {
+        "description": "Names of organizations, companies, or governments mentioned",
+        "items": {
+          "type": "string"
+        },
+        "title": "Key Organizations",
+        "type": "array"
+      },
+      "casualties": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of deaths mentioned, if any",
+        "title": "Casualties"
+      },
+      "injured": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of people injured, if any",
+        "title": "Injured"
+      },
+      "affected_count": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Number of people affected or displaced, if applicable",
+        "title": "Affected Count"
+      }
+    },
+    "required": [
+      "headline",
+      "summary",
+      "category"
+    ],
+    "title": "NewsArticle",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "headline": "Titular principal de la noticia, normalmente el encabezado `#`. Cópialo de forma literal, conservando nombres de enfermedades, organismos y cifras si aparecen en el titular.",
+    "summary": "Resumen breve en 1-3 oraciones con alerta, hallazgo, medida sanitaria, organismos y cifras humanas relevantes. No conviertas detalles secundarios como ventas, dosis, vuelos o contratos en el centro si no son el hecho principal.",
+    "category": "Categoría temática del enum completo: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. Usa `HEALTH` para alertas sanitarias, brotes, estudios clínicos, programas médicos, medicamentos, vacunas o decisiones de salud pública, aunque haya elementos políticos o económicos.",
+    "location": "Lugar principal de la alerta, estudio o evento sanitario. Extrae país, ciudad o región cuando el texto lo sitúe; devuelve `null` si solo hay muestras multicéntricas, instituciones genéricas o contexto internacional sin ubicación del evento.",
+    "date": "Fecha explícita de la alerta, medida sanitaria, publicación o evento. Devuelve `null` para `este martes`, `ayer`, periodos de seguimiento, años de programas o aniversarios si no hay fecha absoluta suficiente.",
+    "key_people": "Personas individuales nombradas: médicos, investigadores, ministros, directores o autoridades sanitarias. No incluyas pacientes anónimos, grupos de trabajadores, cargos sin nombre ni autores colectivos.",
+    "key_organizations": "Organizaciones sanitarias, ministerios, hospitales, revistas, farmacéuticas, programas o medios nombrados. No incluyas grupos genéricos como “el equipo”, “centros de salud” o “autoridades” si no tienen nombre propio.",
+    "casualties": "Número de muertes humanas mencionadas por el evento sanitario. No uses ventas, dosis, contratos, muestras, participantes, infectados o muertes históricas si no son el balance relevante de la noticia.",
+    "injured": "Número de personas heridas, intoxicadas, hospitalizadas o clínicamente afectadas de forma aguda cuando el texto lo cuantifica. No uses participantes de estudio, personas vacunadas, médicos desplazados o infectados si el campo se reserva para hospitalizados/lesionados y no hay equivalencia clara.",
+    "affected_count": "Número de personas afectadas, infectadas, damnificadas, desplazadas o perjudicadas si el texto las presenta como tal. No uses frascos, dosis, ventas, municipios, vuelos, hospitales, muestras o participantes analizados si no se describen como afectados."
+  },
+  "field_examples": {
+    "headline": {
+      "value": "Retiran un suplemento tras intoxicaciones vinculadas a daño hepático en Villa Mar",
+      "tags": [
+        "direct_string",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "el titular principal del artículo de noticias.",
+        "relevant_fragments": "\"# Retiran un suplemento tras intoxicaciones vinculadas a daño hepático en Villa Mar\".",
+        "final_value": "Como el fragmento relevante es el encabezado principal, el titular debe ser \"Retiran un suplemento tras intoxicaciones vinculadas a daño hepático en Villa Mar\"."
+      }
+    },
+    "summary": {
+      "value": "La Secretaría de Salud de Villa Mar ordenó el 4 de julio de 2026 retirar el suplemento EnerPlus Forte tras casos de insuficiencia hepática aguda atendidos en el Hospital General del Puerto. La investigación preliminar vinculó los cuadros con un lote producido por Laboratorios NovaFit y vendido en gimnasios y tiendas naturistas de la ciudad. El balance sanitario confirmó 4 fallecidos y 23 personas hospitalizadas, mientras la autoridad inmovilizó 9 500 frascos y abrió una línea de reportes.",
+      "tags": [
+        "direct_string",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
+        "relevant_fragments": "\"La Secretaría de Salud de Villa Mar ordenó el 4 de julio de 2026 retirar el suplemento EnerPlus Forte después de que varios pacientes llegaran al Hospital General del Puerto con insuficiencia hepática aguda\", \"La investigación preliminar relaciona los cuadros con un lote producido por Laboratorios NovaFit y vendido en gimnasios y tiendas naturistas de la ciudad\" y \"El balance sanitario confirmó 4 fallecidos y 23 personas hospitalizadas con síntomas compatibles\".",
+        "final_value": "Como los fragmentos relevantes cubren retiro, causa investigada, organizaciones y balance sanitario, el resumen debe condensar esos hechos."
+      }
+    },
+    "category": {
+      "value": "HEALTH",
+      "tags": [
+        "direct_string",
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "la categoría temática de la noticia, mapeada a uno de estos valores: JUDICIAL, DISASTER, HEALTH, ENVIRONMENT, POLITICS, ECONOMY, SCIENCE, CULTURE, SPORTS u OTHER.",
+        "relevant_fragments": "\"intoxicaciones vinculadas a daño hepático\", \"insuficiencia hepática aguda\" y \"balance sanitario\".",
+        "final_value": "Como los fragmentos relevantes tratan una alerta de salud pública y cuadros clínicos, el valor del enum debe ser \"HEALTH\"."
+      }
+    },
+    "location": {
+      "value": "Villa Mar",
+      "tags": [
+        "direct_string",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "la ubicación geográfica donde ocurrió el evento, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"La Secretaría de Salud de Villa Mar\" y \"tiendas naturistas de la ciudad\".",
+        "final_value": "Como los fragmentos relevantes sitúan la alerta en Villa Mar, el valor debe ser \"Villa Mar\"."
+      }
+    },
+    "date": {
+      "value": "4 de julio de 2026",
+      "tags": [
+        "date_normalization",
+        "direct_string",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "la fecha mencionada en el artículo, o null si no hay evidencia suficiente.",
+        "relevant_fragments": "\"ordenó el 4 de julio de 2026 retirar el suplemento\".",
+        "final_value": "Como el fragmento relevante da una fecha completa para la orden de retiro, el valor debe ser \"4 de julio de 2026\"."
+      }
+    },
+    "key_people": {
+      "value": [],
+      "tags": [
+        "empty_array",
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "nombres de personas individuales clave mencionadas en el artículo.",
+        "relevant_fragments": "\"La Secretaría de Salud de Villa Mar\", \"La autoridad local\" y \"varios pacientes\".",
+        "final_value": "Los fragmentos relevantes mencionan instituciones, autoridad genérica y pacientes sin nombres individuales; la lista debe ser vacía."
+      }
+    },
+    "key_organizations": {
+      "value": [
+        "Secretaría de Salud de Villa Mar",
+        "Hospital General del Puerto",
+        "Laboratorios NovaFit"
+      ],
+      "tags": [
+        "entity_array",
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "nombres de organizaciones, empresas, instituciones o gobiernos mencionados.",
+        "relevant_fragments": "\"Secretaría de Salud de Villa Mar\", \"Hospital General del Puerto\" y \"Laboratorios NovaFit\".",
+        "final_value": "Como los fragmentos relevantes nombran instituciones sanitarias y un laboratorio, la lista debe incluir esas tres organizaciones."
+      }
+    },
+    "casualties": {
+      "value": 4,
+      "tags": [
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de muertes mencionadas, o null si no se menciona ninguna cifra de muertes humanas.",
+        "relevant_fragments": "\"confirmó 4 fallecidos\".",
+        "final_value": "Como el fragmento relevante cuantifica fallecidos humanos, el valor debe ser 4."
+      }
+    },
+    "injured": {
+      "value": 23,
+      "tags": [
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de personas heridas, lesionadas u hospitalizadas por el evento, o null si no se menciona ninguna cifra clínica equivalente.",
+        "relevant_fragments": "\"23 personas hospitalizadas con síntomas compatibles\".",
+        "final_value": "Como el fragmento relevante cuantifica personas hospitalizadas por la intoxicación, el valor debe ser 23."
+      }
+    },
+    "affected_count": {
+      "value": null,
+      "tags": [
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
+      ],
+      "reasoning": {
+        "field_asks": "número de personas afectadas, perjudicadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
+        "relevant_fragments": "\"La autoridad local inmovilizó 9 500 frascos\" y \"pidió conservar los envases comprados durante las últimas seis semanas para rastrear el lote contaminado\".",
+        "final_value": "Los fragmentos relevantes cuantifican productos y envases, pero no una cifra total de personas afectadas; el valor debe ser null."
+      }
+    }
+  }
+}

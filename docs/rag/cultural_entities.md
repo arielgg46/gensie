@@ -94,7 +94,7 @@ Extrae los nombres de películas, personas, personajes y lugares mencionados en 
 {
   "entities": {
     "field_asks": "lista de menciones nombradas del recorte cultural, cada una con texto verbatim y etiqueta PERSON, ORGANIZATION, LOCATION, DATE, EVENT o MISCELLANEOUS.",
-    "relevant_fragments": "\"'El jardín orbital'\", \"'Robot Dreams'\", \"Nora\", \"Madrid\", \"la directora Sofía Galán\", \"Lavapiés\" y \"'Wall-E'\".",
+    "relevant_fragments": "\"# 'El jardín orbital' confirma que la animación española puede mirar a las estrellas\" (título cultural reseñado), \"Desde que 'Robot Dreams' abrió una puerta inesperada\" (obra cultural comparada), \"cuenta la historia de Nora, una niña que imagina una estación espacial sobre Madrid\" (personaje y ciudad dentro de la trama), \"la directora Sofía Galán filma los pasillos\" (persona con rol de directora), \"el barrio de Lavapiés aparece convertido en mapa emocional\" (lugar urbano) y \"Hay ecos de 'Wall-E'\" (obra cultural mencionada como referencia).",
     "final_value": "Como los fragmentos relevantes contienen titulos culturales, personas/personajes y lugares, la lista debe incluir esas siete menciones verbatim con sus etiquetas: titulos como MISCELLANEOUS, Nora y Sofía Galán como PERSON, y Madrid y Lavapiés como LOCATION."
   }
 }
@@ -181,7 +181,7 @@ Identifica las películas, estudios, personas, lugares, fechas y eventos mencion
 {
   "entities": {
     "field_asks": "lista de menciones nombradas de peliculas, estudios, personas, lugares, fechas y eventos, con texto verbatim y etiqueta del enum permitido.",
-    "relevant_fragments": "\"'La casa de las mareas'\", \"San Sebastián\", \"A24\", \"Festival de San Sebastián\", \"'Alcarràs'\", \"Iker Valcárcel\", \"Getaria y Zumaia\", \"17 de abril de 2026\", \"Marta Etura\", \"Eneko Sagardoy\", \"Netflix\" y \"Bruma Films\".",
+    "relevant_fragments": "\"# 'La casa de las mareas' ya tiene fecha en cines tras conquistar San Sebastián, y A24 prepara su salto internacional\" (obra cultural principal, lugar cultural y organización distribuidora), \"primero fue el premio en el Festival de San Sebastián\" (evento cultural), \"luego las comparaciones con 'Alcarràs'\" (obra cultural comparada), \"La película de Iker Valcárcel, rodada entre Getaria y Zumaia, se estrenará en salas el 17 de abril de 2026\" (persona asociada a la película, lugares de rodaje y fecha de estreno), \"con Marta Etura como madre [...] y Eneko Sagardoy interpretando al hermano\" (personas del reparto), \"Netflix tanteó sus derechos\" (organización/plataforma) y \"la distribuidora Bruma Films\" (organización distribuidora).",
     "final_value": "Como el recorte menciona una pelicula principal, otra pelicula comparada, organizaciones, lugares, personas, una fecha completa y un festival, la lista debe conservar esas menciones verbatim. \"Festival de San Sebastián\" se etiqueta como EVENT, mientras \"San Sebastián\" aislado en el encabezado funciona como LOCATION."
   }
 }

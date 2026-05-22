@@ -15,7 +15,7 @@ Los tasks `legal_contracts` son extracciones L5 de acuerdos jurídicos: el model
 | Campo | Opinión sobre dualidad |
 | --- | --- |
 | `contract_title` | Requerido, `string`, no nullable. Dualidad entre título directo en encabezado y título formal rodeado de nombres abreviados o subtítulos internos. |
-| `contract_type` | Enum requerido. Debe mapear a uno de estos valores: `PRESTACIÓN DE SERVICIOS`, `COMPRAVENTA`, `LABORAL`, `CONFIDENCIALIDAD`, `ACUERDO MARCO` u `OTRO`. Conviene alternar tipos frecuentes con tipos semánticos más específicos, como compraventa frente a confidencialidad. |
+| `contract_type` | Enum requerido. Debe mapear a uno de estos valores: `PRESTACIÓN DE SERVICIOS`, `COMPRAVENTA`, `LABORAL`, `CONFIDENCIALIDAD`, `ACUERDO MARCO` u `OTRO`. Conviene alternar tipos frecuentes y no usar la presencia de una cláusula de reserva como sustituto del objeto principal del contrato. |
 | `effective_date` | `string` vs `null`. Puede ser fecha normalizada `YYYY-MM-DD` si hay fecha completa de entrada en vigor, o verbatim si la vigencia se expresa de forma relativa. Debe contrastarse con fechas de firma, entrega o anexos que no sean vigencia. |
 | `parties` | Array requerido. Dualidad entre dos partes limpias y partes con representantes, nombres comerciales, filiales o roles que no deben desplazar a las entidades firmantes. |
 | `total_clauses` | Entero requerido. Debe contar cláusulas numeradas o nombradas, no párrafos introductorios, comparecencias, anexos ni apartados sin rango de cláusula. |
@@ -42,13 +42,13 @@ Los tasks `legal_contracts` son extracciones L5 de acuerdos jurídicos: el model
 
 | Campo | Ejemplo 1 | Ejemplo 2 |
 | --- | --- | --- |
-| `contract_title` | Título directo: contrato de compraventa de maquinaria agrícola. | Título directo: acuerdo de confidencialidad para prototipo sanitario. |
-| `contract_type` | `COMPRAVENTA`, por transmisión de un bien concreto a cambio de precio. | `CONFIDENCIALIDAD`, por deber principal de reserva sobre documentación técnica. |
+| `contract_title` | Título directo: contrato de compraventa de maquinaria agrícola. | Título directo: contrato de prestación de servicios para evaluación de prototipo sanitario. |
+| `contract_type` | `COMPRAVENTA`, por transmisión de un bien concreto a cambio de precio. | `PRESTACIÓN DE SERVICIOS`, por soporte técnico y análisis de registros, aunque incluya deber de reserva. |
 | `effective_date` | Valor no null normalizado: entrada en vigor el 2 de mayo de 2026. | `null`: hay entrega de materiales y duración de obligaciones, pero no fecha de entrada en vigor. |
-| `parties` | Dos sociedades firmantes, con representantes como ruido menor. | Dos entidades firmantes, una reveladora y otra receptora. |
+| `parties` | Dos sociedades firmantes, con representantes como ruido menor. | Dos entidades firmantes, prestadora y cliente, con cargos como ruido menor. |
 | `total_clauses` | Cuatro cláusulas numeradas. | Tres cláusulas numeradas. |
 | `governing_law_jurisdiction` | Valor no null: leyes españolas y tribunales de Barcelona. | `null`: no se pacta ley aplicable ni fuero. |
-| `has_nda_clause` | `false`: el contrato regula entrega, precio, garantía y responsabilidad, sin reserva de información. | `true`: cláusula expresa de confidencialidad y no divulgación. |
+| `has_nda_clause` | `false`: el contrato regula entrega, precio, garantía y responsabilidad, sin reserva de información. | `true`: cláusula expresa de confidencialidad y no divulgación dentro de un contrato que no es de tipo `CONFIDENCIALIDAD`. |
 | `has_liability_limitation` | `true`: cláusula con límite máximo de responsabilidad. | `false`: hay deberes y devolución de soportes, pero no límite o exención de responsabilidad. |
 | `monetary_amount` | `125000`, precio total del contrato. | `null`: no se pacta precio total. |
 
@@ -132,7 +132,7 @@ Extrae el resumen del contrato o acto legislativo
   },
   "parties": {
     "field_asks": "los nombres de las personas u organizaciones que celebran el acuerdo.",
-    "relevant_fragments": "\"comparecen Talleres Montseny S.L., representada por Clara Vidal, como parte vendedora, y Cooperativa Vall del Segre, representada por Joan Riera, como parte compradora\".",
+    "relevant_fragments": "\"De una parte, Talleres Montseny S.L., representada por Clara Vidal, como parte vendedora\" y \"De otra parte, Cooperativa Vall del Segre, representada por Joan Riera, como parte compradora\".",
     "final_value": "Como el fragmento relevante presenta a las dos sociedades como partes y a Clara Vidal y Joan Riera como representantes, la lista debe incluir \"Talleres Montseny S.L.\" y \"Cooperativa Vall del Segre\"."
   },
   "total_clauses": {
@@ -168,23 +168,23 @@ Extrae el resumen del contrato o acto legislativo
 `input_text`:
 
 ```text
-# ACUERDO DE CONFIDENCIALIDAD PARA PROTOTIPO AURORA
+# CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVALUACIÓN DEL PROTOTIPO AURORA
 
 Documento preparado tras la reunión de validación del prototipo Aurora en una sala segura del hospital.
 
 **COMPARECEN**
 
-De una parte, Atlas BioData S.L., titular de varios informes preliminares sobre el prototipo Aurora, actuando como parte reveladora y representada por su directora técnica.
+De una parte, Atlas BioData S.L., desarrolladora del prototipo Aurora, actuando como prestadora del servicio y representada por su directora técnica.
 
-De otra parte, Clínica Norte S.A., interesada en evaluar la viabilidad de una prueba piloto con pacientes simulados, actuando como parte receptora.
+De otra parte, Clínica Norte S.A., interesada en evaluar la viabilidad de una prueba piloto con pacientes simulados, actuando como cliente y representada por su responsable de innovación.
 
 **CLÁUSULAS**
 
 **PRIMERA - Objeto:**
-La parte reveladora facilitará memorias técnicas, esquemas de sensores y resultados agregados de laboratorio para que la receptora valore una colaboración futura.
+Atlas BioData S.L. prestará soporte técnico, preparación de entorno de pruebas y análisis de registros simulados para que Clínica Norte S.A. valore una colaboración futura.
 
 **SEGUNDA - Confidencialidad y no divulgación:**
-La receptora tratará toda la información recibida como confidencial, no la comunicará a terceros y limitará su acceso al equipo médico autorizado para la revisión del prototipo.
+Clínica Norte S.A. tratará toda la información recibida como confidencial, no la comunicará a terceros y limitará su acceso al equipo médico autorizado para la revisión del prototipo.
 
 **TERCERA - Conservación y devolución:**
 Las obligaciones de reserva se mantendrán durante dos años desde la entrega de cada lote documental. Los soportes físicos deberán devolverse o destruirse cuando finalice la evaluación interna.
@@ -200,8 +200,8 @@ Extrae el resumen del contrato o acto legislativo
 
 ```json
 {
-  "contract_title": "ACUERDO DE CONFIDENCIALIDAD PARA PROTOTIPO AURORA",
-  "contract_type": "CONFIDENCIALIDAD",
+  "contract_title": "CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVALUACIÓN DEL PROTOTIPO AURORA",
+  "contract_type": "PRESTACIÓN DE SERVICIOS",
   "effective_date": null,
   "parties": [
     "Atlas BioData S.L.",
@@ -221,13 +221,13 @@ Extrae el resumen del contrato o acto legislativo
 {
   "contract_title": {
     "field_asks": "el título formal o encabezado del contrato.",
-    "relevant_fragments": "\"# ACUERDO DE CONFIDENCIALIDAD PARA PROTOTIPO AURORA\".",
-    "final_value": "Como el fragmento relevante es el encabezado formal, el título debe ser \"ACUERDO DE CONFIDENCIALIDAD PARA PROTOTIPO AURORA\"."
+    "relevant_fragments": "\"# CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVALUACIÓN DEL PROTOTIPO AURORA\".",
+    "final_value": "Como el fragmento relevante es el encabezado formal, el título debe ser \"CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVALUACIÓN DEL PROTOTIPO AURORA\"."
   },
   "contract_type": {
     "field_asks": "la categoría legal amplia del acuerdo, mapeada a uno de estos valores: PRESTACIÓN DE SERVICIOS, COMPRAVENTA, LABORAL, CONFIDENCIALIDAD, ACUERDO MARCO u OTRO.",
-    "relevant_fragments": "\"ACUERDO DE CONFIDENCIALIDAD\" y \"Confidencialidad y no divulgación\".",
-    "final_value": "Como los fragmentos relevantes sitúan la reserva de información como objeto central del acuerdo, el valor del enum debe ser \"CONFIDENCIALIDAD\"."
+    "relevant_fragments": "\"CONTRATO DE PRESTACIÓN DE SERVICIOS\" y \"Atlas BioData S.L. prestará soporte técnico, preparación de entorno de pruebas y análisis de registros simulados\".",
+    "final_value": "Como los fragmentos relevantes sitúan el soporte técnico y análisis como objeto principal del contrato, el valor del enum debe ser \"PRESTACIÓN DE SERVICIOS\"; la cláusula de confidencialidad no desplaza el tipo contractual."
   },
   "effective_date": {
     "field_asks": "la fecha en que el contrato entra en vigor, en formato YYYY-MM-DD si es normalizable o verbatim si solo aparece de forma relativa.",
@@ -236,7 +236,7 @@ Extrae el resumen del contrato o acto legislativo
   },
   "parties": {
     "field_asks": "los nombres de las personas u organizaciones que celebran el acuerdo.",
-    "relevant_fragments": "\"Atlas BioData S.L. [...] actúa como parte reveladora\" y \"Clínica Norte S.A. [...] actúa como parte receptora\".",
+    "relevant_fragments": "\"Atlas BioData S.L. [...] actuando como prestadora del servicio\" y \"Clínica Norte S.A. [...] actuando como cliente\".",
     "final_value": "Como los fragmentos relevantes nombran a las dos entidades que celebran el acuerdo, la lista debe incluir \"Atlas BioData S.L.\" y \"Clínica Norte S.A.\"."
   },
   "total_clauses": {
@@ -251,12 +251,12 @@ Extrae el resumen del contrato o acto legislativo
   },
   "has_nda_clause": {
     "field_asks": "true si el texto menciona confidencialidad, reserva de información o no divulgación; false si no lo hace.",
-    "relevant_fragments": "\"La receptora tratará toda la información recibida como confidencial, no la comunicará a terceros\".",
-    "final_value": "Como el fragmento relevante establece confidencialidad y no divulgación, el valor debe ser true."
+    "relevant_fragments": "\"Clínica Norte S.A. tratará toda la información recibida como confidencial, no la comunicará a terceros\".",
+    "final_value": "Como el fragmento relevante establece confidencialidad y no divulgación dentro del contrato de servicios, el valor debe ser true."
   },
   "has_liability_limitation": {
     "field_asks": "true si el texto limita, excluye o topa responsabilidad; false si no hay limitación explícita.",
-    "relevant_fragments": "\"La receptora tratará toda la información recibida como confidencial\" y \"Los soportes físicos deberán devolverse o destruirse\".",
+    "relevant_fragments": "\"Clínica Norte S.A. tratará toda la información recibida como confidencial\" y \"Los soportes físicos deberán devolverse o destruirse\".",
     "final_value": "Los fragmentos relevantes imponen deberes de reserva y devolución, pero no limitan ni excluyen responsabilidad; el valor debe ser false."
   },
   "monetary_amount": {

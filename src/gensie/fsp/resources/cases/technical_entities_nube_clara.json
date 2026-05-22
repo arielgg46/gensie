@@ -1,0 +1,138 @@
+{
+  "id": "technical_entities_nube_clara",
+  "domain": "technical_entities",
+  "language": "es",
+  "tags": [
+    "complex_object_array",
+    "entity_array"
+  ],
+  "source_text": "# Nube Clara 2.0\n\nNube Clara 2.0 es una biblioteca de sincronización de archivos creada por Inés Lobo y mantenida por la Fundación BitÁgora. En 2024 reemplazó su cola interna por PostgreSQL y añadió un operador para Kubernetes. Durante la OpenInfra Summit celebrada en Madrid el 12 de junio de 2025, la ponente presentó Río, un módulo compatible con S3 y WebDAV para copias incrementales. La nota también menciona GitLab como repositorio espejo, pero aclara que el paquete principal se publica con firma Ed25519.",
+  "instruction": "Extrae las entidades nombradas del texto técnico y clasifícalas por tipo.",
+  "schema": {
+    "$defs": {
+      "Entity": {
+        "additionalProperties": false,
+        "description": "A single named entity mention.",
+        "properties": {
+          "text": {
+            "description": "The verbatim text mention from the source",
+            "title": "Text",
+            "type": "string"
+          },
+          "label": {
+            "$ref": "#/$defs/EntityType",
+            "description": "The category of the entity"
+          }
+        },
+        "required": [
+          "text",
+          "label"
+        ],
+        "title": "Entity",
+        "type": "object"
+      },
+      "EntityType": {
+        "enum": [
+          "PERSON",
+          "ORGANIZATION",
+          "LOCATION",
+          "DATE",
+          "EVENT",
+          "MISCELLANEOUS"
+        ],
+        "title": "EntityType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts named entity mentions categorized by type in a single list.\nComplexity: L5 (Hierarchical Grouping).",
+    "properties": {
+      "entities": {
+        "description": "List of all recognized named entities",
+        "items": {
+          "$ref": "#/$defs/Entity"
+        },
+        "title": "Entities",
+        "type": "array"
+      }
+    },
+    "title": "NamedEntities",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "entities": "Lista de entidades nombradas presentes en el texto técnico. Extrae menciones concretas y propias; no incluyas términos genéricos como “biblioteca”, “formato”, “repositorio”, “sistema operativo” o “motor” salvo que formen parte de un nombre propio.",
+    "entities[].text": "Mención verbatim tal como aparece en el texto. Conserva mayúsculas, tildes, números, versiones, guiones y siglas; no traduzcas, normalices, expandas ni fusiones menciones distintas como nombre completo y alias si aparecen separadas.",
+    "entities[].label": "Etiqueta de la entidad; enum completo: `PERSON`, `ORGANIZATION`, `LOCATION`, `DATE`, `EVENT` o `MISCELLANEOUS`. Personas individuales son `PERSON`; proyectos, fundaciones y empresas son `ORGANIZATION`; ciudades o lugares son `LOCATION`; fechas explícitas son `DATE`; conferencias o eventos nombrados son `EVENT`; software, protocolos, formatos, motores, módulos, versiones y algoritmos suelen ser `MISCELLANEOUS`."
+  },
+  "field_examples": {
+    "entities": {
+      "value": [
+        {
+          "text": "Nube Clara 2.0",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Inés Lobo",
+          "label": "PERSON"
+        },
+        {
+          "text": "Fundación BitÁgora",
+          "label": "ORGANIZATION"
+        },
+        {
+          "text": "2024",
+          "label": "DATE"
+        },
+        {
+          "text": "PostgreSQL",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Kubernetes",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "OpenInfra Summit",
+          "label": "EVENT"
+        },
+        {
+          "text": "Madrid",
+          "label": "LOCATION"
+        },
+        {
+          "text": "12 de junio de 2025",
+          "label": "DATE"
+        },
+        {
+          "text": "Río",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "S3",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "WebDAV",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "GitLab",
+          "label": "ORGANIZATION"
+        },
+        {
+          "text": "Ed25519",
+          "label": "MISCELLANEOUS"
+        }
+      ],
+      "tags": [
+        "complex_object_array",
+        "entity_array"
+      ],
+      "reasoning": {
+        "field_asks": "lista de menciones de entidades nombradas con su etiqueta, usando exactamente uno de estos valores para cada label: PERSON, ORGANIZATION, LOCATION, DATE, EVENT o MISCELLANEOUS.",
+        "relevant_fragments": "\"Nube Clara 2.0 es una biblioteca de sincronización [...] creada por Inés Lobo y mantenida por la Fundación BitÁgora\" (software creado por persona y mantenido por organización), \"En 2024 reemplazó su cola interna por PostgreSQL y añadió un operador para Kubernetes\" (fecha asociada a cambio técnico con base de datos y plataforma), \"Durante la OpenInfra Summit celebrada en Madrid el 12 de junio de 2025\" (evento celebrado en lugar y fecha), \"presentó Río, un módulo compatible con S3 y WebDAV\" (módulo técnico compatible con protocolos), \"GitLab como repositorio espejo\" (plataforma/organización nombrada como repositorio) y \"Ed25519\" (identificador técnico).",
+        "final_value": "Como los fragmentos relevantes nombran una persona, una organización mantenedora, dos fechas, un evento, una ubicación y varios productos, protocolos o identificadores técnicos, la lista debe conservar esas menciones verbatim y etiquetarlas con el enum correspondiente."
+      }
+    }
+  }
+}

@@ -3,12 +3,14 @@
   "domain": "technical_software",
   "language": "es",
   "tags": [
-    "technical_software",
+    "bounded_score",
+    "date_normalization",
+    "direct_string",
     "enum_classification",
     "grounded_null",
-    "simple_array",
-    "date_normalization",
-    "checksum_extraction"
+    "nullable",
+    "sentinel_pattern",
+    "simple_array"
   ],
   "source_text": "# Lince Editor\n\nLince Editor es un editor de código y entorno ligero de desarrollo creado por la comunidad Lince Tools. El proyecto nació en 2017 como complemento para revisar scripts y las primeras compilaciones públicas circularon al año siguiente en el repositorio de extensiones.\n\nEs software libre distribuido bajo la licencia MPL 2.0 y cuenta con versiones para GNU/Linux, macOS y Microsoft Windows. El sitio de descargas conserva firmas PGP de paquetes antiguos y el identificador de commit 8f4c9e2 de una compilación nightly.\n\n== Características ==\nEntre sus características se citan resaltado de sintaxis, terminal integrada, búsqueda por expresiones regulares y sincronización de espacios de trabajo mediante archivos de configuración.\n\n== Historia ==\nLa página histórica atribuye la idea original a Mateo Salvat, que revisa cambios mayores, y señala que la coordinación cotidiana corresponde al equipo de Lince Tools.",
   "instruction": "Analiza la descripción del software para extraer detalles técnicos, desarrolladores y licencias.",
@@ -116,6 +118,17 @@
     "title": "SoftwareDescription",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "official_name": "Nombre oficial del software. Usa el encabezado si ya es el nombre formal, o el nombre completo del cuerpo cuando el encabezado sea una abreviatura o alias; no mezcles siglas históricas con el nombre actual.",
+    "app_category": "Categoría funcional principal; enum completo: `ARCHIVER`, `WEB_BROWSER`, `OFFICE_SUITE`, `IDE_EDITOR`, `GRAPHICS_EDITOR`, `MEDIA_PLAYER`, `SYSTEM_TOOL` u `OTHER`. Decide por la función descrita (archivador, navegador, suite ofimática, editor/IDE, editor gráfico, reproductor, herramienta de sistema) y usa `OTHER` solo si no encaja claramente.",
+    "license": "Licencia específica mencionada, preferiblemente literal (`GPLv2.1+`, `GNU LGPL`, `MPL 2.0`). No inventes licencia desde “software libre” si no aparece una formulación suficiente, y no uses licencias de plugins, formatos o proyectos relacionados como licencia de la aplicación principal.",
+    "platforms": "Sistemas operativos o plataformas soportadas nombradas explícitamente. No pobles la lista con “instaladores”, “paquetes”, repositorios, dispositivos genéricos o historia de desarrollo si no se nombran sistemas como GNU/Linux, macOS, Windows, BSD, iOS, Android, etc.",
+    "primary_developer": "Persona, comunidad, proyecto u organización que desarrolla el software. Diferencia creador histórico, coordinador, organización sin ánimo de lucro y empresa; elige quien el texto presenta como responsable principal del desarrollo.",
+    "features": "Capacidades técnicas mencionadas, en frases breves y fieles al texto. Extrae funciones como reproducción, streaming, compresión, edición, formatos o herramientas; no incluyas historia, licencia, plataformas, checksum ni cargos corporativos como features.",
+    "exact_release_date": "Fecha exacta del primer lanzamiento en `DD/MM/YYYY`. Devuelve `null` SI SOLO HAY año, versión posterior, fecha de liberación de código distinta del primer lanzamiento o referencias relativas sin día/mes/año completos.",
+    "latest_stable_version_sha256": "SHA256 del instalador estable más reciente, solo si el texto lo dice explícitamente. Devuelve `null` para hashes de commit, firmas PGP, checksums de nightly/beta, identificadores cortos o valores sin relación con el instalador estable.",
+    "current_ceo_name": "Nombre del CEO actual de la organización desarrolladora, solo si se afirma explícitamente; CEO significa director ejecutivo o máxima persona ejecutiva de una empresa u organización. Fundador, creador, mantenedor, líder del proyecto, presidente de fundación o coordinador técnico no equivalen a CEO actual salvo que el texto diga claramente que esa persona ocupa ese cargo."
+  },
   "field_examples": {
     "official_name": {
       "value": "Lince Editor",
@@ -131,6 +144,7 @@
     "app_category": {
       "value": "IDE_EDITOR",
       "tags": [
+        "direct_string",
         "enum_classification"
       ],
       "reasoning": {
@@ -157,6 +171,7 @@
         "Microsoft Windows"
       ],
       "tags": [
+        "bounded_score",
         "simple_array"
       ],
       "reasoning": {
@@ -188,7 +203,7 @@
       ],
       "reasoning": {
         "field_asks": "capacidades técnicas o funciones específicas mencionadas.",
-        "relevant_fragments": "\"== Características ==\" y \"Entre sus características se citan resaltado de sintaxis, terminal integrada, búsqueda por expresiones regulares y sincronización de espacios de trabajo mediante archivos de configuración\".",
+        "relevant_fragments": "\"== Características ==\nEntre sus características se citan resaltado de sintaxis, terminal integrada, búsqueda por expresiones regulares y sincronización de espacios de trabajo mediante archivos de configuración\".",
         "final_value": "Como el fragmento relevante introduce una sección de características y enumera capacidades técnicas concretas, la lista debe conservar los cuatro rasgos verbatim: \"resaltado de sintaxis\", \"terminal integrada\", \"búsqueda por expresiones regulares\" y \"sincronización de espacios de trabajo mediante archivos de configuración\"."
       }
     },
@@ -196,7 +211,9 @@
       "value": null,
       "tags": [
         "date_normalization",
-        "grounded_null"
+        "direct_string",
+        "grounded_null",
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "la fecha exacta del primer lanzamiento en formato DD/MM/YYYY, o null si solo se menciona el año.",
@@ -207,8 +224,10 @@
     "latest_stable_version_sha256": {
       "value": null,
       "tags": [
-        "checksum_extraction",
-        "grounded_null"
+        "direct_string",
+        "grounded_null",
+        "nullable",
+        "sentinel_pattern"
       ],
       "reasoning": {
         "field_asks": "el checksum SHA256 del instalador estable más reciente, o null si no está explícitamente en el texto.",
@@ -220,7 +239,8 @@
       "value": null,
       "tags": [
         "direct_string",
-        "grounded_null"
+        "grounded_null",
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "el nombre del CEO actual de la organización desarrolladora, o null si no está explícitamente en el texto.",

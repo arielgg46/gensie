@@ -1,0 +1,244 @@
+{
+  "id": "medical_diseases_faringitis_estreptococica",
+  "domain": "medical_diseases",
+  "language": "es",
+  "tags": [
+    "boolean_inference",
+    "complex_object_array",
+    "direct_string",
+    "enum_classification",
+    "nullable",
+    "simple_array",
+    "summary_string"
+  ],
+  "source_text": "# Faringitis estreptocócica\n\nSource: https://es.wikipedia.org/wiki/Faringitis_estreptocócica\n\nLa faringitis estreptocócica es una infección aguda de la faringe causada con mayor frecuencia por Streptococcus pyogenes del grupo A. Afecta sobre todo a niños en edad escolar y aparece con más frecuencia en los meses fríos.\n\nEtiopatogenia\nEl microorganismo se transmite por secreciones respiratorias y coloniza la mucosa faríngea. La inflamación local explica el dolor al tragar, mientras que la respuesta sistémica se manifiesta con fiebre y malestar.\n\nSíntomas\nEl inicio suele ser brusco, con dolor de garganta, fiebre, amígdalas con exudado y ganglios cervicales dolorosos. La tos y la rinorrea orientan más a cuadros virales, aunque pueden coexistir en niños pequeños.\n\nComplicaciones\nLa dificultad para tragar saliva y la desviación de la úvula se describen como signos de alarma de formas graves por posible absceso periamigdalino.\n\nDiagnóstico\nEl diagnóstico se apoya en la exploración clínica y se confirma con test rápido de antígeno o cultivo faríngeo cuando la sospecha es alta.",
+  "instruction": "Extrae el perfil de la enfermedad.",
+  "schema": {
+    "$defs": {
+      "EtiologyType": {
+        "enum": [
+          "INFECTIOUS",
+          "GENETIC",
+          "AUTOIMMUNE",
+          "DEGENERATIVE",
+          "UNKNOWN",
+          "OTHER"
+        ],
+        "title": "EtiologyType",
+        "type": "string"
+      },
+      "Symptom": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "description": "Verbatim name of the symptom",
+            "title": "Name",
+            "type": "string"
+          },
+          "severity_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Inferred severity if mentioned (Mild, Moderate, Severe)",
+            "title": "Severity Level"
+          },
+          "is_primary": {
+            "default": true,
+            "description": "True if this is a defining symptom of the disease",
+            "title": "Is Primary",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "Symptom",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Hierarchical extraction of pathology details from medical summaries.\nComplexity: L5 (Hierarchical Grouping).",
+    "properties": {
+      "pathology_name": {
+        "description": "The medical name of the disease or disorder",
+        "title": "Pathology Name",
+        "type": "string"
+      },
+      "etiology_type": {
+        "$ref": "#/$defs/EtiologyType",
+        "description": "The primary origin or cause of the disease"
+      },
+      "etiology_description": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "A brief summary of how the disease is caused",
+        "title": "Etiology Description"
+      },
+      "symptoms": {
+        "description": "Structured list of reported symptoms",
+        "items": {
+          "$ref": "#/$defs/Symptom"
+        },
+        "title": "Symptoms",
+        "type": "array"
+      },
+      "diagnosis_methods": {
+        "description": "Clinical tests or methods mentioned for identifying the pathology",
+        "items": {
+          "type": "string"
+        },
+        "title": "Diagnosis Methods",
+        "type": "array"
+      },
+      "is_chronic": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "True if the text explicitly defines the disease as chronic or long-term",
+        "title": "Is Chronic"
+      }
+    },
+    "required": [
+      "pathology_name",
+      "etiology_type"
+    ],
+    "title": "DiseaseProfile",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "pathology_name": "Nombre médico principal de la patología. Usa el encabezado o el sinónimo formal de la primera frase; no elijas categorías amplias, ejemplos secundarios ni complicaciones como si fueran la enfermedad principal.",
+    "etiology_type": "Tipo etiológico principal; enum completo: `INFECTIOUS`, `GENETIC`, `AUTOIMMUNE`, `DEGENERATIVE`, `UNKNOWN` u `OTHER`. Usa `INFECTIOUS` para infecciones, `GENETIC` para origen hereditario dominante, `AUTOIMMUNE` para autoinmunidad explícita, `DEGENERATIVE` para deterioro progresivo, `UNKNOWN` cuando no haya causa demostrada y `OTHER` para reacciones, cánceres, tóxicos o mecanismos no cubiertos.",
+    "etiology_description": "Resumen breve de la causa si el texto la explica. Devuelve `null` si solo hay hipótesis, factores asociados, mecanismos no concluyentes o epidemiología sin causa directa.",
+    "symptoms": "Manifestaciones clínicas mencionadas. Separa síntomas definitorios de complicaciones o signos tardíos; no incluyas tratamientos, factores de riesgo, pruebas diagnósticas ni consecuencias epidemiológicas como síntomas.",
+    "symptoms[].severity_level": "Severidad textual cuando esté explícita o sea muy clara; valores esperados: `Mild`, `Moderate` o `Severe`, y `null` si no se puede justificar. No conviertas cualquier síntoma molesto en severo salvo que el texto hable de alarma, gravedad, incapacidad o riesgo vital.",
+    "symptoms[].is_primary": "`true` para síntomas centrales del cuadro; `false` para complicaciones, manifestaciones secundarias, signos de alarma, afectación por extensión o síntomas que solo aparecen en algunos casos.",
+    "diagnosis_methods": "Pruebas, escalas o métodos clínicos concretos usados para diagnosticar. Incluye radiografía, TAC, broncoscopía, test rápido, cultivo, escala clínica, etc.; no incluyas secciones llamadas “Diagnóstico” si no nombran un método.",
+    "is_chronic": "`true` si el texto define la enfermedad como crónica, persistente o de larga duración; `false` si la define como aguda, autolimitada o de pocos días; `null` si no caracteriza duración."
+  },
+  "field_examples": {
+    "pathology_name": {
+      "value": "Faringitis estreptocócica",
+      "tags": [
+        "direct_string"
+      ],
+      "reasoning": {
+        "field_asks": "el nombre médico de la enfermedad o trastorno.",
+        "relevant_fragments": "\"# Faringitis estreptocócica\".",
+        "final_value": "Como el fragmento relevante es el encabezado del perfil, el nombre debe ser \"Faringitis estreptocócica\"."
+      }
+    },
+    "etiology_type": {
+      "value": "INFECTIOUS",
+      "tags": [
+        "direct_string",
+        "enum_classification"
+      ],
+      "reasoning": {
+        "field_asks": "el origen principal de la enfermedad, mapeado a uno de estos valores: INFECTIOUS, GENETIC, AUTOIMMUNE, DEGENERATIVE, UNKNOWN u OTHER.",
+        "relevant_fragments": "\"es una infección aguda\" y \"causada con mayor frecuencia por Streptococcus pyogenes\".",
+        "final_value": "Como los fragmentos relevantes describen una infección bacteriana, el valor del enum debe ser \"INFECTIOUS\"."
+      }
+    },
+    "etiology_description": {
+      "value": "Infección aguda de la faringe causada con mayor frecuencia por Streptococcus pyogenes del grupo A.",
+      "tags": [
+        "direct_string",
+        "nullable",
+        "summary_string"
+      ],
+      "reasoning": {
+        "field_asks": "resumen breve de cómo se causa la enfermedad, o null si no hay causa explicada.",
+        "relevant_fragments": "\"infección aguda de la faringe causada con mayor frecuencia por Streptococcus pyogenes del grupo A\".",
+        "final_value": "Como el fragmento relevante explica la causa, la descripción debe resumir esa infección por Streptococcus pyogenes."
+      }
+    },
+    "symptoms": {
+      "value": [
+        {
+          "name": "dolor de garganta",
+          "severity_level": null,
+          "is_primary": true
+        },
+        {
+          "name": "fiebre",
+          "severity_level": null,
+          "is_primary": true
+        },
+        {
+          "name": "amígdalas con exudado",
+          "severity_level": null,
+          "is_primary": true
+        },
+        {
+          "name": "ganglios cervicales dolorosos",
+          "severity_level": null,
+          "is_primary": true
+        },
+        {
+          "name": "dificultad para tragar saliva",
+          "severity_level": "Severe",
+          "is_primary": false
+        },
+        {
+          "name": "desviación de la úvula",
+          "severity_level": "Severe",
+          "is_primary": false
+        }
+      ],
+      "tags": [
+        "complex_object_array"
+      ],
+      "reasoning": {
+        "field_asks": "lista estructurada de síntomas, con severidad si se menciona o se infiere claramente como Mild, Moderate o Severe, y marca de si son definitorios o secundarios.",
+        "relevant_fragments": "\"El inicio suele ser brusco, con dolor de garganta, fiebre, amígdalas con exudado y ganglios cervicales dolorosos\", \"La tos y la rinorrea orientan más a cuadros virales, aunque pueden coexistir en niños pequeños\" y \"La dificultad para tragar saliva y la desviación de la úvula se describen como signos de alarma de formas graves\".",
+        "final_value": "Como el primer fragmento enumera manifestaciones habituales de la faringitis estreptocócica, esos síntomas son primarios y sin severidad explícita. Tos y rinorrea no se incluyen porque el texto las presenta como orientación hacia cuadros virales, aunque puedan coexistir en niños pequeños. Dificultad para tragar saliva y desviación de la úvula se tratan como secundarios y Severe porque el tercer fragmento los sitúa como signos de alarma de formas graves."
+      }
+    },
+    "diagnosis_methods": {
+      "value": [
+        "exploración clínica",
+        "test rápido de antígeno",
+        "cultivo faríngeo"
+      ],
+      "tags": [
+        "simple_array"
+      ],
+      "reasoning": {
+        "field_asks": "pruebas clínicas o métodos mencionados para identificar la patología.",
+        "relevant_fragments": "\"El diagnóstico se apoya en la exploración clínica y se confirma con test rápido de antígeno o cultivo faríngeo\".",
+        "final_value": "Como los fragmentos relevantes nombran métodos diagnósticos, la lista debe incluir exploración clínica, test rápido de antígeno y cultivo faríngeo."
+      }
+    },
+    "is_chronic": {
+      "value": false,
+      "tags": [
+        "boolean_inference",
+        "nullable"
+      ],
+      "reasoning": {
+        "field_asks": "true si el texto define la enfermedad como crónica o de larga duración; false si la define como aguda; null si no se especifica.",
+        "relevant_fragments": "\"es una infección aguda de la faringe\".",
+        "final_value": "Como el fragmento relevante define el cuadro como agudo, el valor debe ser false."
+      }
+    }
+  }
+}

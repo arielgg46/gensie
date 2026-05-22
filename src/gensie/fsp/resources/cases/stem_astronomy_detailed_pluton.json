@@ -3,14 +3,14 @@
   "domain": "stem_astronomy_detailed",
   "language": "es",
   "tags": [
-    "stem_astronomy_detailed",
-    "numeric_normalization",
+    "date_normalization",
+    "direct_string",
     "enum_classification",
     "grounded_null",
-    "date_normalization",
-    "scientific_notation"
+    "nullable",
+    "numeric_normalization"
   ],
-  "source_text": "# Plutón (planeta enano)\n\nPlutón, designado (134340) Pluto, es un planeta enano del sistema solar ubicado en el cinturón de Kuiper, situado a continuación de la órbita de Neptuno. Fue descubierto por Clyde William Tombaugh el 18 de febrero de 1930 y recibió su nombre del dios mitológico romano Plutón.\n\nDurante décadas fue considerado el noveno planeta, hasta que la Unión Astronómica Internacional redefinió la categoría de planeta en 2006. Desde entonces se clasifica como planeta enano y plutoide. Su trayectoria es inclinada y excéntrica, y en la ficha orbital resumida se conserva una distancia media al Sol de 39.5 ua.\n\nLa descripción histórica comenta su recatalogación, la existencia de Caronte y otras lunas menores, y comparaciones generales de tamaño con la Luna y con otros objetos transneptunianos. También recuerda que las primeras imágenes eran puntos débiles en placas fotográficas, por lo que su naturaleza se discutió durante años antes de quedar integrada en el estudio del cinturón de Kuiper.\n\nLas campañas fotográficas de Lowell sirvieron de base para el hallazgo de Tombaugh. Más tarde, las observaciones de ocultaciones estelares y la visita de una sonda permitieron estudiar su atmósfera tenue y su geología helada, pero la reseña se centra sobre todo en su descubrimiento y reclasificación.",
+  "source_text": "# Plutón (planeta enano)\n\nPlutón, designado (134340) Pluto, es un planeta enano del sistema solar ubicado en el cinturón de Kuiper, situado a continuación de la órbita de Neptuno. Fue descubierto por Clyde William Tombaugh el 18 de febrero de 1930 y recibió su nombre del dios mitológico romano Plutón.\n\nDurante décadas fue considerado el noveno planeta, hasta que la Unión Astronómica Internacional redefinió la categoría de planeta en 2006. Desde entonces se clasifica como planeta enano y plutoide. Su trayectoria es inclinada y excéntrica, y en la ficha orbital resumida se conserva una distancia media al Sol de 39.5 ua.\n\nLa descripción histórica comenta su recatalogación, la existencia de Caronte y otras lunas menores, y comparaciones generales de tamaño con la Luna y con otros objetos transneptunianos. También recuerda que las primeras imágenes eran puntos débiles en placas fotográficas, por lo que su naturaleza se discutió durante años antes de quedar integrada en el estudio del cinturón de Kuiper.\n\nLas campañas fotográficas de Lowell sirvieron de base para el hallazgo de Tombaugh. Más tarde, las observaciones de ocultaciones estelares y la visita de una sonda permitieron estudiar su atmósfera tenue y su geología helada.",
   "instruction": "Extrae las propiedades físicas y orbitales del cuerpo celeste descrito en el texto, incluyendo su nombre oficial, clasificación, distancia orbital media y datos de descubrimiento.",
   "schema": {
     "$defs": {
@@ -139,6 +139,17 @@
     "title": "CelestialObjectProperties",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "official_name": "Nombre o designación científica principal del cuerpo celeste. Usa el encabezado si es el nombre formal; si el cuerpo tiene designación numerada o científica explícita, prefiérela sobre el nombre popular.",
+    "body_type": "Clasificación del cuerpo; enum completo: `ASTEROIDE`, `COMETA`, `PLANETA`, `LUNA`, `PLANETA ENANO`, `OBJETO INTERESTELAR` u `OTRO`. Decide por la clasificación astronómica explícita y no por historia antigua, reclasificaciones pasadas o comparaciones con otros cuerpos.",
+    "mass_kg": "Masa del cuerpo en kilogramos. Devuelve `null` si el texto solo da masas relativas, rankings, masa de muestras, masa de rocas, masa de otro cuerpo o comparaciones sin conversión directa a kg.",
+    "diameter_km": "Diámetro medio en kilómetros. No uses alturas de montañas, resolución telescópica, distancia orbital o comparaciones de tamaño si no dan un diámetro normalizable. Si en el texto se menciona valor concreto de radio, el diámetro es el doble.",
+    "eccentricity": "Excentricidad orbital como número decimal. Devuelve `null` ante descripciones como “órbita excéntrica”, “alta excentricidad”, “menor/mayor que...” o porcentajes vagos sin valor extraíble.",
+    "orbital_period_days": "Periodo de traslación alrededor del primario, en días terrestres. No lo confundas con periodo de rotación, duración del día, ciclos estacionales, fechas de misión ni periodos de nubes o atmósfera.",
+    "semi_major_axis_au": "Semieje mayor o distancia orbital media al Sol en unidades astronómicas. Extrae valores en `ua`/`UA`; no uses orden de distancia al Sol, perihelio, afelio o referencias geométricas si no son el semieje/distancia media pedida.",
+    "discovery_date": "Fecha de descubrimiento normalizada como `YYYY-MM-DD`. Devuelve `null` para cuerpos conocidos desde la antigüedad (sin fecha exacta), observaciones prehistóricas o menciones de misiones/estudios que no sean el descubrimiento.",
+    "discoverer": "Persona u observatorio presentado como descubridor. No uses astrónomos que midieron órbitas, formularon leyes, exploraron con sondas o predijeron posiciones salvo que el texto los identifique como descubridores."
+  },
   "field_examples": {
     "official_name": {
       "value": "(134340) Pluto",
@@ -154,6 +165,7 @@
     "body_type": {
       "value": "PLANETA ENANO",
       "tags": [
+        "direct_string",
         "enum_classification"
       ],
       "reasoning": {
@@ -165,9 +177,9 @@
     "mass_kg": {
       "value": null,
       "tags": [
-        "numeric_normalization",
-        "scientific_notation",
-        "grounded_null"
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "masa en kilogramos, o null si el texto no da masa en kg o una cantidad directamente normalizable a kg.",
@@ -178,8 +190,9 @@
     "diameter_km": {
       "value": null,
       "tags": [
-        "numeric_normalization",
-        "grounded_null"
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "diámetro medio en kilómetros, o null si no hay dato numérico suficiente.",
@@ -190,8 +203,9 @@
     "eccentricity": {
       "value": null,
       "tags": [
-        "numeric_normalization",
-        "grounded_null"
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "excentricidad orbital, o null si no hay valor numérico suficiente.",
@@ -202,8 +216,9 @@
     "orbital_period_days": {
       "value": null,
       "tags": [
-        "numeric_normalization",
-        "grounded_null"
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "tiempo que tarda el cuerpo en completar una órbita alrededor de su primario, expresado en días terrestres; no debe confundirse con periodo de rotación, duración del día, fecha de misión ni ciclo estacional.",
@@ -214,6 +229,7 @@
     "semi_major_axis_au": {
       "value": 39.5,
       "tags": [
+        "nullable",
         "numeric_normalization"
       ],
       "reasoning": {
@@ -225,7 +241,9 @@
     "discovery_date": {
       "value": "1930-02-18",
       "tags": [
-        "date_normalization"
+        "date_normalization",
+        "direct_string",
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "fecha de descubrimiento en formato YYYY-MM-DD, o null si no hay fecha completa de descubrimiento.",
@@ -236,7 +254,8 @@
     "discoverer": {
       "value": "Clyde William Tombaugh",
       "tags": [
-        "direct_string"
+        "direct_string",
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "persona u observatorio que descubrió el objeto, o null si no hay evidencia suficiente.",

@@ -44,11 +44,7 @@ Hay películas que anuncian el fin del mundo con meteoritos y ejércitos digital
 
 La película sigue a Clara, una operadora de radio que vuelve a casa justo cuando una tormenta deja sin electricidad a media ciudad. El guion no siempre evita el lugar común, pero la puesta en escena compensa muchas torpezas con sombras, silencios y buen uso del sonido. Vera Luján sostiene casi todo el peso emocional, mientras Daniel Arce aparece como vecino ambiguo.
 
-Lo más interesante es que, detrás de una premisa de serie B, la película habla de vigilancia, dependencia tecnológica y culpa colectiva sin convertir cada diálogo en una pancarta. En ese equilibrio se nota la mano de su responsable: la directora de 'La última noche de Vega' es Paula Medina, que ya había probado en cortos su gusto por los espacios cerrados y las amenazas apenas visibles. No todo está al mismo nivel, pero cuando confía en esa atmósfera respira con personalidad.
-
-## Un apagón con memoria
-
-El tramo final explica demasiado y pierde parte del misterio, aunque deja una imagen preciosa de la ciudad recuperando la luz sin que sus personajes recuperen la calma. No es una obra redonda, pero sí una pequeña sorpresa íntima.
+Lo más interesante es que, detrás de una premisa de serie B, la película habla de vigilancia, dependencia tecnológica y culpa colectiva sin convertir cada diálogo en una pancarta. En ese equilibrio se nota la mano de su responsable: la directora de 'La última noche de Vega' es Paula Medina, que ya había probado en cortos su gusto por los espacios cerrados y las amenazas apenas visibles. El tramo final explica demasiado, pero cuando confía en esa atmósfera respira con personalidad.
 ```
 
 `instruction`:
@@ -92,8 +88,6 @@ La miniserie arranca con el regreso de una cartógrafa a la isla donde creció, 
 
 La fuerza de 'Los mapas del invierno' está en su reparto. La miniserie está protagonizada por Ingrid Madsen, Jonas Eide y Clara Nygaard, que interpretan a tres hermanos incapaces de ponerse de acuerdo incluso cuando comparten la misma pérdida. Madsen aporta una dureza contenida, Eide funciona como contrapunto seco y Nygaard se lleva las escenas más delicadas.
 
-## Frío de verdad
-
 No todo encaja: algunos flashbacks repiten información y el desenlace quiere cerrar demasiadas heridas. Aun así, la serie encuentra voz propia en las conversaciones pequeñas, donde nadie dice la verdad pero todos entienden que ya no pueden seguir fingiendo.
 ```
 
@@ -125,4 +119,4 @@ No todo encaja: algunos flashbacks repiten información y el desenlace quiere ce
 
 ## Estructura de los input_text
 
-Los `input_text` revisados son articulos culturales en Markdown, sin linea `Source:`, con un encabezado largo de tono periodistico y opinativo, varios parrafos de resena y al menos un subtitulo `##` con juego verbal. El texto mezcla valoracion, comparaciones con otras obras, nombres de actores, directores, creadores o personajes, y una frase concreta que responde la pregunta. Los outputs curados conservan una clausula verbal completa como evidencia directa, por ejemplo "tras las camaras de..." o "Esta notable serie australiana esta protagonizada por...", en vez de reducir la respuesta a nombres aislados. Los nuevos ejemplos mantienen ese estilo de critica cultural, con distractores naturales y una longitud compacta cercana a 1500 caracteres, pero sin frases benchmark-aware que anuncien artificialmente la respuesta. Usualmente son largos, pero vamos a reducir un poco (a cerca de 1000), en los ejemplos para no saturar el contexto del task siguiente.
+Los `input_text` revisados son articulos culturales en Markdown, sin linea `Source:`, con un encabezado largo de tono periodistico y opinativo, varios parrafos de resena y al menos un subtitulo `##` con juego verbal. El texto mezcla valoracion, comparaciones con otras obras, nombres de actores, directores, creadores o personajes, y una frase concreta que responde la pregunta. Los outputs curados conservan una clausula verbal completa como evidencia directa, por ejemplo "tras las camaras de..." o "Esta notable serie australiana esta protagonizada por...", en vez de reducir la respuesta a nombres aislados. Los nuevos ejemplos mantienen ese estilo de critica cultural con distractores naturales, pero reducen un poco la longitud para no saturar el contexto del task siguiente.

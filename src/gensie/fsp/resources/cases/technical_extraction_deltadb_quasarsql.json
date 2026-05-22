@@ -1,0 +1,48 @@
+{
+  "id": "technical_extraction_deltadb_quasarsql",
+  "domain": "technical_extraction",
+  "language": "es",
+  "tags": [
+    "direct_string",
+    "long_verbatim_evidence",
+    "summary_string",
+    "verbatim_answer"
+  ],
+  "source_text": "# DeltaDB\n\nDeltaDB es una base de datos embebida para series temporales industriales. Sus primeras versiones dependían de AtlasQL para ejecutar filtros simples, pero ese componente quedó limitado al importador de migraciones. Desde la versión 2.7, DeltaDB usa el motor QuasarSQL para planificar consultas sobre índices temporales. La capa de almacenamiento sigue escrita en Rust y el conector OPC-UA se publica como paquete separado para fabricantes que necesitan integración con sensores antiguos.",
+  "instruction": "¿Qué motor usa DeltaDB para planificar consultas sobre índices temporales?",
+  "schema": {
+    "additionalProperties": false,
+    "description": "Extracts a single verbatim fragment that answers the provided instruction.\nComplexity: L1 (Literal Extraction).",
+    "properties": {
+      "answer": {
+        "description": "The verbatim fragment from the source text that answers the question",
+        "title": "Answer",
+        "type": "string"
+      }
+    },
+    "required": [
+      "answer"
+    ],
+    "title": "TextAnswer",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "answer": "Fragmento único y verbatim que responde exactamente la pregunta. Copia la oración o subfrase suficiente, sin resumir, normalizar, traducir ni añadir puntuación ausente; descarta frases cercanas con tecnologías, licencias, versiones o desarrolladores que no correspondan al aspecto preguntado."
+  },
+  "field_examples": {
+    "answer": {
+      "value": "Desde la versión 2.7, DeltaDB usa el motor QuasarSQL para planificar consultas sobre índices temporales.",
+      "tags": [
+        "direct_string",
+        "long_verbatim_evidence",
+        "summary_string",
+        "verbatim_answer"
+      ],
+      "reasoning": {
+        "field_asks": "un único fragmento verbatim del texto que responda directamente la pregunta.",
+        "relevant_fragments": "\"Sus primeras versiones dependían de AtlasQL para ejecutar filtros simples\" y \"Desde la versión 2.7, DeltaDB usa el motor QuasarSQL para planificar consultas sobre índices temporales.\"",
+        "final_value": "Como el fragmento relevante distingue el motor legado AtlasQL del motor usado para planificar consultas, la respuesta debe copiar la oración completa sobre QuasarSQL."
+      }
+    }
+  }
+}

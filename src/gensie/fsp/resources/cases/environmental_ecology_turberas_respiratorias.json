@@ -3,16 +3,18 @@
   "domain": "environmental_ecology",
   "language": "es",
   "tags": [
-    "news_article",
-    "summary_string",
-    "enum_classification",
-    "science_category",
-    "simple_array",
+    "date_normalization",
+    "direct_string",
     "empty_array",
+    "entity_array",
+    "enum_classification",
     "grounded_null",
-    "numeric_normalization"
+    "nullable",
+    "numeric_normalization",
+    "simple_array",
+    "summary_string"
   ],
-  "source_text": "# Científicos vinculan incendios de turberas con daños respiratorios duraderos\n\nLa investigadora Lara Méndez presentó este martes un estudio sobre incendios de turberas ante una red internacional de salud ambiental. El trabajo, coordinado con Rui Tanaka y difundido como preprint revisado por pares, comparó 3 400 muestras de humo y suelo tomadas en humedales boreales y tropicales durante los últimos cinco años. Los mapas agrupan casos de varias latitudes sin destacar un foco como origen de la investigación.\n\nEl equipo revisó partes médicos, sensores de partículas finas y registros de viento asociados a 620 focos de combustión lenta. Según la base consolidada, esos episodios estuvieron vinculados con 18 muertes y 146 personas heridas por inhalación de humo denso, sobre todo en turnos de extinción y traslados de emergencia. Méndez dijo que el peligro de las turberas no está en la llama visible, sino en columnas bajas que permanecen activas durante semanas.\n\nUn laboratorio universitario aportó modelos de dispersión para separar el humo de turberas del producido por incendios forestales de superficie. Los autores calculan que una hectárea de turba seca puede liberar hasta tres veces más carbono que un bosque joven, pero advierten que la cifra cambia con la profundidad del suelo y la humedad previa. El artículo recomienda restaurar canales de agua y prohibir drenajes agrícolas en zonas degradadas, medidas que serán discutidas en una reunión técnica de especialistas en restauración de humedales.",
+  "source_text": "# Científicos vinculan incendios de turberas con daños respiratorios duraderos\n\nLa investigadora Lara Méndez presentó este martes un estudio sobre incendios de turberas ante una red internacional de salud ambiental. El trabajo, coordinado con Rui Tanaka y difundido como preprint revisado por pares, comparó 3 400 muestras de humo y suelo tomadas en humedales boreales y tropicales durante los últimos cinco años.\n\nEl equipo revisó partes médicos, sensores de partículas finas y registros de viento asociados a 620 focos de combustión lenta. Según la base consolidada, esos episodios estuvieron vinculados con 18 muertes y 146 personas heridas por inhalación de humo denso, sobre todo en turnos de extinción y traslados de emergencia.\n\nUn laboratorio universitario aportó modelos de dispersión para separar el humo de turberas del producido por incendios forestales de superficie. Los autores calculan que una hectárea de turba seca puede liberar hasta tres veces más carbono que un bosque joven, pero advierten que la cifra cambia con la profundidad del suelo y la humedad previa.",
   "instruction": "Extrae la información estructurada de este artículo de noticias sobre medio ambiente y crisis climática, siguiendo el esquema proporcionado. Devuelve null para los campos que no se mencionan en el texto.",
   "schema": {
     "$defs": {
@@ -140,11 +142,24 @@
     "title": "NewsArticle",
     "type": "object"
   },
+  "enriched_field_descriptions": {
+    "headline": "Titular principal del artículo, normalmente el encabezado `#`. Cópialo sin el marcador Markdown y no incorpores subtítulos, primeras frases ni nombres secundarios que aparezcan después.",
+    "summary": "Resumen breve en 1-3 oraciones de los hechos principales. Debe sintetizar evento, causa, actores y consecuencias cuando estén en el texto, sin copiar todo ni inventar contexto ambiental no mencionado.",
+    "category": "Categoría temática del enum: `JUDICIAL`, `DISASTER`, `HEALTH`, `ENVIRONMENT`, `POLITICS`, `ECONOMY`, `SCIENCE`, `CULTURE`, `SPORTS` u `OTHER`. En este prefijo suele ser `ENVIRONMENT`, pero usa `SPORTS` para competencias, `SCIENCE` para estudios como foco central, y no fuerces ambiente si la noticia trata principalmente otro ámbito.",
+    "location": "Lugar principal del hecho noticioso. Extrae ciudad, región o país cuando el evento esté ubicado; devuelve `null` ante declaraciones globales o listados de lugares secundarios sin un sitio central.",
+    "date": "Fecha explícita del hecho o rango claramente fechado. Devuelve `null` para expresiones temporales poco concretas o relativas como `este jueves`, `en las próximas horas`, `recientemente`, `últimos días` o periodos históricos sin fecha absoluta suficiente.",
+    "key_people": "Nombres propios de personas individuales mencionadas, aunque aparezcan en párrafos laterales. No incluyas cargos, equipos, comunidades, animales ni grupos anónimos.",
+    "key_organizations": "Organizaciones, instituciones, empresas, gobiernos, medios o equipos con nombre propio. No confundas lugares, fenómenos naturales, especies o cargos genéricos. No incluyas instalaciones genéricas, equipos sin nombre propio, o países (a menos que se hable expresamente de su gobierno) como si fueran organizaciones.",
+    "casualties": "Número de muertes humanas mencionadas. Devuelve `null` si solo hay animales muertos, daños ecológicos, riesgos o cifras de especies.",
+    "injured": "Número de personas heridas o lesionadas. Devuelve `null` si el texto solo menciona enfermedades animales, exposición ambiental sin lesión cuantificada o medidas preventivas.",
+    "affected_count": "Número de personas afectadas, evacuadas, atendidas o sin servicios. No uses cifras ambientales, animales, hectáreas, kilómetros, muestras, focos o toneladas, cuando no haya conversión segura a cantidad de personas."
+  },
   "field_examples": {
     "headline": {
       "value": "Científicos vinculan incendios de turberas con daños respiratorios duraderos",
       "tags": [
-        "direct_string"
+        "direct_string",
+        "summary_string"
       ],
       "reasoning": {
         "field_asks": "el titular principal del artículo de noticias.",
@@ -153,21 +168,22 @@
       }
     },
     "summary": {
-      "value": "Lara Méndez presentó un estudio sobre incendios de turberas coordinado con Rui Tanaka y difundido como preprint revisado por pares. El equipo analizó 3 400 muestras, registros médicos, sensores de partículas y datos de viento asociados a 620 focos de combustión lenta, vinculando esos episodios con 18 muertes y 146 personas heridas por inhalación de humo. El artículo distingue el humo de turberas del de incendios forestales de superficie y recomienda restaurar canales de agua y limitar drenajes agrícolas en zonas degradadas.",
+      "value": "La investigadora Lara Méndez presentó un estudio sobre incendios de turberas coordinado con Rui Tanaka y difundido como preprint revisado por pares. El equipo analizó 3 400 muestras, registros médicos, sensores de partículas y datos de viento asociados a 620 focos de combustión lenta, vinculando esos episodios con 18 muertes y 146 personas heridas por inhalación de humo. El artículo distingue el humo de turberas del de incendios forestales de superficie y explica que una hectárea de turba seca puede liberar hasta tres veces más carbono que un bosque joven.",
       "tags": [
+        "direct_string",
         "summary_string"
       ],
       "reasoning": {
         "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
-        "relevant_fragments": "\"presentó este martes un estudio sobre incendios de turberas\", \"comparó 3 400 muestras de humo y suelo\", \"18 muertes y 146 personas heridas\" y \"recomienda restaurar canales de agua y prohibir drenajes agrícolas\".",
-        "final_value": "Como los fragmentos relevantes cubren autoría del estudio, método, consecuencias humanas y recomendaciones, el resumen debe sintetizar esos hechos en tres oraciones."
+        "relevant_fragments": "\"La investigadora Lara Méndez presentó este martes un estudio sobre incendios de turberas ante una red internacional de salud ambiental\", \"El trabajo, coordinado con Rui Tanaka y difundido como preprint revisado por pares, comparó 3 400 muestras de humo y suelo tomadas en humedales boreales y tropicales durante los últimos cinco años\", \"Según la base consolidada, esos episodios estuvieron vinculados con 18 muertes y 146 personas heridas por inhalación de humo denso\" y \"Los autores calculan que una hectárea de turba seca puede liberar hasta tres veces más carbono que un bosque joven\".",
+        "final_value": "Como los fragmentos relevantes cubren autoría del estudio, método, consecuencias humanas y hallazgos técnicos, el resumen debe sintetizar esos hechos en tres oraciones."
       }
     },
     "category": {
       "value": "SCIENCE",
       "tags": [
-        "enum_classification",
-        "science_category"
+        "direct_string",
+        "enum_classification"
       ],
       "reasoning": {
         "field_asks": "la categoría temática de la noticia, mapeada a uno de estos valores: JUDICIAL, DISASTER, HEALTH, ENVIRONMENT, POLITICS, ECONOMY, SCIENCE, CULTURE, SPORTS u OTHER.",
@@ -178,19 +194,23 @@
     "location": {
       "value": null,
       "tags": [
-        "grounded_null"
+        "direct_string",
+        "grounded_null",
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "la ubicación geográfica donde ocurrió el evento, o null si no hay evidencia suficiente.",
-        "relevant_fragments": "\"humedales boreales y tropicales\", \"Los mapas agrupan casos de varias latitudes\" y \"zonas degradadas\".",
-        "final_value": "Los fragmentos relevantes describen ámbitos de estudio amplios y genéricos, pero no una ubicación concreta del evento noticioso; el valor debe ser null."
+        "relevant_fragments": "\"comparó 3 400 muestras de humo y suelo tomadas en humedales boreales y tropicales\".",
+        "final_value": "El fragmento relevante describe un ámbito de estudio amplio y genérico, pero no una ubicación concreta del evento noticioso; el valor debe ser null."
       }
     },
     "date": {
       "value": null,
       "tags": [
+        "date_normalization",
+        "direct_string",
         "grounded_null",
-        "date_extraction"
+        "nullable"
       ],
       "reasoning": {
         "field_asks": "la fecha mencionada en el artículo, o null si no hay evidencia suficiente.",
@@ -204,8 +224,7 @@
         "Rui Tanaka"
       ],
       "tags": [
-        "simple_array",
-        "named_entities"
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "nombres de personas individuales clave mencionadas en el artículo.",
@@ -217,17 +236,19 @@
       "value": [],
       "tags": [
         "empty_array",
-        "grounded_null"
+        "entity_array",
+        "simple_array"
       ],
       "reasoning": {
         "field_asks": "nombres de organizaciones, empresas, instituciones o gobiernos mencionados.",
-        "relevant_fragments": "\"una red internacional de salud ambiental\", \"preprint revisado por pares\", \"Un laboratorio universitario\" y \"una reunión técnica de especialistas\".",
+        "relevant_fragments": "\"una red internacional de salud ambiental\", \"preprint revisado por pares\" y \"Un laboratorio universitario\".",
         "final_value": "Los fragmentos relevantes describen espacios o tipos institucionales, pero no dan nombres propios de organizaciones, empresas, instituciones o gobiernos; la lista debe ser vacía."
       }
     },
     "casualties": {
       "value": 18,
       "tags": [
+        "nullable",
         "numeric_normalization"
       ],
       "reasoning": {
@@ -239,22 +260,25 @@
     "injured": {
       "value": 146,
       "tags": [
+        "nullable",
         "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "número de personas heridas mencionadas, o null si no se menciona ninguna cifra de heridos humanos.",
-        "relevant_fragments": "\"146 personas heridas por inhalación de humo denso\".",
+        "relevant_fragments": "\"esos episodios estuvieron vinculados con [...] 146 personas heridas por inhalación de humo denso\".",
         "final_value": "Como el fragmento relevante cuantifica a las personas heridas por inhalación, el valor debe ser 146."
       }
     },
     "affected_count": {
       "value": null,
       "tags": [
-        "grounded_null"
+        "grounded_null",
+        "nullable",
+        "numeric_normalization"
       ],
       "reasoning": {
         "field_asks": "número de personas afectadas o desplazadas, o null si no aplica o no hay cifra suficiente.",
-        "relevant_fragments": "\"3 400 muestras de humo y suelo\", \"620 focos de combustión lenta\", \"18 muertes\" y \"146 personas heridas\".",
+        "relevant_fragments": "\"comparó 3 400 muestras de humo y suelo tomadas en humedales boreales y tropicales\", \"620 focos de combustión lenta\" y \"18 muertes y 146 personas heridas por inhalación de humo denso\".",
         "final_value": "Los fragmentos relevantes dan muestras, focos, muertes y heridos, pero no una cifra separada de personas afectadas o desplazadas; el valor debe ser null."
       }
     }

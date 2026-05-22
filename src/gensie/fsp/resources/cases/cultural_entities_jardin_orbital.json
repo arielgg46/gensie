@@ -1,0 +1,110 @@
+{
+  "id": "cultural_entities_jardin_orbital",
+  "domain": "cultural_entities",
+  "language": "es",
+  "tags": [
+    "complex_object_array",
+    "entity_array"
+  ],
+  "source_text": "# 'El jardín orbital' confirma que la animación española puede mirar a las estrellas sin perder el pulso doméstico [...] Desde que 'Robot Dreams' abrió una puerta inesperada, cada nuevo estreno animado español parece obligado a cargar con una comparación injusta. 'El jardín orbital' sale bastante bien parada: cuenta la historia de Nora, una niña que imagina una estación espacial sobre Madrid para escapar del ruido de su casa, y lo hace sin convertir la melancolía en una postal. La directora Sofía Galán filma los pasillos de la estación como si fueran habitaciones infantiles, mientras el barrio de Lavapiés aparece convertido en mapa emocional. Hay ecos de 'Wall-E', claro, pero también una ternura propia que no necesita pedir permiso a Pixar.",
+  "instruction": "Extrae los nombres de películas, personas, personajes y lugares mencionados en la introducción de la crítica.",
+  "schema": {
+    "$defs": {
+      "Entity": {
+        "additionalProperties": false,
+        "description": "A single named entity mention.",
+        "properties": {
+          "text": {
+            "description": "The verbatim text mention from the source",
+            "title": "Text",
+            "type": "string"
+          },
+          "label": {
+            "$ref": "#/$defs/EntityType",
+            "description": "The category of the entity"
+          }
+        },
+        "required": [
+          "text",
+          "label"
+        ],
+        "title": "Entity",
+        "type": "object"
+      },
+      "EntityType": {
+        "enum": [
+          "PERSON",
+          "ORGANIZATION",
+          "LOCATION",
+          "DATE",
+          "EVENT",
+          "MISCELLANEOUS"
+        ],
+        "title": "EntityType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts named entity mentions categorized by type in a single list.\nComplexity: L5 (Hierarchical Grouping).",
+    "properties": {
+      "entities": {
+        "description": "List of all recognized named entities",
+        "items": {
+          "$ref": "#/$defs/Entity"
+        },
+        "title": "Entities",
+        "type": "array"
+      }
+    },
+    "title": "NamedEntities",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "entities": "Lista única de menciones nombradas del recorte cultural. Extrae películas, series, actores, personajes, estudios, medios, lugares, fechas y eventos si aparecen; no agrupes por categoría ni añadas entidades inferidas desde conocimiento externo.",
+    "entities[].text": "Mención verbatim tal como aparece en el texto. Conserva tildes, signos de exclamación, comillas internas, artículos y fechas completas; no traduzcas, normalices ni fusiones variantes de un título si el texto las menciona por separado.",
+    "entities[].label": "Etiqueta del enum completo: `PERSON`, `ORGANIZATION`, `LOCATION`, `DATE`, `EVENT` o `MISCELLANEOUS`. Actores, directores y personajes suelen ser `PERSON`; estudios, plataformas y medios `ORGANIZATION`; ciudades, barrios o lugares culturales `LOCATION`; fechas de estreno `DATE`; festivales o premios `EVENT`; películas, series y obras culturales `MISCELLANEOUS`."
+  },
+  "field_examples": {
+    "entities": {
+      "value": [
+        {
+          "text": "El jardín orbital",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Robot Dreams",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Nora",
+          "label": "PERSON"
+        },
+        {
+          "text": "Madrid",
+          "label": "LOCATION"
+        },
+        {
+          "text": "Sofía Galán",
+          "label": "PERSON"
+        },
+        {
+          "text": "Lavapiés",
+          "label": "LOCATION"
+        },
+        {
+          "text": "Wall-E",
+          "label": "MISCELLANEOUS"
+        }
+      ],
+      "tags": [
+        "complex_object_array",
+        "entity_array"
+      ],
+      "reasoning": {
+        "field_asks": "lista de menciones nombradas del recorte cultural, cada una con texto verbatim y etiqueta PERSON, ORGANIZATION, LOCATION, DATE, EVENT o MISCELLANEOUS.",
+        "relevant_fragments": "\"# 'El jardín orbital' confirma que la animación española puede mirar a las estrellas\" (título cultural reseñado), \"Desde que 'Robot Dreams' abrió una puerta inesperada\" (obra cultural comparada), \"cuenta la historia de Nora, una niña que imagina una estación espacial sobre Madrid\" (personaje y ciudad dentro de la trama), \"la directora Sofía Galán filma los pasillos\" (persona con rol de directora), \"el barrio de Lavapiés aparece convertido en mapa emocional\" (lugar urbano) y \"Hay ecos de 'Wall-E'\" (obra cultural mencionada como referencia).",
+        "final_value": "Como los fragmentos relevantes contienen titulos culturales, personas/personajes y lugares, la lista debe incluir esas siete menciones verbatim con sus etiquetas: titulos como MISCELLANEOUS, Nora y Sofía Galán como PERSON, y Madrid y Lavapiés como LOCATION."
+      }
+    }
+  }
+}

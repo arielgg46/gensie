@@ -1,0 +1,48 @@
+{
+  "id": "cultural_extraction_miniserie_danesa",
+  "domain": "cultural_extraction",
+  "language": "es",
+  "tags": [
+    "direct_string",
+    "long_verbatim_evidence",
+    "summary_string",
+    "verbatim_answer"
+  ],
+  "source_text": "# La serie danesa que acaba de llegar a Filmin y demuestra que aún quedan dramas familiares sin piloto automático\n\nEl drama familiar televisivo lleva años convertido en una fábrica de secretos heredados, cenas tensas y hermanos que no se llaman hasta que muere alguien. 'Los mapas del invierno' no esquiva esas reglas, pero las usa con paciencia, más interesada en escuchar a sus personajes que en empujarles hacia el giro de guion.\n\n## Herencias heladas\n\nLa miniserie arranca con el regreso de una cartógrafa a la isla donde creció, después de que su padre desaparezca durante una expedición menor. Lo que podría ser un thriller nórdico convencional se transforma en una historia sobre memoria, orgullo y versiones familiares contradictorias. Su creadora, Maja Holm, filma los paisajes como álbumes de fotos deteriorados.\n\nLa fuerza de 'Los mapas del invierno' está en su reparto. La miniserie está protagonizada por Ingrid Madsen, Jonas Eide y Clara Nygaard, que interpretan a tres hermanos incapaces de ponerse de acuerdo incluso cuando comparten la misma pérdida. Madsen aporta una dureza contenida, Eide funciona como contrapunto seco y Nygaard se lleva las escenas más delicadas.\n\nNo todo encaja: algunos flashbacks repiten información y el desenlace quiere cerrar demasiadas heridas. Aun así, la serie encuentra voz propia en las conversaciones pequeñas, donde nadie dice la verdad pero todos entienden que ya no pueden seguir fingiendo.",
+  "instruction": "¿Quiénes protagonizan la miniserie 'Los mapas del invierno'?",
+  "schema": {
+    "additionalProperties": false,
+    "description": "Extracts a single verbatim fragment that answers the provided instruction.\nComplexity: L1 (Literal Extraction).",
+    "properties": {
+      "answer": {
+        "description": "The verbatim fragment from the source text that answers the question",
+        "title": "Answer",
+        "type": "string"
+      }
+    },
+    "required": [
+      "answer"
+    ],
+    "title": "TextAnswer",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "answer": "Fragmento verbatim que responde directamente la pregunta cultural. Copia la cláusula u oración suficiente para establecer la relación pedida, por ejemplo quién dirigió o quién protagoniza, sin reducirla a nombres aislados ni añadir paráfrasis; ignora actores, títulos, creadores o comparaciones cercanas que sean distractores."
+  },
+  "field_examples": {
+    "answer": {
+      "value": "La miniserie está protagonizada por Ingrid Madsen, Jonas Eide y Clara Nygaard",
+      "tags": [
+        "direct_string",
+        "long_verbatim_evidence",
+        "summary_string",
+        "verbatim_answer"
+      ],
+      "reasoning": {
+        "field_asks": "un fragmento verbatim del texto que responda quiénes protagonizan la miniserie 'Los mapas del invierno'.",
+        "relevant_fragments": "\"La miniserie está protagonizada por Ingrid Madsen, Jonas Eide y Clara Nygaard\".",
+        "final_value": "Como el fragmento relevante enumera explícitamente a las tres personas protagonistas, el valor debe conservar la frase verbatim que establece esa relación."
+      }
+    }
+  }
+}

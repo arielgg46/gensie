@@ -111,7 +111,7 @@ Extrae la información estructurada de este artículo de noticias judiciales, id
   },
   "summary": {
     "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
-    "relevant_fragments": "\"condenó el 15 de marzo de 2026 a Sofía Ledesma a nueve años de prisión\", \"copiaba credenciales bancarias mediante la falsa plataforma Cuenta Clara\" y \"reconoce 3 600 clientes perjudicados\".",
+    "relevant_fragments": "\"La Audiencia Provincial de Valencia condenó el 15 de marzo de 2026 a Sofía Ledesma a nueve años de prisión por dirigir una red que copiaba credenciales bancarias mediante la falsa plataforma Cuenta Clara\", \"El fiscal Rafael Orts sostuvo que la acusada coordinó dominios web, mensajes de verificación y monederos virtuales usados para retirar el dinero\" y \"El fallo reconoce 3 600 clientes perjudicados y ordena indemnizaciones individuales, además del decomiso de equipos informáticos\".",
     "final_value": "Como los fragmentos relevantes cubren condena, mecanismo de estafa y cantidad de perjudicados, el resumen debe sintetizar esos hechos y la posible apelación."
   },
   "category": {
@@ -207,7 +207,7 @@ Extrae la información estructurada de este artículo de noticias sobre un opera
   },
   "summary": {
     "field_asks": "un resumen breve de los hechos principales reportados, en 1-3 oraciones.",
-    "relevant_fragments": "\"redada realizada esta madrugada [...] terminó con dos agentes muertos y cinco personas heridas\", \"buscaba capturar a integrantes de Los Cobres\" y \"Ocho sospechosos fueron detenidos\".",
+    "relevant_fragments": "\"Una redada realizada esta madrugada en el barrio Las Canteras, en Rosario, Argentina, terminó con dos agentes muertos y cinco personas heridas\", \"La Policía Federal Argentina informó que el operativo buscaba capturar a integrantes de Los Cobres, una banda investigada por extorsiones a transportistas y lavado de dinero\" y \"La Fiscalía de Rosario señaló que se incautaron nueve armas, tres vehículos y cuadernos con anotaciones de cobros semanales. Ocho sospechosos fueron detenidos\".",
     "final_value": "Como los fragmentos relevantes cubren operativo, víctimas, objetivo policial e incautaciones/detenciones, el resumen debe condensar esos puntos."
   },
   "category": {

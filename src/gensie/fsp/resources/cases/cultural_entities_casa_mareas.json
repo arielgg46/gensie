@@ -1,0 +1,134 @@
+{
+  "id": "cultural_entities_casa_mareas",
+  "domain": "cultural_entities",
+  "language": "es",
+  "tags": [
+    "complex_object_array",
+    "entity_array"
+  ],
+  "source_text": "# 'La casa de las mareas' ya tiene fecha en cines tras conquistar San Sebastián, y A24 prepara su salto internacional [...] Pocas películas españolas llegan con una conversación tan rara alrededor: primero fue el premio en el Festival de San Sebastián, luego las comparaciones con 'Alcarràs' y ahora el anuncio de que A24 moverá la cinta fuera de Europa. La película de Iker Valcárcel, rodada entre Getaria y Zumaia, se estrenará en salas el 17 de abril de 2026. El tráiler vende una historia de herencias, silencios y tormentas familiares, con Marta Etura como madre que vuelve al caserío y Eneko Sagardoy interpretando al hermano que nunca se marchó. Netflix tanteó sus derechos, pero la distribuidora Bruma Films ha preferido mantener primero el recorrido en cines.",
+  "instruction": "Identifica las películas, estudios, personas, lugares, fechas y eventos mencionados en la noticia cultural.",
+  "schema": {
+    "$defs": {
+      "Entity": {
+        "additionalProperties": false,
+        "description": "A single named entity mention.",
+        "properties": {
+          "text": {
+            "description": "The verbatim text mention from the source",
+            "title": "Text",
+            "type": "string"
+          },
+          "label": {
+            "$ref": "#/$defs/EntityType",
+            "description": "The category of the entity"
+          }
+        },
+        "required": [
+          "text",
+          "label"
+        ],
+        "title": "Entity",
+        "type": "object"
+      },
+      "EntityType": {
+        "enum": [
+          "PERSON",
+          "ORGANIZATION",
+          "LOCATION",
+          "DATE",
+          "EVENT",
+          "MISCELLANEOUS"
+        ],
+        "title": "EntityType",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Extracts named entity mentions categorized by type in a single list.\nComplexity: L5 (Hierarchical Grouping).",
+    "properties": {
+      "entities": {
+        "description": "List of all recognized named entities",
+        "items": {
+          "$ref": "#/$defs/Entity"
+        },
+        "title": "Entities",
+        "type": "array"
+      }
+    },
+    "title": "NamedEntities",
+    "type": "object"
+  },
+  "enriched_field_descriptions": {
+    "entities": "Lista única de menciones nombradas del recorte cultural. Extrae películas, series, actores, personajes, estudios, medios, lugares, fechas y eventos si aparecen; no agrupes por categoría ni añadas entidades inferidas desde conocimiento externo.",
+    "entities[].text": "Mención verbatim tal como aparece en el texto. Conserva tildes, signos de exclamación, comillas internas, artículos y fechas completas; no traduzcas, normalices ni fusiones variantes de un título si el texto las menciona por separado.",
+    "entities[].label": "Etiqueta del enum completo: `PERSON`, `ORGANIZATION`, `LOCATION`, `DATE`, `EVENT` o `MISCELLANEOUS`. Actores, directores y personajes suelen ser `PERSON`; estudios, plataformas y medios `ORGANIZATION`; ciudades, barrios o lugares culturales `LOCATION`; fechas de estreno `DATE`; festivales o premios `EVENT`; películas, series y obras culturales `MISCELLANEOUS`."
+  },
+  "field_examples": {
+    "entities": {
+      "value": [
+        {
+          "text": "La casa de las mareas",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "San Sebastián",
+          "label": "LOCATION"
+        },
+        {
+          "text": "A24",
+          "label": "ORGANIZATION"
+        },
+        {
+          "text": "Festival de San Sebastián",
+          "label": "EVENT"
+        },
+        {
+          "text": "Alcarràs",
+          "label": "MISCELLANEOUS"
+        },
+        {
+          "text": "Iker Valcárcel",
+          "label": "PERSON"
+        },
+        {
+          "text": "Getaria",
+          "label": "LOCATION"
+        },
+        {
+          "text": "Zumaia",
+          "label": "LOCATION"
+        },
+        {
+          "text": "17 de abril de 2026",
+          "label": "DATE"
+        },
+        {
+          "text": "Marta Etura",
+          "label": "PERSON"
+        },
+        {
+          "text": "Eneko Sagardoy",
+          "label": "PERSON"
+        },
+        {
+          "text": "Netflix",
+          "label": "ORGANIZATION"
+        },
+        {
+          "text": "Bruma Films",
+          "label": "ORGANIZATION"
+        }
+      ],
+      "tags": [
+        "complex_object_array",
+        "entity_array"
+      ],
+      "reasoning": {
+        "field_asks": "lista de menciones nombradas de peliculas, estudios, personas, lugares, fechas y eventos, con texto verbatim y etiqueta del enum permitido.",
+        "relevant_fragments": "\"# 'La casa de las mareas' ya tiene fecha en cines tras conquistar San Sebastián, y A24 prepara su salto internacional\" (obra cultural principal, lugar cultural y organización distribuidora), \"primero fue el premio en el Festival de San Sebastián\" (evento cultural), \"luego las comparaciones con 'Alcarràs'\" (obra cultural comparada), \"La película de Iker Valcárcel, rodada entre Getaria y Zumaia, se estrenará en salas el 17 de abril de 2026\" (persona asociada a la película, lugares de rodaje y fecha de estreno), \"con Marta Etura como madre [...] y Eneko Sagardoy interpretando al hermano\" (personas del reparto), \"Netflix tanteó sus derechos\" (organización/plataforma) y \"la distribuidora Bruma Films\" (organización distribuidora).",
+        "final_value": "Como el recorte menciona una pelicula principal, otra pelicula comparada, organizaciones, lugares, personas, una fecha completa y un festival, la lista debe conservar esas menciones verbatim. \"Festival de San Sebastián\" se etiqueta como EVENT, mientras \"San Sebastián\" aislado en el encabezado funciona como LOCATION."
+      }
+    }
+  }
+}

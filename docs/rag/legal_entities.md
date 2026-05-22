@@ -106,7 +106,7 @@ Extrae las entidades nombradas (personas, organizaciones, lugares) mencionadas e
 {
   "entities": {
     "field_asks": "lista de entidades nombradas del encabezado y preámbulo legal, con menciones verbatim y etiquetas PERSON, ORGANIZATION, LOCATION, DATE, EVENT o MISCELLANEOUS.",
-    "relevant_fragments": "\"DOÑA ISABEL II\", \"REINA DE ESPAÑA\", \"LAS CORTES GENERALES\", \"EL PUEBLO ESPAÑOL\", \"LEY FUNDAMENTAL\", \"La Nación española\" y \"Europa\".",
+    "relevant_fragments": "\"DOÑA ISABEL II, REINA DE ESPAÑA\" (persona titular y país/reino nombrado), \"SABED: QUE LAS CORTES GENERALES HAN APROBADO Y EL PUEBLO ESPAÑOL RATIFICADO LA SIGUIENTE LEY FUNDAMENTAL\" (órgano legislativo, sujeto jurídico y norma), \"La Nación española [...] proclama su voluntad\" (sujeto constitucional/conceptual) y \"relaciones pacíficas entre todos los pueblos de Europa\" (lugar o región nombrada).",
     "final_value": "Como los fragmentos relevantes nombran una persona, un lugar, una organización institucional, sujetos constitucionales y una norma, la lista debe conservar esas menciones verbatim. La repetición posterior de España dentro de \"pueblos de España\" no se incluye de nuevo porque ya aparece como primera mención completa en mayúsculas."
   }
 }
@@ -189,7 +189,7 @@ Identifica las entidades nombradas (normas, organismos, lugares y fechas) mencio
 {
   "entities": {
     "field_asks": "lista de entidades nombradas en el fragmento legal, incluyendo normas, organismos, lugares y fechas con texto verbatim.",
-    "relevant_fragments": "\"REAL DECRETO 48/2026\", \"15 de enero\", \"Ministerio de Cultura\", \"Comunidad Autónoma de Aragón\", \"Zaragoza\", \"Ley 16/1985\", \"25 de junio\", \"Patrimonio Histórico Español\", \"Boletín Oficial del Estado\" y \"Dirección General de Patrimonio Cultural\".",
+    "relevant_fragments": "\"REAL DECRETO 48/2026, de 15 de enero\" (norma y fecha), \"El Ministerio de Cultura, a propuesta de la Comunidad Autónoma de Aragón\" (órganos o administraciones), \"municipios de Zaragoza\" (lugar), \"Ley 16/1985, de 25 de junio, del Patrimonio Histórico Español\" (norma, fecha y materia jurídica), \"será publicada en el «Boletín Oficial del Estado»\" (boletín oficial como organización) y \"informes técnicos emitidos por la Dirección General de Patrimonio Cultural\" (órgano administrativo).",
     "final_value": "Como los fragmentos relevantes nombran normas, fechas, órganos administrativos, un territorio y el boletín oficial, la lista debe conservar esas menciones verbatim con etiquetas MISCELLANEOUS para normas o conceptos legales, DATE para fechas, ORGANIZATION para órganos y boletín, y LOCATION para Zaragoza."
   }
 }
