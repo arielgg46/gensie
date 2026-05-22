@@ -213,7 +213,7 @@ __marimo__/
 
 # Data files
 data/mini
-data/chimuelo_test
+data/golden_cover
 
 # Local evaluation artifacts
 local-results/

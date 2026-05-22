@@ -1,6 +1,9 @@
 from gensie.runtime.chat import ChatClient, ChatMessage, ChatRequest, ChatResponse
 from gensie.runtime.client import OpenAIChatClient
-from gensie.runtime.response_format import build_json_schema_response_format
+from gensie.runtime.response_format import (
+    build_json_schema_response_format,
+    require_all_json_schema_properties,
+)
 from gensie.runtime.tracing import (
     messages_payload,
     prompt_texts_by_role,
@@ -23,6 +26,7 @@ __all__ = [
     "ChatResponse",
     "OpenAIChatClient",
     "build_json_schema_response_format",
+    "require_all_json_schema_properties",
     "messages_payload",
     "normalize_model_output_strings",
     "prompt_texts_by_role",

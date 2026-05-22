@@ -20,7 +20,11 @@ from typing import Any, Dict, List, Mapping, Optional
 from openai import OpenAI
 
 from gensie.agent import GenSIEAgent
-from gensie.runtime import ChatMessage, trace_step as _runtime_trace_step
+from gensie.runtime import (
+    ChatMessage,
+    require_all_json_schema_properties,
+    trace_step as _runtime_trace_step,
+)
 from gensie.task import Task
 
 _ARCHITECT_SYSTEM = """You refine JSON Schemas so another LLM can extract structured values from unstructured TEXT. The schema is a contract for machine consumption—precise, low-noise, no narrative essays.
@@ -383,7 +387,7 @@ class ParseAgent:
             "type": "json_schema",
             "json_schema": {
                 "name": "parse_scope_extraction",
-                "schema": base_schema,
+                "schema": require_all_json_schema_properties(base_schema),
                 "strict": True,
             },
         }

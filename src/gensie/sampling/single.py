@@ -74,6 +74,7 @@ class SingleExtractionRunner:
                 context.task.target_schema,
                 extraction.reasoning,
                 name=str(options.get("response_format_name") or "extraction"),
+                require_all_properties=_requires_complete_generation_schema(spec),
             ),
             temperature=temperature,
             options=request_options,
@@ -204,6 +205,10 @@ def _request_generation_options(
             "top_k": top_k,
         }
     return temperature, request_options
+
+
+def _requires_complete_generation_schema(spec: PipelineSpec) -> bool:
+    return spec.name != "baseline"
 
 
 def _trace_extraction_step(

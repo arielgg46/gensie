@@ -2,6 +2,7 @@ from gensie.baseline import (
     EnrichedInlineReasoningJudgeSelfConsistencyAgent,
     EnrichedInlineReasoningSelfConsistencyAgent,
     EnrichedInlineReasoningSuperFspSelfConsistencyAgent,
+    MixedExtractorsRagSelfConsistencyAgent,
     OfficialParticipant,
 )
 from gensie.pipeline import (
@@ -206,6 +207,69 @@ def test_registered_mixed_extractors_judge_pipeline_runs_all_groups(monkeypatch)
         "enriched-inline-reasoning",
     ]
     assert fake.requests[-1].metadata["aggregation"] == "self_consistency_judge"
+
+
+def test_registered_mixed_extractors_rag_self_consistency_alternates_groups(monkeypatch):
+    monkeypatch.setenv("GENSIE_SC_DYNAMIC_TRIALS", "0")
+    fake = QueueChatClient(
+        [
+            '{"person":{"reasoning":"name","value":"Ada Lovelace"},'
+            '"year":{"reasoning":"year","value":1843},'
+            '"symptoms":{"reasoning":"items","value":["fatiga"]}}',
+            '{"person":"Ada Lovelace","year":1843,"symptoms":["cefalea"]}',
+            '{"person":{"reasoning":"name","value":"Ada Lovelace"},'
+            '"year":{"reasoning":"year","value":1843},'
+            '"symptoms":{"reasoning":"items","value":["fatiga","cefalea"]}}',
+            '{"person":"Ada Lovelace","year":1843,"symptoms":["fatiga"]}',
+        ]
+    )
+    agent = OfficialParticipant(chat_client=fake).get_agent(
+        "mixed-extractors-self-consistency-rag"
+    )
+
+    output = agent.run(_task(), model="demo")
+
+    assert output["person"] == "Ada Lovelace"
+    assert output["year"] == 1843
+    assert set(output["symptoms"]) == {"fatiga", "cefalea"}
+    assert [request.metadata.get("extraction") for request in fake.requests] == [
+        "enriched-inline-reasoning-rag",
+        "enriched-schema-rag",
+        "enriched-inline-reasoning-rag",
+        "enriched-schema-rag",
+    ]
+    assert [request.metadata.get("reasoning") for request in fake.requests] == [
+        "top_level",
+        "none",
+        "top_level",
+        "none",
+    ]
+
+
+def test_mixed_extractors_rag_self_consistency_agent_uses_registered_pipeline(monkeypatch):
+    monkeypatch.setenv("GENSIE_SC_DYNAMIC_TRIALS", "0")
+    fake = QueueChatClient(
+        [
+            '{"person":{"reasoning":"name","value":"Ada Lovelace"},'
+            '"year":{"reasoning":"year","value":1843},'
+            '"symptoms":{"reasoning":"items","value":["fatiga"]}}',
+            '{"person":"Ada Lovelace","year":1843,"symptoms":["cefalea"]}',
+            '{"person":{"reasoning":"name","value":"Ada Lovelace"},'
+            '"year":{"reasoning":"year","value":1843},'
+            '"symptoms":{"reasoning":"items","value":["fatiga","cefalea"]}}',
+            '{"person":"Ada Lovelace","year":1843,"symptoms":["fatiga"]}',
+        ]
+    )
+    agent = MixedExtractorsRagSelfConsistencyAgent(chat_client=fake)
+
+    agent.run(_task(), model="demo")
+
+    assert [request.metadata.get("pipeline") for request in fake.requests] == [
+        "mixed-extractors-self-consistency-rag",
+        "mixed-extractors-self-consistency-rag",
+        "mixed-extractors-self-consistency-rag",
+        "mixed-extractors-self-consistency-rag",
+    ]
 
 
 def test_registered_mixed_extractors_verdict_judge_pipeline_runs_all_groups(monkeypatch):

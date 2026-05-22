@@ -129,6 +129,48 @@ def default_pipeline_specs() -> tuple[PipelineSpec, ...]:
             ),
         ),
         PipelineSpec(
+            name="mixed-extractors-self-consistency-rag",
+            description=(
+                "Four-trial RAG self-consistency alternating enriched inline "
+                "reasoning RAG and enriched schema RAG extractors."
+            ),
+            extraction=ExtractionSpec(
+                name="enriched-inline-reasoning-rag",
+                reasoning=ReasoningMode.TOP_LEVEL,
+                schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+                few_shot=FewShotMode.RAG,
+            ),
+            sampling=SamplingSpec(
+                total_trials=4,
+                interleave=True,
+                groups=(
+                    TrialGroupSpec(
+                        name="enriched-inline-reasoning-rag",
+                        extraction=ExtractionSpec(
+                            name="enriched-inline-reasoning-rag",
+                            reasoning=ReasoningMode.TOP_LEVEL,
+                            schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+                            few_shot=FewShotMode.RAG,
+                        ),
+                        count=2,
+                    ),
+                    TrialGroupSpec(
+                        name="enriched-schema-rag",
+                        extraction=ExtractionSpec(
+                            name="enriched-schema-rag",
+                            reasoning=ReasoningMode.NONE,
+                            schema_prompt=SchemaPromptMode.PYDANTIC,
+                            few_shot=FewShotMode.RAG,
+                        ),
+                        count=2,
+                    ),
+                ),
+            ),
+            aggregation=AggregationSpec(
+                mode=AggregationMode.HEURISTIC_SELF_CONSISTENCY
+            ),
+        ),
+        PipelineSpec(
             name="enriched-inline-reasoning-super-fsp-self-consistency",
             description="Multi-trial enriched inline reasoning with static super FSP and schema-aware heuristic aggregation.",
             extraction=ExtractionSpec(

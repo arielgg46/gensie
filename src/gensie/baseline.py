@@ -131,6 +131,10 @@ class EnrichedInlineReasoningSelfConsistencyAgent(_DefaultPipelineAgent):
     pipeline_name = "enriched-inline-reasoning-self-consistency"
 
 
+class MixedExtractorsRagSelfConsistencyAgent(_DefaultPipelineAgent):
+    pipeline_name = "mixed-extractors-self-consistency-rag"
+
+
 class EnrichedInlineReasoningSuperFspSelfConsistencyAgent(_DefaultPipelineAgent):
     pipeline_name = "enriched-inline-reasoning-super-fsp-self-consistency"
 

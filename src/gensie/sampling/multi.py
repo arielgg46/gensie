@@ -135,7 +135,9 @@ class PipelineExecutionRunner:
     ) -> tuple[SamplingSpec, TrialBudgetEstimate, int]:
         prompt = self.single_runner.prompt_builder.build(context, spec.extraction)
         response_format = build_json_schema_response_format(
-            context.task.target_schema, spec.extraction.reasoning
+            context.task.target_schema,
+            spec.extraction.reasoning,
+            require_all_properties=spec.name != "baseline",
         )
         prompt_token_fallback = self.trial_planner.estimate_prompt_tokens(
             messages=messages_payload(prompt.messages()),

@@ -29,6 +29,7 @@ from gensie.pipeline import (
     SchemaPromptMode,
 )
 from gensie.runtime import ChatResponse, OpenAIChatClient
+from gensie.runtime.response_format import require_all_json_schema_properties
 from gensie.sampling import SingleExtractionRunner
 from gensie.fsp.rag import FSP_RETRIEVAL_TRACE_METADATA_KEY
 from gensie.prompts.system import STRICT_ANCHORING_RULE
@@ -122,6 +123,47 @@ def test_basic_agent_uses_original_schema_and_tracks_usage():
     }
 
 
+def test_generation_schema_requires_all_properties_recursively_for_non_baseline():
+    schema = {
+        "type": "object",
+        "properties": {
+            "outer": {
+                "type": "object",
+                "properties": {
+                    "inner": {"type": "string"},
+                    "count": {"type": "integer"},
+                },
+                "required": ["inner"],
+            },
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string"},
+                        "score": {"type": "number"},
+                    },
+                },
+            },
+        },
+        "required": ["outer"],
+    }
+
+    generation_schema = require_all_json_schema_properties(schema)
+
+    assert generation_schema["required"] == ["outer", "items"]
+    assert generation_schema["properties"]["outer"]["required"] == [
+        "inner",
+        "count",
+    ]
+    assert generation_schema["properties"]["items"]["items"]["required"] == [
+        "name",
+        "score",
+    ]
+    assert schema["required"] == ["outer"]
+    assert schema["properties"]["outer"]["required"] == ["inner"]
+
+
 def test_single_extraction_runner_unwraps_top_level_reasoning_output():
     fake = FakeChatClient(
         '{"person":{"reasoning":"Named directly.","value":"Ada Lovelace"},'
@@ -144,6 +186,7 @@ def test_single_extraction_runner_unwraps_top_level_reasoning_output():
     assert output["person"] == "Ada Lovelace"
     request = fake.requests[0]
     generation_schema = request.response_format["json_schema"]["schema"]
+    assert generation_schema["required"] == ["person", "year", "mentions"]
     assert "reasoning" in generation_schema["properties"]["person"]["properties"]
     assert "FORMATO DE RAZONAMIENTO:" in request.messages[1].content
     assert "Eres un extractor de información estructurada" in request.messages[1].content
@@ -238,7 +281,9 @@ def test_enriched_schema_agent_uses_plain_pydantic_prompt_without_reasoning_or_f
     request = fake.requests[0]
     prompt = request.messages[1].content
     assert request.metadata["prompt_style"] == "enriched-schema"
-    assert request.response_format["json_schema"]["schema"] == _task().target_schema
+    generation_schema = request.response_format["json_schema"]["schema"]
+    assert generation_schema["required"] == ["person", "year", "mentions"]
+    assert _task().target_schema["required"] == ["person"]
     assert "SCHEMA PYDANTIC:" in prompt
     assert "Nullable[T] = T | null" in prompt
     assert "class Output(BaseModel):" in prompt
