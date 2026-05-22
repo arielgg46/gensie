@@ -1,7 +1,7 @@
 import json
 import shutil
 import uuid
-from pathlib import PathS
+from pathlib import Path
 
 from gensie.task import Task
 from gensie.tracing import trace_step
