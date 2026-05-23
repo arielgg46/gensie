@@ -163,29 +163,34 @@ class MixedExtractorsVerdictJudgeRagSlotsSelfConsistencyAgent(_DefaultPipelineAg
     pipeline_name = "mixed-extractors-self-consistency-verdict-judge-rag-slots"
 
 
+SUBMITTED_PIPELINES = (
+    "mixed-extractors-self-consistency-rag",
+    "enriched-schema-rag",
+    "enriched-inline-reasoning-rag",
+)
+
 class OfficialParticipant(Participant):
     def __init__(self, chat_client: ChatClient | None = None):
-        self.registry: PipelineRegistry = build_default_registry()
+        default_registry = build_default_registry()
+        self.registry = PipelineRegistry()
+        for name in SUBMITTED_PIPELINES:
+            self.registry.register(default_registry.get(name))
+
         client = chat_client or _default_chat_client()
         runner = _runner(client)
         self.pipelines: dict[str, GenSIEAgent] = {
             spec.name: ComposablePipelineAgent(spec, runner) for spec in self.registry
         }
-        self.pipelines["parse"] = ParsePipelineAgent()
 
     def get_info(self) -> ParticipantInfo:
-        pipeline_infos = self.registry.pipeline_infos()
-        pipeline_infos.append(
-            PipelineInfo(
-                name="parse",
-                description="PARSE-style: ARCHITECT (LLM schema refine) + SCOPE (grounding/rules + reflection) + RELAY (identity); arxiv:2510.08623.",
-            )
-        )
         return ParticipantInfo(
-            team_name="GenSIE Baseline Team",
-            institution="Official",
-            pipelines=pipeline_infos,
+            team_name="DRILLER",
+            institution="Universidad de La Habana",
+            pipelines=self.registry.pipeline_infos(),
         )
 
     def get_agent(self, pipeline_name: str) -> GenSIEAgent:
-        return self.pipelines.get(pipeline_name, self.pipelines["baseline"])
+        try:
+            return self.pipelines[pipeline_name]
+        except KeyError as exc:
+            raise KeyError(f"unknown submitted pipeline: {pipeline_name}") from exc

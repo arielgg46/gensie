@@ -1,64 +1,136 @@
-# GenSIE 2026 Public Starter Kit
+# GenSIE Submission
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
-[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](./Dockerfile)
+This repository contains the GenSIE extraction system submitted for evaluation.
+It exposes a FastAPI service compatible with the official GenSIE submission
+interface and calls an OpenAI-compatible inference server supplied at runtime.
 
-**GenSIE (General-purpose Schema-guided Information Extraction)** is a shared task at [IberLEF 2026](https://sites.google.com/view/iberlef-2026). This repository provides the official starter kit for participants.
+## Submitted Pipelines
 
-## 🚀 Quick Start
+The participant service exposes these pipelines:
 
-### 1. Installation
-We recommend using [**uv**](https://github.com/astral-sh/uv) for fast dependency management:
+- `mixed-extractors-self-consistency-rag`
+- `enriched-schema-rag`
+- `enriched-inline-reasoning-rag`
+
+`mixed-extractors-self-consistency-rag` runs four RAG-backed extraction trials,
+alternating enriched inline reasoning and enriched schema prompting, then
+aggregates the outputs with schema-aware heuristic self-consistency.
+
+`enriched-schema-rag` uses a Spanish enriched extraction prompt with a Pydantic
+schema representation and retrieved few-shot examples.
+
+`enriched-inline-reasoning-rag` uses top-level reasoning/value wrappers with a
+reasoned Pydantic schema prompt and retrieved few-shot examples.
+
+## Runtime Requirements
+
+- Python 3.13+
+- Docker, for containerized evaluation
+- CPU-only local execution
+- OpenAI-compatible chat-completions endpoint
+
+The system uses local FSP RAG resources included in the repository:
+
+- `src/gensie/fsp/resources/cases/`
+- `data/fsp_index/`
+
+No internet access is required at inference time apart from the configured
+OpenAI-compatible inference endpoint.
+
+## Environment Variables
+
+The official evaluator provides the inference endpoint through:
 
 ```bash
-git clone <repository-url>
-cd gensie
+OPENAI_BASE_URL="http://HOST:PORT/v1"
+OPENAI_API_KEY="..."
+```
+
+The participant class defaults to:
+
+```bash
+PARTICIPANT_PATH="gensie.baseline.OfficialParticipant"
+```
+
+For a local provider available at `10.6.125.216:8080`, use:
+
+```bash
+OPENAI_BASE_URL="http://10.6.125.216:8080/v1"
+OPENAI_API_KEY="sk-dummy"
+```
+
+Optional local throttling can be controlled with:
+
+```bash
+OPENAI_REQUEST_DELAY_S="0"
+```
+
+## Run Locally
+
+Install dependencies:
+
+```bash
 uv sync --group dev
 ```
 
-### 2. Configuration
-Create a `.env` file to configure your inference backend:
+Start the service:
 
 ```bash
-OPENAI_API_KEY="your-api-key"
-OPENAI_BASE_URL="http://localhost:1234/v1" # Optional: for local LLMs
+uv run gensie serve --host 0.0.0.0 --port 8000
 ```
 
-### 3. Serving your Agent
-Start the FastAPI server:
+Inspect the exposed participant metadata:
+
 ```bash
-uv run gensie serve --port 8000
+curl http://localhost:8000/info
 ```
 
-### 4. Running Benchmarks
-Evaluate your agent against the 40 starter instances:
+## Run With Docker
+
+Build the image:
+
 ```bash
-uv run gensie eval --data data/starter/ --url http://localhost:8000 --pipeline baseline --model gpt-4o-mini
+docker build -t gensie-submission .
 ```
 
-## 🛠️ How to Participate
+Run the service:
 
-1.  **Inherit from `GenSIEAgent`**: Implement your extraction logic in `src/gensie/`.
-2.  **Register your Pipelines**: Configure up to 3 pipelines in `OfficialParticipant` (see `src/gensie/baseline.py`).
-3.  **Submit**: Open a [**Competition Submission Issue**](https://github.com/gia-uh/gensie/issues/new?template=submission.md) to register your team and repository.
-4.  **Dockerize**: Use the provided `Dockerfile` and `docker-compose.yml` for testing and final submission.
+```powershell
+docker run --rm -p 8000:8000 `
+  -e OPENAI_BASE_URL="http://10.6.125.216:8080/v1" `
+  -e OPENAI_API_KEY="sk-dummy" `
+  -e PARTICIPANT_PATH="gensie.baseline.OfficialParticipant" `
+  gensie-submission serve --host 0.0.0.0 --port 8000
+```
+
+The provided `docker-compose.yml` can also be used during development:
 
 ```bash
 docker compose up --build
 ```
 
-## 📊 Dataset & Metrics
+## Local Evaluation
 
-The kit includes **40 silver-generated instances** for initial testing. Official metrics use **Flattened Schema Scoring** (Micro-F1), which combines exact matches for rigid fields and semantic similarity for free-text fields.
+Run a small local check against a running service:
 
-## 📜 Documentation
+```bash
+uv run gensie eval --data data/mini --url http://localhost:8000 --pipeline mixed-extractors-self-consistency-rag --model llama3.1-8b --limit 1 --auto-output-paths
+```
 
-For more details, see our guides:
-*   🚀 [**Starter Kit Guide**](./docs/starter-kit.md)
-*   📂 [**Submission Guidelines**](./docs/submission.md)
-*   📊 [**Task Description**](./docs/description.md)
+Other submitted pipelines can be checked by changing `--pipeline`:
 
-## ⚖️ License
+```bash
+uv run gensie eval --data data/mini --url http://localhost:8000 --pipeline enriched-schema-rag --model llama3.1-8b --limit 1 --auto-output-paths
+uv run gensie eval --data data/mini --url http://localhost:8000 --pipeline enriched-inline-reasoning-rag --model llama3.1-8b --limit 1 --auto-output-paths
+```
 
-This starter kit is licensed under the **MIT License**.
+Detailed traces and retrieval diagnostics are written under `local-results/`
+when `--auto-output-paths` is enabled.
+
+## Submission Notes
+
+The container must be evaluated with the model name passed by the evaluator in
+the `/run` request. The service forwards that model name to the configured
+inference endpoint and returns a JSON object matching the task schema.
+
+The repository is licensed under the MIT License.
