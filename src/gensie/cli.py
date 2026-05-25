@@ -11,6 +11,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.progress import track
 from collections import defaultdict
+from gensie.analysis import analyze_rag_experiment_artifacts
 from gensie.task import Task
 from gensie.eval import (
     Evaluator,
@@ -514,6 +515,70 @@ def eval(
         _write_json(details_dir / "detailed_report.json", detailed_report)
         console.print(
             f"[bold blue]Detailed artifacts saved to {details_dir}[/bold blue]"
+        )
+
+
+@app.command("analyze-rag-experiments")
+def analyze_rag_experiments(
+    golden_dir: Path = typer.Option(
+        Path("data/golden_cover"),
+        "--golden-dir",
+        help="Curated golden-cover task directory used as the scoring reference",
+    ),
+    output_dir: Path = typer.Option(
+        Path("analysis/qwen3-14b-rag-golden-cover"),
+        "--output-dir",
+        help="Directory where consolidated predictions and metrics are written",
+    ),
+    schema_golden_dir: Path = typer.Option(
+        Path("local-results/enriched-schema-rag/20260522-171113"),
+        "--schema-golden-dir",
+        help="Trace artifacts for enriched-schema-rag on data/golden_cover",
+    ),
+    schema_dev_dir: Path = typer.Option(
+        Path("local-results/enriched-schema-rag/20260522-171628"),
+        "--schema-dev-dir",
+        help="Trace artifacts for enriched-schema-rag on data/dev",
+    ),
+    inline_golden_dir: Path = typer.Option(
+        Path("local-results/enriched-inline-reasoning-rag/20260522-173426"),
+        "--inline-golden-dir",
+        help="Trace artifacts for enriched-inline-reasoning-rag on data/golden_cover",
+    ),
+    inline_dev_dir: Path = typer.Option(
+        Path("local-results/enriched-inline-reasoning-rag/20260522-174255"),
+        "--inline-dev-dir",
+        help="Trace artifacts for enriched-inline-reasoning-rag on data/dev",
+    ),
+    mixed_dir: Path = typer.Option(
+        Path("local-results/mixed-extractors-self-consistency-rag/20260522-183416"),
+        "--mixed-dir",
+        help="Trace artifacts for mixed-extractors-self-consistency-rag on data/golden_cover",
+    ),
+):
+    """Consolidate RAG experiment predictions and score them against golden_cover."""
+    result = analyze_rag_experiment_artifacts(
+        golden_dir=golden_dir,
+        output_dir=output_dir,
+        enriched_schema_golden_dir=schema_golden_dir,
+        enriched_schema_dev_dir=schema_dev_dir,
+        enriched_inline_golden_dir=inline_golden_dir,
+        enriched_inline_dev_dir=inline_dev_dir,
+        mixed_dir=mixed_dir,
+    )
+    console.print(
+        "[bold green]RAG experiment analysis written[/bold green] "
+        f"to {result['output_dir']}"
+    )
+    console.print(
+        f"Golden tasks: {result['golden_task_count']} | "
+        f"predictions: {result['prediction_count']}"
+    )
+    for pipeline, item in result["metrics"]["overall"].items():
+        metrics = item["metrics"]
+        console.print(
+            f"{pipeline}: precision={metrics['precision']:.4f}, "
+            f"recall={metrics['recall']:.4f}, f1={metrics['f1']:.4f}"
         )
 
 

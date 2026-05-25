@@ -216,4 +216,7 @@ data/mini
 data/golden_cover
 
 # Local evaluation artifacts
+/analysis/
 local-results/
+.pytest-tmp-analysis/
+.tmp-pytest-base/
