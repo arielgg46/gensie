@@ -25,15 +25,18 @@ from gensie.schemas import (
     build_deep_inline_reasoning_schema,
     build_inline_reasoning_prompt_schema,
     build_inline_reasoning_schema,
+    build_selective_inline_reasoning_schema,
     clean_schema_for_prompt,
     parse_schema_fields,
     render_deep_reasoned_pydantic_schema,
     render_field_cards,
     render_pydantic_code,
     render_reasoned_pydantic_schema,
+    render_selective_reasoned_pydantic_schema,
     transform_schema_for_reasoning,
     unwrap_deep_inline_reasoning_output,
     unwrap_inline_reasoning_output,
+    unwrap_selective_inline_reasoning_output,
 )
 from gensie.task import Task
 from gensie.usage import UsageTracker
@@ -83,6 +86,45 @@ def _task() -> Task:
         instruction="Extract the person, year, and labels.",
         target_schema=_schema(),
     )
+
+
+def _selective_schema():
+    return {
+        "$defs": {
+            "Entity": {
+                "type": "object",
+                "properties": {
+                    "text": {"type": "string"},
+                    "label": {"type": "string"},
+                },
+                "required": ["text", "label"],
+            },
+            "Tag": {"type": "string", "enum": ["SCIENCE", "OTHER"]},
+        },
+        "type": "object",
+        "properties": {
+            "answer": {"type": "string", "description": "Answer span"},
+            "status": {
+                "type": "string",
+                "enum": ["confirmed", "unclear"],
+                "description": "Classification status",
+            },
+            "entities": {
+                "type": "array",
+                "items": {"$ref": "#/$defs/Entity"},
+                "description": "Named entities mentioned in the text",
+            },
+            "observations": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {"value": {"type": "number"}},
+                },
+            },
+            "tags": {"type": "array", "items": {"$ref": "#/$defs/Tag"}},
+        },
+        "required": ["answer", "status", "entities", "observations", "tags"],
+    }
 
 
 def _same_schema_case(
@@ -181,6 +223,24 @@ def test_top_level_reasoning_schema_wraps_only_root_fields():
     }
 
 
+def test_selective_reasoning_schema_wraps_only_beneficial_root_fields():
+    schema = _selective_schema()
+    wrapped = build_selective_inline_reasoning_schema(schema)
+
+    assert "reasoning" in wrapped["properties"]["answer"]["properties"]
+    assert "reasoning" in wrapped["properties"]["tags"]["properties"]
+    assert wrapped["properties"]["status"] == schema["properties"]["status"]
+    assert wrapped["properties"]["entities"] == schema["properties"]["entities"]
+    assert wrapped["properties"]["observations"] == schema["properties"]["observations"]
+
+    code = render_selective_reasoned_pydantic_schema(schema)
+    assert "answer: Reasoned[str]" in code
+    assert "tags: Reasoned[List[Tag]]" in code
+    assert "status: Literal[\"confirmed\", \"unclear\"]" in code
+    assert "entities: List[Entity]" in code
+    assert "entities: Reasoned" not in code
+
+
 def test_prompt_reasoning_schema_uses_clean_wrapper_schema():
     prompt_schema = build_inline_reasoning_prompt_schema(_schema())
 
@@ -247,6 +307,23 @@ def test_reasoning_unwraps_return_final_values():
         "mentions": [{"text": "Ada Lovelace", "label": "PERSON"}],
     }
 
+    raw_selective = {
+        "answer": {"reasoning": "answer evidence", "value": "Ada Lovelace"},
+        "status": "confirmed",
+        "entities": [{"text": "Ada Lovelace", "label": "PERSON"}],
+        "observations": [{"value": 1.0}],
+        "tags": {"reasoning": "tag evidence", "value": ["SCIENCE"]},
+    }
+    assert unwrap_selective_inline_reasoning_output(
+        raw_selective, _selective_schema()
+    ) == {
+        "answer": "Ada Lovelace",
+        "status": "confirmed",
+        "entities": [{"text": "Ada Lovelace", "label": "PERSON"}],
+        "observations": [{"value": 1.0}],
+        "tags": ["SCIENCE"],
+    }
+
 
 def test_transform_schema_for_reasoning_dispatches_by_mode():
     assert transform_schema_for_reasoning(_schema(), ReasoningMode.NONE) == _schema()
@@ -256,6 +333,11 @@ def test_transform_schema_for_reasoning_dispatches_by_mode():
     assert "reasoning" in transform_schema_for_reasoning(
         _schema(), ReasoningMode.DEEP
     )["$defs"]["Mention"]["properties"]["text"]["properties"]
+    selective = transform_schema_for_reasoning(
+        _selective_schema(), ReasoningMode.SELECTIVE_TOP_LEVEL
+    )
+    assert "reasoning" in selective["properties"]["answer"]["properties"]
+    assert "reasoning" not in selective["properties"]["entities"].get("properties", {})
 
 
 def test_schema_views_render_raw_clean_pydantic_and_reasoned_variants():

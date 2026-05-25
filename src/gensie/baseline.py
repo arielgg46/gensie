@@ -107,6 +107,10 @@ class EnrichedInlineReasoningRagAgent(_DefaultPipelineAgent):
     pipeline_name = "enriched-inline-reasoning-rag"
 
 
+class SelectiveInlineReasoningRagAgent(_DefaultPipelineAgent):
+    pipeline_name = "selective-inline-reasoning-rag"
+
+
 class EnrichedSchemaAgent(_DefaultPipelineAgent):
     pipeline_name = "enriched-schema"
 
@@ -167,6 +171,7 @@ SUBMITTED_PIPELINES = (
     "mixed-extractors-self-consistency-rag",
     "enriched-schema-rag",
     "enriched-inline-reasoning-rag",
+    "selective-inline-reasoning-rag",
 )
 
 class OfficialParticipant(Participant):

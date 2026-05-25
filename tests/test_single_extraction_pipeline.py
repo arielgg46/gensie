@@ -3,6 +3,8 @@ import shutil
 from types import SimpleNamespace
 from pathlib import Path
 
+import pytest
+
 from gensie.baseline import (
     BasicAgent,
     EnrichedDeepInlineReasoningAgent,
@@ -17,6 +19,7 @@ from gensie.baseline import (
     MixedExtractorsVerdictJudgeRagSlotsSelfConsistencyAgent,
     MixedExtractorsVerdictJudgeSelfConsistencyAgent,
     OfficialParticipant,
+    SelectiveInlineReasoningRagAgent,
     VerbatimEntitiesEnrichedInlineReasoningAgent,
 )
 from gensie.phases import build_verbatim_entity_response_format
@@ -32,6 +35,7 @@ from gensie.runtime import ChatResponse, OpenAIChatClient
 from gensie.runtime.response_format import require_all_json_schema_properties
 from gensie.sampling import SingleExtractionRunner
 from gensie.fsp.rag import FSP_RETRIEVAL_TRACE_METADATA_KEY
+from gensie.prompts import ExtractionPromptBuilder
 from gensie.prompts.system import STRICT_ANCHORING_RULE
 from gensie.task import Task
 from gensie.usage import UsageTracker
@@ -284,6 +288,83 @@ def test_enriched_rag_agent_uses_registered_rag_fsp_pipeline():
     assert STRICT_ANCHORING_RULE in prompt
 
 
+def test_selective_inline_rag_agent_keeps_entity_arrays_direct():
+    fake = FakeChatClient(
+        '{"person":{"reasoning":"Named directly.","value":"Ada Lovelace"},'
+        '"year":{"reasoning":"The text states 1843.","value":1843},'
+        '"mentions":[{"text":"Ada Lovelace","label":"PERSON"}]}'
+    )
+    agent = SelectiveInlineReasoningRagAgent(chat_client=fake)
+
+    output = agent.run(_task(), model="demo")
+
+    request = fake.requests[0]
+    prompt = request.messages[1].content
+    generation_schema = request.response_format["json_schema"]["schema"]
+    assert output == {
+        "person": "Ada Lovelace",
+        "year": 1843,
+        "mentions": [{"text": "Ada Lovelace", "label": "PERSON"}],
+    }
+    assert request.metadata["pipeline"] == "selective-inline-reasoning-rag"
+    assert request.metadata["reasoning"] == "selective_top_level"
+    assert "reasoning" in generation_schema["properties"]["person"]["properties"]
+    assert "reasoning" in generation_schema["properties"]["year"]["properties"]
+    assert generation_schema["properties"]["mentions"]["type"] == "array"
+    assert "person: Reasoned[str]" in prompt
+    assert "year: Reasoned[Nullable[int]]" in prompt
+    assert "mentions: List[Mention]" in prompt
+    assert "mentions: Reasoned" not in prompt
+
+
+def test_selective_inline_prompt_hides_reasoning_rules_when_no_fields_are_reasoned():
+    schema = {
+        "type": "object",
+        "properties": {
+            "status": {"type": "string", "enum": ["ok", "missing"]},
+            "entities": {
+                "type": "array",
+                "description": "Person entities",
+                "items": {
+                    "type": "object",
+                    "properties": {"text": {"type": "string"}},
+                },
+            },
+        },
+    }
+    task = Task(
+        id="all-direct",
+        input_text="Ada Lovelace aparece en el texto.",
+        instruction="Extrae clasificación y entidades.",
+        target_schema=schema,
+    )
+    fake = FakeChatClient('{"status":"ok","entities":[{"text":"Ada Lovelace"}]}')
+    spec = PipelineSpec(
+        name="selective",
+        description="selective",
+        extraction=ExtractionSpec(
+            name="selective",
+            reasoning=ReasoningMode.SELECTIVE_TOP_LEVEL,
+            schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+        ),
+    )
+    agent = ComposablePipelineAgent(
+        spec,
+        SingleExtractionRunner(fake, prompt_builder=ExtractionPromptBuilder()),
+    )
+
+    output = agent.run(task, model="demo")
+
+    request = fake.requests[0]
+    prompt = request.messages[1].content
+    assert output == {"status": "ok", "entities": [{"text": "Ada Lovelace"}]}
+    assert "Reasoned[" not in prompt
+    assert "class Reasoned" not in prompt
+    assert "FORMATO DE RAZONAMIENTO" not in prompt
+    assert "El `reasoning` debe" not in prompt
+    assert "reasoning" not in request.messages[0].content
+
+
 def test_enriched_schema_agent_uses_plain_pydantic_prompt_without_reasoning_or_fsp():
     fake = FakeChatClient(
         '{"person":"Ada Lovelace","year":1843,'
@@ -494,27 +575,18 @@ def test_official_participant_exposes_default_specs_and_fallback_agent():
     names = [pipeline.name for pipeline in participant.get_info().pipelines]
 
     assert names == [
-        "baseline",
-        "inline-reasoning",
-        "enriched-inline-reasoning",
-        "enriched-inline-reasoning-rag",
-        "enriched-schema",
+        "mixed-extractors-self-consistency-rag",
         "enriched-schema-rag",
-        "verbatim-entities-enriched-inline-reasoning",
-        "enriched-inline-reasoning-deep",
-        "enriched-inline-reasoning-super-fsp",
-        "enriched-inline-reasoning-self-consistency",
-        "enriched-inline-reasoning-super-fsp-self-consistency",
-        "enriched-inline-reasoning-self-consistency-judge",
-        "enriched-inline-reasoning-self-consistency-verdict-judge",
-        "mixed-extractors-self-consistency-judge",
-        "mixed-extractors-self-consistency-verdict-judge",
-        "mixed-extractors-self-consistency-verdict-judge-rag",
-        "mixed-extractors-self-consistency-verdict-judge-rag-slots",
-        "parse",
+        "enriched-inline-reasoning-rag",
+        "selective-inline-reasoning-rag",
     ]
-    assert participant.get_agent("missing") is participant.get_agent("baseline")
+    with pytest.raises(KeyError):
+        participant.get_agent("missing")
     assert EnrichedSchemaRagAgent.pipeline_name == "enriched-schema-rag"
+    assert (
+        SelectiveInlineReasoningRagAgent.pipeline_name
+        == "selective-inline-reasoning-rag"
+    )
     assert (
         MixedExtractorsJudgeSelfConsistencyAgent.pipeline_name
         == "mixed-extractors-self-consistency-judge"

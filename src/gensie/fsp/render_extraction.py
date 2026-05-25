@@ -14,8 +14,10 @@ from gensie.schemas.clean import clean_schema_for_prompt
 from gensie.schemas.pydantic_render import (
     render_plain_pydantic_schema,
     render_reasoned_pydantic_schema,
+    render_selective_reasoned_pydantic_schema,
 )
 from gensie.schemas.reasoning import build_inline_reasoning_prompt_schema
+from gensie.schemas.field_tags import selective_inline_reasoning_field_names
 
 
 def build_extraction_output(
@@ -40,7 +42,24 @@ def build_extraction_output(
                 "value": copy.deepcopy(field.value),
             }
         return output
-    raise ValueError("FSP RAG examples initially support only none and top_level reasoning")
+    if mode is ReasoningMode.SELECTIVE_TOP_LEVEL:
+        reasoned_fields = set(selective_inline_reasoning_field_names(case.schema))
+        output: dict[str, Any] = {}
+        for field_name, field in case.field_examples.items():
+            if field_name in reasoned_fields:
+                if field.reasoning is None:
+                    continue
+                output[field_name] = {
+                    "reasoning": field.reasoning.render(labels),
+                    "value": copy.deepcopy(field.value),
+                }
+            else:
+                output[field_name] = copy.deepcopy(field.value)
+        return output
+    raise ValueError(
+        "FSP RAG examples initially support only none, top_level and "
+        "selective_top_level reasoning"
+    )
 
 
 def render_extraction_fsp_example(
@@ -112,6 +131,12 @@ def _example_intro(extraction: ExtractionSpec) -> str:
             "textual relacionada (FRAGMENTOS RELEVANTES) y luego razonar sobre el "
             "value (VALOR FINAL)."
         )
+    if extraction.reasoning is ReasoningMode.SELECTIVE_TOP_LEVEL:
+        return (
+            "Este ejemplo muestra cómo razonar solo en los campos Reasoned antes "
+            "de escribir value, dejando directos los campos del schema que no usan "
+            "wrapper de reasoning."
+        )
     return (
         "Este ejemplo muestra cómo extraer directamente los valores finales del "
         "schema usando solo evidencia del texto fuente."
@@ -123,6 +148,11 @@ def _render_example_schema(
 ) -> tuple[str, str]:
     mode = extraction.schema_prompt
     if mode is SchemaPromptMode.REASONED_PYDANTIC:
+        if extraction.reasoning is ReasoningMode.SELECTIVE_TOP_LEVEL:
+            return (
+                "SCHEMA PYDANTIC DEL EJEMPLO",
+                render_selective_reasoned_pydantic_schema(case.schema),
+            )
         return "SCHEMA PYDANTIC DEL EJEMPLO", render_reasoned_pydantic_schema(case.schema)
     if mode is SchemaPromptMode.PYDANTIC:
         return "SCHEMA PYDANTIC DEL EJEMPLO", render_plain_pydantic_schema(case.schema)

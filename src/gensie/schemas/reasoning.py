@@ -4,6 +4,7 @@ import copy
 from typing import Any
 
 from gensie.schemas.clean import clean_schema_for_prompt
+from gensie.schemas.field_tags import selective_inline_reasoning_field_names
 from gensie.schemas.inspect import JsonDict, deref, schema_type, unwrap_nullable_anyof
 
 REASONING_FIELD_DESCRIPTION = (
@@ -19,6 +20,8 @@ def transform_schema_for_reasoning(
         return copy.deepcopy(schema)
     if mode == "top_level":
         return build_inline_reasoning_schema(schema)
+    if mode == "selective_top_level":
+        return build_selective_inline_reasoning_schema(schema)
     if mode == "deep":
         return build_deep_inline_reasoning_schema(schema)
     raise ValueError(f"unsupported reasoning mode: {reasoning}")
@@ -32,6 +35,8 @@ def unwrap_reasoning_output(
         return raw_output
     if mode == "top_level":
         return unwrap_inline_reasoning_output(raw_output, original_schema)
+    if mode == "selective_top_level":
+        return unwrap_selective_inline_reasoning_output(raw_output, original_schema)
     if mode == "deep":
         return unwrap_deep_inline_reasoning_output(raw_output, original_schema)
     raise ValueError(f"unsupported reasoning mode: {reasoning}")
@@ -45,9 +50,31 @@ def extract_reasoning_view(
         return {}
     if mode == "top_level":
         return _top_level_reasoning_view(raw_output)
+    if mode == "selective_top_level":
+        return _selective_top_level_reasoning_view(raw_output, original_schema)
     if mode == "deep":
         return _deep_reasoning_view(raw_output, original_schema)
     raise ValueError(f"unsupported reasoning mode: {reasoning}")
+
+
+def reasoned_top_level_field_names(schema: JsonDict, reasoning: Any) -> tuple[str, ...]:
+    mode = _reasoning_value(reasoning)
+    properties = schema.get("properties")
+    if not isinstance(properties, dict):
+        return ()
+    if mode == "top_level" or mode == "deep":
+        return tuple(
+            field_name
+            for field_name, field_schema in properties.items()
+            if isinstance(field_name, str) and isinstance(field_schema, dict)
+        )
+    if mode == "selective_top_level":
+        return selective_inline_reasoning_field_names(schema)
+    return ()
+
+
+def has_reasoning_output_fields(schema: JsonDict, reasoning: Any) -> bool:
+    return bool(reasoned_top_level_field_names(schema, reasoning))
 
 
 def build_inline_reasoning_schema(schema: JsonDict) -> JsonDict:
@@ -73,6 +100,41 @@ def build_inline_reasoning_schema(schema: JsonDict) -> JsonDict:
         reasoning_schema["description"] = "Inline reasoning wrapper for: " + str(original["description"])
     if "title" in original:
         reasoning_schema["title"] = str(original["title"]) + "InlineReasoning"
+    return reasoning_schema
+
+
+def build_selective_inline_reasoning_schema(schema: JsonDict) -> JsonDict:
+    original = copy.deepcopy(schema)
+    properties = original.get("properties")
+    if original.get("type") != "object" or not isinstance(properties, dict):
+        raise ValueError(
+            "selective inline reasoning requires a root object schema with properties"
+        )
+
+    reasoned_fields = set(selective_inline_reasoning_field_names(original))
+    wrapped_properties = {
+        field_name: (
+            _reasoning_wrapper_schema(field_schema)
+            if field_name in reasoned_fields
+            else copy.deepcopy(field_schema)
+        )
+        for field_name, field_schema in properties.items()
+        if isinstance(field_schema, dict)
+    }
+    reasoning_schema: JsonDict = {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": wrapped_properties,
+        "required": list(wrapped_properties),
+    }
+    if "$defs" in original:
+        reasoning_schema["$defs"] = original["$defs"]
+    if "description" in original:
+        reasoning_schema["description"] = (
+            "Selective inline reasoning wrapper for: " + str(original["description"])
+        )
+    if "title" in original:
+        reasoning_schema["title"] = str(original["title"]) + "SelectiveInlineReasoning"
     return reasoning_schema
 
 
@@ -118,6 +180,32 @@ def unwrap_inline_reasoning_output(raw_output: JsonDict, original_schema: JsonDi
         if not isinstance(wrapped_field, dict) or "value" not in wrapped_field:
             raise ValueError(f"missing inline reasoning value for field: {field_name}")
         output[field_name] = wrapped_field["value"]
+    return output
+
+
+def unwrap_selective_inline_reasoning_output(
+    raw_output: JsonDict, original_schema: JsonDict
+) -> JsonDict:
+    properties = original_schema.get("properties")
+    if not isinstance(properties, dict):
+        raise ValueError("original schema has no root properties")
+    if not isinstance(raw_output, dict):
+        raise ValueError("selective inline reasoning output must be a JSON object")
+
+    reasoned_fields = set(selective_inline_reasoning_field_names(original_schema))
+    output: JsonDict = {}
+    for field_name in properties:
+        if field_name not in raw_output:
+            raise ValueError(f"missing selective inline reasoning field: {field_name}")
+        raw_field = raw_output[field_name]
+        if field_name in reasoned_fields:
+            if not isinstance(raw_field, dict) or "value" not in raw_field:
+                raise ValueError(
+                    f"missing selective inline reasoning value for field: {field_name}"
+                )
+            output[field_name] = raw_field["value"]
+        else:
+            output[field_name] = raw_field
     return output
 
 
@@ -267,6 +355,21 @@ def _reasoning_value(reasoning: Any) -> str:
 def _top_level_reasoning_view(raw_output: JsonDict) -> JsonDict:
     out: JsonDict = {}
     for field_name, wrapped in raw_output.items():
+        if not isinstance(wrapped, dict):
+            continue
+        reasoning = wrapped.get("reasoning")
+        if isinstance(reasoning, str):
+            out[str(field_name)] = reasoning
+    return out
+
+
+def _selective_top_level_reasoning_view(
+    raw_output: JsonDict, original_schema: JsonDict
+) -> JsonDict:
+    out: JsonDict = {}
+    reasoned_fields = set(selective_inline_reasoning_field_names(original_schema))
+    for field_name in reasoned_fields:
+        wrapped = raw_output.get(field_name)
         if not isinstance(wrapped, dict):
             continue
         reasoning = wrapped.get("reasoning")

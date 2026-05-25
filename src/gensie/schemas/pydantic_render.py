@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from gensie.schemas.field_tags import selective_inline_reasoning_field_names
 from gensie.schemas.fields import FieldInfo, parse_field
 from gensie.schemas.inspect import (
     JsonDict,
@@ -82,15 +83,50 @@ def render_reasoned_pydantic_schema(schema: JsonDict) -> str:
     return _render_reasoned_schema(schema, deep=False)
 
 
+def render_selective_reasoned_pydantic_schema(
+    schema: JsonDict,
+    *,
+    reasoned_field_names: set[str] | None = None,
+) -> str:
+    reasoned_fields = (
+        set(selective_inline_reasoning_field_names(schema))
+        if reasoned_field_names is None
+        else set(reasoned_field_names)
+    )
+    if not reasoned_fields:
+        return render_plain_pydantic_schema(schema)
+    reasoned_paths = {f"Output.{field_name}" for field_name in reasoned_fields}
+    return _render_reasoned_schema(
+        schema,
+        deep=False,
+        reasoned_field_paths=reasoned_paths,
+    )
+
+
 def render_deep_reasoned_pydantic_schema(schema: JsonDict) -> str:
     return _render_reasoned_schema(schema, deep=True)
 
 
-def _render_reasoned_schema(schema: JsonDict, *, deep: bool) -> str:
+def _render_reasoned_schema(
+    schema: JsonDict,
+    *,
+    deep: bool,
+    reasoned_field_paths: set[str] | None = None,
+) -> str:
     root_schema = schema
     ref_name_map = _render_defs_name_map(schema)
+    nullable_alias = True if reasoned_field_paths is not None else None
     lines = _reasoned_pydantic_prelude()
-    lines.extend(_render_defs(schema, root_schema, ref_name_map, reasoned=deep, deep=deep))
+    lines.extend(
+        _render_defs(
+            schema,
+            root_schema,
+            ref_name_map,
+            reasoned=deep,
+            deep=deep,
+            nullable_alias=nullable_alias,
+        )
+    )
 
     root = deref(schema, root_schema)
     if root.get("type") == "object":
@@ -103,6 +139,8 @@ def _render_reasoned_schema(schema: JsonDict, *, deep: bool) -> str:
                 ref_name_map=ref_name_map,
                 reasoned=True,
                 deep=deep,
+                reasoned_field_paths=reasoned_field_paths,
+                nullable_alias=nullable_alias,
             )
         )
     else:
@@ -195,6 +233,7 @@ def _render_object_model(
     reasoned: bool,
     deep: bool,
     nullable_alias: bool | None = None,
+    reasoned_field_paths: set[str] | None = None,
 ) -> list[str]:
     properties = schema.get("properties") if isinstance(schema.get("properties"), dict) else {}
     required_set = set(schema.get("required") or [])
@@ -230,6 +269,7 @@ def _render_object_model(
                     reasoned=reasoned and deep,
                     deep=deep,
                     nullable_alias=nullable_alias,
+                    reasoned_field_paths=None,
                 )
             )
             output.append("")
@@ -240,15 +280,20 @@ def _render_object_model(
         return output
 
     for field in fields:
+        field_reasoned = (
+            field.path in reasoned_field_paths
+            if reasoned_field_paths is not None
+            else reasoned
+        )
         type_hint = _type_for_field(
             field,
             ref_name_map=ref_name_map,
             deep=deep,
-            nullable_alias=reasoned if nullable_alias is None else nullable_alias,
+            nullable_alias=field_reasoned if nullable_alias is None else nullable_alias,
         )
-        if reasoned:
+        if field_reasoned:
             type_hint = f"Reasoned[{type_hint}]"
-        default = _default_expr(field, reasoned=reasoned)
+        default = _default_expr(field, reasoned=field_reasoned)
         output.append(f"    {safe_name(field.name)}: {type_hint}{default}")
     return output
 

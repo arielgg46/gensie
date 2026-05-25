@@ -98,17 +98,15 @@ def test_super_fsp_self_consistency_uses_super_fsp_prompt(monkeypatch):
     assert "Don Quijote de la Mancha" not in prompt
 
 
-def test_official_participant_registers_self_consistency_pipelines():
+def test_official_participant_registers_submitted_rag_pipelines():
     names = [pipeline.name for pipeline in OfficialParticipant().get_info().pipelines]
 
-    assert "enriched-inline-reasoning-self-consistency" in names
-    assert "enriched-inline-reasoning-super-fsp-self-consistency" in names
-    assert "enriched-inline-reasoning-self-consistency-judge" in names
-    assert "enriched-inline-reasoning-self-consistency-verdict-judge" in names
-    assert "mixed-extractors-self-consistency-judge" in names
-    assert "mixed-extractors-self-consistency-verdict-judge" in names
-    assert "mixed-extractors-self-consistency-verdict-judge-rag" in names
-    assert "mixed-extractors-self-consistency-verdict-judge-rag-slots" in names
+    assert names == [
+        "mixed-extractors-self-consistency-rag",
+        "enriched-schema-rag",
+        "enriched-inline-reasoning-rag",
+        "selective-inline-reasoning-rag",
+    ]
 
 
 def test_multi_trial_runner_supports_heterogeneous_trial_groups(monkeypatch):

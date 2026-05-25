@@ -8,6 +8,7 @@ from typing import Any, Mapping
 class ReasoningMode(StrEnum):
     NONE = "none"
     TOP_LEVEL = "top_level"
+    SELECTIVE_TOP_LEVEL = "selective_top_level"
     DEEP = "deep"
 
 
