@@ -24,7 +24,7 @@ from gensie.runtime import (
     trace_step,
     usage_payload,
 )
-from gensie.schemas import extract_reasoning_view
+from gensie.schemas import coerce_nullable_string_nulls, extract_reasoning_view
 from gensie.schemas.reasoning import unwrap_reasoning_output
 
 
@@ -125,6 +125,9 @@ class SingleExtractionRunner:
         try:
             final_output = unwrap_reasoning_output(
                 raw_output, context.task.target_schema, extraction.reasoning
+            )
+            final_output = coerce_nullable_string_nulls(
+                final_output, context.task.target_schema
             )
             reasoning_view = extract_reasoning_view(
                 raw_output, context.task.target_schema, extraction.reasoning

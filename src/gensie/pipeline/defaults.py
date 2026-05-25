@@ -64,6 +64,20 @@ def default_pipeline_specs() -> tuple[PipelineSpec, ...]:
             ),
         ),
         PipelineSpec(
+            name="selective-inline-reasoning-rag",
+            description=(
+                "RAG extraction with reasoned Pydantic prompt, but direct "
+                "top-level outputs for entity arrays, enum classifications, "
+                "and complex object arrays."
+            ),
+            extraction=ExtractionSpec(
+                name="selective-inline-reasoning-rag",
+                reasoning=ReasoningMode.SELECTIVE_TOP_LEVEL,
+                schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+                few_shot=FewShotMode.RAG,
+            ),
+        ),
+        PipelineSpec(
             name="enriched-schema",
             description="Spanish enriched extraction prompt with a plain Pydantic schema, no FSP, and no inline reasoning.",
             extraction=ExtractionSpec(

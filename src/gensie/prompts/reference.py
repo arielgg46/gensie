@@ -62,6 +62,9 @@ class ReferenceExtractionPromptBuilder(PromptBuilder):
                 metadata={"prompt_style": "baseline"},
             )
 
+        if extraction.reasoning is ReasoningMode.SELECTIVE_TOP_LEVEL:
+            return ExtractionPromptBuilder().build(context, extraction)
+
         if extraction.reasoning is ReasoningMode.DEEP:
             return PromptBundle(
                 system=DEEP_INLINE_REASONING_SYSTEM_PROMPT,

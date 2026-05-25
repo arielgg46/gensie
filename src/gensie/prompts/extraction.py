@@ -25,9 +25,11 @@ from gensie.prompts.system import (
     EXTRACTION_RULES,
     INLINE_REASONING_SYSTEM_PROMPT,
     REASONING_EXTRACTION_RULES,
+    SELECTIVE_INLINE_REASONING_SYSTEM_PROMPT,
     STRICT_ANCHORING_RULE,
     strict_reasoning_format_rule,
 )
+from gensie.schemas.reasoning import has_reasoning_output_fields
 
 ENRICHED_RAG_FIELD_DESCRIPTIONS_ENV = (
     "GENSIE_FSP_RAG_USE_ENRICHED_DESCRIPTIONS"
@@ -47,7 +49,10 @@ class ExtractionPromptBuilder(PromptBuilder):
             extraction.schema_prompt,
             reasoning=extraction.reasoning,
         )
-        system = system_prompt_for_reasoning(extraction.reasoning)
+        system = system_prompt_for_reasoning(
+            extraction.reasoning,
+            schema=context.task.target_schema,
+        )
         fsp_selection = _select_fsp_selection(
             context,
             extraction,
@@ -55,6 +60,7 @@ class ExtractionPromptBuilder(PromptBuilder):
         )
         rules = _rules_for_reasoning(
             extraction.reasoning,
+            schema=context.task.target_schema,
             labels=_reasoning_labels_for_selection(fsp_selection),
         )
         fsp_examples = (
@@ -114,6 +120,7 @@ def build_extraction_prompt(
         schema_view=schema_view,
         default_rules=_rules_for_reasoning(
             extraction.reasoning,
+            schema=context.task.target_schema,
             labels=_reasoning_labels_for_selection(fsp_selection),
         ),
         include_default_rules=include_default_rules,
@@ -122,10 +129,18 @@ def build_extraction_prompt(
     )
 
 
-def system_prompt_for_reasoning(reasoning: ReasoningMode | str) -> str:
+def system_prompt_for_reasoning(
+    reasoning: ReasoningMode | str,
+    *,
+    schema: Mapping[str, object] | None = None,
+) -> str:
     mode = ReasoningMode(reasoning)
     if mode is ReasoningMode.TOP_LEVEL:
         return INLINE_REASONING_SYSTEM_PROMPT
+    if mode is ReasoningMode.SELECTIVE_TOP_LEVEL:
+        if schema is not None and not has_reasoning_output_fields(dict(schema), mode):
+            return BASE_EXTRACTION_SYSTEM_PROMPT
+        return SELECTIVE_INLINE_REASONING_SYSTEM_PROMPT
     if mode is ReasoningMode.DEEP:
         return DEEP_INLINE_REASONING_SYSTEM_PROMPT
     return BASE_EXTRACTION_SYSTEM_PROMPT
@@ -134,11 +149,22 @@ def system_prompt_for_reasoning(reasoning: ReasoningMode | str) -> str:
 def _rules_for_reasoning(
     reasoning: ReasoningMode,
     *,
+    schema: Mapping[str, object] | None = None,
     labels: ReasoningSectionLabels = DEFAULT_REASONING_SECTION_LABELS,
 ) -> list[str]:
     mode = ReasoningMode(reasoning)
     rules = [*EXTRACTION_RULES]
+    if mode is ReasoningMode.SELECTIVE_TOP_LEVEL and schema is not None:
+        if not has_reasoning_output_fields(dict(schema), mode):
+            rules.append(STRICT_ANCHORING_RULE)
+            return rules
     if mode is not ReasoningMode.NONE:
+        if mode is ReasoningMode.SELECTIVE_TOP_LEVEL:
+            rules.append(
+                "- Solo los campos declarados como `Reasoned[...]` o con subcampos "
+                "`reasoning` y `value` deben usar wrapper de razonamiento; los "
+                "demás campos se devuelven directamente."
+            )
         rules.extend((REASONING_EXTRACTION_RULES[0], strict_reasoning_format_rule(labels)))
         rules.extend(REASONING_EXTRACTION_RULES[1:])
     rules.append(STRICT_ANCHORING_RULE)

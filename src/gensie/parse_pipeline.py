@@ -25,6 +25,7 @@ from gensie.runtime import (
     require_all_json_schema_properties,
     trace_step as _runtime_trace_step,
 )
+from gensie.schemas import coerce_nullable_string_nulls
 from gensie.task import Task
 
 _ARCHITECT_SYSTEM = """You refine JSON Schemas so another LLM can extract structured values from unstructured TEXT. The schema is a contract for machine consumption—precise, low-noise, no narrative essays.
@@ -534,6 +535,8 @@ class ParseAgent:
 
     def _relay_identity(self, original_schema: Mapping[str, Any], data: Any) -> Any:
         """RELAY: when shapes align, output already matches the submission schema."""
+        if isinstance(data, Mapping):
+            return coerce_nullable_string_nulls(dict(data), dict(original_schema))
         return data
 
     def _architect_optimize(

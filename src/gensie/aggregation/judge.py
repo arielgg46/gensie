@@ -31,6 +31,7 @@ from gensie.runtime import (
     trace_step,
     usage_payload,
 )
+from gensie.schemas import coerce_nullable_string_nulls
 from gensie.schemas.reasoning import unwrap_reasoning_output
 
 
@@ -104,8 +105,9 @@ class JudgeAggregator:
             )
 
         fallback_record = valid_records[0]
-        fallback_output = normalize_model_output_strings(
-            dict(fallback_record.result.output or {})
+        fallback_output = _postprocess_output(
+            normalize_model_output_strings(dict(fallback_record.result.output or {})),
+            context,
         )
         if len(valid_records) == 1:
             return self._fallback_result(
@@ -118,7 +120,10 @@ class JudgeAggregator:
 
         scope = build_judge_scope(valid_records, context.task.target_schema)
         if not scope.has_disputes:
-            output = normalize_model_output_strings(merge_judge_output(scope, {}))
+            output = _postprocess_output(
+                normalize_model_output_strings(merge_judge_output(scope, {})),
+                context,
+            )
             return self._fallback_result(
                 context,
                 records,
@@ -174,8 +179,9 @@ class JudgeAggregator:
             judge_output = unwrap_reasoning_output(
                 raw_output, scope.reduced_schema, ReasoningMode.TOP_LEVEL
             )
-            final_output = normalize_model_output_strings(
-                merge_judge_output(scope, judge_output)
+            final_output = _postprocess_output(
+                normalize_model_output_strings(merge_judge_output(scope, judge_output)),
+                context,
             )
         except Exception as exc:
             error = str(exc) or repr(exc)
@@ -242,7 +248,10 @@ class JudgeAggregator:
         started_perf = time.perf_counter()
         completed_at = datetime.now(timezone.utc)
         duration_ms = (time.perf_counter() - started_perf) * 1000
-        normalized_output = normalize_model_output_strings(dict(output))
+        normalized_output = _postprocess_output(
+            normalize_model_output_strings(dict(output)),
+            context,
+        )
         result = AggregationResult(
             output=normalized_output,
             mode=AggregationMode.JUDGE,
@@ -312,3 +321,9 @@ def _trial_record_payload(record: TrialRecord) -> Mapping[str, Any]:
         "errors": list(record.result.errors),
         "metadata": dict(record.metadata),
     }
+
+
+def _postprocess_output(
+    output: Mapping[str, Any], context: PipelineContext
+) -> dict[str, Any]:
+    return coerce_nullable_string_nulls(dict(output), context.task.target_schema)

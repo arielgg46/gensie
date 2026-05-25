@@ -182,6 +182,37 @@ def test_structured_case_renders_none_and_top_level_outputs_from_same_base():
     assert "VALOR FINAL:" in reasoned["title"]["reasoning"]
 
 
+def test_structured_case_renders_selective_reasoning_outputs():
+    schema = {
+        "type": "object",
+        "properties": {
+            "answer": {"type": "string"},
+            "status": {"type": "string", "enum": ["ok", "missing"]},
+            "entities": {
+                "type": "array",
+                "description": "Person entities",
+                "items": {
+                    "type": "object",
+                    "properties": {"text": {"type": "string"}},
+                },
+            },
+            "tags": {
+                "type": "array",
+                "items": {"type": "string", "enum": ["A", "B"]},
+            },
+        },
+    }
+    case = _minimal_case("selective", schema)
+
+    output = build_extraction_output(case, ReasoningMode.SELECTIVE_TOP_LEVEL)
+
+    assert output["answer"]["reasoning"].startswith("EL CAMPO PIDE:")
+    assert output["answer"]["value"] == "valor"
+    assert output["status"] == "valor"
+    assert output["entities"] == []
+    assert output["tags"]["value"] == []
+
+
 def test_reasoning_section_labels_are_renderer_configuration():
     case = quijote_cultural_literature_case()
     labels = ReasoningSectionLabels(
@@ -202,7 +233,7 @@ def test_reasoning_section_labels_are_renderer_configuration():
     assert "EL CAMPO PIDE:" not in reasoned["title"]["reasoning"]
 
 
-def test_rag_extraction_provider_supports_none_and_top_level_but_not_deep():
+def test_rag_extraction_provider_supports_none_top_level_and_selective_but_not_deep():
     provider = RagExtractionFspProvider(cases=[quijote_cultural_literature_case()])
 
     none_examples = provider.examples(
@@ -223,6 +254,15 @@ def test_rag_extraction_provider_supports_none_and_top_level_but_not_deep():
             few_shot=FewShotMode.RAG,
         ),
     )
+    selective_examples = provider.examples(
+        _context(),
+        ExtractionSpec(
+            name="selective-inline-reasoning-rag-fsp",
+            reasoning=ReasoningMode.SELECTIVE_TOP_LEVEL,
+            schema_prompt=SchemaPromptMode.REASONED_PYDANTIC,
+            few_shot=FewShotMode.RAG,
+        ),
+    )
     deep_examples = provider.examples(
         _context(),
         ExtractionSpec(
@@ -236,6 +276,7 @@ def test_rag_extraction_provider_supports_none_and_top_level_but_not_deep():
     assert none_examples[0].name == "cultural_literature_quijote"
     assert '"title": "Don Quijote de la Mancha"' in none_examples[0].prompt
     assert '"reasoning": "EL CAMPO PIDE:' in top_examples[0].prompt
+    assert '"reasoning": "EL CAMPO PIDE:' in selective_examples[0].prompt
     assert deep_examples == ()
 
 

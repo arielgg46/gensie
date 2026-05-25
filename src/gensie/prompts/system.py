@@ -70,6 +70,17 @@ INLINE_REASONING_SYSTEM_PROMPT = (
     f"{STRICT_ANCHORING_RULE}"
 )
 
+SELECTIVE_INLINE_REASONING_SYSTEM_PROMPT = (
+    "Eres un motor experto de extracción de información en español.\n"
+    "Devuelve solo el objeto JSON requerido por el schema.\n"
+    "Usa solo evidencia del texto fuente.\n"
+    "Razona antes del valor final solo en los campos que el schema marca como "
+    "Reasoned o como objeto con reasoning y value.\n"
+    "Los campos sin wrapper de reasoning se devuelven directamente, sin campos adicionales.\n"
+    "En cada reasoning, cita texto exacto cuando exista evidencia, o indica que no hay evidencia textual.\n"
+    f"{STRICT_ANCHORING_RULE}"
+)
+
 ENRICHED_INLINE_REASONING_SYSTEM_PROMPT = (
     "Eres un motor experto de extracción de información en español.\n"
     "Devuelve solo el objeto JSON requerido por el schema.\n"

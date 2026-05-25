@@ -20,6 +20,7 @@ from gensie.pipeline.specs import (
 )
 from gensie.prompts.schema_views import SchemaView
 from gensie.prompts.system import EXTRACTION_RULES_HEADER, STRICT_ANCHORING_RULE
+from gensie.schemas.reasoning import has_reasoning_output_fields
 
 DEFAULT_EXTRACTION_LAYOUT = "default"
 SAME_SCHEMA_RAG_COMPACT_LAYOUT = "same_schema_rag_compact"
@@ -221,7 +222,10 @@ def _build_same_schema_system_prompt(
         "Úsalos para interpretar campos, nulls, listas, enums y el formato "
         "de salida; no copies sus valores al nuevo TEXTO FUENTE."
     )
-    if extraction.reasoning is not ReasoningMode.NONE:
+    if (
+        extraction.reasoning is not ReasoningMode.NONE
+        and has_reasoning_output_fields(context.task.target_schema, extraction.reasoning)
+    ):
         example_guidance = (
             "Los ejemplos del mensaje de usuario usan este mismo schema. "
             "Úsalos para interpretar campos, nulls, listas, enums y el estilo "
@@ -366,7 +370,11 @@ def should_use_same_schema_rag_compact_layout(
     extraction: ExtractionSpec,
     selection: FspSelection | None,
 ) -> bool:
-    supported_reasoning = {ReasoningMode.NONE, ReasoningMode.TOP_LEVEL}
+    supported_reasoning = {
+        ReasoningMode.NONE,
+        ReasoningMode.TOP_LEVEL,
+        ReasoningMode.SELECTIVE_TOP_LEVEL,
+    }
     supported_schema_prompts = {
         SchemaPromptMode.PYDANTIC,
         SchemaPromptMode.REASONED_PYDANTIC,

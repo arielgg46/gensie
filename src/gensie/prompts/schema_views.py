@@ -7,10 +7,12 @@ from typing import Any, Mapping
 
 from gensie.pipeline.specs import ReasoningMode, SchemaPromptMode
 from gensie.schemas.clean import clean_schema_for_prompt
+from gensie.schemas.field_tags import selective_inline_reasoning_field_names
 from gensie.schemas.pydantic_render import (
     render_deep_reasoned_pydantic_schema,
     render_pydantic_code,
     render_reasoned_pydantic_schema,
+    render_selective_reasoned_pydantic_schema,
 )
 from gensie.schemas.reasoning import build_inline_reasoning_prompt_schema
 
@@ -33,6 +35,10 @@ def render_schema_view(
     reasoning: ReasoningMode | str = ReasoningMode.NONE,
     field_description_overrides: Mapping[str, str] | None = None,
 ) -> SchemaView:
+    original_schema = schema
+    selective_reasoned_fields = set(
+        selective_inline_reasoning_field_names(original_schema)
+    )
     schema = _schema_with_field_description_overrides(
         schema,
         field_description_overrides,
@@ -80,14 +86,18 @@ def render_schema_view(
     if prompt_mode is SchemaPromptMode.REASONED_PYDANTIC:
         if reasoning_mode is ReasoningMode.NONE:
             raise ValueError("reasoned pydantic schema requires inline reasoning")
-        renderer = (
-            render_deep_reasoned_pydantic_schema
-            if reasoning_mode is ReasoningMode.DEEP
-            else render_reasoned_pydantic_schema
-        )
+        if reasoning_mode is ReasoningMode.DEEP:
+            content = render_deep_reasoned_pydantic_schema(schema)
+        elif reasoning_mode is ReasoningMode.SELECTIVE_TOP_LEVEL:
+            content = render_selective_reasoned_pydantic_schema(
+                schema,
+                reasoned_field_names=selective_reasoned_fields,
+            )
+        else:
+            content = render_reasoned_pydantic_schema(schema)
         return SchemaView(
             heading="SCHEMA PYDANTIC",
-            content=renderer(schema),
+            content=content,
             root_description=_root_description(schema),
             metadata={
                 "mode": prompt_mode.value,
