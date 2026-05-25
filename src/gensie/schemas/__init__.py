@@ -1,4 +1,5 @@
 from gensie.schemas.clean import clean_schema_for_prompt
+from gensie.schemas.coercion import coerce_nullable_string_nulls
 from gensie.schemas.fields import FieldInfo, parse_field, parse_schema_fields, render_field_cards
 from gensie.schemas.inspect import (
     JsonDict,
@@ -36,6 +37,7 @@ __all__ = [
     "build_inline_reasoning_schema",
     "build_reduced_schema",
     "clean_schema_for_prompt",
+    "coerce_nullable_string_nulls",
     "deref",
     "extract_reasoning_view",
     "is_null_schema",

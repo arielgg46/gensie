@@ -123,6 +123,22 @@ def test_basic_agent_uses_original_schema_and_tracks_usage():
     }
 
 
+def test_single_extraction_coerces_string_nulls_only_for_nullable_fields():
+    fake = FakeChatClient(
+        '{"person":"null","year":"null",'
+        '"mentions":[{"text":"null","label":"null"}]}'
+    )
+    agent = BasicAgent(chat_client=fake)
+
+    output = agent.run(_task(), model="demo-model")
+
+    assert output == {
+        "person": "null",
+        "year": None,
+        "mentions": [{"text": "null", "label": "null"}],
+    }
+
+
 def test_generation_schema_requires_all_properties_recursively_for_non_baseline():
     schema = {
         "type": "object",

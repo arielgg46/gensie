@@ -6,6 +6,7 @@ from typing import Protocol
 from gensie.pipeline.context import PipelineContext
 from gensie.pipeline.records import AggregationResult, TrialRecord
 from gensie.pipeline.specs import AggregationMode
+from gensie.schemas import coerce_nullable_string_nulls
 
 
 class Aggregator(Protocol):
@@ -19,11 +20,13 @@ class PassthroughAggregator:
     def aggregate(
         self, records: Sequence[TrialRecord], context: PipelineContext
     ) -> AggregationResult:
-        del context
         for record in records:
             if record.result.is_valid:
                 return AggregationResult(
-                    output=record.result.output,
+                    output=coerce_nullable_string_nulls(
+                        dict(record.result.output or {}),
+                        context.task.target_schema,
+                    ),
                     mode=AggregationMode.PASSTHROUGH,
                     selected_trial_index=record.index,
                     metadata={"selected_group": record.group_name},

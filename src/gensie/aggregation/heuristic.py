@@ -11,6 +11,7 @@ from gensie.pipeline.context import PipelineContext
 from gensie.pipeline.records import AggregationResult, TrialRecord
 from gensie.pipeline.specs import AggregationMode
 from gensie.runtime import trace_step
+from gensie.schemas import coerce_nullable_string_nulls
 
 
 class HeuristicSelfConsistencyAggregator:
@@ -49,6 +50,7 @@ class HeuristicSelfConsistencyAggregator:
         output, diagnostics = self.aggregator.aggregate_with_diagnostics(
             candidates, context.task.target_schema
         )
+        output = coerce_nullable_string_nulls(output, context.task.target_schema)
         result = AggregationResult(
             output=output,
             mode=AggregationMode.HEURISTIC_SELF_CONSISTENCY,
