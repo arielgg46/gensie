@@ -1,0 +1,1979 @@
+{
+  "participant": {
+    "team_name": "DRILLER",
+    "institution": "Universidad de La Habana",
+    "pipelines": [
+      {
+        "name": "baseline",
+        "description": "Standard structured-output extraction using the task JSON schema."
+      },
+      {
+        "name": "mixed-extractors-self-consistency-rag",
+        "description": "Four-trial RAG self-consistency alternating enriched inline reasoning RAG and enriched schema RAG extractors."
+      },
+      {
+        "name": "enriched-schema-rag",
+        "description": "Spanish enriched extraction prompt with a plain Pydantic schema and two retrieved structured FSP examples."
+      },
+      {
+        "name": "enriched-inline-reasoning-rag",
+        "description": "Top-level reasoning/value wrappers with a reasoned Pydantic schema prompt and retrieved structured FSP."
+      }
+    ]
+  },
+  "config": {
+    "model": "salamandra-7b-instruct",
+    "pipeline": "enriched-inline-reasoning-rag",
+    "data_source": "/home/danielvp/work/gensie/data/golden_cover",
+    "details_dir": "/home/danielvp/work/gensie/local-results/enriched-inline-reasoning-rag-salamandra-7b-instruct"
+  },
+  "metrics": {
+    "precision": 0.5816949728401187,
+    "recall": 0.514476887089705,
+    "f1": 0.5460249980904888
+  },
+  "timing": {
+    "n": 40,
+    "avg_elapsed_s": 33.54658499267498,
+    "max_elapsed_s": 300.10452617100054,
+    "over_budget_count": 3,
+    "budget_s": 60.0,
+    "avg_within_budget": true
+  },
+  "token_usage": {
+    "n": 38,
+    "total_input": 163100,
+    "total_output": 30929,
+    "total_tokens": 194029,
+    "avg_total_per_instance": 5106.026315789473,
+    "max_total": 7905,
+    "over_target_count": 0,
+    "over_soft_count": 0,
+    "calls_total": 38,
+    "target": 32000,
+    "avg_within_target": true,
+    "source": "mixed"
+  },
+  "tasks": [
+    {
+      "task_id": "cultural_entities_001",
+      "tps": 0.6,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 10.453583434999928,
+      "tokens": {
+        "input": 3034,
+        "output": 440,
+        "total": 3474,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 3034,
+          "completion_tokens": 440,
+          "total_tokens": 3474
+        },
+        "timings": {
+          "total_duration_ms": 8774.288,
+          "average_duration_ms": 8774.288,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 3034,
+              "completion_tokens": 440,
+              "total_tokens": 3474
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:09:04.226826+00:00",
+              "completed_at": "2026-05-25T16:09:13.001120+00:00",
+              "total_duration_ms": 8774.288,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_entities_002",
+      "tps": 0.6003937787797876,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 10.429840929999955,
+      "tokens": {
+        "input": 3122,
+        "output": 297,
+        "total": 3419,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 3122,
+          "completion_tokens": 297,
+          "total_tokens": 3419
+        },
+        "timings": {
+          "total_duration_ms": 5843.936,
+          "average_duration_ms": 5843.936,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 3122,
+              "completion_tokens": 297,
+              "total_tokens": 3419
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:09:14.615745+00:00",
+              "completed_at": "2026-05-25T16:09:20.459680+00:00",
+              "total_duration_ms": 5843.936,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_extraction_001",
+      "tps": 0.5257944917658868,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 3.846072231999642,
+      "tokens": {
+        "input": 3000,
+        "output": 109,
+        "total": 3109,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 3000,
+          "completion_tokens": 109,
+          "total_tokens": 3109
+        },
+        "timings": {
+          "total_duration_ms": 3099.09,
+          "average_duration_ms": 3099.09,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 3000,
+              "completion_tokens": 109,
+              "total_tokens": 3109
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:09:24.641263+00:00",
+              "completed_at": "2026-05-25T16:09:27.740353+00:00",
+              "total_duration_ms": 3099.09,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_extraction_002",
+      "tps": 0.7933833078988145,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 3.5865980529997614,
+      "tokens": {
+        "input": 2634,
+        "output": 122,
+        "total": 2756,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 2634,
+          "completion_tokens": 122,
+          "total_tokens": 2756
+        },
+        "timings": {
+          "total_duration_ms": 2783.218,
+          "average_duration_ms": 2783.218,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 2634,
+              "completion_tokens": 122,
+              "total_tokens": 2756
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:09:28.622022+00:00",
+              "completed_at": "2026-05-25T16:09:31.405248+00:00",
+              "total_duration_ms": 2783.218,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_literature_001",
+      "tps": 3.9030677942660157,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 18.047753026000464,
+      "tokens": {
+        "input": 3723,
+        "output": 921,
+        "total": 4644,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 3723,
+          "completion_tokens": 921,
+          "total_tokens": 4644
+        },
+        "timings": {
+          "total_duration_ms": 17060.2,
+          "average_duration_ms": 17060.2,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 3723,
+              "completion_tokens": 921,
+              "total_tokens": 4644
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:09:31.976786+00:00",
+              "completed_at": "2026-05-25T16:09:49.036981+00:00",
+              "total_duration_ms": 17060.2,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_literature_009",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 0,
+      "elapsed_s": 300.00540494800043,
+      "tokens": null,
+      "status": "FAIL",
+      "error": "timed out"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 0,
+      "elapsed_s": 300.10452617100054,
+      "tokens": null,
+      "status": "FAIL",
+      "error": "timed out"
+    },
+    {
+      "task_id": "cultural_media_002",
+      "tps": 4.3656903114823455,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 61.11326676000044,
+      "tokens": {
+        "input": 5651,
+        "output": 1233,
+        "total": 6884,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 5651,
+          "completion_tokens": 1233,
+          "total_tokens": 6884
+        },
+        "timings": {
+          "total_duration_ms": 22307.758,
+          "average_duration_ms": 22307.758,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 5651,
+              "completion_tokens": 1233,
+              "total_tokens": 6884
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:20:26.408987+00:00",
+              "completed_at": "2026-05-25T16:20:48.716746+00:00",
+              "total_duration_ms": 22307.758,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_monuments_1",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "elapsed_s": 4.929562028999499,
+      "tokens": {
+        "input": 3510,
+        "output": 125,
+        "total": 3635,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 1,
+        "tokens": {
+          "prompt_tokens": 3510,
+          "completion_tokens": 125,
+          "total_tokens": 3635
+        },
+        "timings": {
+          "total_duration_ms": 3955.437,
+          "average_duration_ms": 3955.437,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": "Failed to parse model response: Expecting value: line 1 column 1 (char 0)",
+            "tokens": {
+              "prompt_tokens": 3510,
+              "completion_tokens": 125,
+              "total_tokens": 3635
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:20:51.723492+00:00",
+              "completed_at": "2026-05-25T16:20:55.678931+00:00",
+              "total_duration_ms": 3955.437,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "cultural_monuments_3",
+      "tps": 0.0,
+      "gold_keys": 6,
+      "system_keys": 1,
+      "elapsed_s": 2.8124131629992917,
+      "tokens": {
+        "input": 3490,
+        "output": 94,
+        "total": 3584,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 1,
+        "tokens": {
+          "prompt_tokens": 3490,
+          "completion_tokens": 94,
+          "total_tokens": 3584
+        },
+        "timings": {
+          "total_duration_ms": 1651.094,
+          "average_duration_ms": 1651.094,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": "Failed to parse model response: Expecting value: line 1 column 1 (char 0)",
+            "tokens": {
+              "prompt_tokens": 3490,
+              "completion_tokens": 94,
+              "total_tokens": 3584
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:20:56.801103+00:00",
+              "completed_at": "2026-05-25T16:20:58.452200+00:00",
+              "total_duration_ms": 1651.094,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "tps": 5.462824392739777,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 27.256005385999742,
+      "tokens": {
+        "input": 5490,
+        "output": 1157,
+        "total": 6647,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 5490,
+          "completion_tokens": 1157,
+          "total_tokens": 6647
+        },
+        "timings": {
+          "total_duration_ms": 23290.799,
+          "average_duration_ms": 23290.799,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 5490,
+              "completion_tokens": 1157,
+              "total_tokens": 6647
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:21:02.091187+00:00",
+              "completed_at": "2026-05-25T16:21:25.381989+00:00",
+              "total_duration_ms": 23290.799,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "environmental_ecology_005",
+      "tps": 6.576904460742492,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 28.74917614700007,
+      "tokens": {
+        "input": 5878,
+        "output": 1198,
+        "total": 7076,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 5878,
+          "completion_tokens": 1198,
+          "total_tokens": 7076
+        },
+        "timings": {
+          "total_duration_ms": 24114.633,
+          "average_duration_ms": 24114.633,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 5878,
+              "completion_tokens": 1198,
+              "total_tokens": 7076
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:21:29.249191+00:00",
+              "completed_at": "2026-05-25T16:21:53.363828+00:00",
+              "total_duration_ms": 24114.633,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "general_disasters_001",
+      "tps": 5.294801001725842,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 25.263536513999497,
+      "tokens": {
+        "input": 4986,
+        "output": 1124,
+        "total": 6110,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 4986,
+          "completion_tokens": 1124,
+          "total_tokens": 6110
+        },
+        "timings": {
+          "total_duration_ms": 21569.353,
+          "average_duration_ms": 21569.353,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 4986,
+              "completion_tokens": 1124,
+              "total_tokens": 6110
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:21:57.944630+00:00",
+              "completed_at": "2026-05-25T16:22:19.513989+00:00",
+              "total_duration_ms": 21569.353,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "general_disasters_002",
+      "tps": 6.471470577288824,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 26.379747375999614,
+      "tokens": {
+        "input": 5016,
+        "output": 1155,
+        "total": 6171,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 5016,
+          "completion_tokens": 1155,
+          "total_tokens": 6171
+        },
+        "timings": {
+          "total_duration_ms": 22470.718,
+          "average_duration_ms": 22470.718,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 5016,
+              "completion_tokens": 1155,
+              "total_tokens": 6171
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:22:22.893413+00:00",
+              "completed_at": "2026-05-25T16:22:45.364134+00:00",
+              "total_duration_ms": 22470.718,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_contracts_001",
+      "tps": 7.0,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 24.587988308000604,
+      "tokens": {
+        "input": 5155,
+        "output": 1187,
+        "total": 6342,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 5155,
+          "completion_tokens": 1187,
+          "total_tokens": 6342
+        },
+        "timings": {
+          "total_duration_ms": 23354.826,
+          "average_duration_ms": 23354.826,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 5155,
+              "completion_tokens": 1187,
+              "total_tokens": 6342
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:22:47.317952+00:00",
+              "completed_at": "2026-05-25T16:23:10.672781+00:00",
+              "total_duration_ms": 23354.826,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_contracts_002",
+      "tps": 1.3599452490978443,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 29.40973817200029,
+      "tokens": {
+        "input": 5273,
+        "output": 1543,
+        "total": 6816,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 5273,
+          "completion_tokens": 1543,
+          "total_tokens": 6816
+        },
+        "timings": {
+          "total_duration_ms": 27666.497,
+          "average_duration_ms": 27666.497,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 5273,
+              "completion_tokens": 1543,
+              "total_tokens": 6816
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:23:11.860050+00:00",
+              "completed_at": "2026-05-25T16:23:39.526550+00:00",
+              "total_duration_ms": 27666.497,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_entities_001",
+      "tps": 0.7138044877155038,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 13.003780213999562,
+      "tokens": {
+        "input": 3072,
+        "output": 480,
+        "total": 3552,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 3072,
+          "completion_tokens": 480,
+          "total_tokens": 3552
+        },
+        "timings": {
+          "total_duration_ms": 9450.305,
+          "average_duration_ms": 9450.305,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 3072,
+              "completion_tokens": 480,
+              "total_tokens": 3552
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:23:41.362784+00:00",
+              "completed_at": "2026-05-25T16:23:50.813091+00:00",
+              "total_duration_ms": 9450.305,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_extraction_002",
+      "tps": 1.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 3.025934358000086,
+      "tokens": {
+        "input": 2098,
+        "output": 91,
+        "total": 2189,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 2098,
+          "completion_tokens": 91,
+          "total_tokens": 2189
+        },
+        "timings": {
+          "total_duration_ms": 2361.087,
+          "average_duration_ms": 2361.087,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 2098,
+              "completion_tokens": 91,
+              "total_tokens": 2189
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:23:53.856248+00:00",
+              "completed_at": "2026-05-25T16:23:56.217339+00:00",
+              "total_duration_ms": 2361.087,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_judicial_001",
+      "tps": 8.33105565571125,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 27.047991611000725,
+      "tokens": {
+        "input": 5014,
+        "output": 1153,
+        "total": 6167,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 5014,
+          "completion_tokens": 1153,
+          "total_tokens": 6167
+        },
+        "timings": {
+          "total_duration_ms": 22384.672,
+          "average_duration_ms": 22384.672,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 5014,
+              "completion_tokens": 1153,
+              "total_tokens": 6167
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:24:00.206847+00:00",
+              "completed_at": "2026-05-25T16:24:22.591520+00:00",
+              "total_duration_ms": 22384.672,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_judicial_002",
+      "tps": 4.349150312715207,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 25.745133121000435,
+      "tokens": {
+        "input": 4914,
+        "output": 1189,
+        "total": 6103,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 4914,
+          "completion_tokens": 1189,
+          "total_tokens": 6103
+        },
+        "timings": {
+          "total_duration_ms": 20746.176,
+          "average_duration_ms": 20746.176,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 4914,
+              "completion_tokens": 1189,
+              "total_tokens": 6103
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:24:26.917406+00:00",
+              "completed_at": "2026-05-25T16:24:47.663584+00:00",
+              "total_duration_ms": 20746.176,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_legislation_001",
+      "tps": 3.5082753846770607,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 24.22160283299945,
+      "tokens": {
+        "input": 5275,
+        "output": 1180,
+        "total": 6455,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 5275,
+          "completion_tokens": 1180,
+          "total_tokens": 6455
+        },
+        "timings": {
+          "total_duration_ms": 23370.327,
+          "average_duration_ms": 23370.327,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 5275,
+              "completion_tokens": 1180,
+              "total_tokens": 6455
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:24:49.728154+00:00",
+              "completed_at": "2026-05-25T16:25:13.098484+00:00",
+              "total_duration_ms": 23370.327,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "legal_legislation_002",
+      "tps": 2.8918465663273047,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 13.540312395999536,
+      "tokens": {
+        "input": 6903,
+        "output": 595,
+        "total": 7498,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 6903,
+          "completion_tokens": 595,
+          "total_tokens": 7498
+        },
+        "timings": {
+          "total_duration_ms": 12648.325,
+          "average_duration_ms": 12648.325,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 6903,
+              "completion_tokens": 595,
+              "total_tokens": 7498
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:25:14.022291+00:00",
+              "completed_at": "2026-05-25T16:25:26.670618+00:00",
+              "total_duration_ms": 12648.325,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "lifestyle_recipes_01",
+      "tps": 2.464346462729024,
+      "gold_keys": 7,
+      "system_keys": 7,
+      "elapsed_s": 29.50202525700024,
+      "tokens": {
+        "input": 6133,
+        "output": 1302,
+        "total": 7435,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 6133,
+          "completion_tokens": 1302,
+          "total_tokens": 7435
+        },
+        "timings": {
+          "total_duration_ms": 26674.632,
+          "average_duration_ms": 26674.632,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 6133,
+              "completion_tokens": 1302,
+              "total_tokens": 7435
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:25:27.517344+00:00",
+              "completed_at": "2026-05-25T16:25:54.191981+00:00",
+              "total_duration_ms": 26674.632,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_diseases_01",
+      "tps": 1.331560780787171,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 25.534710107000137,
+      "tokens": {
+        "input": 4598,
+        "output": 1168,
+        "total": 5766,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 4598,
+          "completion_tokens": 1168,
+          "total_tokens": 5766
+        },
+        "timings": {
+          "total_duration_ms": 22621.677,
+          "average_duration_ms": 22621.677,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 4598,
+              "completion_tokens": 1168,
+              "total_tokens": 5766
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:25:56.917285+00:00",
+              "completed_at": "2026-05-25T16:26:19.538966+00:00",
+              "total_duration_ms": 22621.677,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_diseases_02",
+      "tps": 1.8208143386942623,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 27.765943192999657,
+      "tokens": {
+        "input": 4665,
+        "output": 1335,
+        "total": 6000,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 4665,
+          "completion_tokens": 1335,
+          "total_tokens": 6000
+        },
+        "timings": {
+          "total_duration_ms": 23311.697,
+          "average_duration_ms": 23311.697,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 4665,
+              "completion_tokens": 1335,
+              "total_tokens": 6000
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:26:22.354193+00:00",
+              "completed_at": "2026-05-25T16:26:45.665893+00:00",
+              "total_duration_ms": 23311.697,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_drug_001",
+      "tps": 4.304244196453774,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 42.19598974600012,
+      "tokens": {
+        "input": 6422,
+        "output": 1461,
+        "total": 7883,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 6422,
+          "completion_tokens": 1461,
+          "total_tokens": 7883
+        },
+        "timings": {
+          "total_duration_ms": 29611.218,
+          "average_duration_ms": 29611.218,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 6422,
+              "completion_tokens": 1461,
+              "total_tokens": 7883
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:26:50.599588+00:00",
+              "completed_at": "2026-05-25T16:27:20.210810+00:00",
+              "total_duration_ms": 29611.218,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_drug_002",
+      "tps": 4.42825333255183,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 38.5240257509995,
+      "tokens": {
+        "input": 6206,
+        "output": 1699,
+        "total": 7905,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 6206,
+          "completion_tokens": 1699,
+          "total_tokens": 7905
+        },
+        "timings": {
+          "total_duration_ms": 31279.406,
+          "average_duration_ms": 31279.406,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 6206,
+              "completion_tokens": 1699,
+              "total_tokens": 7905
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:27:32.763597+00:00",
+              "completed_at": "2026-05-25T16:28:04.043008+00:00",
+              "total_duration_ms": 31279.406,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_entities_001",
+      "tps": 0.2727272727272727,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 15.424028258000362,
+      "tokens": {
+        "input": 3543,
+        "output": 636,
+        "total": 4179,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 3543,
+          "completion_tokens": 636,
+          "total_tokens": 4179
+        },
+        "timings": {
+          "total_duration_ms": 12510.779,
+          "average_duration_ms": 12510.779,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 3543,
+              "completion_tokens": 636,
+              "total_tokens": 4179
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:28:11.282853+00:00",
+              "completed_at": "2026-05-25T16:28:23.793636+00:00",
+              "total_duration_ms": 12510.779,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_entities_002",
+      "tps": 0.7080971464417017,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 22.064800158000253,
+      "tokens": {
+        "input": 3580,
+        "output": 835,
+        "total": 4415,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 3580,
+          "completion_tokens": 835,
+          "total_tokens": 4415
+        },
+        "timings": {
+          "total_duration_ms": 15646.837,
+          "average_duration_ms": 15646.837,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 3580,
+              "completion_tokens": 835,
+              "total_tokens": 4415
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:28:26.869294+00:00",
+              "completed_at": "2026-05-25T16:28:42.516134+00:00",
+              "total_duration_ms": 15646.837,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_extraction_001",
+      "tps": 1.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 3.3944915559995934,
+      "tokens": {
+        "input": 2282,
+        "output": 108,
+        "total": 2390,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 2282,
+          "completion_tokens": 108,
+          "total_tokens": 2390
+        },
+        "timings": {
+          "total_duration_ms": 2744.405,
+          "average_duration_ms": 2744.405,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 2282,
+              "completion_tokens": 108,
+              "total_tokens": 2390
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:28:48.424925+00:00",
+              "completed_at": "2026-05-25T16:28:51.169332+00:00",
+              "total_duration_ms": 2744.405,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_extraction_002",
+      "tps": 1.0,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 2.8888162739995096,
+      "tokens": {
+        "input": 2138,
+        "output": 113,
+        "total": 2251,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 2138,
+          "completion_tokens": 113,
+          "total_tokens": 2251
+        },
+        "timings": {
+          "total_duration_ms": 2175.883,
+          "average_duration_ms": 2175.883,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 2138,
+              "completion_tokens": 113,
+              "total_tokens": 2251
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:28:51.960820+00:00",
+              "completed_at": "2026-05-25T16:28:54.136706+00:00",
+              "total_duration_ms": 2175.883,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "medical_health_news_001",
+      "tps": 6.968978667962716,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 41.746145756999795,
+      "tokens": {
+        "input": 5496,
+        "output": 1913,
+        "total": 7409,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 5496,
+          "completion_tokens": 1913,
+          "total_tokens": 7409
+        },
+        "timings": {
+          "total_duration_ms": 36283.322,
+          "average_duration_ms": 36283.322,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 5496,
+              "completion_tokens": 1913,
+              "total_tokens": 7409
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:28:57.168772+00:00",
+              "completed_at": "2026-05-25T16:29:33.452093+00:00",
+              "total_duration_ms": 36283.322,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "stem_astronomy_detailed_001",
+      "tps": 5.0,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 16.59749322300013,
+      "tokens": {
+        "input": 4983,
+        "output": 735,
+        "total": 5718,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 4983,
+          "completion_tokens": 735,
+          "total_tokens": 5718
+        },
+        "timings": {
+          "total_duration_ms": 15550.156,
+          "average_duration_ms": 15550.156,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 4983,
+              "completion_tokens": 735,
+              "total_tokens": 5718
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:29:36.934438+00:00",
+              "completed_at": "2026-05-25T16:29:52.484599+00:00",
+              "total_duration_ms": 15550.156,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "stem_astronomy_detailed_002",
+      "tps": 7.0,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 17.545359640000243,
+      "tokens": {
+        "input": 5364,
+        "output": 913,
+        "total": 6277,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 5364,
+          "completion_tokens": 913,
+          "total_tokens": 6277
+        },
+        "timings": {
+          "total_duration_ms": 16443.622,
+          "average_duration_ms": 16443.622,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 5364,
+              "completion_tokens": 913,
+              "total_tokens": 6277
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:29:53.549141+00:00",
+              "completed_at": "2026-05-25T16:30:09.992767+00:00",
+              "total_duration_ms": 16443.622,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_entities_001",
+      "tps": 0.644428949602955,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 20.782530446999772,
+      "tokens": {
+        "input": 3144,
+        "output": 814,
+        "total": 3958,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 3144,
+          "completion_tokens": 814,
+          "total_tokens": 3958
+        },
+        "timings": {
+          "total_duration_ms": 15045.826,
+          "average_duration_ms": 15045.826,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 3144,
+              "completion_tokens": 814,
+              "total_tokens": 3958
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:30:11.004714+00:00",
+              "completed_at": "2026-05-25T16:30:26.050544+00:00",
+              "total_duration_ms": 15045.826,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_entities_003",
+      "tps": 0.06883597374600846,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 4.484669296999527,
+      "tokens": {
+        "input": 3177,
+        "output": 117,
+        "total": 3294,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 3177,
+          "completion_tokens": 117,
+          "total_tokens": 3294
+        },
+        "timings": {
+          "total_duration_ms": 3019.465,
+          "average_duration_ms": 3019.465,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 3177,
+              "completion_tokens": 117,
+              "total_tokens": 3294
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:30:31.878287+00:00",
+              "completed_at": "2026-05-25T16:30:34.897754+00:00",
+              "total_duration_ms": 3019.465,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_extraction_001",
+      "tps": 0.7948319838132271,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 3.79696998000054,
+      "tokens": {
+        "input": 2326,
+        "output": 126,
+        "total": 2452,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 2326,
+          "completion_tokens": 126,
+          "total_tokens": 2452
+        },
+        "timings": {
+          "total_duration_ms": 2971.627,
+          "average_duration_ms": 2971.627,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 2326,
+              "completion_tokens": 126,
+              "total_tokens": 2452
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:30:36.032607+00:00",
+              "completed_at": "2026-05-25T16:30:39.004236+00:00",
+              "total_duration_ms": 2971.627,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_extraction_003",
+      "tps": 0.9355683558112728,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 3.3161366849999467,
+      "tokens": {
+        "input": 2462,
+        "output": 140,
+        "total": 2602,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 2462,
+          "completion_tokens": 140,
+          "total_tokens": 2602
+        },
+        "timings": {
+          "total_duration_ms": 2530.921,
+          "average_duration_ms": 2530.921,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 2462,
+              "completion_tokens": 140,
+              "total_tokens": 2602
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:30:39.846173+00:00",
+              "completed_at": "2026-05-25T16:30:42.377097+00:00",
+              "total_duration_ms": 2530.921,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_software_003",
+      "tps": 7.273339129111077,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 23.909208871000374,
+      "tokens": {
+        "input": 4705,
+        "output": 1110,
+        "total": 5815,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 4705,
+          "completion_tokens": 1110,
+          "total_tokens": 5815
+        },
+        "timings": {
+          "total_duration_ms": 21263.059,
+          "average_duration_ms": 21263.059,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 4705,
+              "completion_tokens": 1110,
+              "total_tokens": 5815
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:30:43.537967+00:00",
+              "completed_at": "2026-05-25T16:31:04.801029+00:00",
+              "total_duration_ms": 21263.059,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "technical_software_006",
+      "tps": 5.992865231817369,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 18.830088323999917,
+      "tokens": {
+        "input": 4638,
+        "output": 1011,
+        "total": 5649,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null,
+      "trace_metrics": {
+        "request_count": 1,
+        "failed_request_count": 0,
+        "tokens": {
+          "prompt_tokens": 4638,
+          "completion_tokens": 1011,
+          "total_tokens": 5649
+        },
+        "timings": {
+          "total_duration_ms": 17675.096,
+          "average_duration_ms": 17675.096,
+          "time_to_first_token_ms": null,
+          "time_to_first_token_available": false,
+          "time_to_first_token_note": "Not captured by the current non-streaming baseline."
+        },
+        "steps": [
+          {
+            "step_index": 1,
+            "step_name": "extract",
+            "error": null,
+            "tokens": {
+              "prompt_tokens": 4638,
+              "completion_tokens": 1011,
+              "total_tokens": 5649
+            },
+            "timings": {
+              "started_at": "2026-05-25T16:31:07.431614+00:00",
+              "completed_at": "2026-05-25T16:31:25.106712+00:00",
+              "total_duration_ms": 17675.096,
+              "time_to_first_token_ms": null,
+              "time_to_first_token_note": "Not captured by the current non-streaming pipeline."
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -164,6 +164,7 @@ class MixedExtractorsVerdictJudgeRagSlotsSelfConsistencyAgent(_DefaultPipelineAg
 
 
 SUBMITTED_PIPELINES = (
+    "baseline",
     "mixed-extractors-self-consistency-rag",
     "enriched-schema-rag",
     "enriched-inline-reasoning-rag",

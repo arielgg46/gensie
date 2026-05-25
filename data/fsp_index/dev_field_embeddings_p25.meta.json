@@ -1,0 +1,1733 @@
+{
+  "model": "BAAI/bge-small-en-v1.5",
+  "dim": 384,
+  "rows": [
+    {
+      "task_id": "cultural_entities_002",
+      "schema_type": "NamedEntities",
+      "field_name": "entities",
+      "type_class": "array[object]",
+      "text": "entities (array of object): List of all recognized named entities"
+    },
+    {
+      "task_id": "cultural_literature_002",
+      "schema_type": "LiteraryWork",
+      "field_name": "title",
+      "type_class": "string",
+      "text": "title (string): The official title of the literary work"
+    },
+    {
+      "task_id": "cultural_literature_002",
+      "schema_type": "LiteraryWork",
+      "field_name": "author",
+      "type_class": "string",
+      "text": "author (string): The primary author or creator of the work"
+    },
+    {
+      "task_id": "cultural_literature_002",
+      "schema_type": "LiteraryWork",
+      "field_name": "publication_year",
+      "type_class": "numeric",
+      "text": "publication_year (integer|null): The year the work was first published"
+    },
+    {
+      "task_id": "cultural_literature_002",
+      "schema_type": "LiteraryWork",
+      "field_name": "genres",
+      "type_class": "array[string]",
+      "text": "genres (array of string): Literary genres associated with the work (e.g., 'Science Fiction', 'Romance')"
+    },
+    {
+      "task_id": "cultural_literature_002",
+      "schema_type": "LiteraryWork",
+      "field_name": "key_themes",
+      "type_class": "array[string]",
+      "text": "key_themes (array of string): Main topics or themes explored in the work"
+    },
+    {
+      "task_id": "cultural_literature_002",
+      "schema_type": "LiteraryWork",
+      "field_name": "original_language",
+      "type_class": "string",
+      "text": "original_language (string|null): The language in which the work was originally written"
+    },
+    {
+      "task_id": "cultural_literature_007",
+      "schema_type": "LiteraryWork",
+      "field_name": "title",
+      "type_class": "string",
+      "text": "title (string): The official title of the literary work"
+    },
+    {
+      "task_id": "cultural_literature_007",
+      "schema_type": "LiteraryWork",
+      "field_name": "author",
+      "type_class": "string",
+      "text": "author (string): The primary author or creator of the work"
+    },
+    {
+      "task_id": "cultural_literature_007",
+      "schema_type": "LiteraryWork",
+      "field_name": "publication_year",
+      "type_class": "numeric",
+      "text": "publication_year (integer|null): The year the work was first published"
+    },
+    {
+      "task_id": "cultural_literature_007",
+      "schema_type": "LiteraryWork",
+      "field_name": "genres",
+      "type_class": "array[string]",
+      "text": "genres (array of string): Literary genres associated with the work (e.g., 'Science Fiction', 'Romance')"
+    },
+    {
+      "task_id": "cultural_literature_007",
+      "schema_type": "LiteraryWork",
+      "field_name": "key_themes",
+      "type_class": "array[string]",
+      "text": "key_themes (array of string): Main topics or themes explored in the work"
+    },
+    {
+      "task_id": "cultural_literature_007",
+      "schema_type": "LiteraryWork",
+      "field_name": "original_language",
+      "type_class": "string",
+      "text": "original_language (string|null): The language in which the work was originally written"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "schema_type": "MediaReview",
+      "field_name": "work_title",
+      "type_class": "string",
+      "text": "work_title (string): The name of the movie, book, or series"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "schema_type": "MediaReview",
+      "field_name": "medium",
+      "type_class": "enum",
+      "text": "medium (enum[MediumType]): The type of media being reviewed"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "schema_type": "MediaReview",
+      "field_name": "director",
+      "type_class": "string",
+      "text": "director (string|null): The person who directed the film or series"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "schema_type": "MediaReview",
+      "field_name": "main_cast",
+      "type_class": "array[string]",
+      "text": "main_cast (array of string): Key actors or performers mentioned in the review"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "schema_type": "MediaReview",
+      "field_name": "release_year",
+      "type_class": "numeric",
+      "text": "release_year (integer|null): The year the work was released"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "schema_type": "MediaReview",
+      "field_name": "rating",
+      "type_class": "numeric",
+      "text": "rating (number|null): The score given by the reviewer, normalized to a 0-10 scale"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "schema_type": "MediaReview",
+      "field_name": "sentiment",
+      "type_class": "enum",
+      "text": "sentiment (enum[Sentiment]): Overall tone of the review"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "schema_type": "MediaReview",
+      "field_name": "pros",
+      "type_class": "array[string]",
+      "text": "pros (array of string): Specific positive aspects highlighted by the critic"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "schema_type": "MediaReview",
+      "field_name": "cons",
+      "type_class": "array[string]",
+      "text": "cons (array of string): Specific negative aspects or flaws mentioned"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "schema_type": "MediaReview",
+      "field_name": "key_verdict",
+      "type_class": "string",
+      "text": "key_verdict (string): A concise summary of the final judgment (e.g., 'Una copia barata', 'Fascinante rareza')"
+    },
+    {
+      "task_id": "cultural_media_010",
+      "schema_type": "MediaReview",
+      "field_name": "work_title",
+      "type_class": "string",
+      "text": "work_title (string): The name of the movie, book, or series"
+    },
+    {
+      "task_id": "cultural_media_010",
+      "schema_type": "MediaReview",
+      "field_name": "medium",
+      "type_class": "enum",
+      "text": "medium (enum[MediumType]): The type of media being reviewed"
+    },
+    {
+      "task_id": "cultural_media_010",
+      "schema_type": "MediaReview",
+      "field_name": "director",
+      "type_class": "string",
+      "text": "director (string|null): The person who directed the film or series"
+    },
+    {
+      "task_id": "cultural_media_010",
+      "schema_type": "MediaReview",
+      "field_name": "main_cast",
+      "type_class": "array[string]",
+      "text": "main_cast (array of string): Key actors or performers mentioned in the review"
+    },
+    {
+      "task_id": "cultural_media_010",
+      "schema_type": "MediaReview",
+      "field_name": "release_year",
+      "type_class": "numeric",
+      "text": "release_year (integer|null): The year the work was released"
+    },
+    {
+      "task_id": "cultural_media_010",
+      "schema_type": "MediaReview",
+      "field_name": "rating",
+      "type_class": "numeric",
+      "text": "rating (number|null): The score given by the reviewer, normalized to a 0-10 scale"
+    },
+    {
+      "task_id": "cultural_media_010",
+      "schema_type": "MediaReview",
+      "field_name": "sentiment",
+      "type_class": "enum",
+      "text": "sentiment (enum[Sentiment]): Overall tone of the review"
+    },
+    {
+      "task_id": "cultural_media_010",
+      "schema_type": "MediaReview",
+      "field_name": "pros",
+      "type_class": "array[string]",
+      "text": "pros (array of string): Specific positive aspects highlighted by the critic"
+    },
+    {
+      "task_id": "cultural_media_010",
+      "schema_type": "MediaReview",
+      "field_name": "cons",
+      "type_class": "array[string]",
+      "text": "cons (array of string): Specific negative aspects or flaws mentioned"
+    },
+    {
+      "task_id": "cultural_media_010",
+      "schema_type": "MediaReview",
+      "field_name": "key_verdict",
+      "type_class": "string",
+      "text": "key_verdict (string): A concise summary of the final judgment (e.g., 'Una copia barata', 'Fascinante rareza')"
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "schema_type": "NewsArticle",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "schema_type": "NewsArticle",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "schema_type": "NewsArticle",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "schema_type": "NewsArticle",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "schema_type": "NewsArticle",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "schema_type": "NewsArticle",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "schema_type": "NewsArticle",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "schema_type": "NewsArticle",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "schema_type": "NewsArticle",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "schema_type": "NewsArticle",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "task_id": "general_disasters_003",
+      "schema_type": "NewsArticle",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "task_id": "general_disasters_003",
+      "schema_type": "NewsArticle",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "task_id": "general_disasters_003",
+      "schema_type": "NewsArticle",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "task_id": "general_disasters_003",
+      "schema_type": "NewsArticle",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "task_id": "general_disasters_003",
+      "schema_type": "NewsArticle",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "task_id": "general_disasters_003",
+      "schema_type": "NewsArticle",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "task_id": "general_disasters_003",
+      "schema_type": "NewsArticle",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "task_id": "general_disasters_003",
+      "schema_type": "NewsArticle",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "task_id": "general_disasters_003",
+      "schema_type": "NewsArticle",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "task_id": "general_disasters_003",
+      "schema_type": "NewsArticle",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "task_id": "general_disasters_005",
+      "schema_type": "NewsArticle",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "task_id": "general_disasters_005",
+      "schema_type": "NewsArticle",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "task_id": "general_disasters_005",
+      "schema_type": "NewsArticle",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "task_id": "general_disasters_005",
+      "schema_type": "NewsArticle",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "task_id": "general_disasters_005",
+      "schema_type": "NewsArticle",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "task_id": "general_disasters_005",
+      "schema_type": "NewsArticle",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "task_id": "general_disasters_005",
+      "schema_type": "NewsArticle",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "task_id": "general_disasters_005",
+      "schema_type": "NewsArticle",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "task_id": "general_disasters_005",
+      "schema_type": "NewsArticle",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "task_id": "general_disasters_005",
+      "schema_type": "NewsArticle",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "task_id": "general_disasters_009",
+      "schema_type": "NewsArticle",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "task_id": "general_disasters_009",
+      "schema_type": "NewsArticle",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "task_id": "general_disasters_009",
+      "schema_type": "NewsArticle",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "task_id": "general_disasters_009",
+      "schema_type": "NewsArticle",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "task_id": "general_disasters_009",
+      "schema_type": "NewsArticle",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "task_id": "general_disasters_009",
+      "schema_type": "NewsArticle",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "task_id": "general_disasters_009",
+      "schema_type": "NewsArticle",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "task_id": "general_disasters_009",
+      "schema_type": "NewsArticle",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "task_id": "general_disasters_009",
+      "schema_type": "NewsArticle",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "task_id": "general_disasters_009",
+      "schema_type": "NewsArticle",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "task_id": "legal_extraction_002",
+      "schema_type": "TextAnswer",
+      "field_name": "answer",
+      "type_class": "string",
+      "text": "answer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "task_id": "legal_judicial_007",
+      "schema_type": "NewsArticle",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "task_id": "legal_judicial_007",
+      "schema_type": "NewsArticle",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "task_id": "legal_judicial_007",
+      "schema_type": "NewsArticle",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "task_id": "legal_judicial_007",
+      "schema_type": "NewsArticle",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "task_id": "legal_judicial_007",
+      "schema_type": "NewsArticle",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "task_id": "legal_judicial_007",
+      "schema_type": "NewsArticle",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "task_id": "legal_judicial_007",
+      "schema_type": "NewsArticle",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "task_id": "legal_judicial_007",
+      "schema_type": "NewsArticle",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "task_id": "legal_judicial_007",
+      "schema_type": "NewsArticle",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "task_id": "legal_judicial_007",
+      "schema_type": "NewsArticle",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "task_id": "legal_judicial_009",
+      "schema_type": "NewsArticle",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "task_id": "legal_judicial_009",
+      "schema_type": "NewsArticle",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "task_id": "legal_judicial_009",
+      "schema_type": "NewsArticle",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "task_id": "legal_judicial_009",
+      "schema_type": "NewsArticle",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "task_id": "legal_judicial_009",
+      "schema_type": "NewsArticle",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "task_id": "legal_judicial_009",
+      "schema_type": "NewsArticle",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "task_id": "legal_judicial_009",
+      "schema_type": "NewsArticle",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "task_id": "legal_judicial_009",
+      "schema_type": "NewsArticle",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "task_id": "legal_judicial_009",
+      "schema_type": "NewsArticle",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "task_id": "legal_judicial_009",
+      "schema_type": "NewsArticle",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "task_id": "lifestyle_recipes_01",
+      "schema_type": "RecipeProcedural",
+      "field_name": "dish_name",
+      "type_class": "string",
+      "text": "dish_name (string): The name of the recipe"
+    },
+    {
+      "task_id": "lifestyle_recipes_01",
+      "schema_type": "RecipeProcedural",
+      "field_name": "servings",
+      "type_class": "numeric",
+      "text": "servings (integer|null): Number of portions generated"
+    },
+    {
+      "task_id": "lifestyle_recipes_01",
+      "schema_type": "RecipeProcedural",
+      "field_name": "ingredients",
+      "type_class": "array[object]",
+      "text": "ingredients (array of object): Structured list of ingredients"
+    },
+    {
+      "task_id": "lifestyle_recipes_01",
+      "schema_type": "RecipeProcedural",
+      "field_name": "complexity_score",
+      "type_class": "numeric",
+      "text": "complexity_score (integer): Inferred difficulty from 1 (easy) to 10 (pro chef) based on steps and time"
+    },
+    {
+      "task_id": "lifestyle_recipes_01",
+      "schema_type": "RecipeProcedural",
+      "field_name": "dietary_tags",
+      "type_class": "array[enum]",
+      "text": "dietary_tags (array of enum[DietaryTag]): Reasoned tags based on the absence of certain ingredient types (e.g., meat, gluten)"
+    },
+    {
+      "task_id": "lifestyle_recipes_01",
+      "schema_type": "RecipeProcedural",
+      "field_name": "technique_sequence",
+      "type_class": "array[enum]",
+      "text": "technique_sequence (array of enum[CookingTechnique]): The chronological sequence of main cooking techniques applied"
+    },
+    {
+      "task_id": "lifestyle_recipes_01",
+      "schema_type": "RecipeProcedural",
+      "field_name": "total_time_minutes",
+      "type_class": "numeric",
+      "text": "total_time_minutes (integer|null): Normalized total duration in minutes"
+    },
+    {
+      "task_id": "lifestyle_recipes_05",
+      "schema_type": "RecipeProcedural",
+      "field_name": "dish_name",
+      "type_class": "string",
+      "text": "dish_name (string): The name of the recipe"
+    },
+    {
+      "task_id": "lifestyle_recipes_05",
+      "schema_type": "RecipeProcedural",
+      "field_name": "servings",
+      "type_class": "numeric",
+      "text": "servings (integer|null): Number of portions generated"
+    },
+    {
+      "task_id": "lifestyle_recipes_05",
+      "schema_type": "RecipeProcedural",
+      "field_name": "ingredients",
+      "type_class": "array[object]",
+      "text": "ingredients (array of object): Structured list of ingredients"
+    },
+    {
+      "task_id": "lifestyle_recipes_05",
+      "schema_type": "RecipeProcedural",
+      "field_name": "complexity_score",
+      "type_class": "numeric",
+      "text": "complexity_score (integer): Inferred difficulty from 1 (easy) to 10 (pro chef) based on steps and time"
+    },
+    {
+      "task_id": "lifestyle_recipes_05",
+      "schema_type": "RecipeProcedural",
+      "field_name": "dietary_tags",
+      "type_class": "array[enum]",
+      "text": "dietary_tags (array of enum[DietaryTag]): Reasoned tags based on the absence of certain ingredient types (e.g., meat, gluten)"
+    },
+    {
+      "task_id": "lifestyle_recipes_05",
+      "schema_type": "RecipeProcedural",
+      "field_name": "technique_sequence",
+      "type_class": "array[enum]",
+      "text": "technique_sequence (array of enum[CookingTechnique]): The chronological sequence of main cooking techniques applied"
+    },
+    {
+      "task_id": "lifestyle_recipes_05",
+      "schema_type": "RecipeProcedural",
+      "field_name": "total_time_minutes",
+      "type_class": "numeric",
+      "text": "total_time_minutes (integer|null): Normalized total duration in minutes"
+    },
+    {
+      "task_id": "medical_diseases_02",
+      "schema_type": "DiseaseProfile",
+      "field_name": "pathology_name",
+      "type_class": "string",
+      "text": "pathology_name (string): The medical name of the disease or disorder"
+    },
+    {
+      "task_id": "medical_diseases_02",
+      "schema_type": "DiseaseProfile",
+      "field_name": "etiology_type",
+      "type_class": "enum",
+      "text": "etiology_type (enum[EtiologyType]): The primary origin or cause of the disease"
+    },
+    {
+      "task_id": "medical_diseases_02",
+      "schema_type": "DiseaseProfile",
+      "field_name": "etiology_description",
+      "type_class": "string",
+      "text": "etiology_description (string|null): A brief summary of how the disease is caused"
+    },
+    {
+      "task_id": "medical_diseases_02",
+      "schema_type": "DiseaseProfile",
+      "field_name": "symptoms",
+      "type_class": "array[object]",
+      "text": "symptoms (array of object): Structured list of reported symptoms"
+    },
+    {
+      "task_id": "medical_diseases_02",
+      "schema_type": "DiseaseProfile",
+      "field_name": "diagnosis_methods",
+      "type_class": "array[string]",
+      "text": "diagnosis_methods (array of string): Clinical tests or methods mentioned for identifying the pathology"
+    },
+    {
+      "task_id": "medical_diseases_02",
+      "schema_type": "DiseaseProfile",
+      "field_name": "is_chronic",
+      "type_class": "boolean",
+      "text": "is_chronic (boolean|null): True if the text explicitly defines the disease as chronic or long-term"
+    },
+    {
+      "task_id": "medical_diseases_03",
+      "schema_type": "DiseaseProfile",
+      "field_name": "pathology_name",
+      "type_class": "string",
+      "text": "pathology_name (string): The medical name of the disease or disorder"
+    },
+    {
+      "task_id": "medical_diseases_03",
+      "schema_type": "DiseaseProfile",
+      "field_name": "etiology_type",
+      "type_class": "enum",
+      "text": "etiology_type (enum[EtiologyType]): The primary origin or cause of the disease"
+    },
+    {
+      "task_id": "medical_diseases_03",
+      "schema_type": "DiseaseProfile",
+      "field_name": "etiology_description",
+      "type_class": "string",
+      "text": "etiology_description (string|null): A brief summary of how the disease is caused"
+    },
+    {
+      "task_id": "medical_diseases_03",
+      "schema_type": "DiseaseProfile",
+      "field_name": "symptoms",
+      "type_class": "array[object]",
+      "text": "symptoms (array of object): Structured list of reported symptoms"
+    },
+    {
+      "task_id": "medical_diseases_03",
+      "schema_type": "DiseaseProfile",
+      "field_name": "diagnosis_methods",
+      "type_class": "array[string]",
+      "text": "diagnosis_methods (array of string): Clinical tests or methods mentioned for identifying the pathology"
+    },
+    {
+      "task_id": "medical_diseases_03",
+      "schema_type": "DiseaseProfile",
+      "field_name": "is_chronic",
+      "type_class": "boolean",
+      "text": "is_chronic (boolean|null): True if the text explicitly defines the disease as chronic or long-term"
+    },
+    {
+      "task_id": "medical_diseases_09",
+      "schema_type": "DiseaseProfile",
+      "field_name": "pathology_name",
+      "type_class": "string",
+      "text": "pathology_name (string): The medical name of the disease or disorder"
+    },
+    {
+      "task_id": "medical_diseases_09",
+      "schema_type": "DiseaseProfile",
+      "field_name": "etiology_type",
+      "type_class": "enum",
+      "text": "etiology_type (enum[EtiologyType]): The primary origin or cause of the disease"
+    },
+    {
+      "task_id": "medical_diseases_09",
+      "schema_type": "DiseaseProfile",
+      "field_name": "etiology_description",
+      "type_class": "string",
+      "text": "etiology_description (string|null): A brief summary of how the disease is caused"
+    },
+    {
+      "task_id": "medical_diseases_09",
+      "schema_type": "DiseaseProfile",
+      "field_name": "symptoms",
+      "type_class": "array[object]",
+      "text": "symptoms (array of object): Structured list of reported symptoms"
+    },
+    {
+      "task_id": "medical_diseases_09",
+      "schema_type": "DiseaseProfile",
+      "field_name": "diagnosis_methods",
+      "type_class": "array[string]",
+      "text": "diagnosis_methods (array of string): Clinical tests or methods mentioned for identifying the pathology"
+    },
+    {
+      "task_id": "medical_diseases_09",
+      "schema_type": "DiseaseProfile",
+      "field_name": "is_chronic",
+      "type_class": "boolean",
+      "text": "is_chronic (boolean|null): True if the text explicitly defines the disease as chronic or long-term"
+    },
+    {
+      "task_id": "medical_extraction_002",
+      "schema_type": "TextAnswer",
+      "field_name": "answer",
+      "type_class": "string",
+      "text": "answer (string): The verbatim fragment from the source text that answers the question"
+    },
+    {
+      "task_id": "medical_health_news_003",
+      "schema_type": "NewsArticle",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "task_id": "medical_health_news_003",
+      "schema_type": "NewsArticle",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "task_id": "medical_health_news_003",
+      "schema_type": "NewsArticle",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "task_id": "medical_health_news_003",
+      "schema_type": "NewsArticle",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "task_id": "medical_health_news_003",
+      "schema_type": "NewsArticle",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "task_id": "medical_health_news_003",
+      "schema_type": "NewsArticle",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "task_id": "medical_health_news_003",
+      "schema_type": "NewsArticle",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "task_id": "medical_health_news_003",
+      "schema_type": "NewsArticle",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "task_id": "medical_health_news_003",
+      "schema_type": "NewsArticle",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "task_id": "medical_health_news_003",
+      "schema_type": "NewsArticle",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "task_id": "medical_health_news_005",
+      "schema_type": "NewsArticle",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "task_id": "medical_health_news_005",
+      "schema_type": "NewsArticle",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "task_id": "medical_health_news_005",
+      "schema_type": "NewsArticle",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "task_id": "medical_health_news_005",
+      "schema_type": "NewsArticle",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "task_id": "medical_health_news_005",
+      "schema_type": "NewsArticle",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "task_id": "medical_health_news_005",
+      "schema_type": "NewsArticle",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "task_id": "medical_health_news_005",
+      "schema_type": "NewsArticle",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "task_id": "medical_health_news_005",
+      "schema_type": "NewsArticle",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "task_id": "medical_health_news_005",
+      "schema_type": "NewsArticle",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "task_id": "medical_health_news_005",
+      "schema_type": "NewsArticle",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "task_id": "medical_health_news_006",
+      "schema_type": "NewsArticle",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "task_id": "medical_health_news_006",
+      "schema_type": "NewsArticle",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "task_id": "medical_health_news_006",
+      "schema_type": "NewsArticle",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "task_id": "medical_health_news_006",
+      "schema_type": "NewsArticle",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "task_id": "medical_health_news_006",
+      "schema_type": "NewsArticle",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "task_id": "medical_health_news_006",
+      "schema_type": "NewsArticle",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "task_id": "medical_health_news_006",
+      "schema_type": "NewsArticle",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "task_id": "medical_health_news_006",
+      "schema_type": "NewsArticle",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "task_id": "medical_health_news_006",
+      "schema_type": "NewsArticle",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "task_id": "medical_health_news_006",
+      "schema_type": "NewsArticle",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "task_id": "medical_health_news_010",
+      "schema_type": "NewsArticle",
+      "field_name": "headline",
+      "type_class": "string",
+      "text": "headline (string): The main headline or title of the news article"
+    },
+    {
+      "task_id": "medical_health_news_010",
+      "schema_type": "NewsArticle",
+      "field_name": "summary",
+      "type_class": "string",
+      "text": "summary (string): A brief summary of the main facts reported (1-3 sentences)"
+    },
+    {
+      "task_id": "medical_health_news_010",
+      "schema_type": "NewsArticle",
+      "field_name": "category",
+      "type_class": "enum",
+      "text": "category (enum[NewsCategory]): The thematic category of the news story"
+    },
+    {
+      "task_id": "medical_health_news_010",
+      "schema_type": "NewsArticle",
+      "field_name": "location",
+      "type_class": "string",
+      "text": "location (string|null): Geographic location where the event occurred (city, country, or region)"
+    },
+    {
+      "task_id": "medical_health_news_010",
+      "schema_type": "NewsArticle",
+      "field_name": "date",
+      "type_class": "string",
+      "text": "date (string|null): Date mentioned in the article (may be implicit or explicit)"
+    },
+    {
+      "task_id": "medical_health_news_010",
+      "schema_type": "NewsArticle",
+      "field_name": "key_people",
+      "type_class": "array[string]",
+      "text": "key_people (array of string): Names of key individuals mentioned in the article"
+    },
+    {
+      "task_id": "medical_health_news_010",
+      "schema_type": "NewsArticle",
+      "field_name": "key_organizations",
+      "type_class": "array[string]",
+      "text": "key_organizations (array of string): Names of organizations, companies, or governments mentioned"
+    },
+    {
+      "task_id": "medical_health_news_010",
+      "schema_type": "NewsArticle",
+      "field_name": "casualties",
+      "type_class": "numeric",
+      "text": "casualties (integer|null): Number of deaths mentioned, if any"
+    },
+    {
+      "task_id": "medical_health_news_010",
+      "schema_type": "NewsArticle",
+      "field_name": "injured",
+      "type_class": "numeric",
+      "text": "injured (integer|null): Number of people injured, if any"
+    },
+    {
+      "task_id": "medical_health_news_010",
+      "schema_type": "NewsArticle",
+      "field_name": "affected_count",
+      "type_class": "numeric",
+      "text": "affected_count (integer|null): Number of people affected or displaced, if applicable"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_001",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The primary scientific designation or name"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_001",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "body_type",
+      "type_class": "enum",
+      "text": "body_type (enum[CelestialBodyType]): The classification of the celestial object"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_001",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "mass_kg",
+      "type_class": "numeric",
+      "text": "mass_kg (number|null): Mass in kilograms (scientific notation or float)"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_001",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "diameter_km",
+      "type_class": "numeric",
+      "text": "diameter_km (number|null): Mean diameter in kilometers"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_001",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "eccentricity",
+      "type_class": "numeric",
+      "text": "eccentricity (number|null): Orbital eccentricity (e.g., 1.199)"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_001",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "orbital_period_days",
+      "type_class": "numeric",
+      "text": "orbital_period_days (number|null): Time to complete one orbit in Earth days"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_001",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "semi_major_axis_au",
+      "type_class": "numeric",
+      "text": "semi_major_axis_au (number|null): Average distance from the sun in AU"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_001",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "discovery_date",
+      "type_class": "string",
+      "text": "discovery_date (string|null): Date of discovery in YYYY-MM-DD format"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_001",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "discoverer",
+      "type_class": "string",
+      "text": "discoverer (string|null): Name of the person or observatory that found the object"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_004",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The primary scientific designation or name"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_004",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "body_type",
+      "type_class": "enum",
+      "text": "body_type (enum[CelestialBodyType]): The classification of the celestial object"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_004",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "mass_kg",
+      "type_class": "numeric",
+      "text": "mass_kg (number|null): Mass in kilograms (scientific notation or float)"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_004",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "diameter_km",
+      "type_class": "numeric",
+      "text": "diameter_km (number|null): Mean diameter in kilometers"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_004",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "eccentricity",
+      "type_class": "numeric",
+      "text": "eccentricity (number|null): Orbital eccentricity (e.g., 1.199)"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_004",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "orbital_period_days",
+      "type_class": "numeric",
+      "text": "orbital_period_days (number|null): Time to complete one orbit in Earth days"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_004",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "semi_major_axis_au",
+      "type_class": "numeric",
+      "text": "semi_major_axis_au (number|null): Average distance from the sun in AU"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_004",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "discovery_date",
+      "type_class": "string",
+      "text": "discovery_date (string|null): Date of discovery in YYYY-MM-DD format"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_004",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "discoverer",
+      "type_class": "string",
+      "text": "discoverer (string|null): Name of the person or observatory that found the object"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_008",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The primary scientific designation or name"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_008",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "body_type",
+      "type_class": "enum",
+      "text": "body_type (enum[CelestialBodyType]): The classification of the celestial object"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_008",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "mass_kg",
+      "type_class": "numeric",
+      "text": "mass_kg (number|null): Mass in kilograms (scientific notation or float)"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_008",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "diameter_km",
+      "type_class": "numeric",
+      "text": "diameter_km (number|null): Mean diameter in kilometers"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_008",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "eccentricity",
+      "type_class": "numeric",
+      "text": "eccentricity (number|null): Orbital eccentricity (e.g., 1.199)"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_008",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "orbital_period_days",
+      "type_class": "numeric",
+      "text": "orbital_period_days (number|null): Time to complete one orbit in Earth days"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_008",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "semi_major_axis_au",
+      "type_class": "numeric",
+      "text": "semi_major_axis_au (number|null): Average distance from the sun in AU"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_008",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "discovery_date",
+      "type_class": "string",
+      "text": "discovery_date (string|null): Date of discovery in YYYY-MM-DD format"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_008",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "discoverer",
+      "type_class": "string",
+      "text": "discoverer (string|null): Name of the person or observatory that found the object"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_009",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The primary scientific designation or name"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_009",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "body_type",
+      "type_class": "enum",
+      "text": "body_type (enum[CelestialBodyType]): The classification of the celestial object"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_009",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "mass_kg",
+      "type_class": "numeric",
+      "text": "mass_kg (number|null): Mass in kilograms (scientific notation or float)"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_009",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "diameter_km",
+      "type_class": "numeric",
+      "text": "diameter_km (number|null): Mean diameter in kilometers"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_009",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "eccentricity",
+      "type_class": "numeric",
+      "text": "eccentricity (number|null): Orbital eccentricity (e.g., 1.199)"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_009",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "orbital_period_days",
+      "type_class": "numeric",
+      "text": "orbital_period_days (number|null): Time to complete one orbit in Earth days"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_009",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "semi_major_axis_au",
+      "type_class": "numeric",
+      "text": "semi_major_axis_au (number|null): Average distance from the sun in AU"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_009",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "discovery_date",
+      "type_class": "string",
+      "text": "discovery_date (string|null): Date of discovery in YYYY-MM-DD format"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_009",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "discoverer",
+      "type_class": "string",
+      "text": "discoverer (string|null): Name of the person or observatory that found the object"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_017",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The primary scientific designation or name"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_017",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "body_type",
+      "type_class": "enum",
+      "text": "body_type (enum[CelestialBodyType]): The classification of the celestial object"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_017",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "mass_kg",
+      "type_class": "numeric",
+      "text": "mass_kg (number|null): Mass in kilograms (scientific notation or float)"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_017",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "diameter_km",
+      "type_class": "numeric",
+      "text": "diameter_km (number|null): Mean diameter in kilometers"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_017",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "eccentricity",
+      "type_class": "numeric",
+      "text": "eccentricity (number|null): Orbital eccentricity (e.g., 1.199)"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_017",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "orbital_period_days",
+      "type_class": "numeric",
+      "text": "orbital_period_days (number|null): Time to complete one orbit in Earth days"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_017",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "semi_major_axis_au",
+      "type_class": "numeric",
+      "text": "semi_major_axis_au (number|null): Average distance from the sun in AU"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_017",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "discovery_date",
+      "type_class": "string",
+      "text": "discovery_date (string|null): Date of discovery in YYYY-MM-DD format"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_017",
+      "schema_type": "CelestialObjectProperties",
+      "field_name": "discoverer",
+      "type_class": "string",
+      "text": "discoverer (string|null): Name of the person or observatory that found the object"
+    },
+    {
+      "task_id": "technical_entities_003",
+      "schema_type": "NamedEntities",
+      "field_name": "entities",
+      "type_class": "array[object]",
+      "text": "entities (array of object): List of all recognized named entities"
+    },
+    {
+      "task_id": "technical_software_008",
+      "schema_type": "SoftwareDescription",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The full official name of the software"
+    },
+    {
+      "task_id": "technical_software_008",
+      "schema_type": "SoftwareDescription",
+      "field_name": "app_category",
+      "type_class": "enum",
+      "text": "app_category (enum[SoftwareType]): The primary functional category of the app"
+    },
+    {
+      "task_id": "technical_software_008",
+      "schema_type": "SoftwareDescription",
+      "field_name": "license",
+      "type_class": "string",
+      "text": "license (string): The specific license mentioned (e.g., GPL, Proprietary)"
+    },
+    {
+      "task_id": "technical_software_008",
+      "schema_type": "SoftwareDescription",
+      "field_name": "platforms",
+      "type_class": "array[string]",
+      "text": "platforms (array of string): Operating systems mentioned as supported (e.g., Windows, macOS, Linux)"
+    },
+    {
+      "task_id": "technical_software_008",
+      "schema_type": "SoftwareDescription",
+      "field_name": "primary_developer",
+      "type_class": "string",
+      "text": "primary_developer (string): The individual or organization that developed the software"
+    },
+    {
+      "task_id": "technical_software_008",
+      "schema_type": "SoftwareDescription",
+      "field_name": "features",
+      "type_class": "array[string]",
+      "text": "features (array of string): List of specific technical capabilities or features mentioned"
+    },
+    {
+      "task_id": "technical_software_008",
+      "schema_type": "SoftwareDescription",
+      "field_name": "exact_release_date",
+      "type_class": "string",
+      "text": "exact_release_date (string|null): The EXACT date (DD/MM/YYYY) of the first release. RETURN NULL IF ONLY THE YEAR IS MENTIONED."
+    },
+    {
+      "task_id": "technical_software_008",
+      "schema_type": "SoftwareDescription",
+      "field_name": "latest_stable_version_sha256",
+      "type_class": "string",
+      "text": "latest_stable_version_sha256 (string|null): The SHA256 checksum of the latest installer. RETURN NULL IF NOT EXPLICITLY IN THE TEXT."
+    },
+    {
+      "task_id": "technical_software_008",
+      "schema_type": "SoftwareDescription",
+      "field_name": "current_ceo_name",
+      "type_class": "string",
+      "text": "current_ceo_name (string|null): The name of the current CEO of the developing organization. RETURN NULL IF NOT IN TEXT."
+    },
+    {
+      "task_id": "technical_software_011",
+      "schema_type": "SoftwareDescription",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The full official name of the software"
+    },
+    {
+      "task_id": "technical_software_011",
+      "schema_type": "SoftwareDescription",
+      "field_name": "app_category",
+      "type_class": "enum",
+      "text": "app_category (enum[SoftwareType]): The primary functional category of the app"
+    },
+    {
+      "task_id": "technical_software_011",
+      "schema_type": "SoftwareDescription",
+      "field_name": "license",
+      "type_class": "string",
+      "text": "license (string): The specific license mentioned (e.g., GPL, Proprietary)"
+    },
+    {
+      "task_id": "technical_software_011",
+      "schema_type": "SoftwareDescription",
+      "field_name": "platforms",
+      "type_class": "array[string]",
+      "text": "platforms (array of string): Operating systems mentioned as supported (e.g., Windows, macOS, Linux)"
+    },
+    {
+      "task_id": "technical_software_011",
+      "schema_type": "SoftwareDescription",
+      "field_name": "primary_developer",
+      "type_class": "string",
+      "text": "primary_developer (string): The individual or organization that developed the software"
+    },
+    {
+      "task_id": "technical_software_011",
+      "schema_type": "SoftwareDescription",
+      "field_name": "features",
+      "type_class": "array[string]",
+      "text": "features (array of string): List of specific technical capabilities or features mentioned"
+    },
+    {
+      "task_id": "technical_software_011",
+      "schema_type": "SoftwareDescription",
+      "field_name": "exact_release_date",
+      "type_class": "string",
+      "text": "exact_release_date (string|null): The EXACT date (DD/MM/YYYY) of the first release. RETURN NULL IF ONLY THE YEAR IS MENTIONED."
+    },
+    {
+      "task_id": "technical_software_011",
+      "schema_type": "SoftwareDescription",
+      "field_name": "latest_stable_version_sha256",
+      "type_class": "string",
+      "text": "latest_stable_version_sha256 (string|null): The SHA256 checksum of the latest installer. RETURN NULL IF NOT EXPLICITLY IN THE TEXT."
+    },
+    {
+      "task_id": "technical_software_011",
+      "schema_type": "SoftwareDescription",
+      "field_name": "current_ceo_name",
+      "type_class": "string",
+      "text": "current_ceo_name (string|null): The name of the current CEO of the developing organization. RETURN NULL IF NOT IN TEXT."
+    },
+    {
+      "task_id": "technical_software_012",
+      "schema_type": "SoftwareDescription",
+      "field_name": "official_name",
+      "type_class": "string",
+      "text": "official_name (string): The full official name of the software"
+    },
+    {
+      "task_id": "technical_software_012",
+      "schema_type": "SoftwareDescription",
+      "field_name": "app_category",
+      "type_class": "enum",
+      "text": "app_category (enum[SoftwareType]): The primary functional category of the app"
+    },
+    {
+      "task_id": "technical_software_012",
+      "schema_type": "SoftwareDescription",
+      "field_name": "license",
+      "type_class": "string",
+      "text": "license (string): The specific license mentioned (e.g., GPL, Proprietary)"
+    },
+    {
+      "task_id": "technical_software_012",
+      "schema_type": "SoftwareDescription",
+      "field_name": "platforms",
+      "type_class": "array[string]",
+      "text": "platforms (array of string): Operating systems mentioned as supported (e.g., Windows, macOS, Linux)"
+    },
+    {
+      "task_id": "technical_software_012",
+      "schema_type": "SoftwareDescription",
+      "field_name": "primary_developer",
+      "type_class": "string",
+      "text": "primary_developer (string): The individual or organization that developed the software"
+    },
+    {
+      "task_id": "technical_software_012",
+      "schema_type": "SoftwareDescription",
+      "field_name": "features",
+      "type_class": "array[string]",
+      "text": "features (array of string): List of specific technical capabilities or features mentioned"
+    },
+    {
+      "task_id": "technical_software_012",
+      "schema_type": "SoftwareDescription",
+      "field_name": "exact_release_date",
+      "type_class": "string",
+      "text": "exact_release_date (string|null): The EXACT date (DD/MM/YYYY) of the first release. RETURN NULL IF ONLY THE YEAR IS MENTIONED."
+    },
+    {
+      "task_id": "technical_software_012",
+      "schema_type": "SoftwareDescription",
+      "field_name": "latest_stable_version_sha256",
+      "type_class": "string",
+      "text": "latest_stable_version_sha256 (string|null): The SHA256 checksum of the latest installer. RETURN NULL IF NOT EXPLICITLY IN THE TEXT."
+    },
+    {
+      "task_id": "technical_software_012",
+      "schema_type": "SoftwareDescription",
+      "field_name": "current_ceo_name",
+      "type_class": "string",
+      "text": "current_ceo_name (string|null): The name of the current CEO of the developing organization. RETURN NULL IF NOT IN TEXT."
+    }
+  ],
+  "index_tag": "p25",
+  "fraction": 0.25,
+  "covered_schema_types": [
+    "CelestialObjectProperties",
+    "DiseaseProfile",
+    "LiteraryWork",
+    "MediaReview",
+    "NamedEntities",
+    "NewsArticle",
+    "RecipeProcedural",
+    "SoftwareDescription",
+    "TextAnswer"
+  ],
+  "included_task_ids": [
+    "cultural_entities_002",
+    "cultural_literature_002",
+    "cultural_literature_007",
+    "cultural_media_001",
+    "cultural_media_010",
+    "environmental_ecology_002",
+    "general_disasters_003",
+    "general_disasters_005",
+    "general_disasters_009",
+    "legal_extraction_002",
+    "legal_judicial_007",
+    "legal_judicial_009",
+    "lifestyle_recipes_01",
+    "lifestyle_recipes_05",
+    "medical_diseases_02",
+    "medical_diseases_03",
+    "medical_diseases_09",
+    "medical_extraction_002",
+    "medical_health_news_003",
+    "medical_health_news_005",
+    "medical_health_news_006",
+    "medical_health_news_010",
+    "stem_astronomy_detailed_001",
+    "stem_astronomy_detailed_004",
+    "stem_astronomy_detailed_008",
+    "stem_astronomy_detailed_009",
+    "stem_astronomy_detailed_017",
+    "technical_entities_003",
+    "technical_software_008",
+    "technical_software_011",
+    "technical_software_012"
+  ],
+  "task_count": 31
+}

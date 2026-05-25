@@ -16,6 +16,9 @@ Pipeline:
 from __future__ import annotations
 
 import json
+import os
+import random
+from collections import defaultdict
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -35,12 +38,104 @@ from gensie.task import Task
 
 DEFAULT_EMBED_MODEL = "BAAI/bge-small-en-v1.5"
 DEFAULT_DATA_DIR = Path("data/dev")
-DEFAULT_INDEX_PATH = Path("data/fsp_index/dev_field_embeddings.npz")
-DEFAULT_META_PATH = Path("data/fsp_index/dev_field_embeddings.meta.json")
-DEFAULT_CASE_INDEX_PATH = Path("data/fsp_index/fsp_case_embeddings.npz")
-DEFAULT_CASE_META_PATH = Path("data/fsp_index/fsp_case_embeddings.meta.json")
+DEFAULT_INDEX_DIR = Path("data/fsp_index")
+DEFAULT_INDEX_PATH = DEFAULT_INDEX_DIR / "dev_field_embeddings.npz"
+DEFAULT_META_PATH = DEFAULT_INDEX_DIR / "dev_field_embeddings.meta.json"
+DEFAULT_INDEX_PATH_P25 = DEFAULT_INDEX_DIR / "dev_field_embeddings_p25.npz"
+DEFAULT_META_PATH_P25 = DEFAULT_INDEX_DIR / "dev_field_embeddings_p25.meta.json"
+DEFAULT_INDEX_PATH_P50 = DEFAULT_INDEX_DIR / "dev_field_embeddings_p50.npz"
+DEFAULT_META_PATH_P50 = DEFAULT_INDEX_DIR / "dev_field_embeddings_p50.meta.json"
+DEFAULT_CASE_INDEX_PATH = DEFAULT_INDEX_DIR / "fsp_case_embeddings.npz"
+DEFAULT_CASE_META_PATH = DEFAULT_INDEX_DIR / "fsp_case_embeddings.meta.json"
 DEFAULT_SAME_SCHEMA_SIMILARITY_THRESHOLD = 0.6
+PARTIAL_INDEX_SEED = 42
+PARTIAL_COVERED_SCHEMA_TYPES = frozenset(
+    {
+        "NewsArticle",
+        "NamedEntities",
+        "TextAnswer",
+        "CelestialObjectProperties",
+        "DiseaseProfile",
+        "RecipeProcedural",
+        "SoftwareDescription",
+        "LiteraryWork",
+        "MediaReview",
+    }
+)
 SCHEMA_UNORDERED_ARRAY_KEYS = frozenset({"required", "enum", "type"})
+
+
+@dataclass(frozen=True)
+class FieldIndexVariant:
+    tag: str
+    npz_path: Path
+    meta_path: Path
+    fraction: float | None = None
+    covered_schema_types: frozenset[str] | None = None
+
+
+FIELD_INDEX_VARIANTS: dict[str, FieldIndexVariant] = {
+    "full": FieldIndexVariant(
+        tag="full",
+        npz_path=DEFAULT_INDEX_PATH,
+        meta_path=DEFAULT_META_PATH,
+    ),
+    "p25": FieldIndexVariant(
+        tag="p25",
+        npz_path=DEFAULT_INDEX_PATH_P25,
+        meta_path=DEFAULT_META_PATH_P25,
+        fraction=0.25,
+        covered_schema_types=PARTIAL_COVERED_SCHEMA_TYPES,
+    ),
+    "p50": FieldIndexVariant(
+        tag="p50",
+        npz_path=DEFAULT_INDEX_PATH_P50,
+        meta_path=DEFAULT_META_PATH_P50,
+        fraction=0.50,
+        covered_schema_types=PARTIAL_COVERED_SCHEMA_TYPES,
+    ),
+}
+
+
+def task_schema_type(task: Task) -> str:
+    """Tipo de tarea = título del schema JSON (p. ej. NewsArticle)."""
+    title = task.target_schema.get("title")
+    if isinstance(title, str) and title.strip():
+        return title.strip()
+    return "Unknown"
+
+
+def resolve_field_index_tag(tag: str | None = None) -> FieldIndexVariant:
+    """Resuelve la variante de índice. Tag desconocido ⇒ índice completo."""
+    raw = (tag or os.getenv("GENSIE_FSP_FIELD_INDEX") or "full").strip().lower()
+    return FIELD_INDEX_VARIANTS.get(raw, FIELD_INDEX_VARIANTS["full"])
+
+
+def select_task_ids_for_partial_index(
+    tasks: Iterable[Task],
+    *,
+    fraction: float,
+    covered_schema_types: frozenset[str],
+    seed: int = PARTIAL_INDEX_SEED,
+) -> frozenset[str]:
+    """Muestra estratificada por tipo de schema dentro de `covered_schema_types`."""
+    if not 0.0 < fraction <= 1.0:
+        raise ValueError("fraction debe estar en (0, 1].")
+
+    by_type: dict[str, list[str]] = defaultdict(list)
+    for task in tasks:
+        schema_type = task_schema_type(task)
+        if schema_type in covered_schema_types:
+            by_type[schema_type].append(task.id)
+
+    rng = random.Random(seed)
+    selected: list[str] = []
+    for schema_type in sorted(by_type):
+        task_ids = sorted(by_type[schema_type])
+        sample_size = max(1, round(len(task_ids) * fraction))
+        sample_size = min(sample_size, len(task_ids))
+        selected.extend(rng.sample(task_ids, sample_size))
+    return frozenset(selected)
 
 
 # ---------------------------------------------------------------------------
@@ -199,9 +294,12 @@ def build_index(
     *,
     embedder: FieldEmbedder | None = None,
     verbose: bool = True,
+    included_task_ids: frozenset[str] | None = None,
+    index_meta: dict[str, Any] | None = None,
 ) -> int:
     """Recorre `data_dir`, embebe los campos top-level y guarda matriz + meta.
 
+    Si `included_task_ids` está definido, solo indexa esas tareas.
     Devuelve el nº total de filas (campos) indexadas.
     """
     embedder = embedder or FieldEmbedder()
@@ -210,11 +308,14 @@ def build_index(
     texts: list[str] = []
     task_count = 0
     for task in iter_tasks(data_dir):
+        if included_task_ids is not None and task.id not in included_task_ids:
+            continue
         task_count += 1
         for spec in task_field_specs(task.target_schema):
             rows.append(
                 {
                     "task_id": task.id,
+                    "schema_type": task_schema_type(task),
                     "field_name": spec.name,
                     "type_class": spec.type_class,
                     "text": spec.text,
@@ -226,23 +327,29 @@ def build_index(
         raise RuntimeError(f"No se encontró ningún campo de primer nivel en {data_dir}")
 
     if verbose:
-        print(f"[field_rag] tareas: {task_count}, campos: {len(texts)}; embebiendo con {embedder.model_name}…")
+        suffix = ""
+        if included_task_ids is not None:
+            suffix = f" (subset: {task_count} tareas)"
+        print(
+            f"[field_rag] tareas: {task_count}, campos: {len(texts)}{suffix}; "
+            f"embebiendo con {embedder.model_name}…"
+        )
 
     embeddings = embedder.embed(texts)
+
+    payload: dict[str, Any] = {
+        "model": embedder.model_name,
+        "dim": int(embeddings.shape[1]) if embeddings.ndim == 2 else 0,
+        "rows": rows,
+    }
+    if index_meta:
+        payload.update(index_meta)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     np.savez(output_path, embeddings=embeddings)
     meta_path.parent.mkdir(parents=True, exist_ok=True)
     meta_path.write_text(
-        json.dumps(
-            {
-                "model": embedder.model_name,
-                "dim": int(embeddings.shape[1]) if embeddings.ndim == 2 else 0,
-                "rows": rows,
-            },
-            ensure_ascii=False,
-            indent=2,
-        ),
+        json.dumps(payload, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
 
@@ -252,6 +359,73 @@ def build_index(
             f"(shape={tuple(embeddings.shape)}), meta={meta_path}"
         )
     return len(rows)
+
+
+def build_index_for_variant(
+    variant: FieldIndexVariant | str,
+    data_dir: Path = DEFAULT_DATA_DIR,
+    *,
+    embedder: FieldEmbedder | None = None,
+    verbose: bool = True,
+) -> int:
+    """Construye un índice dev según la variante (`full`, `p25`, `p50`)."""
+    if isinstance(variant, str):
+        variant = FIELD_INDEX_VARIANTS[variant]
+
+    included_task_ids: frozenset[str] | None = None
+    index_meta: dict[str, Any] = {"index_tag": variant.tag}
+    if variant.fraction is not None and variant.covered_schema_types is not None:
+        tasks = list(iter_tasks(data_dir))
+        included_task_ids = select_task_ids_for_partial_index(
+            tasks,
+            fraction=variant.fraction,
+            covered_schema_types=variant.covered_schema_types,
+        )
+        index_meta.update(
+            {
+                "fraction": variant.fraction,
+                "covered_schema_types": sorted(variant.covered_schema_types),
+                "included_task_ids": sorted(included_task_ids),
+                "task_count": len(included_task_ids),
+            }
+        )
+    else:
+        index_meta["task_count"] = sum(1 for _ in iter_tasks(data_dir))
+
+    return build_index(
+        data_dir,
+        variant.npz_path,
+        variant.meta_path,
+        embedder=embedder,
+        verbose=verbose,
+        included_task_ids=included_task_ids,
+        index_meta=index_meta,
+    )
+
+
+def build_dev_field_indices(
+    tags: Sequence[str] = ("full", "p25", "p50"),
+    data_dir: Path = DEFAULT_DATA_DIR,
+    *,
+    embedder: FieldEmbedder | None = None,
+    verbose: bool = True,
+) -> dict[str, int]:
+    """Construye varias variantes del índice dev. Devuelve filas indexadas por tag."""
+    embedder = embedder or FieldEmbedder()
+    counts: dict[str, int] = {}
+    for raw_tag in tags:
+        tag = raw_tag.strip().lower()
+        if tag not in FIELD_INDEX_VARIANTS:
+            raise KeyError(
+                f"Índice desconocido: {raw_tag!r}. Opciones: {', '.join(FIELD_INDEX_VARIANTS)}"
+            )
+        counts[tag] = build_index_for_variant(
+            FIELD_INDEX_VARIANTS[tag],
+            data_dir,
+            embedder=embedder,
+            verbose=verbose,
+        )
+    return counts
 
 
 def build_case_index(
@@ -363,9 +537,15 @@ class FieldIndex:
     @classmethod
     def load(
         cls,
-        npz_path: Path = DEFAULT_INDEX_PATH,
-        meta_path: Path = DEFAULT_META_PATH,
+        npz_path: Path | None = None,
+        meta_path: Path | None = None,
+        *,
+        tag: str | None = None,
     ) -> "FieldIndex":
+        if npz_path is None or meta_path is None:
+            variant = resolve_field_index_tag(tag)
+            npz_path = npz_path or variant.npz_path
+            meta_path = meta_path or variant.meta_path
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
         with np.load(npz_path) as data:
             embeddings = np.array(data["embeddings"], dtype=np.float32)
@@ -1033,6 +1213,7 @@ def _field_rank_sort_key(item: FieldRankedCase) -> tuple[float, float, int]:
 def main() -> None:
     import argparse
 
+    index_choices = ("full", "p25", "p50", "all", *FIELD_INDEX_VARIANTS.keys())
     parser = argparse.ArgumentParser(
         description="Construye el índice FSP de embeddings de campos sobre data/dev."
     )
@@ -1041,6 +1222,16 @@ def main() -> None:
         choices=("dev", "fsp-cases"),
         default="dev",
         help="Corpus a indexar: tasks de data/dev o recursos FSP para RAG.",
+    )
+    parser.add_argument(
+        "--index",
+        "-i",
+        choices=sorted(set(index_choices)),
+        default="full",
+        help=(
+            "Variante del índice dev: full (100%%), p25 (25%% de tipos cubiertos), "
+            "p50 (50%%), all (construye las tres). Ignorado para --corpus fsp-cases."
+        ),
     )
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR)
     parser.add_argument("--output", type=Path)
@@ -1057,11 +1248,43 @@ def main() -> None:
             embedder=embedder,
             verbose=not args.quiet,
         )
-    else:
+        return
+
+    if args.index == "all":
+        counts = build_dev_field_indices(
+            ("full", "p25", "p50"),
+            args.data_dir,
+            embedder=embedder,
+            verbose=not args.quiet,
+        )
+        if not args.quiet:
+            for tag, row_count in counts.items():
+                print(f"[field_rag] {tag}: {row_count} campos indexados")
+        return
+
+    variant = FIELD_INDEX_VARIANTS[args.index]
+    if args.output is not None or args.meta is not None:
         build_index(
             args.data_dir,
-            args.output or DEFAULT_INDEX_PATH,
-            args.meta or DEFAULT_META_PATH,
+            args.output or variant.npz_path,
+            args.meta or variant.meta_path,
+            embedder=embedder,
+            verbose=not args.quiet,
+            included_task_ids=(
+                select_task_ids_for_partial_index(
+                    list(iter_tasks(args.data_dir)),
+                    fraction=variant.fraction,
+                    covered_schema_types=variant.covered_schema_types,
+                )
+                if variant.fraction is not None and variant.covered_schema_types
+                else None
+            ),
+            index_meta={"index_tag": variant.tag},
+        )
+    else:
+        build_index_for_variant(
+            variant,
+            args.data_dir,
             embedder=embedder,
             verbose=not args.quiet,
         )

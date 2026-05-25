@@ -12,6 +12,12 @@ from rich.table import Table
 from rich.progress import track
 from collections import defaultdict
 from gensie.analysis import analyze_rag_experiment_artifacts
+from gensie.fsp.field_rag import (
+    DEFAULT_EMBED_MODEL,
+    FIELD_INDEX_VARIANTS,
+    build_dev_field_indices,
+    resolve_field_index_tag,
+)
 from gensie.task import Task
 from gensie.eval import (
     Evaluator,
@@ -179,6 +185,64 @@ def _write_task_details(
     return summary
 
 
+@app.command("build-fsp-field-index")
+def build_fsp_field_index(
+    index: str = typer.Option(
+        "all",
+        "--index",
+        "-i",
+        help=(
+            "Variante del índice dev: full (100%%), p25 (25%% estratificado por tipo), "
+            "p50 (50%%), all (las tres). Tag desconocido al cargar ⇒ full."
+        ),
+    ),
+    data_dir: Path = typer.Option(
+        Path("data/dev"),
+        "--data-dir",
+        help="Directorio con tasks JSON",
+    ),
+    model: str = typer.Option(
+        DEFAULT_EMBED_MODEL,
+        "--model",
+        help="Modelo fastembed",
+    ),
+    quiet: bool = typer.Option(False, "--quiet", help="Menos salida"),
+):
+    """Construye índices de embeddings por campo (dev) para FSP field-RAG."""
+    if not data_dir.is_dir():
+        console.print(f"[bold red]Error: {data_dir} is not a directory.[/bold red]")
+        raise typer.Exit(1)
+
+    tag = index.strip().lower()
+    if tag == "all":
+        tags = ("full", "p25", "p50")
+    elif tag in FIELD_INDEX_VARIANTS:
+        tags = (tag,)
+    else:
+        console.print(
+            f"[bold red]Error: índice desconocido {index!r}. "
+            f"Opciones: full, p25, p50, all[/bold red]"
+        )
+        raise typer.Exit(1)
+
+    try:
+        counts = build_dev_field_indices(
+            tags,
+            data_dir,
+            embedder=None,
+            verbose=not quiet,
+        )
+    except Exception as exc:
+        console.print(f"[bold red]Error building index:[/bold red] {exc}")
+        raise typer.Exit(1) from exc
+
+    for variant_tag, row_count in counts.items():
+        variant = resolve_field_index_tag(variant_tag)
+        console.print(
+            f"[green]✓[/green] {variant_tag}: {row_count} campos → {variant.npz_path}"
+        )
+
+
 @app.command()
 def serve(host: str = "0.0.0.0", port: int = 8000):
     """Starts the FastAPI server for the agent."""
@@ -226,6 +290,15 @@ def eval(
         None,
         help="API key to filter the usage log by (default: $OPENAI_API_KEY; unset -> all rows)",
     ),
+    fsp_field_index: Optional[str] = typer.Option(
+        None,
+        "--fsp-field-index",
+        "-i",
+        help=(
+            "Variante del índice dev field-RAG (full, p25, p50). "
+            "Si el tag no existe, se usa full. También $GENSIE_FSP_FIELD_INDEX."
+        ),
+    ),
 ):
     """Evaluates the agent against a local dataset and generates a report.
 
@@ -254,6 +327,12 @@ def eval(
         console.print(f"[blue]Trace artifacts dir:[/blue] {details_dir}")
     if output is not None:
         console.print(f"[blue]Summary output:[/blue] {output}")
+
+    field_index_variant = resolve_field_index_tag(fsp_field_index)
+    console.print(
+        f"[blue]FSP field index:[/blue] {field_index_variant.tag} "
+        f"({field_index_variant.npz_path})"
+    )
 
     if details_dir is not None:
         details_dir.mkdir(parents=True, exist_ok=True)
@@ -491,6 +570,8 @@ def eval(
                 "pipeline": pipeline,
                 "data_source": str(data.absolute()),
                 "details_dir": str(details_dir) if details_dir else None,
+                "fsp_field_index": field_index_variant.tag,
+                "fsp_field_index_npz": str(field_index_variant.npz_path),
             },
             "metrics": metrics,
             "timing": timing,
@@ -508,6 +589,8 @@ def eval(
                 "pipeline": pipeline,
                 "data_source": str(data.absolute()),
                 "details_dir": str(details_dir.absolute()),
+                "fsp_field_index": field_index_variant.tag,
+                "fsp_field_index_npz": str(field_index_variant.npz_path),
             },
             "metrics": metrics,
             "tasks": individual_results,
