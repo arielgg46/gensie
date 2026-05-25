@@ -19,7 +19,7 @@ def test_write_task_details_persists_artifacts_and_trace_metrics():
         output={"name": "Ada Lovelace"},
     )
 
-    base_dir = Path(".test-cli-artifacts") / f"cli-{uuid.uuid4().hex}"
+    base_dir = Path("test-artifacts") / f"cli-{uuid.uuid4().hex}"
     try:
         step_dir = base_dir / "sample_task" / "steps" / "01-extract"
         step_dir.mkdir(parents=True, exist_ok=True)
@@ -74,4 +74,3 @@ def test_write_task_details_persists_artifacts_and_trace_metrics():
         assert saved_summary["trace_metrics"]["request_count"] == 1
     finally:
         shutil.rmtree(base_dir, ignore_errors=True)
-        shutil.rmtree(base_dir.parent, ignore_errors=True)
