@@ -39,6 +39,7 @@ EXPOSE 8000
 ENV PARTICIPANT_PATH="gensie.baseline.OfficialParticipant"
 ENV OPENAI_BASE_URL=""
 ENV OPENAI_API_KEY="sk-dummy"
+ENV GENSIE_FSP_RAG_USE_ENRICHED_DESCRIPTIONS="1"
 
 # Run the server via the CLI
 ENTRYPOINT ["gensie"]
