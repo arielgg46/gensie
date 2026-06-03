@@ -28,20 +28,20 @@ from gensie.runtime import (
 from gensie.schemas import coerce_nullable_string_nulls
 from gensie.task import Task
 
-_ARCHITECT_SYSTEM = """You refine JSON Schemas so another LLM can extract structured values from unstructured TEXT. The schema is a contract for machine consumption—precise, low-noise, no narrat[...]
+_ARCHITECT_SYSTEM = """You refine JSON Schemas so another LLM can extract structured values from unstructured TEXT. The schema is a contract for machine consumption—precise, low-noise, no narrative essays.
 
 Return exactly one JSON object: {"optimized_schema": <object>}. No text outside that JSON.
 
 Structural contract (non-negotiable):
-- Preserve the same property graph as the user schema: identical keys at every path, same nesting, same array item shapes, and the same primitive types. Do not rename, split, merge, flatten, or re[...]
+- Preserve the same property graph as the user schema: identical keys at every path, same nesting, same array item shapes, and the same primitive types. Do not rename, split, merge, flatten, or relocate fields.
 - Do not add properties that are not already present in the user schema tree. Improve clarity only inside existing properties and containers.
 - Stay within OpenAI `json_schema` strict capabilities: no $ref, no oneOf/anyOf/allOf/not, no if/then/else, no keywords the API cannot enforce in strict mode.
 
 How to improve extraction quality:
 - Conciseness: short, high-signal descriptions; avoid redundant prose or duplicate constraints.
-- Disambiguation: when two fields could be confused, sharpen descriptions (not new keys) so roles are unmistakable (scope, units, "excluding X", "canonical name vs display name", etc.).
-- Validation overlays: use enum for closed vocabularies; pattern and length bounds when formats are known; numeric min/max when safe; describe normalization in text when the instruction implies ro[...]
-- Dates and times: in descriptions, spell out acceptable formats, defaults for missing timezone, and what to output when TEXT is partial or relative (today, next Tuesday) if the task allows infere[...]
+- Disambiguation: when two fields could be confused, sharpen descriptions (not new keys) so roles are unmistakable (scope, units, “excluding X”, “canonical name vs display name”, etc.).
+- Validation overlays: use enum for closed vocabularies; pattern and length bounds when formats are known; numeric min/max when safe; describe normalization in text when the instruction implies rounding, currency handling, or locale.
+- Dates and times: in descriptions, spell out acceptable formats, defaults for missing timezone, and what to output when TEXT is partial or relative (today, next Tuesday) if the task allows inference—otherwise say “leave null/omit unless explicit”.
 - Objects and arrays: refine nested item schemas the same way; specify per-item invariants when lists must stay internally consistent.
 - Required lists: mirror the user schema; never invent new required paths.
 
@@ -53,7 +53,7 @@ Output contract:
 - Produce one JSON value matching SCHEMA exactly: types, shapes, nesting. No markdown, explanations, or keys not defined by SCHEMA.
 
 Presence and nullability:
-- Include every required property. Optional properties: include when TEXT supports a defensible value; if SCHEMA allows null for "unknown", use null rather than guessing; if optional and null [...]
+- Include every required property. Optional properties: include when TEXT supports a defensible value; if SCHEMA allows null for “unknown”, use null rather than guessing; if optional and null is disallowed, omit the key when unsupported.
 
 Grounding and evidence:
 - Strings must be traceable to TEXT (verbatim spans or explicitly allowed paraphrase per instruction). Never invent entities, identifiers, amounts, dates, locations, quotes, or citations.
@@ -69,7 +69,7 @@ Conflicts and uncertainty:
 - When TEXT contradicts itself, prefer the latest explicit correction in dialogue; otherwise pick the least speculative reading permitted by SCHEMA, or null/omit as appropriate.
 - If TASK asks for a field but TEXT lacks support, follow SCHEMA rules for missing data (null vs omit) rather than hallucinating.
 
-Repair rounds: if you receive "Issues" after a prior answer, apply minimal edits to your JSON to fix only those issues; leave correct fields untouched."""
+Repair rounds: if you receive “Issues” after a prior answer, apply minimal edits to your JSON to fix only those issues; leave correct fields untouched."""
 
 _REFLECTION_USER_PREFIX = (
     "The last JSON failed automated validation relative to TEXT and SCHEMA.\n"
