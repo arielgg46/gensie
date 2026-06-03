@@ -38,6 +38,12 @@ def _create_chat_completion(client: OpenAI, **kwargs: Any) -> Any:
                 time.sleep(wait_s)
             _OPENAI_LAST_REQUEST_STARTED_AT = time.monotonic()
 
+    # Add enable_thinking: false to disable extended thinking
+    if "extra_body" not in kwargs:
+        kwargs["extra_body"] = {}
+    if isinstance(kwargs["extra_body"], dict):
+        kwargs["extra_body"]["enable_thinking"] = False
+
     return client.chat.completions.create(**kwargs)
 
 
