@@ -1,0 +1,51 @@
+\section{Schema-Guided Prompting}
+
+DRILLER's prompting strategy treats the schema as part of the task semantics, not only as a formatting constraint. The prompt must help the model decide what each field asks for, while the model request must still constrain the response to a JSON object. This section describes the prompt objective, schema rendering, structured response format, and interaction with retrieval and reasoning wrappers.
+
+The prompt objective is to make the model behave as a precise Spanish information extractor. The model is instructed to use the current source text as the only evidence, follow the extraction instruction, and interpret field meanings through the target schema. Retrieved examples are explicitly presented as demonstrations of extraction behavior, not as evidence for the current input. The answer must be only the requested JSON object, without markdown fences, explanations, or extra text.
+
+The standard prompt is organized around the extraction workflow. It first sets the extraction role. It then gives Spanish extraction rules covering grounding, full schema coverage, exact enum labels, conservative null handling, and value normalization when requested by the field description. Retrieved examples are inserted next. Finally, the current schema is rendered in a model-readable form followed by the source text. This order keeps task intent and extraction constraints visible while placing the current schema and evidence near generation.
+
+Raw JSON Schema is well suited for validation, but it can be visually heavy inside a prompt. Nested property dictionaries, separate required lists, repeated keywords, and nullable type arrays can obscure the field descriptions that carry extraction semantics. DRILLER therefore renders the schema in a Pydantic-style view. The view is not an executable program and does not replace the target JSON Schema; it is a compact representation designed to make the current extraction contract easier for the model to read.
+
+In this view, object schemas become class-like structures and properties appear as typed attributes. Primitive fields are rendered as familiar scalar types, arrays as list types, enums as literal alternatives, and nested objects as nested or referenced model types. Nullability is shown near the field rather than separated from the definition. Field descriptions are preserved because they often determine the correct behavior: the same type annotation can require copying, normalization, classification, or a short grounded summary depending on the description.
+
+DRILLER distinguishes three schema roles, summarized in Table~\ref{tab:schema-roles}. The same target schema is transformed differently depending on whether it is being shown to the model, used to constrain decoding, or returned to the evaluator.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Schema roles in DRILLER. The prompt schema supports model comprehension; the generation schema constrains decoding; the final challenge schema defines the returned interface.}
+\label{tab:schema-roles}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.22\linewidth}
+>{\raggedright\arraybackslash}p{0.28\linewidth}
+>{\raggedright\arraybackslash}X@{}}
+\toprule
+Schema role & Where it is used & Function in the system \\
+\midrule
+Prompt schema &
+Text shown inside the extraction prompt &
+Pydantic-style or reasoned Pydantic-style rendering that helps the model interpret field names, descriptions, types, enums, nullability, and nesting. \\
+Generation schema &
+Structured response format sent with the model request &
+Strict JSON Schema used to constrain the generated object; in reasoning mode, temporary wrappers are inserted before generation. \\
+Final challenge schema &
+Shape expected by the evaluator &
+Original task schema after postprocessing and optional unwrapping; reasoning scaffolds and prompt-only conventions are not returned. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The prompt schema is a readability layer. It can use class-like declarations, readable nullable notation, and other prompt-only conventions because its purpose is communication. The generation schema has a different role: DRILLER attaches a strict JSON Schema response format to the model request so decoding is constrained toward a JSON object compatible with the requested structure.
+
+For the submitted non-baseline pipelines, declared object properties are required during generation. This reduces field omissions, a common failure mode when a model understands the task but leaves out keys. Requiring keys does not require every value to be substantive. If the target schema permits null, the generated object may include the key with JSON \texttt{null}. The final challenge schema remains the original schema shape; generation-time requiredness is an inference constraint, not permission to fabricate unsupported content.
+
+Reasoning wrappers create a second schema variant. In direct mode, used by \texttt{Schema-RAG}, the prompt schema is ordinary Pydantic-style rendering and the model produces final values directly. In reasoning mode, used by \texttt{Reasoned-RAG} and the reasoning-augmented trials of \texttt{Mixed-SC}, each top-level field is shown as a reasoned value. The temporary generation schema requires an object with \texttt{reasoning} and \texttt{value} fields for each top-level slot. The \texttt{value} field retains the original type, including enums, arrays, objects, and nullable alternatives.
+
+This transformation is a schema-guided interface change rather than a request for free-form explanation. The model has a structured place to state local evidence or absence before committing to a field value, but the reasoning text is removed during postprocessing. Direct and reasoned prompting therefore share the same final objective while exposing different intermediate interfaces.
+
+Prompting also interacts with retrieval. In the general RAG layout, each example carries enough schema context for the model to understand why its output follows from its own source text and schema. In the same-schema layout, selected examples share the normalized target schema, so DRILLER can render the shared schema once and show compact example inputs and outputs. This saves prompt size and lets the examples emphasize contrasting field outcomes under the same structure.
+
+Examples can show how fields are populated, when null or empty arrays are appropriate, and how enum labels or nested structures behave, but their values are not evidence for the current instance. In reasoning mode, retrieved examples are rendered with the same temporary \texttt{\{reasoning, value\}} structure expected from the current extractor; in direct mode, examples use final field values. \texttt{Mixed-SC} applies the appropriate layout separately inside each trial.
+
+Overall, schema-guided prompting in DRILLER combines readable schema presentation, explicit grounded-extraction rules, strict structured generation, and retrieval-aware layout. The purpose is to make schema interpretation explicit while returning a complete JSON object compatible with the evaluator-facing schema.

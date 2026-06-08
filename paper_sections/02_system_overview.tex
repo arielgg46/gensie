@@ -1,0 +1,83 @@
+\section{System Overview}
+
+DRILLER proposes three submitted pipelines: \texttt{Schema-RAG}, \texttt{Reasoned-RAG}, and \texttt{Mixed-SC}. They share a common schema-guided extraction architecture and differ only in the use of reasoning scaffolds, trial count, and final decision rule. The submitted interface names are \path{enriched-schema-rag}, \path{enriched-inline-reasoning-rag}, and \path{mixed-extractors-self-consistency-rag}, respectively. Non-registered experimental variants are outside the submitted system.
+
+Table~\ref{tab:pipeline-overview} summarizes the final pipelines using the paper aliases as primary labels. All three use retrieval-augmented prompting and strict structured JSON generation; the later method sections describe retrieval, schema rendering, reasoning wrappers, postprocessing, and aggregation in detail.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Submitted DRILLER pipelines.}
+\label{tab:pipeline-overview}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.18\linewidth}
+>{\raggedright\arraybackslash}p{0.21\linewidth}
+>{\raggedright\arraybackslash}p{0.20\linewidth}
+>{\centering\arraybackslash}p{0.16\linewidth}
+>{\raggedright\arraybackslash}X@{}}
+\toprule
+Alias & Schema view & Reasoning wrapper & Requested trials & Final output \\
+\midrule
+\texttt{Schema-RAG} &
+Pydantic &
+No &
+1 &
+Direct \\
+\texttt{Reasoned-RAG} &
+Reasoned Pydantic &
+Top-level &
+1 &
+Unwrap + direct \\
+\texttt{Mixed-SC} &
+Direct and reasoned &
+Reasoned trials &
+4 &
+Schema-aware SC \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The shared architecture is a sequence of transformations from a GenSIE instance to a final JSON object. The input supplies the Spanish source text, extraction instruction, and target JSON Schema. DRILLER renders the schema for prompting, retrieves local demonstrations, constructs a Spanish extraction prompt, requests a structured JSON object from the hosted model, parses and normalizes the output, and optionally aggregates multiple candidates. The returned object always has the original challenge schema shape.
+
+\begin{figure}[t]
+\centering
+\fbox{%
+\parbox{0.94\linewidth}{%
+\centering
+\textbf{DRILLER extraction architecture}\\[0.5em]
+\texttt{Input task}
+\(\rightarrow\)
+\texttt{schema rendering}
+\(\rightarrow\)
+\texttt{RAG retrieval}
+\(\rightarrow\)
+\texttt{prompt construction}\\[0.35em]
+\(\rightarrow\)
+\texttt{strict JSON generation}
+\(\rightarrow\)
+\texttt{postprocessing}
+\(\rightarrow\)
+\texttt{optional Mixed-SC aggregation}
+\(\rightarrow\)
+\texttt{final JSON}
+}%
+}
+\caption{End-to-end architecture shared by the submitted pipelines. Aggregation is active only for \texttt{Mixed-SC}; the two single-pass pipelines return the postprocessed extraction directly.}
+\label{fig:system-architecture}
+\end{figure}
+
+The prompt is organized as a single extraction request. It presents the instance instruction, grounding rules, retrieved examples when available, a Pydantic version of the target schema, and the source text. The rules emphasize that the source text is the only evidence, examples are demonstrations rather than facts for the new instance, enum labels must be used exactly, and unsupported nullable fields should be returned as JSON \texttt{null}. This organization keeps the schema and passage close to generation while making the evidence boundary explicit.
+
+Schema rendering is shared across pipelines, with a direct and a reasoned variant. In direct mode, the JSON Schema is shown as a compact Pydantic-style model: fields become typed attributes, descriptions remain near the fields they define, arrays and nested objects are readable as typed structures, and enums are displayed as literal alternatives. This prompt view is not the formal output contract. The model request also includes a strict JSON Schema response format derived from the target schema, and the final answer is checked against the evaluator-facing schema shape after postprocessing.
+
+Retrieval is also shared. Each extraction can include up to two local few-shot demonstrations selected for schema relevance. Same-schema retrieval is used when examples have the same normalized structural schema as the current task; otherwise, DRILLER falls back to field-level matching over field names, descriptions, type classes, and complementary coverage. The selected examples are rendered in the same output style as the current extractor: direct examples for \texttt{Schema-RAG}, reasoning/value examples for \texttt{Reasoned-RAG}, and trial-specific rendering inside \texttt{Mixed-SC}.
+
+Postprocessing is deterministic and conservative. It parses JSON, cleans common Unicode artifacts, normalizes strings to \textit{Normalization Form C} (NFC), removes temporary reasoning wrappers when present, and converts the literal string \texttt{"null"} to JSON \texttt{null} only at schema positions where null is allowed. It does not infer missing facts, repair unsupported values, or reinterpret the source text after generation.
+
+\texttt{Schema-RAG} is the direct single-pass pipeline. It uses the Pydantic-style prompt schema, retrieves demonstrations, requests a strict JSON object, and returns the parsed and normalized object. Because no reasoning wrapper is used, the generated top-level fields already match the final output interface.
+
+\texttt{Reasoned-RAG} follows the same path but temporarily transforms each top-level field into an object with \texttt{reasoning} and \texttt{value} slots during generation. The prompt schema exposes this as a reasoned value, and the response schema requires the wrapper structure. After generation, DRILLER discards the reasoning strings and returns only the values in the original schema shape.
+
+\texttt{Mixed-SC} moves from a single extraction to a heterogeneous candidate set. It requests two direct \texttt{Schema-RAG}-style trials and two reasoning-augmented \texttt{Reasoned-RAG}-style trials. Each trial performs its own retrieval, prompt construction, strict generation, and postprocessing. Aggregation receives final-shape JSON candidates, not raw model messages or reasoning traces, and combines them recursively using schema-aware rules for scalars, nulls, objects, and arrays.
+
+Thus the submitted system keeps one common extraction spine while varying the amount of inference-time intervention. \texttt{Schema-RAG} returns a direct postprocessed extraction, \texttt{Reasoned-RAG} adds and removes a temporary field-level reasoning interface, and \texttt{Mixed-SC} aggregates heterogeneous candidates. The technical details of each component are given in the following sections.

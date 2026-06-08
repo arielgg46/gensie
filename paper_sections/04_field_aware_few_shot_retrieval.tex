@@ -1,0 +1,61 @@
+\section{Field-Aware Few-Shot Retrieval}
+
+Retrieval in DRILLER is designed around schema interpretation. In a variable-schema task, semantic similarity between source texts is not enough: two passages may be topically close but ask for different fields, while two different domains may instantiate similar extraction behavior. The submitted pipelines therefore retrieve demonstrations with attention to schema structure, extraction instruction, field descriptions, type compatibility, and complementary output behavior. The same retrieval path is used by \texttt{Schema-RAG}, \texttt{Reasoned-RAG}, and every trial of \texttt{Mixed-SC}.
+
+\subsection{Curated Demonstration Corpus}
+
+The retrieval pool is a local few-shot prompting (FSP) corpus of structured extraction demonstrations. Each case contains a Spanish source text, an extraction instruction, a target schema, expected values, tags describing covered extraction phenomena, and field-level rationales or descriptions that support rendering examples in either direct or reasoning-augmented form. The corpus is synthetic and curated. Development examples were inspected by task or schema family, field contrasts were identified, synthetic cases were drafted, outputs and rationales were reviewed, and the resulting resources were validated before use.
+
+The final extraction corpus contains two cases for each of the 22 schema or task families of the Development Set, for 44 extraction cases in the local retrieval pool. The families cover a range of domains and structures, but the corpus is not intended to be a large topical nearest-neighbor database. It is a compact library of contrasted demonstrations: the useful unit is often a pair of cases showing how the same or related fields behave under different evidence conditions.
+
+The paired organization is deliberate. A nullable field benefits from both grounded non-null values and grounded absence. An array field benefits from examples where the correct list is populated and examples where it is empty. Enum fields benefit from contrasting labels, especially when labels are inferred rather than copied literally. Numeric and date fields may require exact copying in one case and normalization in another. String fields may require direct mention extraction, near-verbatim evidence, or a short grounded summary depending on the field description.
+
+The documented coverage includes null versus non-null values, present versus absent evidence, enum alternatives, empty versus populated arrays, arrays of simple values, arrays of objects, nested objects, direct strings, summary strings, boolean inference, numeric normalization, date normalization, bounded scores, long evidence spans, and distractor mentions. These contrasts support retrieval because few-shot examples can bias the model when they show only one outcome regime. Complementary demonstrations help teach conditional behavior: extract when evidence exists, abstain when it does not, normalize only when requested, and respect the requested type and label set.
+
+\subsection{Same-Schema Retrieval}
+
+At runtime, DRILLER first tries to retrieve examples with the same normalized schema as the current task. This stage begins by computing a normalized schema fingerprint for the target schema and for each candidate case. The normalization canonicalizes the representation while preserving the structural extraction contract: field names, object structure, array structure, primitive types, enum alternatives, required properties, and nesting are retained. Descriptions are removed or neutralized so that minor wording differences do not prevent a match. Order-insensitive elements such as \texttt{required}, \texttt{enum}, and array-valued \texttt{type} are canonicalized.
+
+The fingerprint distinguishes schema identity from topical similarity. A medical passage and a technical passage might both contain names, dates, arrays, and classifications without sharing an extraction form. Conversely, two source texts from the same schema family may require the same field interpretation even when their values differ. Same-schema retrieval uses structural identity as a hard filter: only cases whose normalized fingerprint matches the current target schema become candidates for this stage.
+
+Filtered candidates are then ranked semantically. DRILLER builds a global textual representation of the current task from task identity, extraction instruction, and textual representations of top-level fields. Candidate cases are represented analogously. These representations are embedded and compared by cosine similarity. The default same-schema threshold documented for the submitted system is \texttt{0.6}. If at least two same-schema candidates meet the threshold, the top two are selected as same-schema demonstrations.
+
+Same-schema examples are valuable because the model observes the exact output contract under different source texts. They can clarify what counts as evidence for a field, when null or an empty list is correct, and how enum labels or nested structures are populated. This stage also enables a compact prompt layout: the shared schema is rendered once, and examples can focus on instruction, source text, and expected output rather than repeating identical schema blocks.
+
+\subsection{Field-Level Retrieval Fallback}
+
+When same-schema retrieval does not produce enough candidates, DRILLER falls back to field-level retrieval. The target schema is decomposed into top-level field specifications. For each field, the retriever records the field name, field description, textual type representation, and a coarse type class. Candidate cases are decomposed in the same way.
+
+Field comparisons are constrained by type compatibility. A query field is compared only to candidate fields with compatible coarse type classes. This avoids misleading alignments where descriptions share topical words but the expected output shape differs, such as matching an array of entities to a scalar summary. Nullable and non-nullable variants of the same broad type remain comparable, while an enum is not treated as compatible with an arbitrary nested object. The goal is schema analogy: find cases where a similar kind of field was interpreted and filled.
+
+For each compatible field pair, DRILLER computes embedding similarity over field texts. Each target field receives its best compatible similarity for a given candidate case. The result is a field-similarity vector aligned with the top-level fields of the current query. Negative similarities are clipped to zero, so a poor match simply contributes no coverage. A candidate's individual relevance can be summarized by the norm of this vector, but two-example selection uses a pair-level objective.
+
+This vector representation is more informative than a single nearest-neighbor score. A candidate may be moderately useful for all fields, or highly useful for only one part of the schema. Since the retrieval target is a pair of demonstrations, two individually imperfect candidates can be preferable when they cover different field behaviors.
+
+If embedding retrieval fails or produces no usable candidates, the system has a lexical/schema fallback. It scores candidates using explicit features such as exact normalized schema matches, compatible field fingerprints, tag overlap, field-name overlap, shared terms, and domain-term overlap, with a small penalty for long example texts. This fallback is not the primary path, but it preserves conservative schema-aware retrieval when embeddings are unavailable or uninformative.
+
+\subsection{Complementary Pair Selection}
+
+The submitted RAG path retrieves up to two examples. For the field-level fallback, DRILLER selects a pair using a complementarity-aware objective rather than choosing the two highest individual scores. For two candidate demonstrations \(c_1\) and \(c_2\), with field-similarity vectors \(v_1\) and \(v_2\), the pair score is
+
+\[
+s(c_1,c_2) = \lVert v_1 + v_2\rVert_2 + \lVert v_1 - v_2\rVert_2 .
+\]
+
+The first term, \(\lVert v_1 + v_2\rVert_2\), rewards joint relevance and field coverage. If both examples provide useful analogues for the current schema, their combined vector has large magnitude. This term aligns with the ordinary retrieval goal that demonstrations should be relevant to the task.
+
+The second term, \(\lVert v_1 - v_2\rVert_2\), rewards complementarity. If two candidates are strong on the same fields and weak on the same fields, their difference vector is small. If one is strong where the other is weak, the difference grows. This discourages near-duplicate demonstrations that reinforce one behavior while leaving other fields unexplained.
+
+This objective matters because demonstration diversity is not merely topical diversity. Two examples from different domains can still be redundant if they both show easy scalar fields and neither illustrates nulls, arrays, or enum decisions. Conversely, two examples from a related family may be complementary if one illustrates absence and empty arrays while the other illustrates populated nested objects and label mapping. Tie-breaking favors stronger individual relevance and stable resource order, but the core decision is pair-level.
+
+\subsection{Prompt Integration}
+
+Selected examples are integrated into the extraction prompt in one of two layouts. The general RAG layout is used when examples are related but not all same-schema matches. Each example is rendered as a self-contained demonstration with its instruction, schema context, source text, and expected output. This gives the model enough context to understand how the example output follows from that example's schema before using it analogically.
+
+The same-schema layout is used when all selected examples share the normalized target schema. The shared schema is rendered once, alongside the role instruction, extraction rules, root description when available, and guidance that examples are demonstrations rather than evidence. The examples then omit repeated schema blocks and focus on source-to-output behavior under the common structure. This reduces prompt length and makes contrasting field outcomes more salient.
+
+Pipeline integration depends on the current output interface. In \texttt{Schema-RAG}, examples are rendered in direct final-value form, matching the object shape returned after generation. In \texttt{Reasoned-RAG}, examples are rendered with top-level \texttt{\{reasoning, value\}} objects because the temporary generation interface requires that structure. The reasoning strings demonstrate a local evidence protocol, while the \texttt{value} slots show the values that will later be unwrapped.
+
+\texttt{Mixed-SC} uses the same retrieval machinery inside each trial. Direct trials use the \texttt{Schema-RAG} rendering, and reasoning-augmented trials use the \texttt{Reasoned-RAG} rendering. Each trial performs retrieval independently. Aggregation receives only postprocessed JSON candidates in the final schema shape.
+
+Overall, field-aware retrieval turns the local corpus into an inference-time schema interpretation aid. Same-schema retrieval exploits exact structural matches when available, field-level fallback finds type-compatible analogies, the pair objective favors complementary coverage, and prompt integration adapts examples to the direct, reasoned, and mixed pipelines.

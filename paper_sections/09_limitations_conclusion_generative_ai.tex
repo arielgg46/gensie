@@ -1,0 +1,31 @@
+\section{Limitations}
+
+DRILLER is designed for schema-variable extraction, and several limitations follow from that design. The first is dependence on a local few-shot prompting corpus. The demonstrations are synthetic and curated, which gives controlled coverage of nulls, populated values, enum choices, arrays, nested structures, and distractors, but also requires careful construction and review. Each case must keep the instruction, source text, schema, output, and rationale mutually consistent. Errors or narrow coverage in the corpus can propagate into prompts.
+
+Coverage remains incomplete because GenSIE schemas vary by instance. A demonstration family can represent one schema well while failing to cover later fields with different names, descriptions, nesting, or value regimes. Complementary examples reduce reliance on one output pattern, but they cannot guarantee that every private evaluation schema has a close analogue. If retrieved examples mostly show populated arrays, frequent enum labels, or non-null values, they may still bias the model toward overproduction.
+
+Retrieval depends on schema information quality. Same-schema retrieval is useful when structurally matching examples exist, but it has limited value when the local corpus lacks the target schema. Field-level fallback is more flexible, yet it relies on names, descriptions, type representations, and coarse type classes. Sparse or generic descriptions can make unrelated fields appear similar, while equivalent fields with different wording can be missed. Type compatibility prevents many implausible alignments, but it can also exclude examples whose meanings are related despite different schema forms.
+
+The reasoning/value wrapper in \texttt{Reasoned-RAG} is a cost trade-off. It can encourage explicit evidence assessment and clearer decisions between a value and \texttt{null}, but it increases output length, consumes context, and may raise latency or token cost. Because the submitted wrapper is top-level only, it does not give every nested field its own explicit evidence scaffold. This keeps the temporary schema manageable, but complex nested objects may still require decisions that are only indirectly guided by top-level reasoning.
+
+\texttt{Mixed-SC} further increases inference cost by requesting four trials, including two reasoning-augmented calls. Runtime budgets may limit completed trials, and practical efficiency depends on the model, backend, decoding configuration, and official token accounting. Its value must therefore be judged jointly by extraction quality and cost.
+
+Aggregation is heuristic. It votes over closed scalar values, clusters strings, aggregates objects field by field, clusters array items, and selects arrays with a recall-biased strategy. These rules are schema-aware and conservative in the sense that selected representatives come from generated candidates, but they are not optimality guarantees. Shared mistakes can be reinforced, borderline array items can be retained, and imperfect identity-field detection can misalign object arrays.
+
+Finally, component-level effects remain empirical questions. The paper describes the submitted architecture, but claims about the separate impact of schema rendering, retrieval, same-schema prompting, reasoning wrappers, postprocessing, or heterogeneous self-consistency require controlled ablations. Results may also depend strongly on the hosted model's structured-output behavior, context limits, multilingual extraction ability, and instruction following.
+
+\section{Conclusion}
+
+DRILLER submitted a modular schema-guided extraction system for GenSIE 2026. The system treats each instance as Spanish information extraction under a variable JSON Schema, where the central challenge is interpreting field semantics from the current instruction, schema, and source text while returning grounded schema-conformant JSON.
+
+The three submitted pipelines are \texttt{Schema-RAG}, \texttt{Reasoned-RAG}, and \texttt{Mixed-SC}. All use retrieval-augmented prompting. The common extraction spine combines schema-readable Pydantic-style prompting, strict structured JSON generation, field-aware few-shot retrieval, and conservative postprocessing. \texttt{Reasoned-RAG} adds temporary top-level reasoning/value wrappers that are removed before final output. \texttt{Mixed-SC} combines direct and reasoning-augmented candidates through heterogeneous self-consistency and recursive schema-aware aggregation.
+
+The main design principle is to treat the schema as a runtime semantic specification rather than only an output validator. Readable prompt schemas help the model interpret fields; strict generation constrains the response interface; retrieved examples illustrate field behavior; postprocessing normalizes representation-level artifacts without semantic repair; and aggregation reconciles candidate values according to schema type.
+
+Future work should strengthen both retrieval and aggregation. Learned retrieval could complement schema fingerprints and field-similarity heuristics, especially when field descriptions are sparse. Automatic validation of FSP cases would help detect inconsistent demonstrations before they enter prompts. Aggregation could benefit from better uncertainty estimates, learned item alignment, and schema-specific constraints. Controlled ablations are needed to measure component contributions, and robust array/object extraction remains a priority because omissions, duplicates, and field-alignment errors interact most strongly in nested structures.
+
+\section*{Declaration on Generative AI}
+
+During the preparation of this manuscript, generative AI tools were used to assist with repository inspection, organization of technical notes, drafting, and language editing. The authors reviewed, edited, and approved the final content and take full responsibility for the submitted paper. The DRILLER system also uses synthetic and curated few-shot resources as part of its retrieval component; any generative assistance involved in preparing those resources was followed by manual review and validation.
+
+% TODO: Verify whether IberLEF/CEUR requires a specific official wording for this declaration.

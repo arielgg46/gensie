@@ -1,0 +1,62 @@
+\documentclass{CEURART/ceurart}
+
+\sloppy
+\emergencystretch=2em
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{url}
+
+\makeatletter
+\providecommand{\insert@pcolumn}{\insert@column}
+\makeatother
+
+\begin{document}
+
+\copyrightyear{2026}
+\copyrightclause{Copyright for this paper by its authors.
+  Use permitted under Creative Commons License Attribution 4.0
+  International (CC BY 4.0).}
+
+% Replace conference metadata with the official CEUR/IberLEF wording when available.
+\conference{IberLEF 2026: Iberian Languages Evaluation Forum, 2026}
+
+\title{DRILLER at GenSIE 2026}
+
+% Replace the placeholder author list and affiliation before submission.
+\author[1]{Ariel González Gómez}
+\author[1]{Daniel Valdés Pérez}
+\address[1]{Havana University, Havana, Cuba}
+
+\begin{abstract}
+This paper describes DRILLER, the system submitted to GenSIE 2026 for Spanish schema-guided information extraction. GenSIE requires systems to extract grounded JSON objects from Spanish texts under variable JSON Schemas provided at inference time. In this setting, the main difficulty is not only producing syntactically valid JSON, but also interpreting each field according to a task-specific schema whose names, descriptions, types, and constraints may change from one instance to the next. DRILLER addresses this problem through three submitted pipelines built around a common schema-guided extraction architecture. The system renders schemas in a model-readable form, constrains generation with a strict structured response format, and enriches prompts with field-aware retrieval over complementary demonstrations. One variant introduces temporary top-level reasoning/value wrappers so that the model can deliberate locally about evidence before producing each final field value. A third variant applies heterogeneous self-consistency by combining direct and reasoning-augmented extractors, then selecting a final prediction through schema-aware aggregation. Across the submitted pipelines, DRILLER emphasizes schema interpretation, grounded extraction, conservative postprocessing, and compatibility with the model-agnostic hosted inference protocol of the shared task.
+\end{abstract}
+
+\begin{keywords}
+Spanish information extraction \sep
+schema-guided extraction \sep
+retrieval-augmented generation \sep
+structured generation \sep
+self-consistency
+\end{keywords}
+
+\maketitle
+
+\input{../paper_sections/01_intro_task_setting.tex}
+\input{../paper_sections/02_system_overview.tex}
+\input{../paper_sections/03_schema_guided_prompting.tex}
+\input{../paper_sections/04_field_aware_few_shot_retrieval.tex}
+\input{../paper_sections/05_reasoning_augmented_extraction.tex}
+\input{../paper_sections/06_postprocessing_normalization.tex}
+\input{../paper_sections/07_heterogeneous_self_consistency.tex}
+\input{../paper_sections/08_experimental_setup_results_analysis.tex}
+\input{../paper_sections/09_limitations_conclusion_generative_ai.tex}
+
+\bibliography{references}
+
+\end{document}

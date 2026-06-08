@@ -1,0 +1,15 @@
+\section{Postprocessing and Output Normalization}
+
+DRILLER uses deterministic postprocessing to align model outputs with the final schema interface. Even with a strict JSON Schema response format, outputs can contain representation artifacts such as literal Unicode escape strings, the string \texttt{"null"} where JSON \texttt{null} was intended, or temporary reasoning wrappers from \texttt{Reasoned-RAG}. Postprocessing cleans these artifacts.
+
+The first step is JSON parsing. The submitted pipelines expect a JSON object because the prompt asks for JSON only and the request includes a structured response format. If an output cannot be parsed as JSON, the trial is marked invalid rather than repaired by string heuristics. This boundary is especially important for \texttt{Mixed-SC}, where aggregation should combine valid candidate objects rather than fragments of malformed responses.
+
+After parsing, DRILLER applies Unicode cleanup recursively to string values. Spanish text may include diacritics, the letter ñ, inverted punctuation marks, and other characters that can appear inconsistently across model outputs or API layers. The normalizer cleans literal escape artifacts such as \texttt{\textbackslash u00e1} when they appear inside strings and then normalizes strings to Unicode Normalization Form C (NFC). NFC makes visually identical strings more stable for comparison while preserving their textual content.
+
+For \texttt{Reasoned-RAG} and the reasoning-augmented trials of \texttt{Mixed-SC}, postprocessing removes the temporary reasoning/value interface. Each top-level object with \texttt{reasoning} and \texttt{value} fields is replaced by its \texttt{value}. The reasoning text is discarded before the final JSON object is returned and before any self-consistency aggregation is applied. If unwrapping fails because the expected structure is absent or malformed, the trial is invalid.
+
+The prompt asks the model to use JSON \texttt{null} for unsupported information when null is allowed, but models may emit string literals such as \texttt{"null"}, \texttt{"NULL"}, or other casing variants instead. DRILLER converts these string markers to JSON \texttt{null} only at schema positions where \texttt{null} is valid. It does not globally replace all occurrences, because a non-nullable string field should not be silently changed into a null value.
+
+In \texttt{Mixed-SC}, each trial independently performs prompt construction, strict generation, parsing, Unicode cleanup, optional unwrapping, and null coercion. Invalid trials are excluded from aggregation. The aggregator receives postprocessed JSON candidates in the original schema shape; after aggregation, nullable-string coercion may be applied again so selected values remain aligned with schema-valid null representation.
+
+Thus, postprocessing in DRILLER is deterministic, schema-aware, and conservative. It makes generated objects cleaner and compatible with the expected interface while preserving the semantic content produced by the extractor.

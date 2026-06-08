@@ -1,0 +1,59 @@
+\section{Heterogeneous Self-Consistency}
+
+\subsection{Motivation}
+
+Schema-guided extraction can vary across generations even when the output format is constrained. Candidate outputs may differ in whether they include a borderline entity, how they normalize a date, which enum label they choose, or whether they return JSON \texttt{null}. Some of this variance comes from sampling, but some comes from the interface shown to the model. For example, the reasoning-augmented prompt spends more output budget on field-local evidence assessment before committing to values.
+
+In \texttt{Mixed-SC} we use this observation for heterogeneous self-consistency. Rather than sampling one prompt repeatedly, it combines \texttt{Schema-RAG}, which produces final values directly, with \texttt{Reasoned-RAG}, which temporarily produces \texttt{\{reasoning, value\}} objects and then unwraps them. The goal is to obtain candidates with potentially different error patterns. The final decision is not a flat vote over complete JSON strings; it is a recursive schema-aware aggregation over candidate objects.
+
+\subsection{Candidate Generation}
+
+\texttt{Mixed-SC} requests four extraction trials. Two follow the direct \texttt{Schema-RAG} style and two follow the reasoning-augmented \texttt{Reasoned-RAG} style. The intended ordering is interleaved. This keeps the candidate set balanced between the two extractor styles.
+
+Each trial is a complete extraction run. It performs its own RAG retrieval, prompt construction, strict JSON generation, and deterministic postprocessing. Direct trials render examples and schemas in the \texttt{Schema-RAG} format. Reasoning-augmented trials render examples and schemas in the temporary \texttt{Reasoned-RAG} format, so demonstrations contain reasoning/value fields during generation.
+
+Postprocessing is applied before aggregation. Reasoning wrappers are removed, Unicode normalization and schema-aware null coercion are applied, and malformed outputs are rejected. The aggregation stage therefore receives final-shape JSON candidates in the original challenge schema, not raw model messages and not reasoning traces. \texttt{Mixed-SC} aggregates answers, not explanations.
+
+Candidate validity is checked at the trial level. A candidate must parse as JSON and pass required unwrapping. Invalid candidates are excluded from aggregation. If all trials fail to produce valid postprocessed outputs, the system does not fabricate an extraction from partial information. The submitted plan requests four trials, with actual execution still subject to token and time budgets in the evaluation environment.
+
+\subsection{Schema-Aware Recursive Aggregation}
+
+Aggregation is recursive over the target schema. Complete JSON objects are not treated as indivisible strings. Instead, DRILLER descends through the schema and combines candidate values according to the expected type at each position. This matters because agreement has different meanings for closed labels, free text, nullable fields, nested objects, and arrays.
+
+For closed scalar types, aggregation is close to exact voting. Enums, booleans, integers, and numeric values are grouped by canonical equality. The selected value comes from the group with strongest support. The aggregator does not synthesize new enum labels, invert booleans, average numbers, or create intermediate values.
+
+Free-text strings are clustered rather than compared only by byte equality. Candidates may express the same grounded value with minor spelling, accent, punctuation, or phrasing differences. The default string path normalizes text and considers lexical overlap and character n-gram overlap. When a cluster is selected, the representative is a generated candidate value, typically a medoid, not a newly composed string.
+
+Null values are treated as a separate candidate type. For nullable fields, JSON \texttt{null} is expected when the source text does not support a value. However, null does not win by default in ties: null wins only when its support is strictly greater than the best supported non-null value. This avoids turning uncertainty into absence while still preserving shared abstention when multiple trials independently return null.
+
+Objects are aggregated field by field. For a root object, this allows one candidate to contribute stronger support for one field while another contributes a better-supported value elsewhere. The final object can therefore combine agreement patterns across the candidate set rather than selecting one whole candidate unchanged.
+
+\subsection{Array Aggregation}
+
+Arrays require separate handling because disagreement can involve order, omissions, duplicates, merged items, split items, or outliers. A majority vote over complete arrays would be brittle: two candidates may contain the same substantive items in different orders or differ by one peripheral object. DRILLER therefore aggregates arrays by clustering items across candidate arrays.
+
+The array procedure first collects items from candidate arrays and compares them using schema-aware similarity. For arrays of simple values, item similarity follows the value type. For arrays of objects, object similarity compares corresponding fields with weights influenced by schema type. This allows two object items to align when they refer to the same entity, reaction, ingredient, event, or evidence span even if some attributes differ.
+
+Near-duplicates from the same trial are handled cautiously. A single generated array may repeat one item or produce very similar variants. Such repetitions should not count as independent votes. The clustering process tracks trial indexes and prevents a non-exact cluster from accepting multiple values from the same trial, so one verbose generation cannot dominate support.
+
+Arrays of objects may use identity-like fields to improve alignment. Many object-array schemas contain a field that behaves like an identifier: a name, title, mention, text span, ingredient, symptom, reaction, or source fragment. When such a field is detected with sufficient confidence, it guides item matching across trials. Two objects with the same reaction name but different impact labels should be compared as competing descriptions of one item, not as unrelated items. If no useful identity field is detected, the aggregator falls back to broader object similarity.
+
+This alignment is important because object arrays often combine extraction and classification. The identity-like field tells the system which candidate objects correspond; remaining fields can then be compared or aggregated inside that item cluster. Imperfect identity detection is also a risk: a generic attribute may align unrelated objects, while failure to detect an identity field may split corresponding objects into duplicate clusters.
+
+\subsection{Recall-Biased Selection}
+
+After clustering array items, the aggregator selects a final array. The submitted design builds candidate final arrays from item clusters, including threshold-based arrays and a greedy MBR-style candidate. It compares possible arrays by their agreement with observed candidate arrays, using schema-aware item similarity rather than exact positional equality.
+
+Selection is recall-biased when candidate arrays have similar scores. Among arrays within a tolerance of the best score, the selector prefers the longer array, then the higher-scoring one, then the earlier candidate. This favors retaining supported items when evidence from trials is close. The longer array is not accepted unconditionally; it must remain competitive under the consensus objective.
+
+The design trades omission against over-extraction. A stricter selector would discard more borderline items, improving precision in some cases but risking missed entities or list elements. DRILLER's recall-biased selector keeps items with enough support to remain near the best consensus score, which is useful for unordered lists, object arrays, and evidence collections where candidates often agree on a core set but vary on peripheral supported items.
+
+\subsection{Conservativeness and Failure Modes}
+
+Aggregation is conservative in that it selects among generated candidates rather than inventing semantic content. Exact scalar types are selected by canonical equality groups; non-exact string clusters choose a generated representative; arrays are built from generated item clusters. The aggregator does not use external knowledge, synthesize new enum labels, or create facts absent from all candidate outputs.
+
+Self-consistency is still not a guarantee of correctness. If multiple trials share the same misunderstanding of a field description, attend to the same distractor mention, or overtrust an unsupported fact, aggregation can preserve that mistake with high support. Heterogeneous prompting reduces reliance on one prompt representation, but all trials still share the source text, target schema, local FSP corpus, model endpoint, and broad extraction rules.
+
+Array aggregation has additional failure modes. The recall-biased selector may retain extra borderline items, and identity-field detection can misalign object items or fail to merge true matches. These risks are the cost of trying to preserve recall in schemas where missing list members are common and where item order is not meaningful.
+
+\texttt{Mixed-SC} also increases inference cost. It requests four model calls rather than one, and two calls use reasoning-augmented generation, which can produce longer intermediate outputs before unwrapping. Its technical contribution is therefore not efficiency, but the combination of heterogeneous candidate generation with recursive schema-aware aggregation over final-shape JSON candidates.
