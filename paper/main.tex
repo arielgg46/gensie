@@ -9,10 +9,98 @@
 \usepackage{amssymb}
 \usepackage{array}
 \usepackage{booktabs}
+\usepackage{listings}
 \usepackage{tabularx}
+\usepackage[most]{tcolorbox}
 \usepackage{tikz}
 \usepackage{url}
 \usetikzlibrary{arrows.meta,fit,positioning}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  frame=single
+}
+
+\definecolor{schemajsonbg}{rgb}{0.96,0.98,1.00}
+\definecolor{schemapydanticbg}{rgb}{0.96,0.99,0.96}
+\definecolor{schemaborder}{rgb}{0.72,0.76,0.82}
+
+\lstdefinestyle{schemaJsonBox}{
+  basicstyle=\ttfamily\tiny,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  frame=single,
+  framerule=0.4pt,
+  rulecolor=\color{schemaborder},
+  backgroundcolor=\color{schemajsonbg},
+  aboveskip=0pt,
+  belowskip=0pt
+}
+
+\lstdefinestyle{schemaPydanticBox}{
+  basicstyle=\ttfamily\tiny,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  frame=single,
+  framerule=0.4pt,
+  rulecolor=\color{schemaborder},
+  backgroundcolor=\color{schemapydanticbg},
+  aboveskip=0pt,
+  belowskip=0pt
+}
+
+\tcbset{
+  schemaListingBase/.style={
+    enhanced,
+    listing only,
+    listing engine=listings,
+    height=0.52\textheight,
+    valign=top,
+    arc=0pt,
+    outer arc=0pt,
+    boxrule=0.4pt,
+    fonttitle=\bfseries\footnotesize,
+    coltitle=black,
+    toptitle=0.5mm,
+    bottomtitle=0.5mm,
+    left=0.8mm,
+    right=0.8mm,
+    top=0.8mm,
+    bottom=0.8mm,
+    before skip=0pt,
+    after skip=0pt,
+    listing options={
+      basicstyle=\ttfamily\scriptsize,
+      breaklines=true,
+      columns=fullflexible,
+      frame=none,
+      aboveskip=0pt,
+      belowskip=0pt,
+      keepspaces=true,
+      showstringspaces=false
+    }
+  },
+  schemaJsonPanel/.style={
+    schemaListingBase,
+    colback=schemajsonbg,
+    colbacktitle=schemajsonbg,
+    colframe=schemaborder
+  },
+  schemaPydanticPanel/.style={
+    schemaListingBase,
+    colback=schemapydanticbg,
+    colbacktitle=schemapydanticbg,
+    colframe=schemaborder
+  }
+}
 
 \makeatletter
 \providecommand{\insert@pcolumn}{\insert@column}
