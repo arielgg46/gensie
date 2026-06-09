@@ -41,28 +41,76 @@ The shared architecture is a sequence of transformations from a GenSIE instance 
 
 \begin{figure}[t]
 \centering
-\fbox{%
-\parbox{0.94\linewidth}{%
-\centering
-\textbf{DRILLER extraction architecture}\\[0.5em]
-\texttt{Input task}
-\(\rightarrow\)
-\texttt{schema rendering}
-\(\rightarrow\)
-\texttt{RAG retrieval}
-\(\rightarrow\)
-\texttt{prompt construction}\\[0.35em]
-\(\rightarrow\)
-\texttt{strict JSON generation}
-\(\rightarrow\)
-\texttt{postprocessing}
-\(\rightarrow\)
-\texttt{optional Mixed-SC aggregation}
-\(\rightarrow\)
-\texttt{final JSON}
-}%
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+  font=\scriptsize,
+  >=Latex,
+  node distance=4mm and 5mm,
+  box/.style={draw, rounded corners=1.5pt, align=center, inner xsep=2pt, inner ysep=3pt, minimum height=7mm},
+  inputbox/.style={box, fill=blue!7, minimum width=16mm},
+  shared/.style={box, fill=green!8, minimum width=18mm},
+  direct/.style={box, fill=cyan!9, minimum width=19mm},
+  reasoned/.style={box, fill=orange!12, minimum width=22mm},
+  mixed/.style={box, fill=violet!10, minimum width=21mm},
+  finalbox/.style={box, fill=gray!12, minimum width=15mm},
+  groupbox/.style={draw, rounded corners=2pt, inner sep=2pt},
+  arrow/.style={->, line width=0.45pt},
+  dashedarrow/.style={->, dashed, line width=0.45pt}
+]
+
+\node[inputbox] (src) {source\\text};
+\node[inputbox, below=of src] (inst) {instruction};
+\node[inputbox, below=of inst] (schema) {target\\JSON Schema};
+\node[groupbox, fit=(src)(inst)(schema), label={[font=\scriptsize\bfseries]above:Input task}] (input) {};
+
+\node[shared, right=7mm of src] (render) {schema\\rendering};
+\node[shared, right=of render] (retrieval) {RAG\\retrieval};
+\node[shared, right=of retrieval] (prompt) {prompt\\construction};
+
+\node[direct, right=of prompt] (genD) {strict JSON\\generation};
+\node[shared, right=of genD] (postD) {deterministic\\postprocessing};
+\node[finalbox, right=of postD] (finalD) {final\\JSON};
+\node[font=\scriptsize\bfseries, above=2mm of genD] (schemaLabel) {\texttt{Schema-RAG}: shared single-pass path};
+
+\node[reasoned, below=8mm of genD] (wrapR) {temporary\\\{reasoning, value\}\\wrappers};
+\node[reasoned, right=of wrapR] (genR) {strict JSON\\generation};
+\node[reasoned, right=of genR] (unwrapR) {schema restoration\\and unwrapping};
+\node[shared, right=of unwrapR] (postR) {deterministic\\postprocessing};
+\node[finalbox, right=of postR] (finalR) {final\\JSON};
+\node[font=\scriptsize\bfseries, above=2mm of wrapR] (reasonLabel) {\texttt{Reasoned-RAG}: wrapper branch};
+
+\node[mixed, below=8mm of wrapR] (trialsM) {up to four\\interleaved trials};
+\node[mixed, right=of trialsM, yshift=5mm] (directM) {direct\\trials};
+\node[mixed, right=of trialsM, yshift=-5mm] (reasonM) {reasoned\\trials};
+\node[mixed, right=8mm of directM, yshift=-5mm] (candM) {postprocessed\\candidates};
+\node[mixed, right=of candM] (aggM) {schema-aware\\aggregation};
+\node[finalbox, right=of aggM] (finalM) {final\\JSON};
+\node[font=\scriptsize\bfseries, above=2mm of trialsM] (mixedLabel) {\texttt{Mixed-SC}: heterogeneous candidate set};
+
+\draw[arrow] (input.east) -- (render.west);
+\draw[arrow] (render) -- (retrieval);
+\draw[arrow] (retrieval) -- (prompt);
+\draw[arrow] (prompt) -- (genD);
+\draw[arrow] (genD) -- (postD);
+\draw[arrow] (postD) -- (finalD);
+
+\draw[dashedarrow] (prompt.south) |- (wrapR.west);
+\draw[arrow] (wrapR) -- (genR);
+\draw[arrow] (genR) -- (unwrapR);
+\draw[arrow] (unwrapR) -- (postR);
+\draw[arrow] (postR) -- (finalR);
+
+\draw[dashedarrow] (prompt.south) |- (trialsM.west);
+\draw[arrow] (trialsM) -- (directM);
+\draw[arrow] (trialsM) -- (reasonM);
+\draw[arrow] (directM.east) -- (candM.west);
+\draw[arrow] (reasonM.east) -- (candM.west);
+\draw[arrow] (candM) -- (aggM);
+\draw[arrow] (aggM) -- (finalM);
+
+\end{tikzpicture}%
 }
-\caption{End-to-end architecture shared by the submitted pipelines. Aggregation is active only for \texttt{Mixed-SC}; the two single-pass pipelines return the postprocessed extraction directly.}
+\caption{Architecture of the submitted DRILLER pipelines. \texttt{Schema-RAG} follows the shared single-pass path, \texttt{Reasoned-RAG} adds temporary reasoning/value wrappers before restoring the original schema, and \texttt{Mixed-SC} aggregates postprocessed candidates from direct and reasoned trials.}
 \label{fig:system-architecture}
 \end{figure}
 
