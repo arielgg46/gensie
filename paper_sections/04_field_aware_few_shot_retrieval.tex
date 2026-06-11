@@ -4,31 +4,107 @@ Retrieval in DRILLER is designed around schema interpretation. In a variable-sch
 
 \subsection{Curated Demonstration Corpus}
 
-The retrieval pool is a local few-shot prompting (FSP) corpus of structured extraction demonstrations. Each case contains a Spanish source text, an extraction instruction, a target schema, expected values, tags describing covered extraction phenomena, and field-level rationales or descriptions that support rendering examples in either direct or reasoning-augmented form. The corpus is synthetic and curated. Development examples were inspected by task or schema family, field contrasts were identified, synthetic cases were drafted, outputs and rationales were reviewed, and the resulting resources were validated before use.
+The retrieval pool is a local few-shot prompting (FSP) corpus of structured extraction demonstrations. Each case contains a Spanish source text, an extraction instruction, a target schema, expected values, tags describing covered extraction phenomena, and field-level rationales or descriptions that support rendering examples in either direct or reasoning-augmented form. The corpus is synthetic and curated rather than mined from an external collection.
 
-The final extraction corpus contains two cases for each of the 22 schema or task families of the Development Set, for 44 extraction cases in the local retrieval pool. The families cover a range of domains and structures, but the corpus is not intended to be a large topical nearest-neighbor database. It is a compact library of contrasted demonstrations: the useful unit is often a pair of cases showing how the same or related fields behave under different evidence conditions.
+The starting point for designing this corpus was the GenSIE development set. We used the development material primarily to understand schema structure, source-text style, vocabulary, noise patterns, and recurring ambiguities, rather than directly reusing development instances as demonstrations. We also manually curated a small subset for development-time evaluation, reviewing up to two instances per task family. Those curated development instances were not used directly as RAG demonstrations: they were treated as design references for style and structure, not as final FSP resources to copy verbatim. Direct reuse would not provide systematic complementary coverage of field dualities and would contaminate evaluation on the same curated subset, since retrieval could return the very instance being solved.
+
+The final FSP corpus was therefore constructed as a compact library of synthetic and manually curated structured cases, organized by development task family and schema family. The corpus was constructed through an author-in-the-loop workflow assisted by an agentic LLM coding assistant. The assistant helped inspect candidate task families, draft complementary-case proposals, generate provisional source texts and structured resources, and run structural checks. The authors reviewed and corrected the proposed dualities, source texts, expected outputs, reasoning fields, enriched descriptions, and final JSON resources before inclusion. The methodology was:
+
+\begin{enumerate}
+\item Each development task family was treated as the unit of work, because a family tends to bundle not only a schema, but also a domain, source-text style, vocabulary, and recurring extraction traps.
+\item The assistant inspected the manually curated subset of the development set first, then consulted the full uncurated development set when more evidence about style, structure, or ambiguity was needed. The latter was used critically to characterize text length, noise patterns, and extraction behavior, but not as a source of trusted gold outputs.
+\item From that inspection, the model identified useful field-level dualities: nullable value versus grounded non-null value; empty array versus populated array; boolean \texttt{true} versus \texttt{false}; frequent enum label versus an alternative label; direct or near-verbatim textual field versus grounded summary; explicit value versus distractor or insufficient evidence; and normalized value versus literal mention.
+\item It then proposed two complementary cases for the task or schema family whenever possible, using a balanced or approximately balanced mask over dual fields as a design heuristic. One case covered one side of several dualities and the second covered the inverse side, while qualitative contrasts such as enum A versus enum B, verbatim evidence versus grounded summary, or explicit date versus nearby distractor date were handled outside a rigid binary mask.
+\item The authors reviewed and curated this pre-drafting proposal, including the selected references, field dualities, complementary mask, and intended case behavior. Only after this gate was accepted did the workflow proceed to full synthetic drafting.
+\item Under the approved design, the assistant drafted synthetic Spanish source texts, candidate expected outputs, and field-level reasoning. The generated texts had to ground values, \texttt{null}s, and empty arrays naturally, resemble the reviewed family style, and avoid benchmark-aware phrases that mechanically announce the expected answer or absence.
+\item The authors manually curated the drafted cases, editing source texts, expected outputs, and field-level reasoning before final resource generation. This review checked that each value, \texttt{null}, and empty list was justified by the source text and that the pair actually contrasted the intended regimes.
+\item After author approval, the assistant generated the final \texttt{StructuredFspCase} JSON resources, including \texttt{field\_examples}, tags, field-level reasoning, and enriched descriptions when applicable. The resources were then loaded through the FSP resource loader or equivalent structural checks before being used by retrieval.
+\end{enumerate}
+
+The final extraction corpus contains two cases for each of the 22 schema or task families represented in the curated development setting, for 44 extraction cases in the local retrieval pool. The families cover a range of domains and structures, but the corpus is not intended to be a large topical nearest-neighbor database. It is a compact library of contrasted demonstrations: the useful unit is often a pair of cases showing how the same or related fields behave under different evidence conditions.
 
 The paired organization is deliberate. A nullable field benefits from both grounded non-null values and grounded absence. An array field benefits from examples where the correct list is populated and examples where it is empty. Enum fields benefit from contrasting labels, especially when labels are inferred rather than copied literally. Numeric and date fields may require exact copying in one case and normalization in another. String fields may require direct mention extraction, near-verbatim evidence, or a short grounded summary depending on the field description.
+
+After complementary cases had been proposed and reviewed, enriched field descriptions were added as compact Spanish prompt annotations and carried into the final resources when applicable. They explain how to extract a field and warn about typical traps observed during development-example review or synthetic case construction, such as distractor dates, nearby but semantically wrong entities, aliases, or conditions under which a nullable field should remain \texttt{null}. These descriptions are brief and practical: their purpose is to clarify schema semantics for same-schema prompting, not to add new instance evidence. They are used only in the prompt-side schema view; the target JSON Schema, the strict generation schema, and the evaluator-facing output schema remain unchanged.
+
+The reasoning fields in the FSP cases also follow a structured evidence discipline. For reasoning-mode examples, each field can render \texttt{field\_asks}, \texttt{relevant\_fragments}, and \texttt{final\_value} as a local evidence protocol. The cited fragments are meant to support the extraction decision, not merely to contain the same literal string as the answer. They should be short while preserving the semantic context needed to justify the value; for accepted candidates, they show why the candidate belongs to the requested field, while for rejected or \texttt{null} cases they cite the closest reviewed context and explain which required assertion is missing. Enum reasoning considers the allowed labels and justifies the selected label from relevant fragments. Array reasoning may cite a complete list once, or cite compactly around individual items, so that examples support recall without bloating the prompt. This makes FSP examples useful as demonstrations of grounding behavior, not only as demonstrations of output formatting.
+
+Table~\ref{tab:technical-software-fsp-pair} gives one compact example from the \texttt{technical\_software} family. The two cases share the same schema but expose complementary regimes: one case grounds populated arrays and leaves several adversarial nullable fields unsupported, while the other inverts the pattern with empty arrays, alias resolution, exact date normalization, an explicit stable-installer checksum, and explicit corporate metadata.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\caption{Complementary FSP pair for the \texttt{technical\_software} schema family.}
+\label{tab:technical-software-fsp-pair}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.20\linewidth}
+>{\raggedright\arraybackslash}X
+>{\raggedright\arraybackslash}X@{}}
+\toprule
+Field or contrast & \textit{Lince Editor} case & \textit{QuantaPack Pro} case \\
+\midrule
+\texttt{official\_name} and \texttt{app\_category} &
+Direct product name; enum maps to \texttt{IDE\_EDITOR}. &
+Abbreviated heading must resolve to full name; enum maps to \texttt{ARCHIVER}. \\
+\texttt{platforms} and \texttt{features} &
+Populated arrays with named operating systems and technical capabilities. &
+Empty arrays: installers and downloads are mentioned, but no supported OS or concrete feature list. \\
+\texttt{exact\_release\_date} &
+\texttt{null}: only year-level or relative release evidence is present. &
+Exact first-release date normalized to \texttt{DD/MM/YYYY}. \\
+\path{latest_stable_version_sha256} &
+\texttt{null}: PGP signatures and a nightly commit hash are distractors. &
+Explicit SHA256 for the stable installer. \\
+\texttt{current\_ceo\_name} &
+\texttt{null}: founder, idea author, and coordinating team are not CEO evidence. &
+Explicit current CEO of the developing company. \\
+Pair lesson &
+Extract grounded scalar values and populated arrays, but abstain for nullable fields with only distractor evidence. &
+Resolve aliases, keep unsupported arrays empty, and fill nullable fields only when the source states the required evidence. \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 The documented coverage includes null versus non-null values, present versus absent evidence, enum alternatives, empty versus populated arrays, arrays of simple values, arrays of objects, nested objects, direct strings, summary strings, boolean inference, numeric normalization, date normalization, bounded scores, long evidence spans, and distractor mentions. These contrasts support retrieval because few-shot examples can bias the model when they show only one outcome regime. Complementary demonstrations help teach conditional behavior: extract when evidence exists, abstain when it does not, normalize only when requested, and respect the requested type and label set.
 
 \subsection{Same-Schema Retrieval}
 
-At runtime, DRILLER first tries to retrieve examples with the same normalized schema as the current task. This stage begins by computing a normalized schema fingerprint for the target schema and for each candidate case. The normalization canonicalizes the representation while preserving the structural extraction contract: field names, object structure, array structure, primitive types, enum alternatives, required properties, and nesting are retained. Descriptions are removed or neutralized so that minor wording differences do not prevent a match. Order-insensitive elements such as \texttt{required}, \texttt{enum}, and array-valued \texttt{type} are canonicalized.
+At runtime, DRILLER first tries to retrieve examples with the same normalized schema as the current task. Let \(S_q\) be the target schema of query instance \(q\), and let \(S_c\) be the schema of a candidate case \(c\). DRILLER computes a normalized schema fingerprint \(\phi(S)\) by canonicalizing the JSON representation while preserving the structural extraction contract: field names, object structure, array structure, primitive types, enum alternatives, required properties, and nesting. Descriptions are neutralized so that prompt wording refinements do not change schema identity. Order-insensitive elements such as \texttt{required}, \texttt{enum}, and array-valued \texttt{type} are sorted before serialization. Same-schema candidates satisfy the hard constraint
+\[
+\phi(S_q)=\phi(S_c).
+\]
 
-The fingerprint distinguishes schema identity from topical similarity. A medical passage and a technical passage might both contain names, dates, arrays, and classifications without sharing an extraction form. Conversely, two source texts from the same schema family may require the same field interpretation even when their values differ. Same-schema retrieval uses structural identity as a hard filter: only cases whose normalized fingerprint matches the current target schema become candidates for this stage.
+The fingerprint distinguishes schema identity from topical similarity. A medical passage and a technical passage might both contain names, dates, arrays, and classifications without sharing an extraction form. Conversely, two source texts from the same schema family may require the same field interpretation even when their values differ. Same-schema retrieval therefore treats structural identity as a filter rather than as a soft ranking feature.
 
-Filtered candidates are then ranked semantically. DRILLER builds a global textual representation of the current task from task identity, extraction instruction, and textual representations of top-level fields. Candidate cases are represented analogously. These representations are embedded and compared by cosine similarity. The default same-schema threshold documented for the submitted system is \texttt{0.6}. If at least two same-schema candidates meet the threshold, the top two are selected as same-schema demonstrations.
+Filtered candidates are then ranked semantically. DRILLER builds a global textual representation \(r(q)\) of the current task from the task identifier, extraction instruction, and textual representations of top-level fields. Candidate cases are represented analogously as \(r(c)\). These representations are embedded and compared by cosine similarity,
+\[
+\operatorname{sim}(r(q),r(c)).
+\]
+The submitted system uses a same-schema threshold \(\tau=0.6\). If at least two fingerprint-matching candidates satisfy \(\operatorname{sim}(r(q),r(c))\geq\tau\), DRILLER selects the top candidates by similarity and marks them as same-schema demonstrations. If fewer than two candidates pass this test, retrieval continues with the field-level fallback.
 
 Same-schema examples are valuable because the model observes the exact output contract under different source texts. They can clarify what counts as evidence for a field, when null or an empty list is correct, and how enum labels or nested structures are populated. This stage also enables a compact prompt layout: the shared schema is rendered once, and examples can focus on instruction, source text, and expected output rather than repeating identical schema blocks.
 
+Same-schema mode can also enrich the prompt-side schema view with curated field descriptions drawn from the selected cases. These enriched descriptions inject task and domain insights such as enum interpretation, null traps, or distractor patterns into the schema text shown to the model. They do not modify the target JSON Schema, do not modify the strict generation schema sent with the model request, and do not change the final evaluator-facing schema. The submitted container enables this prompt-side mechanism, while its effect remains confined to the same-schema prompt layout.
+
 \subsection{Field-Level Retrieval Fallback}
 
-When same-schema retrieval does not produce enough candidates, DRILLER falls back to field-level retrieval. The target schema is decomposed into top-level field specifications. For each field, the retriever records the field name, field description, textual type representation, and a coarse type class. Candidate cases are decomposed in the same way.
+When same-schema retrieval does not produce enough candidates, DRILLER falls back to field-level retrieval. Let the query top-level fields be \(F_q=\{f_1,\ldots,f_m\}\), in schema order, and let \(F_c\) be the top-level fields of candidate case \(c\). Each field \(f\) is mapped to a textual representation \(t(f)\) that combines its field name, readable type, and description, for example ``\texttt{name (type): description}''. The retriever also assigns a coarse type class \(\kappa(f)\), ignoring nullability.
 
-Field comparisons are constrained by type compatibility. A query field is compared only to candidate fields with compatible coarse type classes. This avoids misleading alignments where descriptions share topical words but the expected output shape differs, such as matching an array of entities to a scalar summary. Nullable and non-nullable variants of the same broad type remain comparable, while an enum is not treated as compatible with an arbitrary nested object. The goal is schema analogy: find cases where a similar kind of field was interpreted and filled.
+The coarse classes used by the retriever are \texttt{string}, \texttt{boolean}, \texttt{numeric} for both integer and number fields, \texttt{enum}, \texttt{object}, and recursively typed arrays such as \texttt{array[string]}, \texttt{array[numeric]}, \texttt{array[enum]}, and \texttt{array[object]}. A fallback \texttt{any} class is available for unsupported or underspecified schemas. We write \(\kappa(f_i)\sim\kappa(g)\) for compatibility; in the submitted implementation this relation is equality of the nullability-insensitive coarse classes. Thus nullable and non-nullable variants of the same base type can match, while an array of objects is not aligned with a scalar summary merely because their descriptions share topical words.
 
-For each compatible field pair, DRILLER computes embedding similarity over field texts. Each target field receives its best compatible similarity for a given candidate case. The result is a field-similarity vector aligned with the top-level fields of the current query. Negative similarities are clipped to zero, so a poor match simply contributes no coverage. A candidate's individual relevance can be summarized by the norm of this vector, but two-example selection uses a pair-level objective.
+For each candidate \(c\), DRILLER embeds the field texts \(e(t(f))\) and computes, for every query field \(f_i\), the best compatible field match in the candidate:
+\[
+a_i(c)=
+\max\left(0,\max_{g\in F_c,\ \kappa(g)\sim\kappa(f_i)}
+\cos(e(t(f_i)),e(t(g)))\right),
+\]
+with \(a_i(c)=0\) when no compatible candidate field exists. The candidate is therefore represented by a field-similarity vector aligned with the current query schema,
+\[
+v(c)=(a_1(c),\ldots,a_m(c)).
+\]
+A candidate's individual relevance can be summarized by \(\lVert v(c)\rVert_2\), but two-example selection uses a pair-level objective over these same vectors.
+
+This type-aware construction prevents purely topical retrieval from ignoring output shape. It avoids matching semantically similar descriptions with incompatible JSON structures, allows nullable and non-nullable variants of the same base type to reinforce each other, and makes retrieval schema-aware rather than only domain-aware.
 
 This vector representation is more informative than a single nearest-neighbor score. A candidate may be moderately useful for all fields, or highly useful for only one part of the schema. Since the retrieval target is a pair of demonstrations, two individually imperfect candidates can be preferable when they cover different field behaviors.
 
@@ -36,15 +112,88 @@ If embedding retrieval fails or produces no usable candidates, the system has a 
 
 \subsection{Complementary Pair Selection}
 
-The submitted RAG path retrieves up to two examples. For the field-level fallback, DRILLER selects a pair using a complementarity-aware objective rather than choosing the two highest individual scores. For two candidate demonstrations \(c_1\) and \(c_2\), with field-similarity vectors \(v_1\) and \(v_2\), the pair score is
+The submitted RAG path retrieves up to two examples. For the field-level fallback, DRILLER selects a pair using a complementarity-aware objective rather than choosing the two highest individual scores. For two candidate demonstrations \(c_1\) and \(c_2\), with field-similarity vectors \(v(c_1)\) and \(v(c_2)\) defined above, the pair score is
 
 \[
-s(c_1,c_2) = \lVert v_1 + v_2\rVert_2 + \lVert v_1 - v_2\rVert_2 .
+s(c_1,c_2) = \lVert v(c_1)+v(c_2)\rVert_2 + \lVert v(c_1)-v(c_2)\rVert_2 .
 \]
 
-The first term, \(\lVert v_1 + v_2\rVert_2\), rewards joint relevance and field coverage. If both examples provide useful analogues for the current schema, their combined vector has large magnitude. This term aligns with the ordinary retrieval goal that demonstrations should be relevant to the task.
+The first term, \(\lVert v(c_1)+v(c_2)\rVert_2\), rewards joint relevance and field coverage. If both examples provide useful analogues for the current schema, their combined vector has large magnitude. This term aligns with the ordinary retrieval goal that demonstrations should be relevant to the task.
 
-The second term, \(\lVert v_1 - v_2\rVert_2\), rewards complementarity. If two candidates are strong on the same fields and weak on the same fields, their difference vector is small. If one is strong where the other is weak, the difference grows. This discourages near-duplicate demonstrations that reinforce one behavior while leaving other fields unexplained.
+The second term, \(\lVert v(c_1)-v(c_2)\rVert_2\), rewards complementarity. If two candidates are strong on the same fields and weak on the same fields, their difference vector is small. If one is strong where the other is weak, the difference grows. This discourages near-duplicate demonstrations that reinforce one behavior while leaving other fields unexplained.
+
+\begin{figure}[t]
+\centering
+\resizebox{0.82\linewidth}{!}{%
+\begin{tikzpicture}[
+  font=\scriptsize,
+  >=Latex,
+  x={(1.65cm,0cm)},
+  y={(-0.42cm,0.34cm)},
+  z={(0cm,1.52cm)},
+  axis3/.style={->, line width=0.55pt},
+  cube/.style={line width=0.35pt, gray!45},
+  candA/.style={->, line width=1.0pt, blue!70!black},
+  candB/.style={->, line width=1.0pt, orange!85!black},
+  sumvec/.style={->, dashed, line width=0.85pt, green!45!black},
+  guide/.style={densely dotted, line width=0.35pt, gray!65},
+  diffline/.style={<->, line width=0.5pt, gray!75!black},
+  difflabel/.style={inner sep=0.6pt, gray!70!black},
+  vlabel/.style={inner sep=0.6pt}
+]
+
+\begin{scope}
+\node[font=\bfseries\scriptsize] at (0.48,0.50,1.48) {Redundant pair};
+\fill[gray!5] (0,0,0) -- (1,0,0) -- (1,1,0) -- (0,1,0) -- cycle;
+\fill[gray!9] (0,1,0) -- (1,1,0) -- (1,1,1) -- (0,1,1) -- cycle;
+\fill[gray!13] (1,0,0) -- (1,1,0) -- (1,1,1) -- (1,0,1) -- cycle;
+\draw[cube] (0,0,0) -- (1,0,0) -- (1,1,0) -- (0,1,0) -- cycle;
+\draw[cube] (0,0,1) -- (1,0,1) -- (1,1,1) -- (0,1,1) -- cycle;
+\draw[cube] (0,0,0) -- (0,0,1);
+\draw[cube] (1,0,0) -- (1,0,1);
+\draw[cube] (0,1,0) -- (0,1,1);
+\draw[cube] (1,1,0) -- (1,1,1);
+\draw[axis3] (0,0,0) -- (1.16,0,0) node[below right] {\(a_1\)};
+\draw[axis3] (0,0,0) -- (0,1.15,0) node[left] {\(a_2\)};
+\draw[axis3] (0,0,0) -- (0,0,1.15) node[above left=1pt] {\(a_3\)};
+\coordinate (rA) at (0.38,0.58,0.42);
+\coordinate (rB) at (0.50,0.40,0.28);
+\coordinate (rS) at (0.88,0.98,0.70);
+\draw[candA] (0,0,0) -- (rA) node[pos=1.10, above left=2pt, vlabel] {\(v_1\)};
+\draw[candB] (0,0,0) -- (rB) node[pos=1.12, below right=2pt, vlabel] {\(v_2\)};
+\draw[guide] (rA) -- (rS) -- (rB);
+\draw[sumvec] (0,0,0) -- (rS) node[pos=0.98, right=4pt, vlabel] {\(v_1+v_2\)};
+\draw[diffline] (rA) -- (rB) node[pos=0.55, left=8pt, above=3pt, difflabel] {\(v_1-v_2\)};
+\end{scope}
+
+\begin{scope}[xshift=5.05cm]
+\node[font=\bfseries\scriptsize] at (0.48,0.50,1.48) {Complementary pair};
+\fill[gray!5] (0,0,0) -- (1,0,0) -- (1,1,0) -- (0,1,0) -- cycle;
+\fill[gray!9] (0,1,0) -- (1,1,0) -- (1,1,1) -- (0,1,1) -- cycle;
+\fill[gray!13] (1,0,0) -- (1,1,0) -- (1,1,1) -- (1,0,1) -- cycle;
+\draw[cube] (0,0,0) -- (1,0,0) -- (1,1,0) -- (0,1,0) -- cycle;
+\draw[cube] (0,0,1) -- (1,0,1) -- (1,1,1) -- (0,1,1) -- cycle;
+\draw[cube] (0,0,0) -- (0,0,1);
+\draw[cube] (1,0,0) -- (1,0,1);
+\draw[cube] (0,1,0) -- (0,1,1);
+\draw[cube] (1,1,0) -- (1,1,1);
+\draw[axis3] (0,0,0) -- (1.16,0,0) node[below right] {\(a_1\)};
+\draw[axis3] (0,0,0) -- (0,1.15,0) node[left] {\(a_2\)};
+\draw[axis3] (0,0,0) -- (0,0,1.15) node[above left=1pt] {\(a_3\)};
+\coordinate (cA) at (0.72,0.20,0.24);
+\coordinate (cB) at (0.16,0.72,0.65);
+\coordinate (cS) at (0.88,0.92,0.89);
+\draw[candA] (0,0,0) -- (cA) node[pos=1.08, below right=1pt, vlabel] {\(v_1\)};
+\draw[candB] (0,0,0) -- (cB) node[pos=1.10, right=6pt, vlabel] {\(v_2\)};
+\draw[guide] (cA) -- (cS) -- (cB);
+\draw[sumvec] (0,0,0) -- (cS) node[pos=0.95, right=4pt, vlabel] {\(v_1+v_2\)};
+\draw[diffline] (cA) -- (cB) node[pos=0.54, below=7pt, difflabel] {\(v_1-v_2\)};
+\end{scope}
+\end{tikzpicture}
+}
+\caption{Field-aware pair selection as a vector objective. Each axis is a query-field similarity component \(a_i\); actual retrieval vectors are \(m\)-dimensional. A redundant pair concentrates evidence in similar directions, so \(v_1-v_2\) is short. A complementary pair covers different field dimensions, increasing both the joint vector \(v_1+v_2\) and the difference vector \(v_1-v_2\) used by the pair score.}
+\label{fig:field-aware-pair-selection}
+\end{figure}
 
 This objective matters because demonstration diversity is not merely topical diversity. Two examples from different domains can still be redundant if they both show easy scalar fields and neither illustrates nulls, arrays, or enum decisions. Conversely, two examples from a related family may be complementary if one illustrates absence and empty arrays while the other illustrates populated nested objects and label mapping. Tie-breaking favors stronger individual relevance and stable resource order, but the core decision is pair-level.
 
