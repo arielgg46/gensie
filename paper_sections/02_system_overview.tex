@@ -31,7 +31,7 @@ Unwrap + direct \\
 \texttt{Mixed-SC} &
 Direct and reasoned &
 Reasoned trials &
-4 &
+up to 4 &
 Schema-aware SC \\
 \bottomrule
 \end{tabularx}
@@ -126,6 +126,6 @@ Postprocessing is deterministic and conservative. It parses JSON, cleans common 
 
 \texttt{Reasoned-RAG} follows the same path but temporarily transforms each top-level field into an object with \texttt{reasoning} and \texttt{value} slots during generation. The prompt schema exposes this as a reasoned value, and the response schema requires the wrapper structure. After generation, DRILLER discards the reasoning strings and returns only the values in the original schema shape.
 
-\texttt{Mixed-SC} moves from a single extraction to a heterogeneous candidate set. It requests two direct \texttt{Schema-RAG}-style trials and two reasoning-augmented \texttt{Reasoned-RAG}-style trials. Each trial performs its own retrieval, prompt construction, strict generation, and postprocessing. Aggregation receives final-shape JSON candidates, not raw model messages or reasoning traces, and combines them recursively using schema-aware rules for scalars, nulls, objects, and arrays.
+\texttt{Mixed-SC} moves from a single extraction to a heterogeneous candidate set. It requests up to four budget-aware trials: two direct \texttt{Schema-RAG}-style attempts and two reasoning-augmented \texttt{Reasoned-RAG}-style attempts in an interleaved plan. Each completed trial performs its own retrieval, prompt construction, strict generation, and postprocessing. Aggregation receives final-shape JSON candidates, not raw model messages or reasoning traces, and combines them recursively using schema-aware rules for scalars, nulls, objects, and arrays.
 
 Thus the submitted system keeps one common extraction spine while varying the amount of inference-time intervention. \texttt{Schema-RAG} returns a direct postprocessed extraction, \texttt{Reasoned-RAG} adds and removes a temporary field-level reasoning interface, and \texttt{Mixed-SC} aggregates heterogeneous candidates. The technical details of each component are given in the following sections.
