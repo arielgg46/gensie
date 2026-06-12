@@ -8,55 +8,155 @@ In \texttt{Mixed-SC} we use this observation for heterogeneous self-consistency.
 
 \subsection{Candidate Generation}
 
-\texttt{Mixed-SC} defines an intended plan of up to four extraction attempts. The plan contains two direct \texttt{Schema-RAG}-style trials and two reasoning-augmented \texttt{Reasoned-RAG}-style trials, ordered as \texttt{Reasoned-RAG}, \texttt{Schema-RAG}, \texttt{Reasoned-RAG}, and \texttt{Schema-RAG}.
+Let \(q=(x,S)\) denote an extraction instance with source text \(x\) and target schema \(S\). Let \(E_D\) be the direct extractor used by \texttt{Schema-RAG}, and let \(E_R\) be the reasoning-augmented extractor used by \texttt{Reasoned-RAG}. \texttt{Mixed-SC} defines the intended heterogeneous plan
 
-The plan is interleaved because execution is budget-aware. If the runner stops early, the available candidate set should not consist only of one extractor family. Interleaving gives the aggregator a chance to see both direct and reasoning-augmented candidates as early as possible, so partial execution still preserves the heterogeneous premise of \texttt{Mixed-SC}. We start with the reasoning-augmented extractor to prioritize the more evidence-sensitive configuration.
+\[
+\pi=(E_R,E_D,E_R,E_D).
+\]
 
-Each trial is a complete extraction run. It performs its own RAG retrieval, prompt construction, strict JSON generation, and deterministic postprocessing. Direct trials render examples and schemas in the \texttt{Schema-RAG} format. Reasoning-augmented trials render examples and schemas in the temporary \texttt{Reasoned-RAG} format, so demonstrations contain reasoning/value fields during generation.
+The order is interleaved because execution is budget-aware. If the runner stops early, the available candidate set should not consist only of one extractor family. Interleaving gives the aggregator a chance to see both direct and reasoning-augmented candidates as early as possible, so partial execution still preserves the heterogeneous premise of \texttt{Mixed-SC}. We start with the reasoning-augmented extractor to prioritize the more evidence-sensitive configuration.
 
-Postprocessing is applied before aggregation. Reasoning wrappers are removed, Unicode normalization and schema-aware null coercion are applied, and malformed outputs are rejected. The aggregation stage therefore receives final-shape JSON candidates in the original challenge schema, not raw model messages and not reasoning traces. \texttt{Mixed-SC} aggregates answers, not explanations.
+The runner executes an ordered prefix of this plan. If \(k\leq 4\) trials fit under the effective token and time budgets, the completed trial indexes are \(K=\{1,\ldots,k\}\). For each \(i\in K\), the extractor \(\pi_i\) performs its own RAG retrieval, prompt construction, strict JSON generation, and deterministic postprocessing. Direct trials render examples and schemas in the \texttt{Schema-RAG} format. Reasoning-augmented trials render examples and schemas in the temporary \texttt{Reasoned-RAG} format, so demonstrations contain reasoning/value fields during generation.
 
-Candidate validity is checked at the trial level. A candidate must parse as JSON and pass required unwrapping. Invalid candidates are excluded from aggregation. If all trials fail to produce valid postprocessed outputs, the system does not fabricate an extraction from partial information.
+Postprocessing maps each raw model response to either a final-shape candidate \(y_i\) or an invalid output. Reasoning wrappers are removed, Unicode normalization and schema-aware null coercion are applied, and malformed outputs are rejected. The aggregation input is therefore
+
+\[
+Y=\{(i,y_i): i\in K,\ \operatorname{valid}_S(y_i)\}.
+\]
+
+The pair \((i,y_i)\) preserves the trial identity used for support counting. The value \(y_i\) is always in the original challenge schema shape; raw model messages and reasoning traces are not aggregated. If \(Y=\emptyset\), the system does not fabricate an extraction from partial information.
 
 Trial execution is bounded by an incremental budget planner. Before the first trial, the runner estimates how many planned attempts fit under the effective token and time budgets for the instance. After each completed extraction, it updates the estimate using observed prompt tokens when available, completion tokens, and elapsed trial time, then decides whether another planned extraction can still be attempted. Because the system does not fully control how many tokens a hosted model call will consume, this continuation decision is made after completed trials rather than by assuming that all four planned calls will fit.
 
 \subsection{Schema-Aware Recursive Aggregation}
 
-Aggregation is recursive over the target schema. Complete JSON objects are not treated as indivisible. Instead, DRILLER descends through the schema and combines candidate values according to the expected type at each position. Agreement is measured across trials rather than across raw occurrences alone. This matters because agreement has different meanings for closed labels, free text, nullable fields, nested objects, and arrays.
-
-Clusters are formed using schema-aware similarity. For exact types, including enums, booleans, integers, and numeric values, candidates are grouped by canonical equality. For non-exact types, such as free text and structured array items, candidates are greedily assigned to a compatible cluster only when their schema-aware similarity reaches the active threshold. A cluster's support is the number of distinct trials represented in it. The selected value comes from the cluster with strongest support, with stable occurrence order used as a tie-breaker.
-
-Free-text strings are clustered rather than compared only by byte equality. Candidates may express the same grounded value with minor spelling, accent, punctuation, or phrasing differences. The default string path normalizes text and considers lexical overlap and character n-gram overlap. For a selected non-exact cluster \(C\), the representative is a medoid: the generated candidate \(x \in C\) that maximizes average similarity to the other cluster members, equivalently minimizing average distance:
+Aggregation is recursive over the target schema. Let \(A_S(Y)\) denote the aggregation of indexed candidate values \(Y\) under schema \(S\). Complete JSON objects are not treated as indivisible. If \(S\) is an object schema with fields \(F_S\), then each emitted field is aggregated from the values observed for that field:
 
 \[
-\operatorname{medoid}(C)=
-\arg\max_{x\in C}
-\frac{1}{|C|-1}\sum_{y\in C,\,y\ne x}\operatorname{sim}(x,y).
+Y_f=\{(i,y_i[f]): (i,y_i)\in Y,\ y_i\ \text{is an object},\ f\in y_i\},
 \]
 
-Null values are treated as a separate candidate type. For nullable fields, JSON \texttt{null} is expected when the source text does not support a value. However, null does not win by default in ties: null wins only when its support is strictly greater than the best supported non-null value. This avoids turning uncertainty into absence while still preserving shared abstention when multiple trials independently return null.
+\[
+A_S(Y)[f]=A_{S_f}(Y_f),
+\]
 
-Objects are aggregated field by field. For a root object, this allows one candidate to contribute stronger support for one field while another contributes a better-supported value elsewhere. The final object can therefore combine agreement patterns across the candidate set rather than selecting one whole candidate unchanged.
+where \(S_f\) is the child schema for field \(f\). Required root fields are always considered when present in the schema. Optional nested fields are emitted only when enough candidates contain the property, so a single stray optional key does not automatically enter the final object. This field-wise recursion allows one candidate to contribute stronger support for one field while another contributes a better-supported value elsewhere.
+
+The recursion depends on a schema-aware similarity function \(\operatorname{sim}_S(a,b)\in[0,1]\). For exact scalar types, including enums, booleans, integers, and numeric values, agreement is canonical equality:
+
+\[
+\operatorname{sim}_S(a,b)=\mathbb{1}[a=b].
+\]
+
+For strings, \(\operatorname{sim}_S\) uses the configured string comparator. The submitted default normalizes case and accents, then combines token overlap and character \(n\)-gram overlap. This makes minor spelling, accent, punctuation, or phrasing differences compatible without allowing the aggregator to invent a new string.
+
+For object values, similarity is computed field by field. Let \(F(a,b)\subseteq F_S\) be the fields present in at least one of the two objects, and let \(w_f\) be a small schema-dependent field weight. Missing-on-one-side fields contribute zero similarity but still count in the denominator:
+
+\[
+\operatorname{sim}_S(a,b)=
+\frac{
+\sum_{f\in F(a,b)}
+w_f\mathbb{1}[f\in a\land f\in b]\operatorname{sim}_{S_f}(a[f],b[f])
+}{
+\sum_{f\in F(a,b)}w_f
+}.
+\]
+
+For arrays, similarity ignores exact position and compares items by a greedy one-to-one soft matching. If \(M(a,b)\) is the greedy matching between items of arrays \(a\) and \(b\), using the item-schema similarity \(\operatorname{sim}_{S_{\mathrm{item}}}\), then
+
+\[
+\operatorname{match}(a,b)=
+\sum_{(u,v)\in M(a,b)}\operatorname{sim}_{S_{\mathrm{item}}}(u,v),
+\]
+
+\[
+\operatorname{sim}_S(a,b)=
+\frac{\operatorname{match}(a,b)}
+{|a|+|b|-\operatorname{match}(a,b)}.
+\]
+
+Two empty arrays have similarity \(1\), while an empty and a non-empty array have similarity \(0\). This soft Jaccard-style score lets two arrays agree strongly even when items appear in different orders or when object items differ only in secondary fields.
+
+\subsection{Clustering and Scalar Selection}
+
+For scalar and object positions, \texttt{Mixed-SC} first clusters candidate values. Let
+
+\[
+V=\{(i,v_i):(i,y_i)\in Y\}
+\]
+
+be the indexed values observed at the current schema position. For exact types, clusters are canonical-equality groups. For non-exact types, candidates are processed in stable order and assigned to the compatible cluster with highest similarity, subject to two constraints: the similarity must reach the active threshold \(\tau_S\), and the cluster may contain at most one value from any trial. A cluster's support is therefore trial support, not occurrence count:
+
+\[
+\operatorname{supp}(C)=|\{i:(i,v)\in C\}|.
+\]
+
+Clusters are ranked by decreasing support, with stable first occurrence as a tie-breaker. Let \(C^\star\) be the highest-ranked non-null cluster. For non-exact clusters, the selected representative is a medoid: a generated candidate value whose average schema-aware similarity to the cluster is maximal,
+
+\[
+\operatorname{medoid}_S(C)=
+\arg\max_{x\in C}
+\frac{1}{|C|}\sum_{y\in C}\operatorname{sim}_S(x,y).
+\]
+
+Thus the aggregator chooses among generated values rather than composing a new free-text answer. For object clusters, the representative is obtained by recursively aggregating the object fields of the cluster members.
+
+Null values are handled separately. Let \(n_{\varnothing}\) be the number of candidate values equal to JSON \texttt{null}. For nullable fields, \texttt{null} is selected only when its support is strictly greater than the best non-null support:
+
+\[
+A_S(V)=\texttt{null}
+\quad\Longleftrightarrow\quad
+n_{\varnothing}>\operatorname{supp}(C^\star).
+\]
+
+This tie policy avoids turning uncertainty into absence while still preserving shared abstention when multiple trials independently return \texttt{null}. If all candidates are null, the nullable field is returned as \texttt{null}; for non-nullable schemas, the aggregator falls back to the conservative empty value for the schema type.
 
 \subsection{Array Aggregation}
 
 Arrays require separate handling because disagreement can involve order, omissions, duplicates, merged items, split items, or outliers. A majority vote over complete arrays would be brittle: two candidates may contain the same substantive items in different orders or differ by one peripheral object. DRILLER therefore aggregates arrays by clustering items across candidate arrays.
 
-The array procedure first collects items from candidate arrays and compares them using schema-aware similarity. For arrays of simple values, item similarity follows the value type. For arrays of objects, object similarity compares corresponding fields with weights influenced by schema type. This allows two object items to align when they refer to the same entity, reaction, ingredient, event, or evidence span even if some attributes differ.
+For an array field, let \(A_i\) be the observed array from trial \(i\). Items are first deduplicated within each \(A_i\) using the item-schema similarity and a high intra-trial threshold. This prevents repeated near-duplicates from one generated array from becoming multiple votes. The remaining indexed item candidates are then clustered across trials using \(\operatorname{sim}_{S_{\mathrm{item}}}\), again with the restriction that each cluster can contain at most one item from a given trial.
 
-Near-duplicates from the same trial are handled cautiously. A single generated array may repeat one item or produce very similar variants. Such repetitions should not count as independent votes. Before cross-trial clustering, very similar items from the same generated array are deduplicated. During non-exact clustering, the clusterer also tracks trial indexes and prevents a cluster from accepting multiple values from the same trial. Thus support is support by trial: near-duplicates from one verbose array output do not become multiple votes and cannot dominate a cluster by repetition alone.
-
-Arrays of objects may use identity-like fields to improve alignment. Many object-array schemas contain a field that behaves like an identifier: a name, title, mention, text span, ingredient, symptom, reaction, or source fragment. When such a field is detected with sufficient confidence, it guides item matching across trials. Two objects with the same reaction name but different impact labels should be compared as competing descriptions of one item, not as unrelated items. If no useful identity field is detected, the aggregator falls back to broader object similarity.
+Arrays of objects may use identity-like fields to improve alignment. Many object-array schemas contain a field that behaves like an identifier: a name, title, mention, text span, ingredient, symptom, reaction, or source fragment. When such a field \(h\) is selected with sufficient confidence, item clustering uses similarity on \(h\) to decide whether two objects refer to the same extracted entity. The fields inside an aligned object cluster are then aggregated recursively. If no useful identity field is detected, the aggregator falls back to broader object similarity.
 
 This alignment is important because object arrays often combine extraction and classification. The identity-like field tells the system which candidate objects correspond; remaining fields can then be compared or aggregated inside that item cluster. Imperfect identity detection is also a risk: a generic attribute may align unrelated objects, while failure to detect an identity field may split corresponding objects into duplicate clusters.
 
 \subsection{Recall-Biased Selection}
 
-After clustering array items, the aggregator selects a final array. The submitted design builds candidate final arrays from item clusters, including support-threshold arrays and a greedy MBR-style candidate. MBR stands for minimum Bayes risk: in this context, choosing the candidate final array that minimizes expected disagreement, or loss, against the observed candidate arrays.
+After item clustering, the aggregator builds a small set \(\mathcal{Z}\) of candidate final arrays. One family of candidates uses support thresholds:
 
-Candidate arrays are scored by agreement with the observed arrays under schema-aware item similarity rather than exact positional equality. This allows two arrays to agree strongly even when the same substantive items appear in different orders, or when object items differ only in secondary fields.
+\[
+z_m=\left[\operatorname{rep}(C): \operatorname{supp}(C)\geq m\right],
+\]
 
-Selection is recall-biased when candidate arrays have similar scores. Among arrays within a tolerance of the best score, the selector prefers the longer array, then the higher-scoring one, then the earlier candidate. This favors retaining supported items when evidence from trials is close. The longer array is not accepted unconditionally; it must remain competitive under the consensus objective.
+where \(m\) ranges over configured support floors and support ratios, and \(\operatorname{rep}(C)\) is the medoid or recursively aggregated representative of item cluster \(C\). A second candidate is built greedily in a minimum Bayes risk (MBR) style: starting from the empty array, the builder adds the cluster whose representative most improves agreement with the observed arrays, stopping when no remaining cluster improves the score.
+
+For any candidate final array \(z\), the MBR score is its average schema-aware agreement with the observed arrays:
+
+\[
+R(z)=
+\frac{1}{|\mathcal{A}|}
+\sum_{A_i\in\mathcal{A}}
+\operatorname{sim}_{S_{\mathrm{array}}}(z,A_i),
+\]
+
+where \(\mathcal{A}\) is the set of non-null observed arrays for the field. Pure MBR would select the candidate with maximal \(R(z)\). The submitted selector is recall-biased within a small tolerance. Let
+
+\[
+R_{\max}=\max_{z\in\mathcal{Z}} R(z),
+\qquad
+\mathcal{E}=\{z\in\mathcal{Z}: R(z)\geq R_{\max}-\epsilon\}.
+\]
+
+The final array is selected from \(\mathcal{E}\) by preferring, in order, greater length, higher MBR score, and earlier candidate order:
+
+\[
+z^\star=
+\arg\max_{z\in\mathcal{E}}
+\left(|z|,\ R(z),\ -\operatorname{order}(z)\right).
+\]
+
+The default tolerance is \(\epsilon=0.06\), configurable at runtime. This favors retaining supported items when evidence from trials is close. The longer array is not accepted unconditionally; it must remain competitive under the consensus objective.
 
 The design trades omission against over-extraction. A stricter selector would discard more borderline items, improving precision in some cases but risking missed entities or list elements. DRILLER's recall-biased selector keeps items with enough support to remain near the best consensus score, which is useful for unordered lists, object arrays, and evidence collections where candidates often agree on a core set but vary on peripheral supported items.
 
@@ -66,6 +166,6 @@ Aggregation is conservative in that it selects among generated candidates rather
 
 Self-consistency is still not a guarantee of correctness. If multiple trials share the same misunderstanding of a field description, attend to the same distractor mention, or overtrust an unsupported fact, aggregation can preserve that mistake with high support. Heterogeneous prompting reduces reliance on one prompt representation, but all trials still share the source text, target schema, local FSP corpus, model endpoint, and broad extraction rules.
 
-Array aggregation has additional failure modes. The recall-biased selector may retain extra borderline items, and identity-field detection can misalign object items or fail to merge true matches. These risks are the cost of trying to preserve recall in schemas where missing list members are common and where item order is not meaningful.
+Array aggregation has additional failure modes. The recall-biased selector may retain extra borderline items, and identity-field detection can misalign object items or fail to merge true matches. Threshold choices also matter: loose thresholds can merge distinct values, while strict thresholds can split legitimate paraphrases or duplicate entities. These risks are the cost of trying to preserve recall in schemas where missing list members are common and where item order is not meaningful.
 
 \texttt{Mixed-SC} also increases inference cost. It requests up to four model calls rather than one, and up to two calls use reasoning-augmented generation, which can produce longer intermediate outputs before unwrapping.
