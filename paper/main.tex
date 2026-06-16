@@ -116,12 +116,12 @@
 % Replace conference metadata with the official CEUR/IberLEF wording when available.
 \conference{IberLEF 2026: Iberian Languages Evaluation Forum, 2026}
 
-\title{DRILLER at GenSIE 2026}
+\title{DRILLER at GenSIE 2026: Interpreting Extraction Semantics through Schema-Aware Prompting, Complementary Retrieval, and Heterogeneous Self-Consistency}
 
 % Replace the placeholder author list and affiliation before submission.
-\author[1]{Ariel González Gómez}
-\author[1]{Daniel Valdés Pérez}
-\address[1]{Havana University, Havana, Cuba}
+\author[1]{Ariel González-Gómez}
+\author[1]{Daniel Alejandro Valdés-Pérez}
+\address[1]{University of Havana, Havana, Cuba}
 
 \begin{abstract}
 DRILLER is the system submitted to GenSIE 2026 for Spanish schema-guided information extraction. GenSIE asks systems to extract grounded JSON objects from Spanish texts under JSON Schemas supplied at inference time. The main challenge is not only JSON validity, but field interpretation: names, descriptions, types, enum labels, nullability, and nesting can change from one instance to the next. DRILLER addresses this setting with three submitted pipelines built on a common schema-guided extraction architecture. \texttt{Schema-RAG} renders schemas in a model-readable form, constrains generation with a strict structured response format, and adds field-aware retrieved demonstrations. \texttt{Reasoned-RAG} adds temporary top-level reasoning/value wrappers so the model can assess local evidence before producing each final field value. \texttt{Mixed-SC} combines direct and reasoning-augmented trials, then selects a final prediction through schema-aware aggregation. Across the pipelines, DRILLER emphasizes schema interpretation, grounded extraction, conservative postprocessing, and compatibility with the model-agnostic hosted evaluation protocol.

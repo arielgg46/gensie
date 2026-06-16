@@ -129,7 +129,7 @@ After item clustering, the aggregator builds a small set \(\mathcal{Z}\) of cand
 z_m=\left[\operatorname{rep}(C): \operatorname{supp}(C)\geq m\right],
 \]
 
-where \(m\) ranges over configured support floors and support ratios, and \(\operatorname{rep}(C)\) is the medoid or recursively aggregated representative of item cluster \(C\). A second candidate is built greedily in a minimum Bayes risk (MBR) style: starting from the empty array, the builder adds the cluster whose representative most improves agreement with the observed arrays, stopping when no remaining cluster improves the score.
+where \(m\) ranges over configured support floors and support ratios, and \(\operatorname{rep}(C)\) is the medoid or recursively aggregated representative of item cluster \(C\). A second candidate is built greedily in a minimum Bayes risk (MBR) style: starting from the empty array, the builder adds the cluster whose representative most improves agreement with the observed arrays, stopping when no remaining cluster improves the score. \cite{kumar-byrne-2004-minimum}
 
 For any candidate final array \(z\), the MBR score is its average schema-aware agreement with the observed arrays:
 

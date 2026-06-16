@@ -1,5 +1,5 @@
-\Title{DRILLER at GenSIE 2026}
-\Author{Ariel González Gómez\sep Daniel Valdés Pérez}
+\Title{DRILLER at GenSIE 2026: Interpreting Extraction Semantics through Schema-Aware Prompting, Complementary Retrieval, and Heterogeneous Self-Consistency}
+\Author{Ariel González-Gómez\sep Daniel Alejandro Valdés-Pérez}
 \Keywords{Spanish information extraction \sep schema-guided extraction \sep retrieval-augmented generation \sep structured generation \sep self-consistency}
 \Subject{Layout by CEURART v0.5.3}
 \Copyright{\copyright\ 2026\ Copyright for this paper by its authors. Use permitted under Creative Commons License Attribution 4.0 International (CC BY 4.0).}

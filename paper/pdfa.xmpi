@@ -69,9 +69,9 @@
   <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/"> 
    <dc:format>application/pdf</dc:format> 
    <dc:type><rdf:Bag><rdf:li>journal</rdf:li></rdf:Bag></dc:type>
-   <dc:title><rdf:Alt><rdf:li xml:lang="x-default">DRILLER at GenSIE 2026</rdf:li></rdf:Alt></dc:title>
-   <dc:creator><rdf:Seq><rdf:li>Ariel González Gómez</rdf:li>
-     <rdf:li>Daniel Valdés Pérez</rdf:li></rdf:Seq></dc:creator>
+   <dc:title><rdf:Alt><rdf:li xml:lang="x-default">DRILLER at GenSIE 2026: Interpreting Extraction Semantics through Schema-Aware Prompting, Complementary Retrieval, and Heterogeneous Self-Consistency</rdf:li></rdf:Alt></dc:title>
+   <dc:creator><rdf:Seq><rdf:li>Ariel González-Gómez</rdf:li>
+     <rdf:li>Daniel Alejandro Valdés-Pérez</rdf:li></rdf:Seq></dc:creator>
    <dc:rights><rdf:Alt><rdf:li xml:lang="x-default">© 2026 Copyright for this paper by its authors. Use permitted under Creative Commons License Attribution 4.0 International (CC BY 4.0).</rdf:li></rdf:Alt></dc:rights>
    <dc:description><rdf:Alt><rdf:li xml:lang="x-default">Layout by CEURART v0.5.3</rdf:li></rdf:Alt></dc:description>
    <dc:subject><rdf:Bag><rdf:li>Spanish information extraction </rdf:li>
@@ -92,9 +92,9 @@
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/"> 
    <xmp:CreatorTool>LaTeX with hyperref</xmp:CreatorTool> 
-   <xmp:ModifyDate>2026-06-13T07:19:35-05:00</xmp:ModifyDate> 
-   <xmp:CreateDate>2026-06-13T07:19:35-05:00</xmp:CreateDate> 
-   <xmp:MetadataDate>2026-06-13T07:19:35-05:00</xmp:MetadataDate> 
+   <xmp:ModifyDate>2026-06-15T15:10:03-05:00</xmp:ModifyDate> 
+   <xmp:CreateDate>2026-06-15T15:10:03-05:00</xmp:CreateDate> 
+   <xmp:MetadataDate>2026-06-15T15:10:03-05:00</xmp:MetadataDate> 
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:xmpRights = "http://ns.adobe.com/xap/1.0/rights/"> 
    <xmpRights:Marked>True</xmpRights:Marked>
@@ -103,7 +103,7 @@
   </rdf:Description> 
   <rdf:Description rdf:about="" xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/"> 
    <xmpMM:DocumentID>uuid:DF005B57-2A06-8753-7167-92D8CE935460</xmpMM:DocumentID> 
-   <xmpMM:InstanceID>uuid:E8421973-A4EF-154B-25E4-E85E8940A532</xmpMM:InstanceID> 
+   <xmpMM:InstanceID>uuid:C0E4E7AD-3682-22E5-CA12-06383B1A0624</xmpMM:InstanceID> 
   </rdf:Description> 
  </rdf:RDF> 
 </x:xmpmeta> 
