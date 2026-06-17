@@ -4,7 +4,7 @@
 
 Schema-guided extraction can vary across generations even when the output format is constrained. Candidate outputs may differ in whether they include a borderline entity, how they normalize a date, which enum label they choose, or whether they return JSON \texttt{null}. Some variance comes from sampling, and some comes from the interface shown to the model. The reasoning-augmented prompt, for example, spends more output budget on field-local evidence assessment before committing to values.
 
-\texttt{Mixed-SC} thus uses heterogeneous self-consistency. Rather than sampling one prompt repeatedly, it combines \texttt{Schema-RAG}, which produces final values directly, with \texttt{Reasoned-RAG}, which temporarily produces \texttt{\{reasoning, value\}} objects and then unwraps them. This can expose different error patterns to the aggregator. The final decision is not a flat vote over complete JSON strings; it is a recursive schema-aware aggregation over candidate objects.
+\texttt{Mixed-SC} thus uses heterogeneous self-consistency \cite{wang2022selfconsistency}. Rather than sampling one prompt repeatedly, it combines \texttt{Schema-RAG}, which produces final values directly, with \texttt{Reasoned-RAG}, which temporarily produces \texttt{\{reasoning, value\}} objects and then unwraps them. This can expose different error patterns to the aggregator. The final decision is not a flat vote over complete JSON strings; it is a recursive schema-aware aggregation over candidate objects.
 
 Figure~\ref{fig:mixed-sc-aggregation} illustrates how \texttt{Mixed-SC} aggregates heterogeneous candidates recursively over the target schema.
 
@@ -133,7 +133,7 @@ After item clustering, the aggregator builds a small set \(\mathcal{Z}\) of cand
 z_m=\left[\operatorname{rep}(C): \operatorname{supp}(C)\geq m\right],
 \]
 
-where \(m\) ranges over configured support floors and support ratios, and \(\operatorname{rep}(C)\) is the medoid or recursively aggregated representative of item cluster \(C\). A second candidate is built greedily in a minimum Bayes risk (MBR) style: starting from the empty array, the builder adds the cluster whose representative most improves agreement with the observed arrays, stopping when no remaining cluster improves the score. \cite{kumar-byrne-2004-minimum}
+where \(m\) ranges over configured support floors and support ratios, and \(\operatorname{rep}(C)\) is the medoid or recursively aggregated representative of item cluster \(C\). A second candidate is built greedily in a minimum Bayes risk (MBR) style \cite{kumar-byrne-2004-minimum}: starting from the empty array, the builder adds the cluster whose representative most improves agreement with the observed arrays, stopping when no remaining cluster improves the score.
 
 For any candidate final array \(z\), the MBR score is its average schema-aware agreement with the observed arrays:
 

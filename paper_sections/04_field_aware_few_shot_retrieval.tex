@@ -8,7 +8,7 @@ Figure~\ref{fig:retrieval-map} summarizes the two retrieval paths used by DRILLE
 
 \subsection{Curated Demonstration Corpus}
 
-The retrieval pool is a local few-shot prompting (FSP) corpus of structured extraction demonstrations. Each case contains a Spanish source text, an extraction instruction, a target schema, expected values, tags describing covered extraction phenomena, and field-level rationales or descriptions that support rendering examples in either direct or reasoning-augmented form. The corpus is synthetic and curated rather than mined from an external collection.
+The retrieval pool is a local few-shot prompting (FSP) corpus of structured extraction demonstrations \cite{brown2020language}. Each case contains a Spanish source text, an extraction instruction, a target schema, expected values, tags describing covered extraction phenomena, and field-level rationales or descriptions that support rendering examples in either direct or reasoning-augmented form. The corpus is synthetic and curated rather than mined from an external collection.
 
 The GenSIE development set guided corpus design. We used it to study schema structure, source-text style, vocabulary, noise patterns, and recurring ambiguities, rather than reusing development instances as demonstrations. We also manually curated a small development-time evaluation subset, reviewing up to two instances per task family. Those curated instances served as design references only. Direct reuse would not provide systematic complementary coverage of field dualities and would contaminate evaluation on the same curated subset, since retrieval could return the instance being solved.
 

@@ -1,4 +1,4 @@
-\begin{thebibliography}{6}
+\begin{thebibliography}{19}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \providecommand{\url}[1]{\texttt{#1}}
 \providecommand{\href}[2]{#2}
@@ -34,15 +34,160 @@
 \newblock in: \bibinfo{booktitle}{Proceedings of IberLEF 2026},
   \bibinfo{year}{2026}. \bibinfo{note}{To appear}.
 %Type = Misc
-\bibitem[{{GenSIE Organizers}(2026{\natexlab{a}})}]{gensie2026submission}
-\bibinfo{author}{{GenSIE Organizers}}, \bibinfo{title}{{GenSIE} 2026 submission
-  guidelines}, \bibinfo{year}{2026}{\natexlab{a}}. \bibinfo{note}{Challenge
-  documentation}.
+\bibitem[{Li et~al.(2024)Li, Zeng, Zuo, Ren, Liu, Su, Guo, Liu, Li, Hu, Bai,
+  Li, Liu, Yang, Jin, Guo, and Cheng}]{li2024knowcoder}
+\bibinfo{author}{Z.~Li}, \bibinfo{author}{Y.~Zeng}, \bibinfo{author}{Y.~Zuo},
+  \bibinfo{author}{W.~Ren}, \bibinfo{author}{W.~Liu}, \bibinfo{author}{M.~Su},
+  \bibinfo{author}{Y.~Guo}, \bibinfo{author}{Y.~Liu}, \bibinfo{author}{X.~Li},
+  \bibinfo{author}{Z.~Hu}, \bibinfo{author}{L.~Bai}, \bibinfo{author}{W.~Li},
+  \bibinfo{author}{Y.~Liu}, \bibinfo{author}{P.~Yang},
+  \bibinfo{author}{X.~Jin}, \bibinfo{author}{J.~Guo},
+  \bibinfo{author}{X.~Cheng}, \bibinfo{title}{{KnowCoder}: Coding structured
+  knowledge into {LLM}s for universal information extraction},
+  \bibinfo{year}{2024}. \URLprefix \url{https://arxiv.org/abs/2403.07969}.
+  \href{http://arxiv.org/abs/2403.07969}{{\tt arXiv:2403.07969}}.
+%Type = Inproceedings
+\bibitem[{Brown et~al.(2020)Brown, Mann, Ryder, Subbiah, Kaplan, Dhariwal,
+  Neelakantan, Shyam, Sastry, Askell, Agarwal, Herbert-Voss, Krueger, Henighan,
+  Child, Ramesh, Ziegler, Wu, Winter, Hesse, Chen, Sigler, Litwin, Gray, Chess,
+  Clark, Berner, McCandlish, Radford, Sutskever, and
+  Amodei}]{brown2020language}
+\bibinfo{author}{T.~B. Brown}, \bibinfo{author}{B.~Mann},
+  \bibinfo{author}{N.~Ryder}, \bibinfo{author}{M.~Subbiah},
+  \bibinfo{author}{J.~Kaplan}, \bibinfo{author}{P.~Dhariwal},
+  \bibinfo{author}{A.~Neelakantan}, \bibinfo{author}{P.~Shyam},
+  \bibinfo{author}{G.~Sastry}, \bibinfo{author}{A.~Askell},
+  \bibinfo{author}{S.~Agarwal}, \bibinfo{author}{A.~Herbert-Voss},
+  \bibinfo{author}{G.~Krueger}, \bibinfo{author}{T.~Henighan},
+  \bibinfo{author}{R.~Child}, \bibinfo{author}{A.~Ramesh},
+  \bibinfo{author}{D.~M. Ziegler}, \bibinfo{author}{J.~Wu},
+  \bibinfo{author}{C.~Winter}, \bibinfo{author}{C.~Hesse},
+  \bibinfo{author}{M.~Chen}, \bibinfo{author}{E.~Sigler},
+  \bibinfo{author}{M.~Litwin}, \bibinfo{author}{S.~Gray},
+  \bibinfo{author}{B.~Chess}, \bibinfo{author}{J.~Clark},
+  \bibinfo{author}{C.~Berner}, \bibinfo{author}{S.~McCandlish},
+  \bibinfo{author}{A.~Radford}, \bibinfo{author}{I.~Sutskever},
+  \bibinfo{author}{D.~Amodei},
+\newblock \bibinfo{title}{Language models are few-shot learners},
+\newblock in: \bibinfo{booktitle}{Advances in Neural Information Processing
+  Systems}, volume~\bibinfo{volume}{33}, \bibinfo{year}{2020}, pp.
+  \bibinfo{pages}{1877--1901}.
+%Type = Inproceedings
+\bibitem[{Liu et~al.(2022)Liu, Shen, Zhang, Dolan, Carin, and
+  Chen}]{liu2022what}
+\bibinfo{author}{J.~Liu}, \bibinfo{author}{D.~Shen},
+  \bibinfo{author}{Y.~Zhang}, \bibinfo{author}{B.~Dolan},
+  \bibinfo{author}{L.~Carin}, \bibinfo{author}{W.~Chen},
+\newblock \bibinfo{title}{What makes good in-context examples for {GPT}-3?},
+\newblock in: \bibinfo{booktitle}{Proceedings of Deep Learning Inside Out
+  ({DeeLIO} 2022): The 3rd Workshop on Knowledge Extraction and Integration for
+  Deep Learning Architectures}, \bibinfo{publisher}{Association for
+  Computational Linguistics}, \bibinfo{address}{Dublin, Ireland and Online},
+  \bibinfo{year}{2022}, pp. \bibinfo{pages}{100--114}. \URLprefix
+  \url{https://aclanthology.org/2022.deelio-1.10/}.
+  \DOIprefix\doi{10.18653/v1/2022.deelio-1.10}.
+%Type = Inproceedings
+\bibitem[{Rubin et~al.(2022)Rubin, Herzig, and Berant}]{rubin2022learning}
+\bibinfo{author}{O.~Rubin}, \bibinfo{author}{J.~Herzig},
+  \bibinfo{author}{J.~Berant},
+\newblock \bibinfo{title}{Learning to retrieve prompts for in-context
+  learning},
+\newblock in: \bibinfo{booktitle}{Proceedings of the 2022 Conference of the
+  North American Chapter of the Association for Computational Linguistics:
+  Human Language Technologies}, \bibinfo{publisher}{Association for
+  Computational Linguistics}, \bibinfo{address}{Seattle, United States},
+  \bibinfo{year}{2022}, pp. \bibinfo{pages}{2655--2671}. \URLprefix
+  \url{https://aclanthology.org/2022.naacl-main.191/}.
+  \DOIprefix\doi{10.18653/v1/2022.naacl-main.191}.
+%Type = Inproceedings
+\bibitem[{Reimers and Gurevych(2019)}]{reimers2019sentence}
+\bibinfo{author}{N.~Reimers}, \bibinfo{author}{I.~Gurevych},
+\newblock \bibinfo{title}{Sentence-{BERT}: Sentence embeddings using {S}iamese
+  {BERT}-networks},
+\newblock in: \bibinfo{booktitle}{Proceedings of the 2019 Conference on
+  Empirical Methods in Natural Language Processing and the 9th International
+  Joint Conference on Natural Language Processing ({EMNLP}-{IJCNLP})},
+  \bibinfo{publisher}{Association for Computational Linguistics},
+  \bibinfo{address}{Hong Kong, China}, \bibinfo{year}{2019}, pp.
+  \bibinfo{pages}{3982--3992}. \URLprefix
+  \url{https://aclanthology.org/D19-1410/}.
+  \DOIprefix\doi{10.18653/v1/D19-1410}.
+%Type = Inproceedings
+\bibitem[{Lewis et~al.(2020)Lewis, Perez, Piktus, Petroni, Karpukhin, Goyal,
+  K{\"u}ttler, Lewis, Yih, Rockt{\"a}schel, Riedel, and
+  Kiela}]{lewis2020retrieval}
+\bibinfo{author}{P.~Lewis}, \bibinfo{author}{E.~Perez},
+  \bibinfo{author}{A.~Piktus}, \bibinfo{author}{F.~Petroni},
+  \bibinfo{author}{V.~Karpukhin}, \bibinfo{author}{N.~Goyal},
+  \bibinfo{author}{H.~K{\"u}ttler}, \bibinfo{author}{M.~Lewis},
+  \bibinfo{author}{W.-t. Yih}, \bibinfo{author}{T.~Rockt{\"a}schel},
+  \bibinfo{author}{S.~Riedel}, \bibinfo{author}{D.~Kiela},
+\newblock \bibinfo{title}{Retrieval-augmented generation for
+  knowledge-intensive {NLP} tasks},
+\newblock in: \bibinfo{booktitle}{Advances in Neural Information Processing
+  Systems}, volume~\bibinfo{volume}{33}, \bibinfo{year}{2020}, pp.
+  \bibinfo{pages}{9459--9474}.
 %Type = Misc
-\bibitem[{{GenSIE Organizers}(2026{\natexlab{b}})}]{gensie2026taskdescription}
-\bibinfo{author}{{GenSIE Organizers}}, \bibinfo{title}{{GenSIE} 2026 task
-  description}, \bibinfo{year}{2026}{\natexlab{b}}. \bibinfo{note}{Challenge
-  documentation}.
+\bibitem[{Yao et~al.(2023)Yao, Mao, Zhang, Chen, Deng, Chen, and
+  Chen}]{yao2023schema}
+\bibinfo{author}{Y.~Yao}, \bibinfo{author}{S.~Mao}, \bibinfo{author}{N.~Zhang},
+  \bibinfo{author}{X.~Chen}, \bibinfo{author}{S.~Deng},
+  \bibinfo{author}{X.~Chen}, \bibinfo{author}{H.~Chen},
+  \bibinfo{title}{Schema-aware reference as prompt improves data-efficient
+  knowledge graph construction}, \bibinfo{year}{2023}. \URLprefix
+  \url{https://arxiv.org/abs/2210.10709}.
+  \href{http://arxiv.org/abs/2210.10709}{{\tt arXiv:2210.10709}}.
+%Type = Misc
+\bibitem[{Geng et~al.(2023)Geng, Josifoski, Peyrard, and
+  West}]{geng2023grammar}
+\bibinfo{author}{S.~Geng}, \bibinfo{author}{M.~Josifoski},
+  \bibinfo{author}{M.~Peyrard}, \bibinfo{author}{R.~West},
+  \bibinfo{title}{Grammar-constrained decoding for structured {NLP} tasks
+  without finetuning}, \bibinfo{year}{2023}. \URLprefix
+  \url{https://arxiv.org/abs/2305.13971}.
+  \href{http://arxiv.org/abs/2305.13971}{{\tt arXiv:2305.13971}}.
+%Type = Misc
+\bibitem[{Geng et~al.(2025)Geng, Cooper, Moskal, Jenkins, Berman, Ranchin,
+  West, Horvitz, and Nori}]{geng2025structured}
+\bibinfo{author}{S.~Geng}, \bibinfo{author}{H.~Cooper},
+  \bibinfo{author}{M.~Moskal}, \bibinfo{author}{S.~Jenkins},
+  \bibinfo{author}{J.~Berman}, \bibinfo{author}{N.~Ranchin},
+  \bibinfo{author}{R.~West}, \bibinfo{author}{E.~Horvitz},
+  \bibinfo{author}{H.~Nori}, \bibinfo{title}{Generating structured outputs from
+  language models: Benchmark and studies}, \bibinfo{year}{2025}. \URLprefix
+  \url{https://arxiv.org/abs/2501.10868}.
+  \href{http://arxiv.org/abs/2501.10868}{{\tt arXiv:2501.10868}}.
+%Type = Inproceedings
+\bibitem[{Wei et~al.(2022)Wei, Wang, Schuurmans, Bosma, Ichter, Xia, Chi, Le,
+  and Zhou}]{wei2022chain}
+\bibinfo{author}{J.~Wei}, \bibinfo{author}{X.~Wang},
+  \bibinfo{author}{D.~Schuurmans}, \bibinfo{author}{M.~Bosma},
+  \bibinfo{author}{B.~Ichter}, \bibinfo{author}{F.~Xia},
+  \bibinfo{author}{E.~Chi}, \bibinfo{author}{Q.~V. Le},
+  \bibinfo{author}{D.~Zhou},
+\newblock \bibinfo{title}{Chain-of-thought prompting elicits reasoning in large
+  language models},
+\newblock in: \bibinfo{booktitle}{Advances in Neural Information Processing
+  Systems}, volume~\bibinfo{volume}{35}, \bibinfo{year}{2022}, pp.
+  \bibinfo{pages}{24824--24837}.
+%Type = Misc
+\bibitem[{Li et~al.(2024)Li, Ramprasad, and Zhang}]{li2024simple}
+\bibinfo{author}{Y.~Li}, \bibinfo{author}{R.~Ramprasad},
+  \bibinfo{author}{C.~Zhang}, \bibinfo{title}{A simple but effective approach
+  to improve structured language model output for information extraction},
+  \bibinfo{year}{2024}. \URLprefix \url{https://arxiv.org/abs/2402.13364}.
+  \href{http://arxiv.org/abs/2402.13364}{{\tt arXiv:2402.13364}}.
+%Type = Misc
+\bibitem[{Wang et~al.(2022)Wang, Wei, Schuurmans, Le, Chi, Narang, Chowdhery,
+  and Zhou}]{wang2022selfconsistency}
+\bibinfo{author}{X.~Wang}, \bibinfo{author}{J.~Wei},
+  \bibinfo{author}{D.~Schuurmans}, \bibinfo{author}{Q.~V. Le},
+  \bibinfo{author}{E.~H. Chi}, \bibinfo{author}{S.~Narang},
+  \bibinfo{author}{A.~Chowdhery}, \bibinfo{author}{D.~Zhou},
+  \bibinfo{title}{Self-consistency improves chain of thought reasoning in
+  language models}, \bibinfo{year}{2022}. \URLprefix
+  \url{https://arxiv.org/abs/2203.11171}.
+  \href{http://arxiv.org/abs/2203.11171}{{\tt arXiv:2203.11171}}.
 %Type = Inproceedings
 \bibitem[{Kumar and Byrne(2004)}]{kumar-byrne-2004-minimum}
 \bibinfo{author}{S.~Kumar}, \bibinfo{author}{W.~Byrne},
@@ -53,5 +198,21 @@
   Linguistics: {HLT}-{NAACL} 2004}, \bibinfo{publisher}{Association for
   Computational Linguistics}, \bibinfo{address}{Boston, Massachusetts, USA},
   \bibinfo{year}{2004}, pp. \bibinfo{pages}{169--176}.
+%Type = Misc
+\bibitem[{{GenSIE Organizers}(2026{\natexlab{a}})}]{gensie2026submission}
+\bibinfo{author}{{GenSIE Organizers}}, \bibinfo{title}{{GenSIE} 2026 submission
+  guidelines}, \bibinfo{year}{2026}{\natexlab{a}}. \bibinfo{note}{Challenge
+  documentation}.
+%Type = Misc
+\bibitem[{{GenSIE Organizers}(2026{\natexlab{b}})}]{gensie2026taskdescription}
+\bibinfo{author}{{GenSIE Organizers}}, \bibinfo{title}{{GenSIE} 2026 task
+  description}, \bibinfo{year}{2026}{\natexlab{b}}. \bibinfo{note}{Challenge
+  documentation}.
+%Type = Misc
+\bibitem[{Willard and Louf(2023)}]{willard2023efficient}
+\bibinfo{author}{B.~T. Willard}, \bibinfo{author}{R.~Louf},
+  \bibinfo{title}{Efficient guided generation for large language models},
+  \bibinfo{year}{2023}. \URLprefix \url{https://arxiv.org/abs/2307.09702}.
+  \href{http://arxiv.org/abs/2307.09702}{{\tt arXiv:2307.09702}}.
 
 \end{thebibliography}

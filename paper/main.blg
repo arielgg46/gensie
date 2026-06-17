@@ -8,45 +8,45 @@ Database file #1: references.bib
 Reallocating 'singl_function' (item size: 4) to 100 items.
 Warning--empty pages in gensie2026overview
 Warning--empty pages in iberlef2026overview
-You've used 6 entries,
+You've used 19 entries,
             2918 wiz_defined-function locations,
-            651 strings with 6023 characters,
-and the built_in function-call counts, 3318 in all, are:
-= -- 239
-> -- 102
-< -- 6
-+ -- 40
-- -- 33
-* -- 334
-:= -- 472
-add.period$ -- 12
-call.type$ -- 6
-change.case$ -- 45
-chr.to.int$ -- 5
-cite$ -- 8
-duplicate$ -- 281
-empty$ -- 269
-format.name$ -- 45
-if$ -- 622
+            730 strings with 10264 characters,
+and the built_in function-call counts, 16793 in all, are:
+= -- 1128
+> -- 1045
+< -- 17
++ -- 394
+- -- 372
+* -- 2096
+:= -- 2379
+add.period$ -- 45
+call.type$ -- 19
+change.case$ -- 223
+chr.to.int$ -- 18
+cite$ -- 21
+duplicate$ -- 1133
+empty$ -- 1001
+format.name$ -- 427
+if$ -- 3080
 int.to.chr$ -- 2
 int.to.str$ -- 1
-missing$ -- 48
-newline$ -- 39
-num.names$ -- 24
-pop$ -- 112
+missing$ -- 243
+newline$ -- 90
+num.names$ -- 76
+pop$ -- 439
 preamble$ -- 1
-purify$ -- 41
+purify$ -- 219
 quote$ -- 0
-skip$ -- 85
+skip$ -- 325
 stack$ -- 0
-substring$ -- 112
-swap$ -- 165
-text.length$ -- 1
+substring$ -- 510
+swap$ -- 957
+text.length$ -- 10
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 54
+type$ -- 171
 warning$ -- 2
-while$ -- 21
+while$ -- 78
 width$ -- 0
-write$ -- 91
+write$ -- 271
 (There were 2 warnings)

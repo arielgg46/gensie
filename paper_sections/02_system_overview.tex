@@ -2,7 +2,7 @@
 
 DRILLER submitted three pipelines: \texttt{Schema-RAG}, \texttt{Reasoned-RAG}, and \texttt{Mixed-SC}. They share a schema-guided extraction architecture and differ in reasoning scaffolds, trial count, and final decision rule. Their submitted interface names are \path{enriched-schema-rag}, \path{enriched-inline-reasoning-rag}, and \path{mixed-extractors-self-consistency-rag}. Non-registered experimental variants are outside the submitted system.
 
-Table~\ref{tab:pipeline-overview} summarizes the final pipelines. All three use retrieval-augmented prompting and strict structured JSON generation.
+Table~\ref{tab:pipeline-overview} summarizes the final pipelines. All three use retrieval-augmented prompting \cite{lewis2020retrieval} and strict structured JSON generation \cite{geng2023grammar,willard2023efficient}.
 
 \begin{table}[t]
 \centering
