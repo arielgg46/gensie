@@ -6,6 +6,10 @@ Schema-guided extraction can vary across generations even when the output format
 
 \texttt{Mixed-SC} thus uses heterogeneous self-consistency. Rather than sampling one prompt repeatedly, it combines \texttt{Schema-RAG}, which produces final values directly, with \texttt{Reasoned-RAG}, which temporarily produces \texttt{\{reasoning, value\}} objects and then unwraps them. This can expose different error patterns to the aggregator. The final decision is not a flat vote over complete JSON strings; it is a recursive schema-aware aggregation over candidate objects.
 
+Figure~\ref{fig:mixed-sc-aggregation} illustrates how \texttt{Mixed-SC} aggregates heterogeneous candidates recursively over the target schema.
+
+\input{figures/mixed_sc_consensus_builder.tex}
+
 \subsection{Candidate Generation}
 
 Let \(q=(x,S)\) denote an extraction instance with source text \(x\) and target schema \(S\). Let \(E_D\) be the direct extractor used by \texttt{Schema-RAG}, and let \(E_R\) be the reasoning-augmented extractor used by \texttt{Reasoned-RAG}. \texttt{Mixed-SC} defines the intended heterogeneous plan

@@ -2,6 +2,10 @@
 
 DRILLER retrieves examples for schema interpretation. In a variable-schema task, semantic similarity between source texts is not enough: two passages may be topically close but ask for different fields, while two different domains may instantiate similar extraction behavior. The submitted pipelines retrieve demonstrations using schema structure, extraction instruction, field descriptions, type compatibility, and complementary output behavior. \texttt{Schema-RAG}, \texttt{Reasoned-RAG}, and every trial of \texttt{Mixed-SC} use the same retrieval path.
 
+Figure~\ref{fig:retrieval-map} summarizes the two retrieval paths used by DRILLER.
+
+\input{figures/dual_path_retrieval_map.tex}
+
 \subsection{Curated Demonstration Corpus}
 
 The retrieval pool is a local few-shot prompting (FSP) corpus of structured extraction demonstrations. Each case contains a Spanish source text, an extraction instruction, a target schema, expected values, tags describing covered extraction phenomena, and field-level rationales or descriptions that support rendering examples in either direct or reasoning-augmented form. The corpus is synthetic and curated rather than mined from an external collection.

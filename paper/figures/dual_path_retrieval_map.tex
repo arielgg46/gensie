@@ -1,0 +1,300 @@
+\definecolor{drillfigblue}{RGB}{59,89,119}
+\definecolor{drillfigteal}{RGB}{72,112,105}
+\definecolor{drillfiggold}{RGB}{150,124,62}
+\definecolor{drillfigline}{RGB}{88,88,88}
+
+\begin{figure}[t]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+  font=\scriptsize,
+  >=Latex,
+  line cap=round,
+  line join=round,
+  panel/.style={
+    draw=black!34,
+    fill=black!2,
+    rounded corners=3pt,
+    line width=0.45pt
+  },
+  subpanel/.style={
+    draw=black!28,
+    fill=white,
+    rounded corners=2.4pt,
+    line width=0.36pt
+  },
+  card/.style={
+    draw=black!46,
+    fill=white,
+    rounded corners=2pt,
+    line width=0.42pt
+  },
+  querypart/.style={
+    draw=black!25,
+    fill=black!3,
+    rounded corners=1.5pt,
+    line width=0.32pt,
+    inner sep=2.1pt,
+    align=left,
+    font=\tiny
+  },
+  badge/.style={
+    draw=black!42,
+    fill=white,
+    rounded corners=2pt,
+    line width=0.34pt,
+    inner xsep=2.5pt,
+    inner ysep=1.2pt,
+    font=\scriptsize\bfseries
+  },
+  chip/.style={
+    draw=black!35,
+    fill=black!5,
+    rounded corners=2pt,
+    line width=0.30pt,
+    inner xsep=2.0pt,
+    inner ysep=0.9pt,
+    font=\tiny
+  },
+  route/.style={
+    -{Latex[length=2.0mm]},
+    draw=drillfigline,
+    line width=0.66pt
+  },
+  express/.style={
+    -{Latex[length=2.1mm]},
+    draw=drillfigblue,
+    line width=1.05pt
+  },
+  fallback/.style={
+    -{Latex[length=2.0mm]},
+    draw=drillfigteal,
+    line width=0.84pt,
+    densely dashed
+  },
+  selected/.style={
+    card,
+    draw=drillfigblue!85!black,
+    fill=drillfigblue!6,
+    line width=0.82pt
+  },
+  selectedfallback/.style={
+    card,
+    draw=drillfigteal!80!black,
+    fill=drillfigteal!6,
+    line width=0.82pt
+  },
+  promptitem/.style={
+    draw=black!32,
+    fill=black!3,
+    rounded corners=1.2pt,
+    line width=0.26pt,
+    inner xsep=0.85pt,
+    inner ysep=0.55pt,
+    outer sep=0pt,
+    font=\tiny,
+    align=center
+  }
+]
+
+% Main grouping panels.
+\node[panel, minimum width=2.62cm, minimum height=6.16cm, anchor=south west] (querypanel) at (0.05,0.62) {};
+\node[panel, minimum width=6.78cm, minimum height=2.48cm, anchor=south west, fill=drillfigblue!4] (upperpanel) at (3.05,4.33) {};
+\node[panel, minimum width=6.78cm, minimum height=3.28cm, anchor=south west, fill=drillfigteal!4] (lowerpanel) at (3.05,0.62) {};
+\node[panel, minimum width=2.58cm, minimum height=6.16cm, anchor=south west] (selectedpanel) at (10.10,0.62) {};
+\node[panel, minimum width=3.07cm, minimum height=6.16cm, anchor=south west] (promptpanel) at (12.68,0.62) {};
+
+\node[badge, fill=black!4, anchor=west, inner xsep=1.6pt] at (0.24,6.55) {Query instance \(q\)};
+\node[badge, draw=drillfigblue!60!black, fill=drillfigblue!8, anchor=west] at (3.24,6.56) {same-schema retrieval};
+\node[chip, draw=drillfigblue!65!black, fill=white, anchor=east] at (9.62,6.55) {FAST PATH};
+\node[badge, draw=drillfigteal!65!black, fill=drillfigteal!8, anchor=west] at (3.24,3.65) {field-level fallback};
+\node[chip, draw=drillfigteal!65!black, fill=white, anchor=east] at (9.62,3.64) {ANALYTICAL};
+\node[badge, fill=black!4, anchor=west] at (10.25,6.55) {Retrieved};
+\node[badge, fill=black!4, anchor=west] at (12.83,6.55) {Prompt integration};
+
+% Query card.
+\node[card, minimum width=2.12cm, minimum height=5.22cm, anchor=north west] (querycard) at (0.36,6.23) {};
+\draw[draw=black!34, fill=black!10, line width=0.32pt]
+  (2.19,6.23) -- (2.48,6.23) -- (2.48,5.94) -- cycle;
+\draw[draw=black!28, line width=0.32pt] (2.19,6.23) -- (2.48,5.94);
+\node[querypart, text width=1.62cm, anchor=north west] at (0.53,5.88)
+  {\textbf{instruction}\\extract fields};
+\node[querypart, text width=1.62cm, anchor=north west] at (0.53,4.90)
+  {\textbf{source text}\\short passage};
+\node[querypart, text width=1.62cm, anchor=north west] at (0.53,3.92)
+  {\textbf{target JSON Schema}\\types, enums, req.};
+\node[font=\tiny\bfseries, text=black!65, anchor=west] at (0.53,2.69) {extracted views};
+\node[chip, draw=drillfigblue!55!black, fill=drillfigblue!7, anchor=west] at (0.53,2.36) {\(\phi(S_q)\)};
+\node[chip, draw=drillfigteal!60!black, fill=drillfigteal!7, anchor=west] at (0.53,2.05) {\(f_1,\ldots,f_m\)};
+\node[font=\tiny, text=black!60, align=center, text width=1.72cm] at (1.38,1.58)
+  {schema identity\\and field list};
+
+% Same-schema lane.
+\coordinate (qout) at (2.67,5.48);
+\draw[route] (2.48,5.48) -- (qout);
+\draw[express] (qout) -- (3.12,5.48);
+
+\node[font=\tiny\bfseries, text=black!70, anchor=west] at (3.24,6.12) {FSP candidates};
+\foreach \x/\lab/\shade in {3.32/\(c_1\)/4,3.69/\(c_2\)/9,4.06/\(c_3\)/4,4.35/\(\cdots\)/11} {
+  \node[card, fill=black!\shade, minimum width=0.38cm, minimum height=0.68cm] at (\x,5.48) {};
+  \node[font=\tiny] at (\x,5.48) {\lab};
+}
+\draw[express] (4.54,5.48) -- (4.98,5.48);
+\node[card, draw=drillfigblue!65!black, fill=white, minimum width=0.95cm, minimum height=1.18cm, align=center, font=\scriptsize] (gate) at (5.52,5.48)
+  {\(\phi(S_q)\)\\[-1pt]\(=\phi(S_c)\)};
+\node[font=\tiny, text=black!62] at (5.52,4.75) {hard filter};
+\draw[express] (6.01,5.48) -- (6.40,5.48);
+
+\node[card, minimum width=1.50cm, minimum height=1.22cm] (rankbox) at (7.17,5.48) {};
+\node[font=\tiny\bfseries, align=center] at (7.17,5.90) {semantic\\rank};
+\node[font=\tiny] at (7.17,5.58) {\(\operatorname{sim}(r_q,r_c)\)};
+\draw[fill=drillfigblue!55, draw=black!20, line width=0.22pt] (6.62,5.34) rectangle (7.48,5.43);
+\draw[fill=drillfigblue!35, draw=black!20, line width=0.22pt] (6.62,5.16) rectangle (7.28,5.25);
+\draw[fill=black!22, draw=black!20, line width=0.22pt] (6.62,4.98) rectangle (7.02,5.07);
+\draw[express] (7.91,5.48) -- (8.24,5.48);
+
+% Explicit same-schema decision node.
+\coordinate (dec) at (8.76,5.48);
+\draw[draw=drillfigblue!70!black, fill=white, line width=0.55pt]
+  (8.76,5.98) -- (9.28,5.48) -- (8.76,4.98) -- (8.24,5.48) -- cycle;
+\node[font=\tiny\bfseries, align=center] at (8.76,5.55) {\(\geq 2\)\\pass \(\tau\)?};
+\node[font=\tiny, text=drillfigblue!70!black, anchor=south] at (9.46,5.62) {YES};
+\draw[express] (9.28,5.48) -- (10.10,5.48);
+
+% Fallback control flow from the decision.
+\node[font=\tiny, text=drillfigteal!75!black, align=center, text width=0.88cm, anchor=north] at (9.38,5.16)
+  {NO:\\field-level\\fallback};
+\draw[fallback] (8.76,4.98) -- (8.76,4.18) -- (3.36,4.18) -- (3.36,3.90);
+
+% Field-level fallback lane.
+\node[font=\tiny\bfseries, text=black!70, anchor=west] at (3.34,3.28) {type-compatible field similarity};
+\foreach \x/\lab in {3.86/\(c_1\),4.24/\(c_2\),4.62/\(c_3\),5.00/\(\cdots\)} {
+  \node[font=\tiny] at (\x,3.02) {\lab};
+}
+\foreach \y/\lab in {2.72/\(f_1\),2.42/\(f_2\),2.12/\(f_3\),1.82/\(f_m\)} {
+  \node[font=\tiny, anchor=east] at (3.62,\y) {\lab};
+}
+\foreach \x/\y/\shade in {
+  3.70/2.58/65,4.08/2.58/28,4.46/2.58/12,4.84/2.58/45,
+  3.70/2.28/18,4.08/2.28/62,4.46/2.28/34,4.84/2.28/10,
+  3.70/1.98/48,4.08/1.98/14,4.46/1.98/58,4.84/1.98/22,
+  3.70/1.68/10,4.08/1.68/42,4.46/1.68/26,4.84/1.68/60
+} {
+  \draw[draw=black!18, fill=black!\shade, line width=0.23pt] (\x,\y) rectangle ++(0.30,0.26);
+}
+\draw[draw=black!40, line width=0.32pt] (3.70,1.68) rectangle (5.14,2.84);
+\draw[draw=drillfigteal!78!black, line width=0.58pt, rounded corners=1pt] (3.67,1.64) rectangle (4.03,2.88);
+\draw[draw=drillfigteal!78!black, line width=0.58pt, rounded corners=1pt, densely dashed] (4.05,1.64) rectangle (4.41,2.88);
+\node[chip, draw=drillfigteal!60!black, fill=white, font=\tiny] at (4.42,1.23)
+  {\(\kappa(f_i)\sim\kappa(g)\)};
+% Field-similarity vectors tied to selected heatmap columns.
+\draw[fallback, line width=0.58pt] (4.03,2.64) -- (5.50,2.42);
+\draw[fallback, line width=0.58pt] (4.41,2.24) -- (5.50,1.52);
+\node[font=\tiny, anchor=south] at (6.02,2.82) {\(v(c_1)\)};
+\node[card, minimum width=1.05cm, minimum height=0.72cm] (vonebox) at (6.02,2.38) {};
+\draw[fill=drillfigteal!55, draw=black!20, line width=0.2pt] (5.70,2.14) rectangle ++(0.10,0.32);
+\draw[fill=drillfigteal!25, draw=black!20, line width=0.2pt] (5.88,2.14) rectangle ++(0.10,0.15);
+\draw[fill=drillfigteal!45, draw=black!20, line width=0.2pt] (6.06,2.14) rectangle ++(0.10,0.27);
+\draw[fill=black!20, draw=black!20, line width=0.2pt] (6.24,2.14) rectangle ++(0.10,0.10);
+
+\node[card, minimum width=1.05cm, minimum height=0.72cm] (vtwobox) at (6.02,1.50) {};
+\draw[fill=drillfigteal!25, draw=black!20, line width=0.2pt] (5.70,1.26) rectangle ++(0.10,0.13);
+\draw[fill=drillfigteal!55, draw=black!20, line width=0.2pt] (5.88,1.26) rectangle ++(0.10,0.34);
+\draw[fill=black!20, draw=black!20, line width=0.2pt] (6.06,1.26) rectangle ++(0.10,0.11);
+\draw[fill=drillfigteal!48, draw=black!20, line width=0.2pt] (6.24,1.26) rectangle ++(0.10,0.28);
+\node[font=\tiny, anchor=north] at (6.02,1.05) {\(v(c_2)\)};
+
+\draw[fallback] (6.58,2.02) -- (6.82,2.02);
+\node[card, minimum width=1.78cm, minimum height=0.88cm, align=center, font=\tiny] (objective) at (8.05,2.80)
+  {\(s(c_1,c_2)=\)\\[-1pt]
+   \(\|v(c_1)+v(c_2)\|_2\)\\[-1pt]
+   \(+\|v(c_1)-v(c_2)\|_2\)};
+\node[card, minimum width=1.36cm, minimum height=0.80cm] (joint) at (7.35,1.48) {};
+\node[font=\tiny\bfseries] at (7.35,1.78) {coverage};
+\node[font=\tiny] at (7.35,1.58) {\(v_1+v_2\)};
+\draw[fill=drillfiggold!55, draw=black!20, line width=0.2pt] (6.92,1.15) rectangle ++(0.14,0.22);
+\draw[fill=drillfiggold!50, draw=black!20, line width=0.2pt] (7.15,1.15) rectangle ++(0.14,0.31);
+\draw[fill=drillfiggold!38, draw=black!20, line width=0.2pt] (7.38,1.15) rectangle ++(0.14,0.25);
+\draw[fill=drillfiggold!48, draw=black!20, line width=0.2pt] (7.61,1.15) rectangle ++(0.14,0.28);
+\node[card, minimum width=1.50cm, minimum height=0.80cm] (diff) at (8.85,1.48) {};
+\node[font=\tiny\bfseries] at (8.85,1.78) {complement};
+\node[font=\tiny] at (8.85,1.58) {\(v_1-v_2\)};
+\draw[draw=black!38, line width=0.25pt] (8.35,1.28) -- (9.36,1.28);
+\draw[fill=drillfigteal!45, draw=black!20, line width=0.2pt] (8.40,1.28) rectangle ++(0.16,0.17);
+\draw[fill=drillfigteal!30, draw=black!20, line width=0.2pt] (8.68,1.16) rectangle ++(0.16,0.12);
+\draw[fill=drillfigteal!42, draw=black!20, line width=0.2pt] (8.96,1.28) rectangle ++(0.16,0.14);
+\draw[fill=drillfigteal!35, draw=black!20, line width=0.2pt] (9.24,1.14) rectangle ++(0.16,0.14);
+\draw[fallback] (9.52,2.20) -- (10.10,2.20);
+
+% Selected demonstrations panel, split by retrieval mode.
+\node[subpanel, minimum width=2.26cm, minimum height=2.51cm, anchor=south west] (sameselpanel) at (10.26,3.82) {};
+\node[subpanel, minimum width=2.26cm, minimum height=2.62cm, anchor=south west] (fbselpanel) at (10.26,0.88) {};
+\node[font=\tiny\bfseries, anchor=west] at (10.38,6.10) {same-schema outputs};
+\node[font=\tiny, text=black!62, anchor=west] at (10.38,5.87) {shared schema};
+\node[selected, text width=0.72cm, minimum height=0.70cm, align=center, font=\tiny] at (10.82,5.42)
+  {\textbf{Ex. 1}\\demo};
+\node[selected, text width=0.72cm, minimum height=0.70cm, align=center, font=\tiny] at (11.72,5.42)
+  {\textbf{Ex. 2}\\demo};
+\draw[draw=drillfigblue!65!black, line width=0.45pt] (10.50,5.05) -- (12.05,5.05);
+\node[chip, draw=drillfigblue!55!black, fill=white] at (11.26,4.78) {null vs grounded};
+\node[chip, draw=drillfigblue!55!black, fill=white] at (11.26,4.50) {empty vs populated};
+\node[chip, draw=drillfigblue!55!black, fill=white] at (11.26,4.22) {enum contrast};
+
+\node[font=\tiny\bfseries, anchor=west] at (10.38,3.34) {fallback outputs};
+\node[font=\tiny, text=black!62, anchor=north west, align=left, text width=1.36cm, inner sep=0pt] at (10.38,3.15) {complementary\\[-1pt]coverage};
+\node[selectedfallback, text width=1.74cm, minimum height=0.82cm, align=left, font=\tiny] at (11.39,2.24)
+  {\textbf{Ex. 1}\hfill \(f_1\ f_3\)};
+\draw[fill=drillfigteal!55, draw=black!20, line width=0.18pt] (10.62,1.90) rectangle ++(0.20,0.22);
+\draw[fill=black!15, draw=black!20, line width=0.18pt] (10.91,1.90) rectangle ++(0.20,0.08);
+\draw[fill=drillfigteal!48, draw=black!20, line width=0.18pt] (11.20,1.90) rectangle ++(0.20,0.19);
+\draw[fill=black!15, draw=black!20, line width=0.18pt] (11.49,1.90) rectangle ++(0.20,0.07);
+\node[selectedfallback, text width=1.74cm, minimum height=0.82cm, align=left, font=\tiny] at (11.39,1.36)
+  {\textbf{Ex. 2}\hfill \(f_2\ f_m\)};
+\draw[fill=black!15, draw=black!20, line width=0.18pt] (10.62,1.02) rectangle ++(0.20,0.08);
+\draw[fill=drillfigteal!56, draw=black!20, line width=0.18pt] (10.91,1.02) rectangle ++(0.20,0.24);
+\draw[fill=black!15, draw=black!20, line width=0.18pt] (11.20,1.02) rectangle ++(0.20,0.08);
+\draw[fill=drillfigteal!48, draw=black!20, line width=0.18pt] (11.49,1.02) rectangle ++(0.20,0.20);
+% Prompt integration panel, split by rendering layout.
+\node[subpanel, minimum width=2.86cm, minimum height=2.23cm, anchor=south west] (samepromptpanel) at (12.78,4.10) {};
+\node[subpanel, minimum width=2.86cm, minimum height=2.92cm, anchor=south west] (ragpromptpanel) at (12.78,0.88) {};
+\node[font=\tiny\bfseries, anchor=west] at (12.90,6.13) {same-schema assembly};
+\node[promptitem, minimum width=0.80cm, minimum height=0.22cm, fill=black!3] at (13.94,5.84) {rules};
+\node[promptitem, minimum width=1.16cm, minimum height=0.22cm, fill=drillfigblue!7] at (14.84,5.84) {schema \(S_q\)};
+\foreach \y/\lab in {5.38/Ex. 1,5.00/Ex. 2} {
+  \node[font=\tiny\bfseries, anchor=east] at (13.64,\y) {\lab};
+  \node[promptitem, minimum width=0.48cm, minimum height=0.22cm] at (13.96,\y) {instr};
+  \node[promptitem, minimum width=0.44cm, minimum height=0.22cm] at (14.54,\y) {src};
+  \node[promptitem, minimum width=0.44cm, minimum height=0.22cm] at (15.10,\y) {out};
+  \draw[draw=black!38, -{Latex[length=0.8mm]}, line width=0.24pt] (14.24,\y) -- (14.30,\y);
+  \draw[draw=black!38, -{Latex[length=0.8mm]}, line width=0.24pt] (14.82,\y) -- (14.88,\y);
+}
+\node[font=\tiny\bfseries, anchor=east] at (13.72,4.62) {current};
+\node[promptitem, minimum width=0.48cm, minimum height=0.22cm, fill=drillfigblue!5] at (13.96,4.62) {instr};
+\node[promptitem, minimum width=0.44cm, minimum height=0.22cm, fill=drillfigblue!5] at (14.54,4.62) {src};
+\draw[draw=black!38, -{Latex[length=0.8mm]}, line width=0.24pt] (14.24,4.62) -- (14.30,4.62);
+
+\node[font=\tiny\bfseries, anchor=west] at (12.90,3.57) {general RAG assembly};
+\foreach \y/\lab/\schema in {3.08/Ex. 1/\(S_{c_1}\),2.32/Ex. 2/\(S_{c_2}\)} {
+  \node[promptitem, minimum width=1.72cm, minimum height=0.56cm] at (14.56,\y) {};
+  \node[font=\tiny\bfseries, anchor=east] at (13.56,\y+0.16) {\lab};
+  \node[promptitem, minimum width=0.48cm, minimum height=0.18cm] at (14.06,\y+0.16) {instr};
+  \node[promptitem, minimum width=0.62cm, minimum height=0.18cm, fill=drillfigteal!7] at (14.80,\y+0.16) {\schema};
+  \node[promptitem, minimum width=0.46cm, minimum height=0.18cm] at (14.06,\y-0.15) {src};
+  \node[promptitem, minimum width=0.46cm, minimum height=0.18cm] at (14.80,\y-0.15) {out};
+  \draw[draw=black!38, -{Latex[length=0.8mm]}, line width=0.24pt] (14.34,\y-0.15) -- (14.50,\y-0.15);
+}
+\node[promptitem, minimum width=1.72cm, minimum height=0.48cm, fill=drillfigteal!6] at (14.56,1.52) {};
+\node[font=\tiny\bfseries, anchor=east] at (13.72,1.64) {current};
+\node[promptitem, minimum width=0.48cm, minimum height=0.18cm, fill=white] at (14.06,1.64) {instr};
+\node[promptitem, minimum width=0.62cm, minimum height=0.18cm, fill=white] at (14.80,1.64) {\(S_q\)};
+\node[promptitem, minimum width=0.46cm, minimum height=0.18cm, fill=white] at (14.44,1.32) {src};
+
+% Mode-specific integration arrows.
+\draw[express] (12.52,5.48) -- (12.82,5.48);
+\draw[fallback] (12.52,2.20) -- (12.82,2.20);
+
+\end{tikzpicture}%
+}
+\caption{Two-stage retrieval in DRILLER. The system first attempts same-schema retrieval by filtering candidate demonstrations with a normalized schema fingerprint and ranking surviving cases semantically. A decision node routes directly to same-schema demonstrations when at least two cases pass the threshold; otherwise, field-level fallback scores candidates by type-compatible field similarity and selects a complementary pair. The selected demonstrations are then rendered with either the compact same-schema prompt layout or the general RAG layout.}
+\label{fig:retrieval-map}
+\end{figure}
