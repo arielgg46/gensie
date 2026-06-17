@@ -1,8 +1,8 @@
 \section{System Overview}
 
-DRILLER submitted three pipelines: \texttt{Schema-RAG}, \texttt{Reasoned-RAG}, and \texttt{Mixed-SC}. They share a schema-guided extraction architecture and differ in reasoning scaffolds, trial count, and final decision rule. Their submitted interface names are \path{enriched-schema-rag}, \path{enriched-inline-reasoning-rag}, and \path{mixed-extractors-self-consistency-rag}. Non-registered experimental variants are outside the submitted system.
+The submitted DRILLER system comprises three pipelines: \texttt{Schema-RAG}, \texttt{Reasoned-RAG}, and \texttt{Mixed-SC}. They share a schema-guided extraction architecture and differ in reasoning scaffolds, trial count, and final decision rule. Their submitted interface names are \path{enriched-schema-rag}, \path{enriched-inline-reasoning-rag}, and \path{mixed-extractors-self-consistency-rag}. Non-registered experimental variants are outside the submitted system.
 
-Table~\ref{tab:pipeline-overview} summarizes the final pipelines. All three use retrieval-augmented prompting \cite{lewis2020retrieval} and strict structured JSON generation \cite{geng2023grammar,willard2023efficient}.
+Table~\ref{tab:pipeline-overview} summarizes the final pipelines, all of which use retrieval-augmented prompting over local demonstrations \cite{lewis2020retrieval} and strict structured JSON generation \cite{geng2023grammar,willard2023efficient}.
 
 \begin{table}[t]
 \centering
@@ -37,7 +37,7 @@ Schema-aware SC \\
 \end{tabularx}
 \end{table}
 
-Figure~\ref{fig:system-architecture} shows the shared path from a GenSIE instance to a final JSON object. The input supplies the Spanish source text, extraction instruction, and target JSON Schema. DRILLER renders the schema for prompting, retrieves local demonstrations, constructs a Spanish extraction prompt, requests a structured JSON object from the hosted model, parses and normalizes the output, and optionally aggregates multiple candidates. The returned object always has the original challenge schema shape.
+Figure~\ref{fig:system-architecture} traces the shared path from a GenSIE instance to a final JSON object. Given the Spanish source text, extraction instruction, and target JSON Schema, DRILLER renders the schema for prompting, retrieves local demonstrations, constructs a Spanish extraction prompt, requests a structured JSON object from the hosted model, parses and normalizes the output, and optionally aggregates multiple candidates. The returned object always has the original challenge schema shape.
 
 \begin{figure}[t]
 \centering
@@ -116,13 +116,13 @@ Figure~\ref{fig:system-architecture} shows the shared path from a GenSIE instanc
 
 The prompt presents the instance instruction, grounding rules, retrieved examples when available, a Pydantic version of the target schema, and the source text. The rules state that the source text is the only evidence, examples are demonstrations rather than facts for the new instance, enum labels must be used exactly, and unsupported nullable fields should be returned as JSON \texttt{null}. This organization keeps the schema and passage close to generation while making the evidence boundary explicit.
 
-Schema rendering has direct and reasoned variants. In direct mode, the JSON Schema is shown as a compact Pydantic-style model: fields become typed attributes, descriptions remain near the fields they define, arrays and nested objects are readable as typed structures, and enums are displayed as literal alternatives. This prompt view is not the formal output contract. The model request also includes a strict JSON Schema response format derived from the target schema, and the final answer is checked against the evaluator-facing schema shape after postprocessing.
+In direct mode, schema rendering shows the JSON Schema as a compact Pydantic-style model: fields become typed attributes, descriptions remain near the fields they define, arrays and nested objects are readable as typed structures, and enums are displayed as literal alternatives. This prompt view is not the formal output contract. The model request also includes a strict JSON Schema response format derived from the target schema, and the final answer is checked against the evaluator-facing schema shape after postprocessing.
 
-Retrieval is also shared. Each extraction can include up to two local few-shot demonstrations selected for schema relevance. Same-schema retrieval is used when examples have the same normalized structural schema as the current task; otherwise, DRILLER falls back to field-level matching over field names, descriptions, type classes, and complementary coverage. The selected examples are rendered in the same output style as the current extractor: direct examples for \texttt{Schema-RAG}, reasoning/value examples for \texttt{Reasoned-RAG}, and trial-specific rendering inside \texttt{Mixed-SC}.
+Each extraction can include up to two local few-shot demonstrations selected for schema relevance. Same-schema retrieval is used when examples have the same normalized structural schema as the current task; otherwise, DRILLER falls back to field-level matching over field names, descriptions, type classes, and complementary coverage. The selected examples are rendered in the same output style as the current extractor: direct examples for \texttt{Schema-RAG}, reasoning/value examples for \texttt{Reasoned-RAG}, and trial-specific rendering inside \texttt{Mixed-SC}.
 
-Postprocessing is deterministic and conservative. It parses JSON, cleans common Unicode artifacts, normalizes strings to \textit{Normalization Form C} (NFC), removes temporary reasoning wrappers when present, and converts the literal string \texttt{"null"} to JSON \texttt{null} only at schema positions where null is allowed. It does not infer missing facts, repair unsupported values, or reinterpret the source text after generation.
+Deterministic postprocessing parses JSON, cleans common Unicode artifacts, normalizes strings to \textit{Normalization Form C} (NFC), removes temporary reasoning wrappers when present, and converts the literal string \texttt{"null"} to JSON \texttt{null} only at schema positions where null is allowed. It does not infer missing facts, repair unsupported values, or reinterpret the source text after generation.
 
-\texttt{Schema-RAG} is the direct single-pass pipeline. It uses the Pydantic-style prompt schema, retrieves demonstrations, requests a strict JSON object, and returns the parsed and normalized object. Because no reasoning wrapper is used, the generated top-level fields already match the final output interface.
+\texttt{Schema-RAG} uses the Pydantic-style prompt schema, retrieves demonstrations, requests a strict JSON object, and returns the parsed and normalized object. Because no reasoning wrapper is used, the generated top-level fields already match the final output interface.
 
 \texttt{Reasoned-RAG} follows the same path but temporarily transforms each top-level field into an object with \texttt{reasoning} and \texttt{value} slots during generation. The prompt schema exposes this as a reasoned value, and the response schema requires the wrapper structure. After generation, DRILLER discards the reasoning strings and returns only the values in the original schema shape.
 

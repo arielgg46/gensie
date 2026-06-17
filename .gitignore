@@ -219,3 +219,6 @@ data/mini
 local-results/
 .pytest-tmp-analysis/
 .tmp-pytest-base/
+
+# Agentic skills
+.agents
