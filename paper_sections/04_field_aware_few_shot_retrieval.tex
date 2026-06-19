@@ -6,6 +6,8 @@ Figure~\ref{fig:retrieval-map} summarizes the two retrieval paths used by DRILLE
 
 \input{figures/dual_path_retrieval_map.tex}
 
+\FloatBarrier
+
 \subsection{Curated Demonstration Corpus}
 
 The retrieval pool is a local few-shot prompting (FSP) corpus of structured extraction demonstrations \cite{brown2020language}. Each case contains a Spanish source text, an extraction instruction, a target schema, expected values, tags describing covered extraction phenomena, and field-level rationales or descriptions that support rendering examples in either direct or reasoning-augmented form. The corpus is synthetic and curated rather than mined from an external collection.
@@ -24,7 +26,7 @@ In reasoning-mode examples, each field can render \texttt{field\_asks}, \texttt{
 
 Table~\ref{tab:technical-software-fsp-pair} gives one compact example from the \texttt{technical\_software} family. The two cases share the same schema but expose complementary regimes: one case grounds populated arrays and leaves several adversarial nullable fields unsupported, while the other inverts the pattern with empty arrays, alias resolution, exact date normalization, an explicit stable-installer checksum, and explicit corporate metadata.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \footnotesize
 \setlength{\tabcolsep}{3pt}
@@ -57,6 +59,8 @@ Resolve aliases, keep unsupported arrays empty, and fill nullable fields only wh
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\FloatBarrier
 
 Coverage includes null versus non-null values, present versus absent evidence, enum alternatives, empty versus populated arrays, arrays of simple values, arrays of objects, nested objects, direct strings, summary strings, boolean inference, numeric normalization, date normalization, bounded scores, long evidence spans, and distractor mentions. These contrasts matter because few-shot examples can bias the model when they show only one outcome regime. Complementary demonstrations teach conditional behavior: extract when evidence exists, abstain when it does not, normalize only when requested, and respect the requested type and label set.
 
@@ -113,7 +117,7 @@ The first term, \(\lVert v(c_1)+v(c_2)\rVert_2\), rewards joint relevance and fi
 
 The second term, \(\lVert v(c_1)-v(c_2)\rVert_2\), rewards complementarity. If two candidates are strong on the same fields and weak on the same fields, their difference vector is small. If one is strong where the other is weak, the difference grows. This discourages near-duplicate demonstrations that reinforce one behavior while leaving other fields unexplained.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \resizebox{0.82\linewidth}{!}{%
 \begin{tikzpicture}[
@@ -185,6 +189,8 @@ The second term, \(\lVert v(c_1)-v(c_2)\rVert_2\), rewards complementarity. If t
 \caption{Field-aware pair selection as a vector objective. Each axis is a query-field similarity component \(a_i\); actual retrieval vectors are \(m\)-dimensional. A redundant pair concentrates evidence in similar directions, so \(v_1-v_2\) is short. A complementary pair covers different field dimensions, increasing both the joint vector \(v_1+v_2\) and the difference vector \(v_1-v_2\) used by the pair score.}
 \label{fig:field-aware-pair-selection}
 \end{figure}
+
+\FloatBarrier
 
 Two examples from different domains can still be redundant if both show easy scalar fields and neither illustrates nulls, arrays, or enum decisions. Conversely, two examples from a related family may be complementary if one illustrates absence and empty arrays while the other illustrates populated nested objects and label mapping. Tie-breaking favors stronger individual relevance and stable resource order, but the core decision is pair-level.
 

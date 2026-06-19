@@ -4,7 +4,7 @@ The submitted DRILLER system comprises three pipelines: \texttt{Schema-RAG}, \te
 
 Table~\ref{tab:pipeline-overview} summarizes the final pipelines, all of which use retrieval-augmented prompting over local demonstrations \cite{lewis2020retrieval} and strict structured JSON generation \cite{geng2023grammar,willard2023efficient}.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
@@ -39,7 +39,7 @@ Schema-aware SC \\
 
 Figure~\ref{fig:system-architecture} traces the shared path from a GenSIE instance to a final JSON object. Given the Spanish source text, extraction instruction, and target JSON Schema, DRILLER renders the schema for prompting, retrieves local demonstrations, constructs a Spanish extraction prompt, requests a structured JSON object from the hosted model, parses and normalizes the output, and optionally aggregates multiple candidates. The returned object always has the original challenge schema shape.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[
@@ -113,6 +113,8 @@ Figure~\ref{fig:system-architecture} traces the shared path from a GenSIE instan
 \caption{Architecture of the submitted DRILLER pipelines. \texttt{Schema-RAG} follows the shared single-pass path, \texttt{Reasoned-RAG} adds temporary reasoning/value wrappers before restoring the original schema, and \texttt{Mixed-SC} aggregates postprocessed candidates from direct and reasoned trials.}
 \label{fig:system-architecture}
 \end{figure}
+
+\FloatBarrier
 
 The prompt presents the instance instruction, grounding rules, retrieved examples when available, a Pydantic version of the target schema, and the source text. The rules state that the source text is the only evidence, examples are demonstrations rather than facts for the new instance, enum labels must be used exactly, and unsupported nullable fields should be returned as JSON \texttt{null}. This organization keeps the schema and passage close to generation while making the evidence boundary explicit.
 

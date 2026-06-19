@@ -12,7 +12,7 @@ Object schemas become class-like structures and properties appear as typed attri
 
 Figure~\ref{fig:schema-transition-example} shows the transformation on a compact excerpt from the \texttt{cultural\_media\_001} development schema. The raw JSON Schema excerpt carries the validation-oriented structure: a definition for the enum, property dictionaries, and nullable alternatives. The right panel shows two Pydantic-style renderings for the same selected fields: the plain compact renderer and the reasoned view. Both define the prompt-only alias \texttt{Nullable[T] = T | null}; the reasoned view additionally defines the generic \texttt{Reasoned[T]} wrapper and changes each root field from \(T\) to \texttt{Reasoned[T]}. Nested structures remain inside the \texttt{value} slot rather than being wrapped recursively.
 
-\begin{figure}[!t]
+\begin{figure}[!htbp]
 \centering
 \begin{minipage}[t]{0.485\linewidth}
 \vspace{0pt}
@@ -82,9 +82,11 @@ class Output(BaseModel):
 \label{fig:schema-transition-example}
 \end{figure}
 
+\FloatBarrier
+
 For the 13 unique target-schema structures observed in the development set, deduplicated by canonicalized \texttt{target\_schema} JSON, we measured schema-text footprint. The raw baseline is the indented JSON Schema text produced by the prompt schema renderer. The direct and top-level-reasoned Pydantic rows use the actual schema-view code paths selected by \texttt{SchemaPromptMode.PYDANTIC} and \texttt{SchemaPromptMode.REASONED\_PYDANTIC}. We also report \texttt{render\_plain\_pydantic\_schema}, the same compact prompt-only renderer family used by the reasoned view, but without \texttt{Reasoned[T]} wrappers; this row isolates wrapper overhead from unrelated prelude differences. Size is estimated as \(\lceil \mathrm{characters}/4 \rceil\), matching the character-based token fallback used by DRILLER's trial-budget planner. The measurement estimates prompt footprint only, not model-specific tokenization.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Schema rendering footprint over 13 unique development schemas. Values are estimated prompt tokens computed as \(\lceil \mathrm{characters}/4 \rceil\).}
@@ -101,11 +103,13 @@ Reasoned Pydantic view & 272 & 306 & 58 & 378 & -52.2\% \\
 \end{tabular}
 \end{table}
 
+\FloatBarrier
+
 Table~\ref{tab:schema-footprint} describes schema text alone, not the complete prompt or completion cost. On these schemas, the class-like view roughly halves the prompt-side schema footprint relative to indented raw JSON Schema. The actual reasoned view is slightly shorter than the actual direct Pydantic view because the direct code path includes import-style boilerplate, while the reasoned prompt renderer uses a prompt-only prelude. In the like-for-like renderer comparison, top-level reasoning wrappers increase the mean footprint from 249 to 272 estimated tokens. The reasoned view remains in the same range because the submitted reasoning mode wraps only top-level fields.
 
 Table~\ref{tab:schema-roles} summarizes the three schema roles in DRILLER. The same target schema is transformed differently when shown to the model, used to constrain decoding, or returned to the evaluator.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Schema roles in DRILLER. The prompt schema supports model comprehension; the generation schema constrains decoding; the final challenge schema defines the returned interface.}
@@ -128,6 +132,8 @@ Original task schema after schema restoration when needed and deterministic clea
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\FloatBarrier
 
 The prompt schema can use class-like declarations, readable nullable notation, and other prompt-only conventions because it communicates the schema to the model. The generation schema has a different role: DRILLER attaches a strict JSON Schema response format to the model request so decoding is constrained toward a JSON object compatible with the requested structure.
 
