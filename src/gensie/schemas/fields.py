@@ -57,10 +57,19 @@ def parse_field(
     root_schema: JsonDict,
     path: str,
     required: bool,
+    seen_refs: frozenset[str] = frozenset(),
 ) -> FieldInfo:
     ref = schema.get("$ref") if isinstance(schema.get("$ref"), str) else None
     schema, nullable = unwrap_nullable_anyof(schema, root_schema)
+    inner_ref = schema.get("$ref") if isinstance(schema.get("$ref"), str) else None
     schema = deref(schema, root_schema)
+
+    # Guard against self-referential schemas (e.g. a ``Taxon`` whose ``children``
+    # items point back to ``#/$defs/Taxon``). Once a ``$ref`` has been expanded on
+    # the current branch, stop descending into it to avoid infinite recursion.
+    active_ref = ref or inner_ref
+    stop_recursion = active_ref is not None and active_ref in seen_refs
+    next_seen = seen_refs | {active_ref} if active_ref is not None else seen_refs
 
     current_type = schema_type(schema)
     description = schema.get("description")
@@ -71,13 +80,16 @@ def parse_field(
     items: FieldInfo | None = None
     properties: list[FieldInfo] | None = None
 
-    if current_type == "array" and isinstance(schema.get("items"), dict):
+    if stop_recursion:
+        pass
+    elif current_type == "array" and isinstance(schema.get("items"), dict):
         items = parse_field(
             name=f"{name}__item",
             schema=schema["items"],
             root_schema=root_schema,
             path=f"{path}[]",
             required=True,
+            seen_refs=next_seen,
         )
     elif current_type == "object":
         child_properties = schema.get("properties")
@@ -90,6 +102,7 @@ def parse_field(
                     root_schema=root_schema,
                     path=f"{path}.{child_name}",
                     required=child_name in child_required,
+                    seen_refs=next_seen,
                 )
                 for child_name, child_schema in child_properties.items()
                 if isinstance(child_schema, dict)

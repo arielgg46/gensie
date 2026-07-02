@@ -65,13 +65,36 @@ async def run_task(
         if tracker is not None and hasattr(tracker, "header_value"):
             headers["X-GenSIE-Token-Usage"] = tracker.header_value()
         usage_info = headers.get("X-GenSIE-Token-Usage", "n/a")
-        logger.info(
-            "Task completed (pipeline=%s, model=%s, usage=%s)", pipeline, model, usage_info
-        )
-        print(
-            f"[200] Task completed (pipeline={pipeline}, model={model}, usage={usage_info})",
-            flush=True,
-        )
+
+        # The pipeline swallows model-call / parsing failures into an ``error``
+        # field and still returns a valid dict. That would otherwise be reported
+        # as a healthy 200 with empty usage (calls=0), hiding the real problem.
+        # Surface it loudly in the terminal instead.
+        pipeline_error = result.get("error") if isinstance(result, dict) else None
+        if pipeline_error:
+            logger.error(
+                "Task returned an error (pipeline=%s, model=%s, usage=%s): %s",
+                pipeline,
+                model,
+                usage_info,
+                pipeline_error,
+            )
+            print(
+                f"[ERROR] Pipeline returned an error (pipeline={pipeline}, "
+                f"model={model}, usage={usage_info}): {pipeline_error}",
+                flush=True,
+            )
+        else:
+            logger.info(
+                "Task completed (pipeline=%s, model=%s, usage=%s)",
+                pipeline,
+                model,
+                usage_info,
+            )
+            print(
+                f"[200] Task completed (pipeline={pipeline}, model={model}, usage={usage_info})",
+                flush=True,
+            )
         return JSONResponse(content=result, headers=headers)
     except Exception as e:
         tb = traceback.format_exc()
