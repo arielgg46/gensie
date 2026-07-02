@@ -6,6 +6,7 @@ from gensie.runtime import trace_task_result
 from typing import Any
 import importlib
 import os
+import traceback
 
 from logging import getLogger
 
@@ -63,7 +64,19 @@ async def run_task(
         tracker = getattr(agent, "usage", None)
         if tracker is not None and hasattr(tracker, "header_value"):
             headers["X-GenSIE-Token-Usage"] = tracker.header_value()
+        usage_info = headers.get("X-GenSIE-Token-Usage", "n/a")
+        logger.info(
+            "Task completed (pipeline=%s, model=%s, usage=%s)", pipeline, model, usage_info
+        )
+        print(
+            f"[200] Task completed (pipeline={pipeline}, model={model}, usage={usage_info})",
+            flush=True,
+        )
         return JSONResponse(content=result, headers=headers)
     except Exception as e:
-        logger.error(str(e))
+        tb = traceback.format_exc()
+        logger.error("Error running task (pipeline=%s, model=%s):\n%s", pipeline, model, tb)
+        # Also print directly to the terminal so the full traceback is always
+        # visible even if logging is not configured to surface it.
+        print(tb, flush=True)
         raise HTTPException(status_code=500, detail=str(e))
