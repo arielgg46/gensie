@@ -15,7 +15,9 @@
 \usepackage{tabularx}
 \usepackage[most]{tcolorbox}
 \usepackage{tikz}
+\usepackage{pgfplots}
 \usepackage{url}
+\pgfplotsset{compat=1.18}
 \usetikzlibrary{arrows.meta,fit,positioning}
 
 \setcounter{topnumber}{4}
@@ -156,6 +158,9 @@ self-consistency
 \input{../paper_sections/07_heterogeneous_self_consistency.tex}
 \input{../paper_sections/08_experimental_setup_results_analysis.tex}
 \input{../paper_sections/09_limitations_conclusion_generative_ai.tex}
+
+\appendix
+\input{../paper_sections/appendix_results_diagnostics.tex}
 
 \bibliography{references}
 

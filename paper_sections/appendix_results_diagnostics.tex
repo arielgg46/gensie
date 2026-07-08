@@ -1,0 +1,327 @@
+\section{Additional Diagnostic Analyses}
+\label{sec:appendix-retrieval-diagnostics}
+
+This appendix collects aggregate diagnostics that were useful for interpreting the submitted runs but were kept out of the main body to preserve space. We exclude wall-clock-time comparisons and task-level improvement/regression lists. The former cannot be cleanly attributed to our code versus the hosted evaluation backend, and the latter are primarily debugging artifacts.
+
+\subsection{Schema and Retrieval Composition}
+
+The retrieval-only replay uses the same structural schema fingerprint and retrieval logic as the system, but does not call the hosted model. It is therefore useful for characterizing what evidence the RAG pipelines receive, not for measuring end-to-end causal effects.
+
+\begin{table}[!htbp]
+\centering
+\caption{Schema-composition diagnostics over the 145-instance test set.}
+\label{tab:retrieval-diagnostics}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}Xr@{}}
+\toprule
+Quantity & Value \\
+\midrule
+Unique schema fingerprints & 23 \\
+Schema fingerprints seen in development/FSP corpus & 10 (43.5\%) \\
+Schema fingerprints unseen in development/FSP corpus & 13 (56.5\%) \\
+Test instances with seen schema fingerprints & 36 (24.8\%) \\
+Test instances with unseen schema fingerprints & 109 (75.2\%) \\
+Instances routed to same-schema retrieval & 36 \\
+Instances routed to field-aware fallback & 109 \\
+Field-aware instances with pair diagnostics & 99 \\
+Field-aware instances on retrieval-failure path & 10 \\
+Complementary pair differs from independent top-2 & 99/99 \\
+Complementary pair improves field coverage & 48/99 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{Test schemas by development-set overlap.}
+\label{tab:test-schema-overlap}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}llr>{\raggedright\arraybackslash}X@{}}
+\toprule
+Seen & Schema title & Tasks & Domains \\
+\midrule
+Yes & CelestialObjectProperties & 5 & stem \\
+Yes & ContractSummary & 3 & legal \\
+Yes & DiseaseProfile & 6 & medical \\
+Yes & LiteraryWork & 5 & cultural \\
+Yes & MediaReview & 3 & cultural \\
+Yes & MonumentBIC & 2 & cultural \\
+Yes & NamedEntities & 1 & cultural \\
+Yes & NewsArticle & 7 & general \\
+Yes & SoftwareDescription & 2 & technical \\
+Yes & TextAnswer & 2 & cultural \\
+\midrule
+No & AlbumReview & 10 & cultural \\
+No & ArtistProfile & 5 & cultural \\
+No & ClinicalTrialRecord & 8 & medical \\
+No & CourtCaseTimeline & 10 & legal \\
+No & DischargeSummary & 10 & medical \\
+No & EnvironmentalRuling & 7 & environmental \\
+No & LegalInquiry & 6 & legal \\
+No & ObservationLog & 10 & stem \\
+No & PaperArgument & 10 & research \\
+No & SecurityIncident & 10 & technical \\
+No & SentencingLogic & 3 & legal \\
+No & TaxonomicClassification & 10 & stem \\
+No & TheaterPlaybill & 10 & cultural \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{Retrieval route by test domain.}
+\label{tab:retrieval-domain-route}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}Xrrrr@{}}
+\toprule
+Domain & Tasks & Same & Field & Failed \\
+\midrule
+cultural\_album\_review & 10 & 0 & 10 & 0 \\
+cultural\_entities & 1 & 1 & 0 & 0 \\
+cultural\_extraction & 2 & 2 & 0 & 0 \\
+cultural\_literature & 5 & 5 & 0 & 0 \\
+cultural\_media & 3 & 3 & 0 & 0 \\
+cultural\_monuments & 2 & 2 & 0 & 0 \\
+cultural\_people & 5 & 0 & 5 & 0 \\
+cultural\_theater & 10 & 0 & 10 & 0 \\
+environmental\_assessments & 7 & 0 & 7 & 0 \\
+general\_disasters & 7 & 7 & 0 & 0 \\
+legal\_case\_timeline & 10 & 0 & 10 & 0 \\
+legal\_contracts & 3 & 3 & 0 & 0 \\
+legal\_judicial & 3 & 0 & 3 & 0 \\
+legal\_legislation & 6 & 0 & 6 & 0 \\
+medical\_discharge & 10 & 0 & 10 & 0 \\
+medical\_diseases & 6 & 6 & 0 & 0 \\
+medical\_trials & 8 & 0 & 8 & 0 \\
+research\_paper\_argument & 10 & 0 & 10 & 0 \\
+stem\_astronomy & 2 & 2 & 0 & 0 \\
+stem\_astronomy\_detailed & 3 & 3 & 0 & 0 \\
+stem\_biology & 10 & 0 & 10 & 10 \\
+stem\_observations & 10 & 0 & 10 & 0 \\
+technical\_security\_incident & 10 & 0 & 10 & 0 \\
+technical\_software & 2 & 2 & 0 & 0 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{Summary statistics for the same-schema and field-aware retrieval decisions.}
+\label{tab:retrieval-score-diagnostics}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}Xrrrrrr@{}}
+\toprule
+Diagnostic & Min & P25 & Mean & Med. & P75 & Max \\
+\midrule
+Selected same-schema min similarity & .861 & .952 & .958 & .972 & .981 & .993 \\
+Same-schema candidate max similarity & .877 & .959 & .965 & .975 & .989 & .999 \\
+Field pair-score gain vs. independent top-2 & .514 & .660 & .786 & .707 & .920 & 1.104 \\
+Field-score sum loss vs. independent top-2 & .035 & .138 & .246 & .246 & .349 & .527 \\
+Field coverage gain vs. independent top-2 & .000 & .000 & .066 & .000 & .111 & .250 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The same-schema route is stable: all 36 structurally seen cases are routed through it, with mean selected-pair minimum similarity of .958. For the 99 field-aware cases with complete diagnostics, the complementary pair differs from the independent top-2 in every case. This confirms that the fallback is not a nearest-neighbor-only selector; it trades individual field score for pair complementarity. The 10 retrieval-failure cases all use \texttt{TaxonomicClassification}, and are therefore separated from the 99 normal field-aware cases in route-level analyses.
+
+\begin{table}[!htbp]
+\centering
+\caption{Most frequently selected FSP examples in field-aware retrieval. Counts are over the field-aware route only.}
+\label{tab:fsp-hubs}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}Xr@{}}
+\toprule
+FSP example & Selections \\
+\midrule
+medical diseases: streptococcal pharyngitis & 40 \\
+medical drug: ibuprofen & 31 \\
+legal contracts: agricultural machinery sale & 21 \\
+cultural media: mixed series & 20 \\
+environmental ecology: river spill & 20 \\
+cultural literature: city of mirrors & 15 \\
+stem astronomy: Mars & 15 \\
+legal legislation: green patios & 13 \\
+cultural monuments: solana shelters & 13 \\
+lifestyle recipes: eggplants with tahini & 10 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\FloatBarrier
+
+\subsection{RAG versus Baseline: Additional Cuts}
+
+Tables in this subsection compare \textsc{Schema-RAG} against the zero-shot baseline using the existing final results. They report micro-aggregated F1. The task-level improvement and regression lists are intentionally omitted.
+
+\begin{table}[!htbp]
+\centering
+\caption{\textsc{Schema-RAG} versus baseline by seen/unseen split and retrieval route.}
+\label{tab:rag-baseline-route-appendix}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}llrrrr@{}}
+\toprule
+Model & Group & Tasks & Base F1 & RAG F1 & $\Delta$F1 \\
+\midrule
+Gemma & Seen schema & 36 & .653 & .751 & +.098 \\
+Gemma & Unseen schema & 109 & .675 & .747 & +.073 \\
+Gemma & Same-schema route & 36 & .653 & .751 & +.098 \\
+Gemma & Field-RAG route & 99 & .709 & .791 & +.082 \\
+Gemma & Field-RAG route, calls$>$0 & 91 & .747 & .839 & +.092 \\
+\midrule
+Qwen & Seen schema & 36 & .588 & .720 & +.132 \\
+Qwen & Unseen schema & 109 & .657 & .739 & +.082 \\
+Qwen & Same-schema route & 36 & .588 & .720 & +.132 \\
+Qwen & Field-RAG route & 99 & .691 & .782 & +.091 \\
+Qwen & Field-RAG route, calls$>$0 & 90 & .728 & .835 & +.107 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{\textsc{Schema-RAG} versus baseline by gold-key count.}
+\label{tab:rag-complexity-gold}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}llrrrr@{}}
+\toprule
+Model & Gold keys & Tasks & Base F1 & RAG F1 & $\Delta$F1 \\
+\midrule
+Gemma & 1--5 & 12 & .668 & .714 & +.046 \\
+Gemma & 6--8 & 80 & .650 & .711 & +.061 \\
+Gemma & 9+ & 53 & .693 & .795 & +.101 \\
+Qwen & 1--5 & 12 & .590 & .709 & +.119 \\
+Qwen & 6--8 & 80 & .667 & .714 & +.047 \\
+Qwen & 9+ & 53 & .612 & .761 & +.149 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{\textsc{Schema-RAG} versus baseline by number of schema fields.}
+\label{tab:rag-complexity-fields}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}llrrrr@{}}
+\toprule
+Model & Fields & Tasks & Base F1 & RAG F1 & $\Delta$F1 \\
+\midrule
+Gemma & 1--3 & 13 & .063 & .040 & -.023 \\
+Gemma & 4--6 & 32 & .588 & .678 & +.090 \\
+Gemma & 7+ & 100 & .718 & .803 & +.084 \\
+Qwen & 1--3 & 13 & .037 & .051 & +.014 \\
+Qwen & 4--6 & 32 & .628 & .686 & +.057 \\
+Qwen & 7+ & 100 & .675 & .783 & +.108 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\FloatBarrier
+
+The low-field group includes the 10 \texttt{TaxonomicClassification} failures, so its aggregate F1 should not be read as evidence about simple schemas in general. The gold-key cut is less directly tied to this failure mode and shows the largest RAG gains in the highest-key group for both models.
+
+\begin{table}[!htbp]
+\centering
+\caption{\textsc{Schema-RAG} versus baseline by whether the complementary pair increases field coverage.}
+\label{tab:rag-coverage-gain}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}llrrrr@{}}
+\toprule
+Model & Coverage group & Tasks & Base F1 & RAG F1 & $\Delta$F1 \\
+\midrule
+Gemma & No gain & 51 & .720 & .781 & +.061 \\
+Gemma & Positive gain & 48 & .698 & .800 & +.102 \\
+Qwen & No gain & 51 & .673 & .759 & +.086 \\
+Qwen & Positive gain & 48 & .707 & .803 & +.096 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The positive-coverage group has higher \textsc{Schema-RAG} F1 for both models, but this is an exploratory diagnostic: coverage gain is confounded with schema type and with the \texttt{ClinicalTrialRecord} zero-call cases.
+
+\FloatBarrier
+
+\subsection{Self-Consistency: Additional Cuts}
+
+These tables compare \textsc{Mixed-SC} against the available single-call RAG extractors. They report F1 and token differences, but omit wall-clock-time comparisons.
+
+\begin{table}[!htbp]
+\centering
+\caption{\textsc{Mixed-SC} compared with single-call references.}
+\label{tab:mixed-sc-overview-appendix}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}lllrrrr@{}}
+\toprule
+Model & Reference & Scope & Ref. F1 & Mixed F1 & $\Delta$F1 & $\Delta$Tok. \\
+\midrule
+Gemma & Schema-RAG & All & .748 & .743 & -.005 & +8766 \\
+Gemma & Reasoned-RAG & All & .744 & .743 & -.001 & +5533 \\
+Qwen & Schema-RAG & All & .734 & .747 & +.013 & +7641 \\
+\midrule
+Gemma & Schema-RAG & calls$>$0 & .814 & .818 & +.004 & -- \\
+Gemma & Reasoned-RAG & calls$>$0 & .811 & .818 & +.007 & -- \\
+Qwen & Schema-RAG & calls$>$0 & .808 & .814 & +.006 & -- \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{\textsc{Mixed-SC} versus single-call RAG by retrieval route.}
+\label{tab:mixed-sc-route-appendix}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}lllrrrr@{}}
+\toprule
+Model & Reference & Route & Tasks & Ref. F1 & Mixed F1 & $\Delta$F1 \\
+\midrule
+Gemma & Schema-RAG & Same schema & 36 & .751 & .770 & +.020 \\
+Gemma & Schema-RAG & Field-RAG & 99 & .791 & .778 & -.013 \\
+Gemma & Reasoned-RAG & Same schema & 36 & .789 & .770 & -.019 \\
+Gemma & Reasoned-RAG & Field-RAG & 99 & .773 & .778 & +.005 \\
+Qwen & Schema-RAG & Same schema & 36 & .720 & .779 & +.059 \\
+Qwen & Schema-RAG & Field-RAG & 99 & .782 & .780 & -.002 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{\textsc{Mixed-SC} versus single-call RAG by retrieval route, excluding pairs where either side has zero model calls.}
+\label{tab:mixed-sc-route-nonzero-appendix}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}lllrrrr@{}}
+\toprule
+Model & Reference & Route & Tasks & Ref. F1 & Mixed F1 & $\Delta$F1 \\
+\midrule
+Gemma & Schema-RAG & Same schema & 35 & .742 & .785 & +.044 \\
+Gemma & Schema-RAG & Field-RAG & 90 & .840 & .830 & -.010 \\
+Gemma & Reasoned-RAG & Same schema & 35 & .784 & .785 & +.002 \\
+Gemma & Reasoned-RAG & Field-RAG & 90 & .821 & .830 & +.009 \\
+Qwen & Schema-RAG & Same schema & 35 & .734 & .777 & +.043 \\
+Qwen & Schema-RAG & Field-RAG & 90 & .835 & .827 & -.007 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{\textsc{Mixed-SC} versus single-call RAG by complementary-pair coverage group.}
+\label{tab:mixed-sc-coverage-appendix}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}lllrrrr@{}}
+\toprule
+Model & Reference & Coverage group & Tasks & Ref. F1 & Mixed F1 & $\Delta$F1 \\
+\midrule
+Gemma & Schema-RAG & No gain & 51 & .781 & .759 & -.022 \\
+Gemma & Schema-RAG & Positive gain & 48 & .800 & .795 & -.006 \\
+Gemma & Reasoned-RAG & No gain & 51 & .775 & .759 & -.016 \\
+Gemma & Reasoned-RAG & Positive gain & 48 & .770 & .795 & +.024 \\
+Qwen & Schema-RAG & No gain & 51 & .759 & .750 & -.010 \\
+Qwen & Schema-RAG & Positive gain & 48 & .803 & .808 & +.005 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\FloatBarrier
+
+The additional cuts preserve the main-body pattern: \textsc{Mixed-SC} is most useful in same-schema cases and offers smaller or negative gains over \textsc{Schema-RAG} on the field-aware route. Against Gemma \textsc{Reasoned-RAG}, however, \textsc{Mixed-SC} recovers some field-aware performance, especially in the positive-coverage subset. These are aggregate diagnostics, not causal ablations.
