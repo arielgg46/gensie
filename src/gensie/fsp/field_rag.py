@@ -207,6 +207,37 @@ def normalized_schema_fingerprint(schema: JsonDict) -> str:
     return canonical_json(_normalize_schema_for_fingerprint(schema))
 
 
+def same_schema_fsp_cases(
+    task_schema: JsonDict,
+    cases: Iterable[StructuredFspCase],
+) -> tuple[StructuredFspCase, ...]:
+    """Devuelve casos FSP con el mismo fingerprint estructural del schema."""
+    task_fingerprint = normalized_schema_fingerprint(task_schema)
+    return tuple(
+        case
+        for case in cases
+        if normalized_schema_fingerprint(case.schema) == task_fingerprint
+    )
+
+
+def has_same_schema_fsp_cases(
+    task_schema: JsonDict,
+    cases: Iterable[StructuredFspCase],
+    *,
+    min_count: int = 2,
+) -> bool:
+    """Indica si hay suficientes ejemplos same-schema en el corpus FSP."""
+    task_fingerprint = normalized_schema_fingerprint(task_schema)
+    count = 0
+    for case in cases:
+        if normalized_schema_fingerprint(case.schema) != task_fingerprint:
+            continue
+        count += 1
+        if count >= min_count:
+            return True
+    return False
+
+
 def _normalize_schema_for_fingerprint(value: Any, *, parent_key: str | None = None) -> Any:
     if isinstance(value, dict):
         return {
@@ -737,6 +768,8 @@ def rank_fsp_cases_by_field_embeddings(
     embedder: FieldEmbedder | None = None,
     diagnostics: dict[str, Any] | None = None,
     same_schema_similarity_threshold: float = DEFAULT_SAME_SCHEMA_SIMILARITY_THRESHOLD,
+    use_same_schema_phase: bool = True,
+    field_selection: str = "diverse_pair",
 ) -> tuple[FspRetrievalResult, ...]:
     """Rankea casos FSP usando embeddings por campo top-level.
 
@@ -798,7 +831,7 @@ def rank_fsp_cases_by_field_embeddings(
         item for item in same_schema_ranked
         if item.above_threshold
     ]
-    if len(same_schema_available) >= 2:
+    if use_same_schema_phase and len(same_schema_available) >= 2:
         selected_same_schema = tuple(
             sorted(
                 same_schema_available,
@@ -934,7 +967,12 @@ def rank_fsp_cases_by_field_embeddings(
         )
         return results
 
-    selected = _select_field_ranked_cases(ranked, limit)
+    if field_selection == "independent_topk":
+        selected = _select_independent_field_ranked_cases(ranked, limit)
+        selection_method = "field_embeddings_independent_topk"
+    else:
+        selected = _select_field_ranked_cases(ranked, limit)
+        selection_method = "field_embeddings_fallback"
     results = tuple(
         FspRetrievalResult(
             case=item.case,
@@ -955,7 +993,7 @@ def rank_fsp_cases_by_field_embeddings(
                 query_specs,
                 ranked,
                 results,
-                selection_method="field_embeddings_fallback",
+                selection_method=selection_method,
             ),
             same_schema_ranked=same_schema_ranked,
             threshold=same_schema_similarity_threshold,
@@ -1164,6 +1202,15 @@ def _select_field_ranked_cases(
         _select_diverse_field_ranked_cases(remaining, limit - len(selected))
     )
     return tuple(selected[:limit])
+
+
+def _select_independent_field_ranked_cases(
+    ranked: Sequence[FieldRankedCase],
+    limit: int,
+) -> tuple[FieldRankedCase, ...]:
+    if limit <= 0:
+        return ()
+    return tuple(sorted(ranked, key=_field_rank_sort_key)[:limit])
 
 
 def _select_diverse_field_ranked_cases(

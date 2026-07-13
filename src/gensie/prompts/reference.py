@@ -8,7 +8,11 @@ from gensie.fsp.fixed import (
     build_enriched_inline_reasoning_few_shot_example,
     build_inline_reasoning_few_shot_example,
 )
-from gensie.fsp.rag import RagExtractionFspProvider
+from gensie.fsp.rag import (
+    RAG_SELECTION_DEFAULT,
+    RAG_SELECTION_MODE_OPTION,
+    RagExtractionFspProvider,
+)
 from gensie.fsp.super import build_super_fsp_example
 from gensie.pipeline.context import PipelineContext
 from gensie.pipeline.specs import (
@@ -45,7 +49,14 @@ class ReferenceExtractionPromptBuilder(PromptBuilder):
         task = context.task
         if extraction.few_shot is FewShotMode.RAG:
             return ExtractionPromptBuilder(
-                fsp_provider=RagExtractionFspProvider(top_k=2)
+                fsp_provider=RagExtractionFspProvider(
+                    top_k=2,
+                    selection_mode=str(
+                        extraction.options.get(
+                            RAG_SELECTION_MODE_OPTION, RAG_SELECTION_DEFAULT
+                        )
+                    ),
+                )
             ).build(context, extraction)
 
         if extraction.name == "enriched-schema":

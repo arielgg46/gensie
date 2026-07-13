@@ -1,0 +1,155 @@
+\relax 
+\providecommand*\new@tpo@label[2]{}
+\bibstyle{elsarticle-num-names}
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\providecommand\BKM@entry[2]{}
+\BKM@entry{id=1,dest={73656374696F6E2E31},srcline={1}}{5C3337365C3337375C303030315C3030305C3034305C303030495C3030306E5C303030745C303030725C3030306F5C303030645C303030755C303030635C303030745C303030695C3030306F5C3030306E}
+\citation{wen2025effectiveefficientschemaawareinformation}
+\citation{gensie2026overview}
+\citation{iberlef2026overview}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\BKM@entry{id=2,dest={73656374696F6E2E32},srcline={36}}{5C3337365C3337375C303030325C3030305C3034305C303030425C303030615C303030635C3030306B5C303030675C303030725C3030306F5C303030755C3030306E5C303030645C3030305C3034305C303030615C3030306E5C303030645C3030305C3034305C303030525C303030655C3030306C5C303030615C303030745C303030655C303030645C3030305C3034305C303030575C3030306F5C303030725C3030306B}
+\citation{gensie2026overview}
+\citation{wen2025effectiveefficientschemaawareinformation,li2024knowcoder}
+\citation{brown2020language}
+\citation{liu2022what,rubin2022learning}
+\citation{reimers2019sentence}
+\citation{lewis2020retrieval}
+\citation{yao2023schema}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background and Related Work}{2}{section.2}\protected@file@percent }
+\citation{geng2023grammar,geng2025structured}
+\citation{wei2022chain}
+\citation{li2024simple}
+\citation{wang2022selfconsistency}
+\citation{kumar-byrne-2004-minimum}
+\BKM@entry{id=3,dest={73656374696F6E2E33},srcline={48}}{5C3337365C3337375C303030335C3030305C3034305C303030545C303030615C303030735C3030306B5C3030305C3034305C303030535C303030655C303030745C303030745C303030695C3030306E5C30303067}
+\citation{gensie2026overview}
+\citation{gensie2026submission}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Task Setting}{3}{section.3}\protected@file@percent }
+\citation{gensie2026taskdescription}
+\BKM@entry{id=4,dest={73656374696F6E2E34},srcline={1}}{5C3337365C3337375C303030345C3030305C3034305C303030535C303030795C303030735C303030745C303030655C3030306D5C3030305C3034305C3030304F5C303030765C303030655C303030725C303030765C303030695C303030655C30303077}
+\citation{lewis2020retrieval}
+\citation{geng2023grammar,willard2023efficient}
+\@writefile{toc}{\contentsline {section}{\numberline {4}System Overview}{4}{section.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Submitted DRILLER pipelines.}}{4}{table.1}\protected@file@percent }
+\newlabel{tab:pipeline-overview}{{1}{4}{Submitted DRILLER pipelines}{table.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Architecture of the submitted DRILLER pipelines. \texttt  {Schema-RAG} follows the shared single-pass path, \texttt  {Reasoned-RAG} adds temporary reasoning/value wrappers before restoring the original schema, and \texttt  {Mixed-SC} aggregates postprocessed candidates from direct and reasoned trials.}}{4}{figure.1}\protected@file@percent }
+\newlabel{fig:system-architecture}{{1}{4}{Architecture of the submitted DRILLER pipelines. \texttt {Schema-RAG} follows the shared single-pass path, \texttt {Reasoned-RAG} adds temporary reasoning/value wrappers before restoring the original schema, and \texttt {Mixed-SC} aggregates postprocessed candidates from direct and reasoned trials}{figure.1}{}}
+\BKM@entry{id=5,dest={73656374696F6E2E35},srcline={1}}{5C3337365C3337375C303030355C3030305C3034305C303030535C303030635C303030685C303030655C3030306D5C303030615C3030302D5C303030475C303030755C303030695C303030645C303030655C303030645C3030305C3034305C303030505C303030725C3030306F5C3030306D5C303030705C303030745C303030695C3030306E5C30303067}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Schema-Guided Prompting}{5}{section.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Schema transition example from a reduced \texttt  {cultural\_media\_001}. The left panel shows a raw JSON Schema excerpt from the task's \texttt  {target\_schema}; the right panel shows the corresponding selected-field excerpts emitted by the plain compact and reasoned Pydantic-style prompt renderers. The excerpt keeps a string-valued enum field, a nullable field, and field descriptions while omitting root metadata and unrelated fields for space.}}{6}{figure.2}\protected@file@percent }
+\newlabel{fig:schema-transition-example}{{2}{6}{Schema transition example from a reduced \texttt {cultural\_media\_001}. The left panel shows a raw JSON Schema excerpt from the task's \texttt {target\_schema}; the right panel shows the corresponding selected-field excerpts emitted by the plain compact and reasoned Pydantic-style prompt renderers. The excerpt keeps a string-valued enum field, a nullable field, and field descriptions while omitting root metadata and unrelated fields for space}{figure.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Schema rendering footprint over 13 unique development schemas. Values are estimated prompt tokens computed as \(\lceil \mathrm  {characters}/4 \rceil \).}}{7}{table.2}\protected@file@percent }
+\newlabel{tab:schema-footprint}{{2}{7}{Schema rendering footprint over 13 unique development schemas. Values are estimated prompt tokens computed as \(\lceil \mathrm {characters}/4 \rceil \)}{table.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Schema roles in DRILLER. The prompt schema supports model comprehension; the generation schema constrains decoding; the final challenge schema defines the returned interface.}}{7}{table.3}\protected@file@percent }
+\newlabel{tab:schema-roles}{{3}{7}{Schema roles in DRILLER. The prompt schema supports model comprehension; the generation schema constrains decoding; the final challenge schema defines the returned interface}{table.3}{}}
+\BKM@entry{id=6,dest={73656374696F6E2E36},srcline={1}}{5C3337365C3337375C303030365C3030305C3034305C303030465C303030695C303030655C3030306C5C303030645C3030302D5C303030415C303030775C303030615C303030725C303030655C3030305C3034305C303030465C303030655C303030775C3030302D5C303030535C303030685C3030306F5C303030745C3030305C3034305C303030525C303030655C303030745C303030725C303030695C303030655C303030765C303030615C3030306C}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Field-Aware Few-Shot Retrieval}{8}{section.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Two-stage retrieval in DRILLER. The system first attempts same-schema retrieval by filtering candidate demonstrations with a normalized schema fingerprint and ranking surviving cases semantically. A decision node routes directly to same-schema demonstrations when at least two cases pass the threshold; otherwise, field-level fallback scores candidates by type-compatible field similarity and selects a complementary pair. The selected demonstrations are then rendered with either the compact same-schema prompt layout or the general RAG layout.}}{8}{figure.3}\protected@file@percent }
+\newlabel{fig:retrieval-map}{{3}{8}{Two-stage retrieval in DRILLER. The system first attempts same-schema retrieval by filtering candidate demonstrations with a normalized schema fingerprint and ranking surviving cases semantically. A decision node routes directly to same-schema demonstrations when at least two cases pass the threshold; otherwise, field-level fallback scores candidates by type-compatible field similarity and selects a complementary pair. The selected demonstrations are then rendered with either the compact same-schema prompt layout or the general RAG layout}{figure.3}{}}
+\BKM@entry{id=7,dest={73756273656374696F6E2E362E31},srcline={11}}{5C3337365C3337375C303030365C3030302E5C303030315C3030305C3034305C303030435C303030755C303030725C303030615C303030745C303030655C303030645C3030305C3034305C303030445C303030655C3030306D5C3030306F5C3030306E5C303030735C303030745C303030725C303030615C303030745C303030695C3030306F5C3030306E5C3030305C3034305C303030435C3030306F5C303030725C303030705C303030755C30303073}
+\citation{brown2020language}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Curated Demonstration Corpus}{9}{subsection.6.1}\protected@file@percent }
+\BKM@entry{id=8,dest={73756273656374696F6E2E362E32},srcline={67}}{5C3337365C3337375C303030365C3030302E5C303030325C3030305C3034305C303030535C303030615C3030306D5C303030655C3030302D5C303030535C303030635C303030685C303030655C3030306D5C303030615C3030305C3034305C303030525C303030655C303030745C303030725C303030695C303030655C303030765C303030615C3030306C}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Complementary FSP pair for the \texttt  {technical\_software} schema family.}}{10}{table.4}\protected@file@percent }
+\newlabel{tab:technical-software-fsp-pair}{{4}{10}{Complementary FSP pair for the \texttt {technical\_software} schema family}{table.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Same-Schema Retrieval}{10}{subsection.6.2}\protected@file@percent }
+\BKM@entry{id=9,dest={73756273656374696F6E2E362E33},srcline={86}}{5C3337365C3337375C303030365C3030302E5C303030335C3030305C3034305C303030465C303030695C303030655C3030306C5C303030645C3030302D5C3030304C5C303030655C303030765C303030655C3030306C5C3030305C3034305C303030525C303030655C303030745C303030725C303030695C303030655C303030765C303030615C3030306C5C3030305C3034305C303030465C303030615C3030306C5C3030306C5C303030625C303030615C303030635C3030306B}
+\BKM@entry{id=10,dest={73756273656374696F6E2E362E34},srcline={108}}{5C3337365C3337375C303030365C3030302E5C303030345C3030305C3034305C303030435C3030306F5C3030306D5C303030705C3030306C5C303030655C3030306D5C303030655C3030306E5C303030745C303030615C303030725C303030795C3030305C3034305C303030505C303030615C303030695C303030725C3030305C3034305C303030535C303030655C3030306C5C303030655C303030635C303030745C303030695C3030306F5C3030306E}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Field-Level Retrieval Fallback}{11}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Complementary Pair Selection}{11}{subsection.6.4}\protected@file@percent }
+\BKM@entry{id=11,dest={73756273656374696F6E2E362E35},srcline={197}}{5C3337365C3337375C303030365C3030302E5C303030355C3030305C3034305C303030505C303030725C3030306F5C3030306D5C303030705C303030745C3030305C3034305C303030495C3030306E5C303030745C303030655C303030675C303030725C303030615C303030745C303030695C3030306F5C3030306E}
+\BKM@entry{id=12,dest={73656374696F6E2E37},srcline={1}}{5C3337365C3337375C303030375C3030305C3034305C303030525C303030655C303030615C303030735C3030306F5C3030306E5C303030695C3030306E5C303030675C3030302D5C303030415C303030755C303030675C3030306D5C303030655C3030306E5C303030745C303030655C303030645C3030305C3034305C303030455C303030785C303030745C303030725C303030615C303030635C303030745C303030695C3030306F5C3030306E}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Field-aware pair selection as a vector objective. Each axis is a query-field similarity component \(a_i\); actual retrieval vectors are \(m\)-dimensional. A redundant pair concentrates evidence in similar directions, so \(v_1-v_2\) is short. A complementary pair covers different field dimensions, increasing both the joint vector \(v_1+v_2\) and the difference vector \(v_1-v_2\) used by the pair score.}}{12}{figure.4}\protected@file@percent }
+\newlabel{fig:field-aware-pair-selection}{{4}{12}{Field-aware pair selection as a vector objective. Each axis is a query-field similarity component \(a_i\); actual retrieval vectors are \(m\)-dimensional. A redundant pair concentrates evidence in similar directions, so \(v_1-v_2\) is short. A complementary pair covers different field dimensions, increasing both the joint vector \(v_1+v_2\) and the difference vector \(v_1-v_2\) used by the pair score}{figure.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}Prompt Integration}{12}{subsection.6.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Reasoning-Augmented Extraction}{13}{section.7}\protected@file@percent }
+\newlabel{sec:reasoning-augmented-extraction}{{7}{13}{Reasoning-Augmented Extraction}{section.7}{}}
+\BKM@entry{id=13,dest={73656374696F6E2E38},srcline={1}}{5C3337365C3337375C303030385C3030305C3034305C303030505C3030306F5C303030735C303030745C303030705C303030725C3030306F5C303030635C303030655C303030735C303030735C303030695C3030306E5C303030675C3030305C3034305C303030615C3030306E5C303030645C3030305C3034305C3030304F5C303030755C303030745C303030705C303030755C303030745C3030305C3034305C3030304E5C3030306F5C303030725C3030306D5C303030615C3030306C5C303030695C3030307A5C303030615C303030745C303030695C3030306F5C3030306E}
+\BKM@entry{id=14,dest={73656374696F6E2E39},srcline={1}}{5C3337365C3337375C303030395C3030305C3034305C303030485C303030655C303030745C303030655C303030725C3030306F5C303030675C303030655C3030306E5C303030655C3030306F5C303030755C303030735C3030305C3034305C303030535C303030655C3030306C5C303030665C3030302D5C303030435C3030306F5C3030306E5C303030735C303030695C303030735C303030745C303030655C3030306E5C303030635C30303079}
+\BKM@entry{id=15,dest={73756273656374696F6E2E392E31},srcline={3}}{5C3337365C3337375C303030395C3030302E5C303030315C3030305C3034305C3030304D5C3030306F5C303030745C303030695C303030765C303030615C303030745C303030695C3030306F5C3030306E}
+\citation{wang2022selfconsistency}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Postprocessing and Output Normalization}{14}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Heterogeneous Self-Consistency}{14}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1}Motivation}{14}{subsection.9.1}\protected@file@percent }
+\BKM@entry{id=16,dest={73756273656374696F6E2E392E32},srcline={15}}{5C3337365C3337375C303030395C3030302E5C303030325C3030305C3034305C303030435C303030615C3030306E5C303030645C303030695C303030645C303030615C303030745C303030655C3030305C3034305C303030475C303030655C3030306E5C303030655C303030725C303030615C303030745C303030695C3030306F5C3030306E}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Schema-aware heterogeneous self-consistency in DRILLER. Mixed-SC executes a budget-aware prefix of interleaved reasoning-augmented and direct trials, postprocesses valid outputs into the original challenge schema, and aggregates them by schema position rather than by whole-JSON string. Scalar and string positions are selected by support-based clustering, object positions are rebuilt through recursive field-wise aggregation, and array positions use within-trial deduplication, cross-trial item clustering, and recall-biased MBR-style selection. The final JSON is reconstructed in the original schema shape.}}{15}{figure.5}\protected@file@percent }
+\newlabel{fig:mixed-sc-aggregation}{{5}{15}{Schema-aware heterogeneous self-consistency in DRILLER. Mixed-SC executes a budget-aware prefix of interleaved reasoning-augmented and direct trials, postprocesses valid outputs into the original challenge schema, and aggregates them by schema position rather than by whole-JSON string. Scalar and string positions are selected by support-based clustering, object positions are rebuilt through recursive field-wise aggregation, and array positions use within-trial deduplication, cross-trial item clustering, and recall-biased MBR-style selection. The final JSON is reconstructed in the original schema shape}{figure.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2}Candidate Generation}{15}{subsection.9.2}\protected@file@percent }
+\BKM@entry{id=17,dest={73756273656374696F6E2E392E33},srcline={37}}{5C3337365C3337375C303030395C3030302E5C303030335C3030305C3034305C303030535C303030635C303030685C303030655C3030306D5C303030615C3030302D5C303030415C303030775C303030615C303030725C303030655C3030305C3034305C303030525C303030655C303030635C303030755C303030725C303030735C303030695C303030765C303030655C3030305C3034305C303030415C303030675C303030675C303030725C303030655C303030675C303030615C303030745C303030695C3030306F5C3030306E}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.3}Schema-Aware Recursive Aggregation}{16}{subsection.9.3}\protected@file@percent }
+\BKM@entry{id=18,dest={73756273656374696F6E2E392E34},srcline={86}}{5C3337365C3337375C303030395C3030302E5C303030345C3030305C3034305C303030435C3030306C5C303030755C303030735C303030745C303030655C303030725C303030695C3030306E5C303030675C3030305C3034305C303030615C3030306E5C303030645C3030305C3034305C303030535C303030635C303030615C3030306C5C303030615C303030725C3030305C3034305C303030535C303030655C3030306C5C303030655C303030635C303030745C303030695C3030306F5C3030306E}
+\BKM@entry{id=19,dest={73756273656374696F6E2E392E35},srcline={120}}{5C3337365C3337375C303030395C3030302E5C303030355C3030305C3034305C303030415C303030725C303030725C303030615C303030795C3030305C3034305C303030415C303030675C303030675C303030725C303030655C303030675C303030615C303030745C303030695C3030306F5C3030306E}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.4}Clustering and Scalar Selection}{17}{subsection.9.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.5}Array Aggregation}{17}{subsection.9.5}\protected@file@percent }
+\BKM@entry{id=20,dest={73756273656374696F6E2E392E36},srcline={130}}{5C3337365C3337375C303030395C3030302E5C303030365C3030305C3034305C303030525C303030655C303030635C303030615C3030306C5C3030306C5C3030302D5C303030425C303030695C303030615C303030735C303030655C303030645C3030305C3034305C303030535C303030655C3030306C5C303030655C303030635C303030745C303030695C3030306F5C3030306E}
+\citation{kumar-byrne-2004-minimum}
+\BKM@entry{id=21,dest={73756273656374696F6E2E392E37},srcline={169}}{5C3337365C3337375C303030395C3030302E5C303030375C3030305C3034305C303030435C3030306F5C3030306E5C303030735C303030655C303030725C303030765C303030615C303030745C303030695C303030765C303030655C3030306E5C303030655C303030735C303030735C3030305C3034305C303030615C3030306E5C303030645C3030305C3034305C303030465C303030615C303030695C3030306C5C303030755C303030725C303030655C3030305C3034305C3030304D5C3030306F5C303030645C303030655C30303073}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.6}Recall-Biased Selection}{18}{subsection.9.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.7}Conservativeness and Failure Modes}{18}{subsection.9.7}\protected@file@percent }
+\BKM@entry{id=22,dest={73656374696F6E2E3130},srcline={1}}{5C3337365C3337375C303030315C303030305C3030305C3034305C303030455C303030785C303030705C303030655C303030725C303030695C3030306D5C303030655C3030306E5C303030745C303030615C3030306C5C3030305C3034305C303030535C303030655C303030745C303030755C30303070}
+\citation{gensie2026overview}
+\BKM@entry{id=23,dest={73656374696F6E2E3131},srcline={17}}{5C3337365C3337375C303030315C303030315C3030305C3034305C303030525C303030655C303030735C303030755C3030306C5C303030745C303030735C3030305C3034305C303030615C3030306E5C303030645C3030305C3034305C303030415C3030306E5C303030615C3030306C5C303030795C303030735C303030695C30303073}
+\BKM@entry{id=24,dest={73756273656374696F6E2E31312E31},srcline={47}}{5C3337365C3337375C303030315C303030315C3030302E5C303030315C3030305C3034305C303030505C303030695C303030705C303030655C3030306C5C303030695C3030306E5C303030655C3030305C3034305C303030435C3030306F5C3030306D5C303030705C303030615C303030725C303030695C303030735C3030306F5C3030306E5C30303073}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Experimental Setup}{19}{section.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {11}Results and Analysis}{19}{section.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.1}Pipeline Comparisons}{19}{subsection.11.1}\protected@file@percent }
+\BKM@entry{id=25,dest={73756273656374696F6E2E31312E32},srcline={88}}{5C3337365C3337375C303030315C303030315C3030302E5C303030325C3030305C3034305C303030525C303030655C303030745C303030725C303030695C303030655C303030765C303030615C3030306C5C3030305C3034305C303030525C3030306F5C303030755C303030745C303030655C30303073}
+\BKM@entry{id=26,dest={73756273656374696F6E2E31312E33},srcline={114}}{5C3337365C3337375C303030315C303030315C3030302E5C303030335C3030305C3034305C303030525C303030655C303030615C303030735C3030306F5C3030306E5C303030695C3030306E5C303030675C3030305C3034305C303030615C3030306E5C303030645C3030305C3034305C303030535C303030655C3030306C5C303030665C3030302D5C303030435C3030306F5C3030306E5C303030735C303030695C303030735C303030745C303030655C3030306E5C303030635C30303079}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Official DRILLER cells on the 125 scored GenSIE instances. Gap is computed against fixed no-think baselines: Gemma \(F_1=0.7895\), Qwen \(F_1=0.7805\).}}{20}{table.5}\protected@file@percent }
+\newlabel{tab:main-results}{{5}{20}{Official DRILLER cells on the 125 scored GenSIE instances. Gap is computed against fixed no-think baselines: Gemma \(F_1=0.7895\), Qwen \(F_1=0.7805\)}{table.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Best official cell by model and submitted pipeline.}}{20}{table.6}\protected@file@percent }
+\newlabel{tab:best-pipeline-cells}{{6}{20}{Best official cell by model and submitted pipeline}{table.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces \texttt  {Schema-RAG} compared with official no-think baselines on the 125 scored instances.}}{20}{table.7}\protected@file@percent }
+\newlabel{tab:component-deltas}{{7}{20}{\texttt {Schema-RAG} compared with official no-think baselines on the 125 scored instances}{table.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.2}Retrieval Routes}{20}{subsection.11.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.3}Reasoning and Self-Consistency}{20}{subsection.11.3}\protected@file@percent }
+\BKM@entry{id=27,dest={73756273656374696F6E2E31312E34},srcline={120}}{5C3337365C3337375C303030315C303030315C3030302E5C303030345C3030305C3034305C303030465C303030615C303030695C3030306C5C303030755C303030725C303030655C3030305C3034305C303030505C303030615C303030745C303030745C303030655C303030725C3030306E5C30303073}
+\citation{gensie2026overview}
+\BKM@entry{id=28,dest={73656374696F6E2E3132},srcline={1}}{5C3337365C3337375C303030315C303030325C3030305C3034305C3030304C5C303030695C3030306D5C303030695C303030745C303030615C303030745C303030695C3030306F5C3030306E5C30303073}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Best-cell performance by retrieval route after the official drop-set. Same-schema contains 34 scored instances; Field-RAG contains 91 scored instances.}}{21}{table.8}\protected@file@percent }
+\newlabel{tab:route-performance}{{8}{21}{Best-cell performance by retrieval route after the official drop-set. Same-schema contains 34 scored instances; Field-RAG contains 91 scored instances}{table.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.4}Failure Patterns}{21}{subsection.11.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {12}Limitations}{21}{section.12}\protected@file@percent }
+\BKM@entry{id=29,dest={73656374696F6E2E3133},srcline={17}}{5C3337365C3337375C303030315C303030335C3030305C3034305C303030435C3030306F5C3030306E5C303030635C3030306C5C303030755C303030735C303030695C3030306F5C3030306E}
+\@writefile{toc}{\contentsline {section}{\numberline {13}Conclusion}{22}{section.13}\protected@file@percent }
+\BKM@entry{id=30,dest={617070656E6469782E41},srcline={1}}{5C3337365C3337375C303030415C3030305C3034305C303030415C303030645C303030645C303030695C303030745C303030695C3030306F5C3030306E5C303030615C3030306C5C3030305C3034305C303030445C303030695C303030615C303030675C3030306E5C3030306F5C303030735C303030745C303030695C303030635C3030305C3034305C303030415C3030306E5C303030615C3030306C5C303030795C303030735C303030655C30303073}
+\BKM@entry{id=31,dest={73756273656374696F6E2E412E31},srcline={14}}{5C3337365C3337375C303030415C3030302E5C303030315C3030305C3034305C303030535C303030635C303030685C303030655C3030306D5C303030615C3030305C3034305C303030615C3030306E5C303030645C3030305C3034305C303030525C303030655C303030745C303030725C303030695C303030655C303030765C303030615C3030306C5C3030305C3034305C303030435C3030306F5C3030306D5C303030705C3030306F5C303030735C303030695C303030745C303030695C3030306F5C3030306E}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Additional Diagnostic Analyses}{23}{appendix.A}\protected@file@percent }
+\newlabel{sec:appendix-retrieval-diagnostics}{{A}{23}{Additional Diagnostic Analyses}{appendix.A}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.1}Schema and Retrieval Composition}{23}{subsection.A.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Schema-composition diagnostics over the 125 scored instances.}}{23}{table.9}\protected@file@percent }
+\newlabel{tab:retrieval-diagnostics}{{9}{23}{Schema-composition diagnostics over the 125 scored instances}{table.9}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Scored schemas by development-set overlap after the official drop-set.}}{23}{table.10}\protected@file@percent }
+\newlabel{tab:test-schema-overlap}{{10}{23}{Scored schemas by development-set overlap after the official drop-set}{table.10}{}}
+\bibdata{references}
+\bibcite{wen2025effectiveefficientschemaawareinformation}{{1}{2025}{{Wen et~al.}}{{Wen, Liang, Wu, Zhang, and Liu}}}
+\bibcite{gensie2026overview}{{2}{2026}{{Piad-Morffis et~al.}}{{}}}
+\bibcite{iberlef2026overview}{{3}{2026}{{Bonet-Jover et~al.}}{{Bonet-Jover, Gonz{\'a}lez-Barba, and Chiruzzo}}}
+\bibcite{li2024knowcoder}{{4}{2024}{{Li et~al.}}{{Li, Zeng, Zuo, Ren, Liu, Su, Guo, Liu, Li, Hu, Bai, Li, Liu, Yang, Jin, Guo, and Cheng}}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Retrieval route by scored test domain.}}{24}{table.11}\protected@file@percent }
+\newlabel{tab:retrieval-domain-route}{{11}{24}{Retrieval route by scored test domain}{table.11}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Summary statistics for same-schema and field-aware retrieval decisions on scored instances.}}{24}{table.12}\protected@file@percent }
+\newlabel{tab:retrieval-score-diagnostics}{{12}{24}{Summary statistics for same-schema and field-aware retrieval decisions on scored instances}{table.12}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces Most frequently selected FSP examples in field-aware retrieval after the official drop-set. Counts are over the 91 field-aware scored instances.}}{24}{table.13}\protected@file@percent }
+\newlabel{tab:fsp-hubs}{{13}{24}{Most frequently selected FSP examples in field-aware retrieval after the official drop-set. Counts are over the 91 field-aware scored instances}{table.13}{}}
+\bibcite{brown2020language}{{5}{2020}{{Brown et~al.}}{{Brown, Mann, Ryder, Subbiah, Kaplan, Dhariwal, Neelakantan, Shyam, Sastry, Askell, Agarwal, Herbert-Voss, Krueger, Henighan, Child, Ramesh, Ziegler, Wu, Winter, Hesse, Chen, Sigler, Litwin, Gray, Chess, Clark, Berner, McCandlish, Radford, Sutskever, and Amodei}}}
+\bibcite{liu2022what}{{6}{2022}{{Liu et~al.}}{{Liu, Shen, Zhang, Dolan, Carin, and Chen}}}
+\bibcite{rubin2022learning}{{7}{2022}{{Rubin et~al.}}{{Rubin, Herzig, and Berant}}}
+\bibcite{reimers2019sentence}{{8}{2019}{{Reimers and Gurevych}}{{}}}
+\bibcite{lewis2020retrieval}{{9}{2020}{{Lewis et~al.}}{{Lewis, Perez, Piktus, Petroni, Karpukhin, Goyal, K{\"u}ttler, Lewis, Yih, Rockt{\"a}schel, Riedel, and Kiela}}}
+\bibcite{yao2023schema}{{10}{2023}{{Yao et~al.}}{{Yao, Mao, Zhang, Chen, Deng, Chen, and Chen}}}
+\bibcite{geng2023grammar}{{11}{2023}{{Geng et~al.}}{{Geng, Josifoski, Peyrard, and West}}}
+\bibcite{geng2025structured}{{12}{2025}{{Geng et~al.}}{{Geng, Cooper, Moskal, Jenkins, Berman, Ranchin, West, Horvitz, and Nori}}}
+\bibcite{wei2022chain}{{13}{2022}{{Wei et~al.}}{{Wei, Wang, Schuurmans, Bosma, Ichter, Xia, Chi, Le, and Zhou}}}
+\bibcite{li2024simple}{{14}{2024}{{Li et~al.}}{{Li, Ramprasad, and Zhang}}}
+\bibcite{wang2022selfconsistency}{{15}{2022}{{Wang et~al.}}{{Wang, Wei, Schuurmans, Le, Chi, Narang, Chowdhery, and Zhou}}}
+\bibcite{kumar-byrne-2004-minimum}{{16}{2004}{{Kumar and Byrne}}{{}}}
+\bibcite{gensie2026submission}{{17}{2026{}}{{GenSIE Organizers}}{{}}}
+\bibcite{gensie2026taskdescription}{{18}{2026{}}{{GenSIE Organizers}}{{}}}
+\bibcite{willard2023efficient}{{19}{2023}{{Willard and Louf}}{{}}}
+\csxdef{lastpage}{25}
+\global\csname @altsecnumformattrue\endcsname
+\gdef \@abspage@last{25}

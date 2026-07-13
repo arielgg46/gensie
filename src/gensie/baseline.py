@@ -179,6 +179,21 @@ SUBMITTED_PIPELINES = (
     "mixed-extractors-self-consistency-rag",
 )
 
+
+COMPONENT_ANALYSIS_PIPELINES = tuple(
+    name
+    for base_name in ("enriched-schema-rag", "enriched-inline-reasoning-rag")
+    for name in (
+        base_name,
+        f"{base_name}-zero-shot",
+        f"{base_name}-rag-field-top2-independent-non-same-schema",
+        f"{base_name}-rag-same-schema-first",
+        f"{base_name}-rag-same-schema-second",
+        f"{base_name}-free-json",
+    )
+)
+
+
 class OfficialParticipant(Participant):
     def __init__(self, chat_client: ChatClient | None = None):
         default_registry = build_default_registry()
@@ -204,3 +219,32 @@ class OfficialParticipant(Participant):
             return self.pipelines[pipeline_name]
         except KeyError as exc:
             raise KeyError(f"unknown submitted pipeline: {pipeline_name}") from exc
+
+
+class ComponentAnalysisParticipant(Participant):
+    def __init__(self, chat_client: ChatClient | None = None):
+        default_registry = build_default_registry()
+        self.registry = PipelineRegistry()
+        for name in COMPONENT_ANALYSIS_PIPELINES:
+            self.registry.register(default_registry.get(name))
+
+        client = chat_client or _default_chat_client()
+        runner = _runner(client)
+        self.pipelines: dict[str, GenSIEAgent] = {
+            spec.name: ComposablePipelineAgent(spec, runner) for spec in self.registry
+        }
+
+    def get_info(self) -> ParticipantInfo:
+        return ParticipantInfo(
+            team_name="DRILLER",
+            institution="Universidad de La Habana",
+            pipelines=self.registry.pipeline_infos(),
+        )
+
+    def get_agent(self, pipeline_name: str) -> GenSIEAgent:
+        try:
+            return self.pipelines[pipeline_name]
+        except KeyError as exc:
+            raise KeyError(
+                f"unknown component-analysis pipeline: {pipeline_name}"
+            ) from exc

@@ -1,0 +1,131 @@
+\section{System Overview}
+
+The submitted DRILLER system comprises three pipelines: \texttt{Schema-RAG}, \texttt{Reasoned-RAG}, and \texttt{Mixed-SC}. They share a schema-guided extraction architecture and differ in reasoning scaffolds, trial count, and final decision rule. Their submitted interface names are \path{enriched-schema-rag}, \path{enriched-inline-reasoning-rag}, and \path{mixed-extractors-self-consistency-rag}. Non-registered experimental variants are outside the submitted system.
+
+Table~\ref{tab:pipeline-overview} summarizes the final pipelines, all of which use retrieval-augmented prompting over local demonstrations \cite{lewis2020retrieval} and strict structured JSON generation \cite{geng2023grammar,willard2023efficient}.
+
+\begin{table}[!htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Submitted DRILLER pipelines.}
+\label{tab:pipeline-overview}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.18\linewidth}
+>{\raggedright\arraybackslash}p{0.21\linewidth}
+>{\raggedright\arraybackslash}p{0.20\linewidth}
+>{\centering\arraybackslash}p{0.16\linewidth}
+>{\raggedright\arraybackslash}X@{}}
+\toprule
+Alias & Schema view & Reasoning wrapper & Requested trials & Final output \\
+\midrule
+\texttt{Schema-RAG} &
+Pydantic &
+No &
+1 &
+Direct \\
+\texttt{Reasoned-RAG} &
+Reasoned Pydantic &
+Top-level &
+1 &
+Unwrap + direct \\
+\texttt{Mixed-SC} &
+Direct and reasoned &
+Reasoned trials &
+up to 4 &
+Schema-aware SC \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Figure~\ref{fig:system-architecture} traces the shared path from a GenSIE instance to a final JSON object. Given the Spanish source text, extraction instruction, and target JSON Schema, DRILLER renders the schema for prompting, retrieves local demonstrations, constructs a Spanish extraction prompt, requests a structured JSON object from the hosted model, parses and normalizes the output, and optionally aggregates multiple candidates. The returned object always has the original challenge schema shape.
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+  font=\scriptsize,
+  >=Latex,
+  node distance=4mm and 5mm,
+  box/.style={draw, rounded corners=1.5pt, align=center, inner xsep=2pt, inner ysep=3pt, minimum height=7mm},
+  inputbox/.style={box, fill=blue!7, minimum width=16mm},
+  shared/.style={box, fill=green!8, minimum width=18mm},
+  direct/.style={box, fill=cyan!9, minimum width=19mm},
+  reasoned/.style={box, fill=orange!12, minimum width=22mm},
+  mixed/.style={box, fill=violet!10, minimum width=21mm},
+  finalbox/.style={box, fill=gray!12, minimum width=15mm},
+  groupbox/.style={draw, rounded corners=2pt, inner sep=2pt},
+  arrow/.style={->, line width=0.45pt},
+  dashedarrow/.style={->, dashed, line width=0.45pt}
+]
+
+\node[inputbox] (src) {source\\text};
+\node[inputbox, below=of src] (inst) {instruction};
+\node[inputbox, below=of inst] (schema) {target\\JSON Schema};
+\node[groupbox, fit=(src)(inst)(schema), label={[font=\scriptsize\bfseries]above:Input task}] (input) {};
+
+\node[shared, right=7mm of src] (render) {schema\\rendering};
+\node[shared, right=of render] (retrieval) {RAG\\retrieval};
+\node[shared, right=of retrieval] (prompt) {prompt\\construction};
+
+\node[direct, right=of prompt] (genD) {strict JSON\\generation};
+\node[shared, right=of genD] (postD) {deterministic\\postprocessing};
+\node[finalbox, right=of postD] (finalD) {final\\JSON};
+\node[font=\scriptsize\bfseries, above=2mm of genD] (schemaLabel) {\texttt{Schema-RAG}: shared single-pass path};
+
+\node[reasoned, below=8mm of genD] (wrapR) {temporary\\\{reasoning, value\}\\wrappers};
+\node[reasoned, right=of wrapR] (genR) {strict JSON\\generation};
+\node[reasoned, right=of genR] (unwrapR) {schema restoration\\and unwrapping};
+\node[shared, right=of unwrapR] (postR) {deterministic\\postprocessing};
+\node[finalbox, right=of postR] (finalR) {final\\JSON};
+\node[font=\scriptsize\bfseries, above=2mm of wrapR] (reasonLabel) {\texttt{Reasoned-RAG}: wrapper branch};
+
+\node[mixed, below=8mm of wrapR] (trialsM) {up to four\\interleaved trials};
+\node[mixed, right=of trialsM, yshift=5mm] (directM) {direct\\trials};
+\node[mixed, right=of trialsM, yshift=-5mm] (reasonM) {reasoned\\trials};
+\node[mixed, right=8mm of directM, yshift=-5mm] (candM) {postprocessed\\candidates};
+\node[mixed, right=of candM] (aggM) {schema-aware\\aggregation};
+\node[finalbox, right=of aggM] (finalM) {final\\JSON};
+\node[font=\scriptsize\bfseries, above=2mm of trialsM] (mixedLabel) {\texttt{Mixed-SC}: heterogeneous candidate set};
+
+\draw[arrow] (input.east) -- (render.west);
+\draw[arrow] (render) -- (retrieval);
+\draw[arrow] (retrieval) -- (prompt);
+\draw[arrow] (prompt) -- (genD);
+\draw[arrow] (genD) -- (postD);
+\draw[arrow] (postD) -- (finalD);
+
+\draw[dashedarrow] (prompt.south) |- (wrapR.west);
+\draw[arrow] (wrapR) -- (genR);
+\draw[arrow] (genR) -- (unwrapR);
+\draw[arrow] (unwrapR) -- (postR);
+\draw[arrow] (postR) -- (finalR);
+
+\draw[dashedarrow] (prompt.south) |- (trialsM.west);
+\draw[arrow] (trialsM) -- (directM);
+\draw[arrow] (trialsM) -- (reasonM);
+\draw[arrow] (directM.east) -- (candM.west);
+\draw[arrow] (reasonM.east) -- (candM.west);
+\draw[arrow] (candM) -- (aggM);
+\draw[arrow] (aggM) -- (finalM);
+
+\end{tikzpicture}%
+}
+\caption{Architecture of the submitted DRILLER pipelines. \texttt{Schema-RAG} follows the shared single-pass path, \texttt{Reasoned-RAG} adds temporary reasoning/value wrappers before restoring the original schema, and \texttt{Mixed-SC} aggregates postprocessed candidates from direct and reasoned trials.}
+\label{fig:system-architecture}
+\end{figure}
+
+\FloatBarrier
+
+The prompt presents the instance instruction, grounding rules, retrieved examples when available, a Pydantic version of the target schema, and the source text. The rules state that the source text is the only evidence, examples are demonstrations rather than facts for the new instance, enum labels must be used exactly, and unsupported nullable fields should be returned as JSON \texttt{null}. This organization keeps the schema and passage close to generation while making the evidence boundary explicit.
+
+In direct mode, schema rendering shows the JSON Schema as a compact Pydantic-style model: fields become typed attributes, descriptions remain near the fields they define, arrays and nested objects are readable as typed structures, and enums are displayed as literal alternatives. This prompt view is not the formal output contract. The model request also includes a strict JSON Schema response format derived from the target schema, and the final answer is checked against the evaluator-facing schema shape after postprocessing.
+
+Each extraction can include up to two local few-shot demonstrations selected for schema relevance. Same-schema retrieval is used when examples have the same normalized structural schema as the current task; otherwise, DRILLER falls back to field-level matching over field names, descriptions, type classes, and complementary coverage. The selected examples are rendered in the same output style as the current extractor: direct examples for \texttt{Schema-RAG}, reasoning/value examples for \texttt{Reasoned-RAG}, and trial-specific rendering inside \texttt{Mixed-SC}.
+
+Deterministic postprocessing parses JSON, cleans common Unicode artifacts, normalizes strings to \textit{Normalization Form C} (NFC), removes temporary reasoning wrappers when present, and converts the literal string \texttt{"null"} to JSON \texttt{null} only at schema positions where null is allowed. It does not infer missing facts, repair unsupported values, or reinterpret the source text after generation.
+
+\texttt{Schema-RAG} uses the Pydantic-style prompt schema, retrieves demonstrations, requests a strict JSON object, and returns the parsed and normalized object. Because no reasoning wrapper is used, the generated top-level fields already match the final output interface.
+
+\texttt{Reasoned-RAG} follows the same path but temporarily transforms each top-level field into an object with \texttt{reasoning} and \texttt{value} slots during generation. The prompt schema exposes this as a reasoned value, and the response schema requires the wrapper structure. After generation, DRILLER discards the reasoning strings and returns only the values in the original schema shape.
+
+\texttt{Mixed-SC} moves from a single extraction to a heterogeneous candidate set. It requests up to four budget-aware trials: two direct \texttt{Schema-RAG}-style attempts and two reasoning-augmented \texttt{Reasoned-RAG}-style attempts in an interleaved plan. Each completed trial performs its own retrieval, prompt construction, strict generation, and postprocessing. Aggregation receives final-shape JSON candidates, not raw model messages or reasoning traces, and combines them recursively using schema-aware rules for scalars, nulls, objects, and arrays.

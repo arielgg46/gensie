@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from typing import Any, Mapping
 
 from gensie.phases import PipelinePhase, VerbatimEntitiesPhase
-from gensie.fsp.rag import FSP_RETRIEVAL_TRACE_METADATA_KEY
+from gensie.fsp.rag import FSP_RETRIEVAL_TRACE_METADATA_KEY, rag_ablation_skip_reason
 from gensie.pipeline.context import PipelineContext
 from gensie.pipeline.records import AggregationResult, ExtractionResult
 from gensie.pipeline.specs import ExtractionSpec, PhaseKind, PipelineSpec
@@ -26,6 +26,9 @@ from gensie.runtime import (
 )
 from gensie.schemas import coerce_nullable_string_nulls, extract_reasoning_view
 from gensie.schemas.reasoning import unwrap_reasoning_output
+
+
+CONSTRAINED_DECODING_OPTION = "constrained_decoding"
 
 
 @dataclass(frozen=True)
@@ -64,18 +67,30 @@ class SingleExtractionRunner:
         if extraction_override is not None:
             extraction = extraction_override
         self._run_pre_phases(extraction.phases, context)
-        prompt = self.prompt_builder.build(context, extraction)
         options = {**dict(extraction.options), **dict(generation_options or {})}
+        skip_reason = rag_ablation_skip_reason(context, extraction)
+        if skip_reason is not None:
+            _trace_skipped_extraction_step(
+                context,
+                step_name=step_name,
+                error=skip_reason,
+            )
+            return ExtractionResult(output=None, errors=(skip_reason,))
+
+        prompt = self.prompt_builder.build(context, extraction)
         temperature, request_options = _request_generation_options(options)
-        request = ChatRequest(
-            model=context.model,
-            messages=prompt.messages(),
-            response_format=build_json_schema_response_format(
+        response_format = None
+        if _uses_constrained_decoding(options):
+            response_format = build_json_schema_response_format(
                 context.task.target_schema,
                 extraction.reasoning,
                 name=str(options.get("response_format_name") or "extraction"),
                 require_all_properties=_requires_complete_generation_schema(spec),
-            ),
+            )
+        request = ChatRequest(
+            model=context.model,
+            messages=prompt.messages(),
+            response_format=response_format,
             temperature=temperature,
             options=request_options,
             metadata={
@@ -103,7 +118,9 @@ class SingleExtractionRunner:
 
         context.usage.add(response.usage)
         try:
-            raw_output = normalize_model_output_strings(json.loads(response.content))
+            raw_output = normalize_model_output_strings(
+                _load_model_response_json(response.content, options)
+            )
         except (TypeError, json.JSONDecodeError) as exc:
             error = f"Failed to parse model response: {exc}"
             _trace_extraction_step(
@@ -212,6 +229,57 @@ def _request_generation_options(
 
 def _requires_complete_generation_schema(spec: PipelineSpec) -> bool:
     return spec.name != "baseline"
+
+
+def _uses_constrained_decoding(options: Mapping[str, Any]) -> bool:
+    return options.get(CONSTRAINED_DECODING_OPTION) is not False
+
+
+def _load_model_response_json(content: str, options: Mapping[str, Any]) -> Any:
+    if _uses_constrained_decoding(options):
+        return json.loads(content)
+    return _loads_first_complete_json_value(content)
+
+
+def _loads_first_complete_json_value(content: str) -> Any:
+    decoder = json.JSONDecoder()
+    for start, char in enumerate(content):
+        if char not in "[{":
+            continue
+        try:
+            value, _ = decoder.raw_decode(content[start:])
+        except json.JSONDecodeError:
+            continue
+        return value
+    raise json.JSONDecodeError(
+        "No complete JSON value found in model response",
+        content,
+        0,
+    )
+
+
+def _trace_skipped_extraction_step(
+    context: PipelineContext,
+    *,
+    step_name: str,
+    error: str,
+) -> None:
+    completed_at = datetime.now(timezone.utc)
+    trace_step(
+        context.task,
+        step_name,
+        error=error,
+        metrics={
+            "tokens": usage_payload(None),
+            "timings": {
+                "started_at": completed_at.isoformat(),
+                "completed_at": completed_at.isoformat(),
+                "total_duration_ms": 0.0,
+                "time_to_first_token_ms": None,
+                "time_to_first_token_note": "Task skipped before model call.",
+            },
+        },
+    )
 
 
 def _trace_extraction_step(

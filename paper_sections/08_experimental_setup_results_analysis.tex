@@ -1,0 +1,124 @@
+\section{Experimental Setup}
+
+The submitted solution consists of three final pipelines: \texttt{Schema-RAG}, \texttt{Reasoned-RAG}, and \texttt{Mixed-SC}. These correspond to the submitted names \path{enriched-schema-rag}, \path{enriched-inline-reasoning-rag}, and \path{mixed-extractors-self-consistency-rag}. All three use the retrieval and schema-rendering mechanisms described above.
+
+We report the organizer-provided official GenSIE results. The official scoring set contains 125 instances: the released 145-instance gold test set minus a uniform 20-instance drop-set. The excluded groups are 8 \texttt{medical\_trials}, 2 \texttt{cultural\_monuments}, and 10 \texttt{stem\_biology} instances, removed because their schemas could not be scored reliably in the constrained-decoding inference stack. The exclusion is applied uniformly to all systems and to both baselines \cite{gensie2026overview}.
+
+The official leaderboard uses micro-averaged precision, recall, and \(F_1\) over flattened schema leaves. It ranks systems by the average model-specific gap closed,
+\[
+  \max\left(0, \frac{F_1^{system} - F_1^{baseline}}{1 - F_1^{baseline}}\right),
+\]
+using fixed no-think baselines: \(F_1=0.7895\) for Gemma 4 E4B and \(F_1=0.7805\) for Qwen3-14B. For each model, the leaderboard takes the best reported cell for a system, regardless of whether that cell was run in \texttt{think} or \texttt{no-think} mode, but always computes gap closed against these no-think baselines.
+
+We do not report wall-clock-time comparisons. The official reports do not isolate our code from hosted backend latency and small-language-model generation time. Token counts are also omitted from the main tables because the ranking is quality-based and the official summary metrics are computed after the 20-instance filter.
+
+After the drop-set, the scored instances contain 20 unique structural schema fingerprints under the same normalization used by retrieval. Nine fingerprints are present in the development/FSP corpus and account for 34 scored instances; 11 are unseen and account for 91 scored instances. The retrieval replay routes the 34 seen-fingerprint instances to same-schema retrieval and the remaining 91 to field-aware fallback. No retrieval-failure route remains after the official exclusions.
+
+\section{Results and Analysis}
+
+DRILLER ranks first in the official leaderboard, with average gap closed \(0.2158\), reported as 21.6\%. Table~\ref{tab:main-results} lists all official DRILLER cells after deduplicating repeated source events for the same model, pipeline, and mode. The best Gemma cell is \texttt{Mixed-SC} in \texttt{think} mode (\(F_1=0.8285\), 18.5\% gap closed). The best Qwen cell is \texttt{Schema-RAG} in \texttt{no-think} mode (\(F_1=0.8346\), 24.6\% gap closed). These two cells are the pair used for the team-level average.
+
+\begin{table}[!htbp]
+\centering
+\caption{Official DRILLER cells on the 125 scored GenSIE instances. Gap is computed against fixed no-think baselines: Gemma \(F_1=0.7895\), Qwen \(F_1=0.7805\).}
+\label{tab:main-results}
+\scriptsize
+\begin{tabular}{@{}lllrrrr@{}}
+\toprule
+Model & Pipeline & Mode & Prec. & Rec. & \(F_1\) & Gap \\
+\midrule
+Gemma & \texttt{Mixed-SC} & think & .8285 & .8285 & .8285 & 18.5\% \\
+Gemma & \texttt{Schema-RAG} & think & .8256 & .8256 & .8256 & 17.1\% \\
+Gemma & \texttt{Schema-RAG} & no-think & .8211 & .8211 & .8211 & 15.0\% \\
+Gemma & \texttt{Reasoned-RAG} & think & .8249 & .8115 & .8181 & 13.6\% \\
+Gemma & \texttt{Reasoned-RAG} & no-think & .8239 & .8113 & .8176 & 13.3\% \\
+Gemma & \texttt{Mixed-SC} & no-think & .8241 & .8090 & .8165 & 12.8\% \\
+\midrule
+Qwen & \texttt{Schema-RAG} & no-think & .8346 & .8346 & .8346 & 24.6\% \\
+Qwen & \texttt{Reasoned-RAG} & think & .8297 & .8297 & .8297 & 22.4\% \\
+Qwen & \texttt{Reasoned-RAG} & no-think & .8280 & .8280 & .8280 & 21.6\% \\
+Qwen & \texttt{Schema-RAG} & think & .8201 & .8201 & .8201 & 18.0\% \\
+Qwen & \texttt{Mixed-SC} & think & .8177 & .8177 & .8177 & 16.9\% \\
+Qwen & \texttt{Mixed-SC} & no-think & .8129 & .8129 & .8129 & 14.8\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Pipeline Comparisons}
+
+Subsequent comparisons use the best cell for each model and pipeline, following the leaderboard policy. Table~\ref{tab:best-pipeline-cells} shows these cells. \texttt{Schema-RAG} is the strongest single-call pipeline for both models when each pipeline may use its best mode. Relative to the official no-think baselines, best-cell \texttt{Schema-RAG} improves Gemma by \(+0.0361\) \(F_1\) and Qwen by \(+0.0541\) \(F_1\), closing 17.1\% and 24.6\% of the respective baseline gaps. Official per-route baseline reports are not present in the released DRILLER artifacts, so route-level diagnostics below are system-only cuts rather than route-specific baseline deltas.
+
+\begin{table}[!htbp]
+\centering
+\caption{Best official cell by model and submitted pipeline.}
+\label{tab:best-pipeline-cells}
+\scriptsize
+\begin{tabular}{@{}lllrrrr@{}}
+\toprule
+Model & Pipeline & Mode & Prec. & Rec. & \(F_1\) & Gap \\
+\midrule
+Gemma & \texttt{Schema-RAG} & think & .8256 & .8256 & .8256 & 17.1\% \\
+Gemma & \texttt{Reasoned-RAG} & think & .8249 & .8115 & .8181 & 13.6\% \\
+Gemma & \texttt{Mixed-SC} & think & .8285 & .8285 & .8285 & 18.5\% \\
+\midrule
+Qwen & \texttt{Schema-RAG} & no-think & .8346 & .8346 & .8346 & 24.6\% \\
+Qwen & \texttt{Reasoned-RAG} & think & .8297 & .8297 & .8297 & 22.4\% \\
+Qwen & \texttt{Mixed-SC} & think & .8177 & .8177 & .8177 & 16.9\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:component-deltas} isolates the aggregate comparison between \texttt{Schema-RAG} and the official no-think baseline for each model. This is not a controlled ablation of retrieval alone, because \texttt{Schema-RAG} also changes schema rendering and prompt format relative to the organizer baseline. It is nevertheless the clean official comparison between the submitted single-call RAG extractor and the fixed no-think floor used by the leaderboard.
+
+\begin{table}[!htbp]
+\centering
+\caption{\texttt{Schema-RAG} compared with official no-think baselines on the 125 scored instances.}
+\label{tab:component-deltas}
+\scriptsize
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+Model & \texttt{Schema-RAG} mode & Baseline \(F_1\) & System \(F_1\) & \(\Delta F_1\) & Gap \\
+\midrule
+Gemma & think & .7895 & .8256 & +.0361 & 17.1\% \\
+Qwen & no-think & .7805 & .8346 & +.0541 & 24.6\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Retrieval Routes}
+
+Table~\ref{tab:route-performance} reports best-cell performance by retrieval route. Same-schema retrieval covers 34 scored instances, while Field-RAG covers 91. The Field-RAG subset is not a weaker residual subset in the official scores: for every best-cell pipeline, its \(F_1\) is higher than the same-schema subset. This should not be read as a causal advantage of fallback retrieval. The two routes correspond to different schema families after the official drop-set, and the excluded schemas remove the previous retrieval-failure path.
+
+\begin{table}[!htbp]
+\centering
+\caption{Best-cell performance by retrieval route after the official drop-set. Same-schema contains 34 scored instances; Field-RAG contains 91 scored instances.}
+\label{tab:route-performance}
+\scriptsize
+\begin{tabular}{@{}llrrrrrr@{}}
+\toprule
+& & \multicolumn{3}{c}{Same-schema} & \multicolumn{3}{c}{Field-RAG} \\
+\cmidrule(lr){3-5}\cmidrule(l){6-8}
+Model & Pipeline & Prec. & Rec. & \(F_1\) & Prec. & Rec. & \(F_1\) \\
+\midrule
+Gemma & \texttt{Schema-RAG} & .7770 & .7770 & .7770 & .8429 & .8429 & .8429 \\
+Gemma & \texttt{Reasoned-RAG} & .8074 & .8074 & .8074 & .8312 & .8129 & .8220 \\
+Gemma & \texttt{Mixed-SC} & .8067 & .8067 & .8067 & .8363 & .8363 & .8363 \\
+\midrule
+Qwen & \texttt{Schema-RAG} & .7819 & .7819 & .7819 & .8534 & .8534 & .8534 \\
+Qwen & \texttt{Reasoned-RAG} & .7836 & .7836 & .7836 & .8461 & .8461 & .8461 \\
+Qwen & \texttt{Mixed-SC} & .7795 & .7795 & .7795 & .8314 & .8314 & .8314 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Reasoning and Self-Consistency}
+
+Following the best-cell comparison in Table~\ref{tab:best-pipeline-cells}, the temporary reasoning/value interface is an inference-time variant of the shared RAG extractor, but the official cells do not show it overtaking direct \texttt{Schema-RAG}. Best-cell \texttt{Reasoned-RAG} reaches \(F_1=0.8181\) with Gemma and \(F_1=0.8297\) with Qwen, below \texttt{Schema-RAG} in both models. The no-think \texttt{Reasoned-RAG} cells are also below the corresponding \texttt{Schema-RAG} no-think cells for the models where both are available.
+
+\texttt{Mixed-SC} is the best official Gemma cell because the \texttt{think} \texttt{Mixed-SC} run edges ahead of Gemma \texttt{Schema-RAG} by \(+0.0029\) \(F_1\). This does not support a broad claim that self-consistency is robustly beneficial. With Qwen, best-cell \texttt{Mixed-SC} is lower than best-cell \texttt{Schema-RAG} by \(-0.0169\) \(F_1\). In like-for-like no-think comparisons, \texttt{Mixed-SC} is below \texttt{Schema-RAG} for both models: .8165 versus .8211 with Gemma, and .8129 versus .8346 with Qwen. The extra compute and blind resampling in \texttt{Mixed-SC} therefore appear useful for one Gemma thinking cell, but not as a consistent default.
+
+\subsection{Failure Patterns}
+
+The main official scoring caveat is the 20-instance drop-set \cite{gensie2026overview}. It removes two seen-schema \texttt{MonumentBIC} instances and 18 unseen-schema instances from \texttt{ClinicalTrialRecord} and \texttt{TaxonomicClassification}. After this filter, the retrieval replay has no failed retrieval routes, and all 91 fallback instances have field-level pair diagnostics. The remaining errors are semantic and structural extraction errors inside scored instances rather than unscoreable schema-stack failures.
+
+We keep per-domain tables, selected-example hub counts, and retrieval-score distributions in Appendix~\ref{sec:appendix-retrieval-diagnostics}. These diagnostics are useful for interpreting the submitted system, but they are not controlled causal ablations.

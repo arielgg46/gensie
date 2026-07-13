@@ -1,0 +1,150 @@
+\section{Schema-Guided Prompting}
+
+DRILLER treats the schema as part of the task semantics, not only as a formatting constraint: the prompt helps the model interpret each field, while the model request constrains the response to a JSON object.
+
+The extraction prompt asks the model to use the current source text as the only evidence, follow the extraction instruction, and interpret field meanings through the target schema. Retrieved examples are demonstrations of extraction behavior, not evidence for the current input. The answer must be only the requested JSON object, without markdown fences, explanations, or extra text.
+
+The standard prompt sets the role of a precise Spanish information extractor, gives rules for grounding, full schema coverage, exact enum labels, conservative null handling, and requested normalization, then inserts retrieved examples. It renders the current schema in a model-readable form immediately before the source text, keeping the schema and evidence close to generation.
+
+Raw JSON Schema is well suited for validation, but it can be visually heavy inside a prompt. Nested property dictionaries, separate required lists, repeated keywords, and nullable type arrays can obscure the field descriptions that carry extraction semantics. DRILLER therefore renders the schema in a Pydantic-style view. The view is not an executable program and does not replace the target JSON Schema; it is a compact and more readable representation of the current extraction contract.
+
+Object schemas become class-like structures and properties appear as typed attributes. Primitive fields are rendered as familiar scalar types, arrays as list types, enums as literal alternatives, and nested objects as nested or referenced model types. Nullability is shown near the field rather than separated from the definition. Field descriptions are preserved because they often determine the correct behavior: the same type annotation can require copying, normalization, classification, or a short grounded summary depending on the description.
+
+Figure~\ref{fig:schema-transition-example} shows the transformation on a compact excerpt from the \texttt{cultural\_media\_001} development schema. The raw JSON Schema excerpt carries the validation-oriented structure: a definition for the enum, property dictionaries, and nullable alternatives. The right panel shows two Pydantic-style renderings for the same selected fields: the plain compact renderer and the reasoned view. Both define the prompt-only alias \texttt{Nullable[T] = T | null}; the reasoned view additionally defines the generic \texttt{Reasoned[T]} wrapper and changes each root field from \(T\) to \texttt{Reasoned[T]}. Nested structures remain inside the \texttt{value} slot rather than being wrapped recursively.
+
+\begin{figure}[!htbp]
+\centering
+\begin{minipage}[t]{0.485\linewidth}
+\vspace{0pt}
+\begin{tcblisting}{schemaJsonPanel,title={Raw JSON Schema view}}
+{
+  "$defs": {
+    "MediumType": {
+      "enum": [
+        "MOVIE",
+        "BOOK",
+        "TV_SERIES",
+        "VIDEO_GAME"
+      ],
+      "title": "MediumType",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "medium": {
+      "$ref": "#/$defs/MediumType",
+      "description": "The type of media being reviewed"
+    },
+    "director": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The person who directed the film or series",
+      "title": "Director"
+    }
+  }
+}
+\end{tcblisting}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.485\linewidth}
+\vspace{0pt}
+\begin{tcblisting}{schemaPydanticPanel,title={Plain compact Pydantic renderer},height=0.225\textheight}
+Nullable[T] = T | null
+
+MediumType = Literal["MOVIE", "BOOK", "TV_SERIES", "VIDEO_GAME"]
+
+class Output(BaseModel):
+    medium: MediumType = Field(..., description="The type of media being reviewed")
+    director: Nullable[str] = Field(None, description="The person who directed the film or series")
+\end{tcblisting}
+\vspace{0.006\textheight}
+\begin{tcblisting}{schemaPydanticPanel,title={Reasoned Pydantic view},height=0.289\textheight}
+Nullable[T] = T | null
+
+class Reasoned[T](BaseModel):
+    reasoning: str
+    value: T
+
+MediumType = Literal["MOVIE", "BOOK", "TV_SERIES", "VIDEO_GAME"]
+
+class Output(BaseModel):
+    medium: Reasoned[MediumType] = Field(description="The type of media being reviewed")
+    director: Reasoned[Nullable[str]] = Field(description="The person who directed the film or series")
+\end{tcblisting}
+\end{minipage}
+\caption{Schema transition example from a reduced \texttt{cultural\_media\_001}. The left panel shows a raw JSON Schema excerpt from the task's \texttt{target\_schema}; the right panel shows the corresponding selected-field excerpts emitted by the plain compact and reasoned Pydantic-style prompt renderers. The excerpt keeps a string-valued enum field, a nullable field, and field descriptions while omitting root metadata and unrelated fields for space.}
+\label{fig:schema-transition-example}
+\end{figure}
+
+\FloatBarrier
+
+For the 13 unique target-schema structures observed in the development set, deduplicated by canonicalized \texttt{target\_schema} JSON, we measured schema-text footprint. The raw baseline is the indented JSON Schema text produced by the prompt schema renderer. The direct and top-level-reasoned Pydantic rows use the actual schema-view code paths selected by \texttt{SchemaPromptMode.PYDANTIC} and \texttt{SchemaPromptMode.REASONED\_PYDANTIC}. We also report \texttt{render\_plain\_pydantic\_schema}, the same compact prompt-only renderer family used by the reasoned view, but without \texttt{Reasoned[T]} wrappers; this row isolates wrapper overhead from unrelated prelude differences. Size is estimated as \(\lceil \mathrm{characters}/4 \rceil\), matching the character-based token fallback used by DRILLER's trial-budget planner. The measurement estimates prompt footprint only, not model-specific tokenization.
+
+\begin{table}[!htbp]
+\centering
+\small
+\caption{Schema rendering footprint over 13 unique development schemas. Values are estimated prompt tokens computed as \(\lceil \mathrm{characters}/4 \rceil\).}
+\label{tab:schema-footprint}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Rendering & Mean & Median & Min & Max & Mean vs. raw \\
+\midrule
+Raw JSON Schema & 570 & 660 & 109 & 886 & -- \\
+Direct Pydantic view & 276 & 310 & 67 & 385 & -51.6\% \\
+Plain compact Pydantic renderer & 249 & 283 & 41 & 357 & -56.3\% \\
+Reasoned Pydantic view & 272 & 306 & 58 & 378 & -52.2\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+
+Table~\ref{tab:schema-footprint} describes schema text alone, not the complete prompt or completion cost. On these schemas, the class-like view roughly halves the prompt-side schema footprint relative to indented raw JSON Schema. The actual reasoned view is slightly shorter than the actual direct Pydantic view because the direct code path includes import-style boilerplate, while the reasoned prompt renderer uses a prompt-only prelude. In the like-for-like renderer comparison, top-level reasoning wrappers increase the mean footprint from 249 to 272 estimated tokens. The reasoned view remains in the same range because the submitted reasoning mode wraps only top-level fields.
+
+Table~\ref{tab:schema-roles} summarizes the three schema roles in DRILLER. The same target schema is transformed differently when shown to the model, used to constrain decoding, or returned to the evaluator.
+
+\begin{table}[!htbp]
+\centering
+\small
+\caption{Schema roles in DRILLER. The prompt schema supports model comprehension; the generation schema constrains decoding; the final challenge schema defines the returned interface.}
+\label{tab:schema-roles}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.22\linewidth}
+>{\raggedright\arraybackslash}p{0.28\linewidth}
+>{\raggedright\arraybackslash}X@{}}
+\toprule
+Schema role & Where it is used & Function in the system \\
+\midrule
+Prompt schema &
+Text shown inside the extraction prompt &
+Pydantic-style or reasoned Pydantic-style rendering that helps the model interpret field names, descriptions, types, enums, nullability, and nesting. \\
+Generation schema &
+Structured response format sent with the model request &
+Strict JSON Schema used to constrain the generated object; in reasoning mode, temporary wrappers are inserted before generation. \\
+Final challenge schema &
+Shape expected by the evaluator &
+Original task schema after schema restoration when needed and deterministic cleanup; reasoning scaffolds and prompt-only conventions are not returned. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\FloatBarrier
+
+The prompt schema can use class-like declarations, readable nullable notation, and other prompt-only conventions because it communicates the schema to the model. The generation schema has a different role: DRILLER attaches a strict JSON Schema response format to the model request so decoding is constrained toward a JSON object compatible with the requested structure.
+
+For the submitted non-baseline pipelines, declared object properties are required during generation. This reduces field omissions, a common failure mode when a model understands the task but leaves out keys. Requiring keys does not require every value to be substantive. If the target schema permits null, the generated object may include the key with JSON \texttt{null}. The final challenge schema remains the original schema shape; generation-time requiredness is an inference constraint, not permission to fabricate unsupported content.
+
+In direct mode, used by \texttt{Schema-RAG}, the prompt schema is ordinary Pydantic-style rendering and the model produces final values directly. In reasoning mode, used by \texttt{Reasoned-RAG} and the reasoning-augmented trials of \texttt{Mixed-SC}, each top-level field is shown as a reasoned value. The temporary generation schema requires an object with \texttt{reasoning} and \texttt{value} fields for each top-level slot. The \texttt{value} field retains the original type, including enums, arrays, objects, and nullable alternatives.
+
+The reasoning transformation changes the temporary interface without asking for free-form explanation. The model has a structured place to state local evidence or absence before committing to a field value, and schema restoration removes the reasoning text before returning the final object. Direct and reasoned prompting therefore share the same final objective while exposing different intermediate interfaces.
+
+In the general RAG layout, each example carries enough schema context for the model to understand why its output follows from its own source text and schema. In the same-schema layout, selected examples share the normalized target schema, so DRILLER can render the shared schema once and show compact example inputs and outputs. This saves prompt size and lets the examples emphasize contrasting field outcomes under the same structure.
+
+Examples can show how fields are populated, when null or empty arrays are appropriate, and how enum labels or nested structures behave, but their values are not evidence for the current instance. In reasoning mode, retrieved examples are rendered with the same temporary \texttt{\{reasoning, value\}} structure expected from the current extractor; in direct mode, examples use final field values. \texttt{Mixed-SC} applies the appropriate layout separately inside each trial.
+
+Schema-guided prompting in DRILLER combines readable schema presentation, explicit grounded-extraction rules, strict structured generation, and retrieval-aware layout. It makes schema interpretation explicit while returning a complete JSON object compatible with the evaluator-facing schema.

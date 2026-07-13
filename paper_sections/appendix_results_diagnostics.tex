@@ -1,0 +1,152 @@
+\section{Additional Diagnostic Analyses}
+\label{sec:appendix-retrieval-diagnostics}
+
+This appendix reports retrieval and schema-composition diagnostics after applying the official 20-instance drop-set. These diagnostics characterize what the submitted RAG pipelines receive on the 125 scored instances; they are not controlled ablations.
+
+\begingroup
+\setlength{\floatsep}{3pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{4pt plus 1pt minus 1pt}
+\setlength{\intextsep}{3pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{2pt}
+\setlength{\belowcaptionskip}{1pt}
+\renewcommand{\arraystretch}{0.96}
+
+\subsection{Schema and Retrieval Composition}
+
+\begin{table}[!htbp]
+\centering
+\caption{Schema-composition diagnostics over the 125 scored instances.}
+\label{tab:retrieval-diagnostics}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}Xr@{}}
+\toprule
+Quantity & Value \\
+\midrule
+Unique schema fingerprints & 20 \\
+Schema fingerprints seen in development/FSP corpus & 9 (45.0\%) \\
+Schema fingerprints unseen in development/FSP corpus & 11 (55.0\%) \\
+Scored instances with seen schema fingerprints & 34 (27.2\%) \\
+Scored instances with unseen schema fingerprints & 91 (72.8\%) \\
+Instances routed to same-schema retrieval & 34 \\
+Instances routed to field-aware fallback & 91 \\
+Field-aware instances with pair diagnostics & 91 \\
+Field-aware instances on retrieval-failure path & 0 \\
+Complementary pair differs from independent top-2 & 91/91 \\
+Complementary pair improves field coverage & 40/91 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{Scored schemas by development-set overlap after the official drop-set.}
+\label{tab:test-schema-overlap}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}llr>{\raggedright\arraybackslash}X@{}}
+\toprule
+Seen & Schema title & Tasks & Domains \\
+\midrule
+Yes & CelestialObjectProperties & 5 & stem \\
+Yes & ContractSummary & 3 & legal \\
+Yes & DiseaseProfile & 6 & medical \\
+Yes & LiteraryWork & 5 & cultural \\
+Yes & MediaReview & 3 & cultural \\
+Yes & NamedEntities & 1 & cultural \\
+Yes & NewsArticle & 7 & general \\
+Yes & SoftwareDescription & 2 & technical \\
+Yes & TextAnswer & 2 & cultural \\
+\midrule
+No & AlbumReview & 10 & cultural \\
+No & ArtistProfile & 5 & cultural \\
+No & CourtCaseTimeline & 10 & legal \\
+No & DischargeSummary & 10 & medical \\
+No & EnvironmentalRuling & 7 & environmental \\
+No & LegalInquiry & 6 & legal \\
+No & ObservationLog & 10 & stem \\
+No & PaperArgument & 10 & research \\
+No & SecurityIncident & 10 & technical \\
+No & SentencingLogic & 3 & legal \\
+No & TheaterPlaybill & 10 & cultural \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{Retrieval route by scored test domain.}
+\label{tab:retrieval-domain-route}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}Xrrrr@{}}
+\toprule
+Domain & Tasks & Same & Field & Failed \\
+\midrule
+cultural\_album\_review & 10 & 0 & 10 & 0 \\
+cultural\_entities & 1 & 1 & 0 & 0 \\
+cultural\_extraction & 2 & 2 & 0 & 0 \\
+cultural\_literature & 5 & 5 & 0 & 0 \\
+cultural\_media & 3 & 3 & 0 & 0 \\
+cultural\_people & 5 & 0 & 5 & 0 \\
+cultural\_theater & 10 & 0 & 10 & 0 \\
+environmental\_assessments & 7 & 0 & 7 & 0 \\
+general\_disasters & 7 & 7 & 0 & 0 \\
+legal\_case\_timeline & 10 & 0 & 10 & 0 \\
+legal\_contracts & 3 & 3 & 0 & 0 \\
+legal\_judicial & 3 & 0 & 3 & 0 \\
+legal\_legislation & 6 & 0 & 6 & 0 \\
+medical\_discharge & 10 & 0 & 10 & 0 \\
+medical\_diseases & 6 & 6 & 0 & 0 \\
+research\_paper\_argument & 10 & 0 & 10 & 0 \\
+stem\_astronomy & 2 & 2 & 0 & 0 \\
+stem\_astronomy\_detailed & 3 & 3 & 0 & 0 \\
+stem\_observations & 10 & 0 & 10 & 0 \\
+technical\_security\_incident & 10 & 0 & 10 & 0 \\
+technical\_software & 2 & 2 & 0 & 0 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{Summary statistics for same-schema and field-aware retrieval decisions on scored instances.}
+\label{tab:retrieval-score-diagnostics}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}Xrrrrrr@{}}
+\toprule
+Diagnostic & Min & P25 & Mean & Med. & P75 & Max \\
+\midrule
+Selected same-schema min similarity & .861 & .950 & .957 & .971 & .981 & .993 \\
+Same-schema candidate max similarity & .877 & .955 & .964 & .974 & .989 & .999 \\
+Field pair-score gain vs. independent top-2 & .514 & .660 & .786 & .687 & .920 & 1.104 \\
+Field-score sum loss vs. independent top-2 & .035 & .138 & .241 & .246 & .349 & .527 \\
+Field coverage gain vs. independent top-2 & .000 & .000 & .063 & .000 & .111 & .250 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The same-schema route is stable: all 34 structurally seen scored cases are routed through it, with mean selected-pair minimum similarity of .957. For the 91 field-aware cases, the complementary pair differs from the independent top-2 in every case. The fallback therefore trades individual nearest-neighbor score for pair complementarity; coverage improves in 40 of the 91 field-aware instances.
+
+\begin{table}[!htbp]
+\centering
+\caption{Most frequently selected FSP examples in field-aware retrieval after the official drop-set. Counts are over the 91 field-aware scored instances.}
+\label{tab:fsp-hubs}
+\scriptsize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}Xr@{}}
+\toprule
+FSP example & Selections \\
+\midrule
+medical diseases: streptococcal pharyngitis & 46 \\
+cultural media: mixed series & 23 \\
+medical drug: ibuprofen & 23 \\
+cultural literature: city of mirrors & 20 \\
+environmental ecology: river spill & 20 \\
+stem astronomy: Mars & 20 \\
+legal contracts: agricultural machinery sale & 16 \\
+cultural monuments: solana shelters & 13 \\
+legal legislation: green patios & 13 \\
+lifestyle recipes: eggplants with tahini & 10 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\FloatBarrier
+\endgroup

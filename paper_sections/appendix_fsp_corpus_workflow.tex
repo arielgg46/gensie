@@ -1,0 +1,17 @@
+% Stored detail from paper_sections/04_field_aware_few_shot_retrieval.tex.
+% This file is not currently included in main.tex; it is kept for a possible appendix.
+
+\subsection*{Author-in-the-Loop FSP Corpus Construction}
+
+We constructed the final FSP corpus as a compact library of synthetic and manually curated structured cases, organized by development task family and schema family. The corpus used an author-in-the-loop workflow assisted by an agentic LLM coding assistant. The assistant helped inspect candidate task families, draft complementary-case proposals, generate provisional source texts and structured resources, and run structural checks. The authors reviewed and corrected the proposed dualities, source texts, expected outputs, reasoning fields, enriched descriptions, and final JSON resources before inclusion. The workflow was:
+
+\begin{enumerate}
+\item Each development task family became the unit of work because a family bundles a schema, domain, source-text style, vocabulary, and recurring extraction traps.
+\item The assistant inspected the curated development subset first, then consulted the full uncurated development set when more evidence about style, structure, or ambiguity was needed. The full set characterized text length, noise patterns, and extraction behavior, but was not treated as trusted gold output.
+\item The assistant identified useful field-level dualities: nullable value versus grounded non-null value; empty array versus populated array; boolean \texttt{true} versus \texttt{false}; frequent enum label versus an alternative label; direct or near-verbatim text versus grounded summary; explicit value versus distractor or insufficient evidence; and normalized value versus literal mention.
+\item It then proposed two complementary cases for the task or schema family, using a balanced or approximately balanced mask over dual fields as a design heuristic. One case covered one side of several dualities and the second covered the inverse side; qualitative contrasts such as enum A versus enum B or explicit date versus nearby distractor date were handled outside a rigid binary mask.
+\item The authors reviewed this pre-drafting proposal, including selected references, field dualities, complementary mask, and intended case behavior. Full synthetic drafting began only after this gate was accepted.
+\item Under the approved design, the assistant drafted synthetic Spanish source texts, candidate expected outputs, and field-level reasoning. The texts had to ground values, \texttt{null}s, and empty arrays naturally, resemble the reviewed family style, and avoid benchmark-aware phrases that mechanically announced the expected answer or absence.
+\item The authors manually curated the drafted cases before final resource generation, editing source texts, expected outputs, and field-level reasoning. This review checked that each value, \texttt{null}, and empty list was justified by the source text and that the pair contrasted the intended regimes.
+\item After author approval, the assistant generated the final \texttt{StructuredFspCase} JSON resources, including \texttt{field\_examples}, tags, field-level reasoning, and enriched descriptions when applicable. The resources were loaded through the FSP resource loader or equivalent structural checks before retrieval used them.
+\end{enumerate}

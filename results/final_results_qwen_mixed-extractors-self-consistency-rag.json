@@ -1,0 +1,2232 @@
+{
+  "participant": {
+    "team_name": "DRILLER",
+    "institution": "Universidad de La Habana",
+    "pipelines": [
+      {
+        "name": "enriched-schema-rag",
+        "description": "Spanish enriched extraction prompt with a plain Pydantic schema and two retrieved structured FSP examples."
+      },
+      {
+        "name": "enriched-inline-reasoning-rag",
+        "description": "Top-level reasoning/value wrappers with a reasoned Pydantic schema prompt and retrieved structured FSP."
+      },
+      {
+        "name": "mixed-extractors-self-consistency-rag",
+        "description": "Four-trial RAG self-consistency alternating enriched inline reasoning RAG and enriched schema RAG extractors."
+      }
+    ]
+  },
+  "config": {
+    "model": "qwen/qwen3-14b",
+    "pipeline": "mixed-extractors-self-consistency-rag",
+    "data_source": "/home/smaug/DRILLER/gensie/data/test",
+    "details_dir": null,
+    "fsp_field_index": "full",
+    "fsp_field_index_npz": "data/fsp_index/dev_field_embeddings.npz"
+  },
+  "metrics": {
+    "precision": 0.7997447145691249,
+    "recall": 0.7015910849504423,
+    "f1": 0.7474593787179207
+  },
+  "timing": {
+    "n": 145,
+    "avg_elapsed_s": 41.68075306744153,
+    "max_elapsed_s": 100.29142862400477,
+    "over_budget_count": 14,
+    "budget_s": 60.0,
+    "avg_within_budget": true
+  },
+  "token_usage": {
+    "n": 145,
+    "total_input": 1514359,
+    "total_output": 325443,
+    "total_tokens": 1839802,
+    "avg_total_per_instance": 12688.289655172413,
+    "max_total": 22165,
+    "over_target_count": 0,
+    "over_soft_count": 0,
+    "calls_total": 265,
+    "target": 32000,
+    "avg_within_target": true,
+    "source": "header"
+  },
+  "tasks": [
+    {
+      "task_id": "test_cultural_literature_004",
+      "tps": 3.8042855878340203,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 16.745961231001274,
+      "tokens": {
+        "input": 12736,
+        "output": 1599,
+        "total": 14335,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_entities_001",
+      "tps": 0.8,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 29.615857975000836,
+      "tokens": {
+        "input": 10022,
+        "output": 840,
+        "total": 10862,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_environmental_assessments_007",
+      "tps": 4.716214385484263,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 51.83896760099742,
+      "tokens": {
+        "input": 14207,
+        "output": 2867,
+        "total": 17074,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "legal_case_timeline_003",
+      "tps": 4.059687021967765,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 34.18718248300138,
+      "tokens": {
+        "input": 15202,
+        "output": 2321,
+        "total": 17523,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_environmental_assessments_002",
+      "tps": 5.581653884983862,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 42.42145473200071,
+      "tokens": {
+        "input": 14331,
+        "output": 2501,
+        "total": 16832,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_theater_010",
+      "tps": 10.0,
+      "gold_keys": 11,
+      "system_keys": 11,
+      "elapsed_s": 36.27729652200287,
+      "tokens": {
+        "input": 14266,
+        "output": 2493,
+        "total": 16759,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "medical_discharge_003",
+      "tps": 7.150703300718512,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 44.623154562999844,
+      "tokens": {
+        "input": 12148,
+        "output": 2972,
+        "total": 15120,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_people_003",
+      "tps": 8.25,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 46.29312552400006,
+      "tokens": {
+        "input": 15159,
+        "output": 2356,
+        "total": 17515,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_people_002",
+      "tps": 9.0,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 25.204188431998773,
+      "tokens": {
+        "input": 14505,
+        "output": 2361,
+        "total": 16866,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_environmental_assessments_004",
+      "tps": 6.217594469349633,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 28.713331051996647,
+      "tokens": {
+        "input": 16961,
+        "output": 2062,
+        "total": 19023,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_general_disasters_002",
+      "tps": 8.058229994120472,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 35.542229548998876,
+      "tokens": {
+        "input": 12929,
+        "output": 3448,
+        "total": 16377,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_theater_005",
+      "tps": 10.771751155915174,
+      "gold_keys": 11,
+      "system_keys": 11,
+      "elapsed_s": 44.41454440400048,
+      "tokens": {
+        "input": 7702,
+        "output": 2476,
+        "total": 10178,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_biology_008",
+      "tps": 0.0,
+      "gold_keys": 8,
+      "system_keys": 1,
+      "elapsed_s": 20.680789303001802,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_trials_006",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "elapsed_s": 20.903262275001907,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_people_004",
+      "tps": 7.652421617307786,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 47.38914521699917,
+      "tokens": {
+        "input": 16392,
+        "output": 2255,
+        "total": 18647,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "legal_case_timeline_006",
+      "tps": 4.246637817202153,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 45.161913900999934,
+      "tokens": {
+        "input": 15032,
+        "output": 3309,
+        "total": 18341,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "medical_discharge_007",
+      "tps": 7.002241427048679,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 37.48822068500158,
+      "tokens": {
+        "input": 11930,
+        "output": 2890,
+        "total": 14820,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_environmental_assessments_006",
+      "tps": 4.5959952112102895,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 29.814855860000534,
+      "tokens": {
+        "input": 13663,
+        "output": 1556,
+        "total": 15219,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_environmental_assessments_005",
+      "tps": 5.826563967010996,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 26.985935269000038,
+      "tokens": {
+        "input": 11554,
+        "output": 1564,
+        "total": 13118,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_technical_software_002",
+      "tps": 6.607606244737378,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 40.369091583001136,
+      "tokens": {
+        "input": 15242,
+        "output": 2433,
+        "total": 17675,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_extraction_001",
+      "tps": 0.5106011138170244,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 12.906606960001227,
+      "tokens": {
+        "input": 11488,
+        "output": 340,
+        "total": 11828,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_astronomy_detailed_003",
+      "tps": 8.0,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 49.88494817299943,
+      "tokens": {
+        "input": 13726,
+        "output": 2456,
+        "total": 16182,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_legal_contracts_008",
+      "tps": 9.0,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 51.138413144999504,
+      "tokens": {
+        "input": 13060,
+        "output": 2913,
+        "total": 15973,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_astronomy_003",
+      "tps": 7.3421578170192445,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 36.943352268001036,
+      "tokens": {
+        "input": 13788,
+        "output": 1867,
+        "total": 15655,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "legal_case_timeline_009",
+      "tps": 4.236997740882553,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 53.86047072200017,
+      "tokens": {
+        "input": 15304,
+        "output": 3835,
+        "total": 19139,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_diseases_006",
+      "tps": 2.622194896789307,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 30.394942340000853,
+      "tokens": {
+        "input": 15434,
+        "output": 2179,
+        "total": 17613,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "legal_case_timeline_001",
+      "tps": 4.52019670224866,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 80.27515333100018,
+      "tokens": {
+        "input": 9486,
+        "output": 2569,
+        "total": 12055,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "medical_discharge_008",
+      "tps": 7.295916885616206,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 33.29576225499841,
+      "tokens": {
+        "input": 7265,
+        "output": 2723,
+        "total": 9988,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_album_review_003",
+      "tps": 7.277887373300817,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 48.98851468900102,
+      "tokens": {
+        "input": 15741,
+        "output": 2990,
+        "total": 18731,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_media_003",
+      "tps": 7.481375395281072,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 50.972402564999356,
+      "tokens": {
+        "input": 15103,
+        "output": 3294,
+        "total": 18397,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_media_002",
+      "tps": 8.060780996306093,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 45.94081182500304,
+      "tokens": {
+        "input": 14986,
+        "output": 2808,
+        "total": 17794,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "technical_security_incident_001",
+      "tps": 7.1605416687795325,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 75.26849007700002,
+      "tokens": {
+        "input": 10447,
+        "output": 3896,
+        "total": 14343,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_people_001",
+      "tps": 9.0,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 47.2735169660009,
+      "tokens": {
+        "input": 15342,
+        "output": 2470,
+        "total": 17812,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_trials_003",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "elapsed_s": 39.26958363099766,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "legal_case_timeline_007",
+      "tps": 4.597308322605453,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 39.55659614400065,
+      "tokens": {
+        "input": 16076,
+        "output": 3478,
+        "total": 19554,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_theater_006",
+      "tps": 9.996072153004423,
+      "gold_keys": 11,
+      "system_keys": 11,
+      "elapsed_s": 42.04403481099871,
+      "tokens": {
+        "input": 12176,
+        "output": 3422,
+        "total": 15598,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "medical_discharge_006",
+      "tps": 7.369779810643973,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 36.93024307199812,
+      "tokens": {
+        "input": 12086,
+        "output": 3356,
+        "total": 15442,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_theater_004",
+      "tps": 9.012402258115692,
+      "gold_keys": 11,
+      "system_keys": 11,
+      "elapsed_s": 40.92909169500126,
+      "tokens": {
+        "input": 7865,
+        "output": 2827,
+        "total": 10692,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "stem_observations_005",
+      "tps": 8.213319464288105,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 53.661325598000985,
+      "tokens": {
+        "input": 7619,
+        "output": 2891,
+        "total": 10510,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "technical_security_incident_004",
+      "tps": 7.203517831808892,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 74.75710908800102,
+      "tokens": {
+        "input": 10940,
+        "output": 4221,
+        "total": 15161,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_legal_legislation_005",
+      "tps": 3.501449982452484,
+      "gold_keys": 5,
+      "system_keys": 5,
+      "elapsed_s": 43.804135207999934,
+      "tokens": {
+        "input": 14734,
+        "output": 2079,
+        "total": 16813,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_trials_008",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "elapsed_s": 26.874056157997984,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_legal_judicial_004",
+      "tps": 3.1767265643872413,
+      "gold_keys": 5,
+      "system_keys": 5,
+      "elapsed_s": 21.591101150999748,
+      "tokens": {
+        "input": 16024,
+        "output": 1722,
+        "total": 17746,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_general_disasters_004",
+      "tps": 7.213110679533339,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 45.60043944299832,
+      "tokens": {
+        "input": 12920,
+        "output": 2992,
+        "total": 15912,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "research_paper_argument_006",
+      "tps": 5.441903461466998,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 64.68065908999779,
+      "tokens": {
+        "input": 18675,
+        "output": 3490,
+        "total": 22165,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "research_paper_argument_003",
+      "tps": 3.8984169720421527,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 40.49164616000053,
+      "tokens": {
+        "input": 9560,
+        "output": 2533,
+        "total": 12093,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "medical_discharge_002",
+      "tps": 7.377119871954826,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 31.68193006999718,
+      "tokens": {
+        "input": 11908,
+        "output": 2500,
+        "total": 14408,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_album_review_008",
+      "tps": 7.681457767669823,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 40.69166273399969,
+      "tokens": {
+        "input": 9968,
+        "output": 2483,
+        "total": 12451,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "legal_case_timeline_010",
+      "tps": 4.387763131191072,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 62.76898711200192,
+      "tokens": {
+        "input": 9183,
+        "output": 2798,
+        "total": 11981,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "legal_case_timeline_002",
+      "tps": 4.4928227940228975,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 39.46249320700008,
+      "tokens": {
+        "input": 10254,
+        "output": 2671,
+        "total": 12925,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_general_disasters_005",
+      "tps": 8.215379879963905,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 48.04636216299696,
+      "tokens": {
+        "input": 12473,
+        "output": 3429,
+        "total": 15902,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_biology_003",
+      "tps": 0.0,
+      "gold_keys": 8,
+      "system_keys": 1,
+      "elapsed_s": 24.991489867999917,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_literature_005",
+      "tps": 6.0,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 23.087498452001455,
+      "tokens": {
+        "input": 10596,
+        "output": 1453,
+        "total": 12049,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_diseases_004",
+      "tps": 3.403604840249537,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 38.66808770499847,
+      "tokens": {
+        "input": 14541,
+        "output": 2715,
+        "total": 17256,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "technical_security_incident_008",
+      "tps": 6.6404138820409635,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 44.14160143499976,
+      "tokens": {
+        "input": 10850,
+        "output": 2980,
+        "total": 13830,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_general_disasters_006",
+      "tps": 8.386191861984223,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 41.16079221700056,
+      "tokens": {
+        "input": 12244,
+        "output": 2825,
+        "total": 15069,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "research_paper_argument_001",
+      "tps": 5.688812139148665,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 45.2075494769997,
+      "tokens": {
+        "input": 10748,
+        "output": 2537,
+        "total": 13285,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "medical_discharge_010",
+      "tps": 7.269244476118758,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 46.689057703999424,
+      "tokens": {
+        "input": 8238,
+        "output": 2545,
+        "total": 10783,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_technical_software_001",
+      "tps": 7.211439286729081,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 31.63709553800072,
+      "tokens": {
+        "input": 15918,
+        "output": 2104,
+        "total": 18022,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_diseases_002",
+      "tps": 3.0794785758235754,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 43.377597557002446,
+      "tokens": {
+        "input": 19668,
+        "output": 2258,
+        "total": 21926,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_general_disasters_003",
+      "tps": 5.16677057368891,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 35.614267147000646,
+      "tokens": {
+        "input": 13175,
+        "output": 3443,
+        "total": 16618,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_album_review_004",
+      "tps": 6.087931838581125,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 51.64262280899857,
+      "tokens": {
+        "input": 17125,
+        "output": 2468,
+        "total": 19593,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_album_review_007",
+      "tps": 7.92,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 56.4231143299985,
+      "tokens": {
+        "input": 16499,
+        "output": 2859,
+        "total": 19358,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "stem_observations_001",
+      "tps": 8.878009661832476,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 47.54744703600227,
+      "tokens": {
+        "input": 7457,
+        "output": 2926,
+        "total": 10383,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "legal_case_timeline_005",
+      "tps": 4.476270922654234,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 49.790519352001866,
+      "tokens": {
+        "input": 15108,
+        "output": 2754,
+        "total": 17862,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_theater_002",
+      "tps": 9.586666666666666,
+      "gold_keys": 11,
+      "system_keys": 11,
+      "elapsed_s": 45.08609330000036,
+      "tokens": {
+        "input": 12190,
+        "output": 3212,
+        "total": 15402,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_literature_001",
+      "tps": 4.804752850928587,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 32.78536932700081,
+      "tokens": {
+        "input": 12460,
+        "output": 1632,
+        "total": 14092,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "research_paper_argument_010",
+      "tps": 4.983105549482166,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 52.6312150570011,
+      "tokens": {
+        "input": 10902,
+        "output": 2314,
+        "total": 13216,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "technical_security_incident_007",
+      "tps": 7.138730228610637,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 46.3591305810005,
+      "tokens": {
+        "input": 10916,
+        "output": 2821,
+        "total": 13737,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "stem_observations_003",
+      "tps": 8.315689720005683,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 35.59009509799944,
+      "tokens": {
+        "input": 13030,
+        "output": 2679,
+        "total": 15709,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "medical_discharge_005",
+      "tps": 6.212928404325247,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 35.7053557390027,
+      "tokens": {
+        "input": 12006,
+        "output": 3095,
+        "total": 15101,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_biology_001",
+      "tps": 0.0,
+      "gold_keys": 8,
+      "system_keys": 1,
+      "elapsed_s": 4.190164040999662,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_media_001",
+      "tps": 8.518125564162734,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 28.158066894000513,
+      "tokens": {
+        "input": 15253,
+        "output": 3053,
+        "total": 18306,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "research_paper_argument_008",
+      "tps": 4.568333621027949,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 50.22189971100306,
+      "tokens": {
+        "input": 11093,
+        "output": 1997,
+        "total": 13090,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_theater_009",
+      "tps": 10.377003793700597,
+      "gold_keys": 11,
+      "system_keys": 11,
+      "elapsed_s": 43.29304497799967,
+      "tokens": {
+        "input": 7849,
+        "output": 2984,
+        "total": 10833,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_monuments_002",
+      "tps": 5.0,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 39.300970254000276,
+      "tokens": {
+        "input": 5033,
+        "output": 4626,
+        "total": 9659,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_astronomy_detailed_004",
+      "tps": 8.0,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 33.1206848490001,
+      "tokens": {
+        "input": 15308,
+        "output": 2503,
+        "total": 17811,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_legal_judicial_003",
+      "tps": 3.0,
+      "gold_keys": 5,
+      "system_keys": 5,
+      "elapsed_s": 36.114583193000726,
+      "tokens": {
+        "input": 16465,
+        "output": 941,
+        "total": 17406,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_trials_004",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "elapsed_s": 15.421600529996795,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_trials_001",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "elapsed_s": 30.325739038999018,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "stem_observations_008",
+      "tps": 7.910497226717965,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 64.19895443200221,
+      "tokens": {
+        "input": 7974,
+        "output": 2832,
+        "total": 10806,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_general_disasters_007",
+      "tps": 7.769440886381716,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 48.432171852000465,
+      "tokens": {
+        "input": 13067,
+        "output": 3112,
+        "total": 16179,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_legal_judicial_002",
+      "tps": 2.7895087509085443,
+      "gold_keys": 5,
+      "system_keys": 5,
+      "elapsed_s": 23.654809973999363,
+      "tokens": {
+        "input": 16015,
+        "output": 1561,
+        "total": 17576,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_legal_legislation_003",
+      "tps": 4.382843211468264,
+      "gold_keys": 5,
+      "system_keys": 5,
+      "elapsed_s": 49.045547385001555,
+      "tokens": {
+        "input": 15334,
+        "output": 2232,
+        "total": 17566,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "medical_discharge_009",
+      "tps": 5.1908823428339685,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 56.748441312996874,
+      "tokens": {
+        "input": 12122,
+        "output": 3140,
+        "total": 15262,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_diseases_003",
+      "tps": 4.5,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 49.12686010800098,
+      "tokens": {
+        "input": 15422,
+        "output": 3288,
+        "total": 18710,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "research_paper_argument_007",
+      "tps": 5.592635117919394,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 53.868399203998706,
+      "tokens": {
+        "input": 10829,
+        "output": 2823,
+        "total": 13652,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "technical_security_incident_003",
+      "tps": 7.670796633434902,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 47.15965742500339,
+      "tokens": {
+        "input": 10251,
+        "output": 2251,
+        "total": 12502,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "technical_security_incident_009",
+      "tps": 7.149251173352581,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 49.24131976499848,
+      "tokens": {
+        "input": 11219,
+        "output": 2314,
+        "total": 13533,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_monuments_003",
+      "tps": 6.0,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 59.89939094500005,
+      "tokens": {
+        "input": 8340,
+        "output": 4890,
+        "total": 13230,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_album_review_001",
+      "tps": 7.139514718813538,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 58.94408627899975,
+      "tokens": {
+        "input": 15371,
+        "output": 3337,
+        "total": 18708,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "research_paper_argument_004",
+      "tps": 5.728579032707849,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 44.92536975500116,
+      "tokens": {
+        "input": 8145,
+        "output": 2454,
+        "total": 10599,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "stem_observations_006",
+      "tps": 7.96075856248128,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 38.73259065199818,
+      "tokens": {
+        "input": 13162,
+        "output": 3302,
+        "total": 16464,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_biology_010",
+      "tps": 0.0,
+      "gold_keys": 8,
+      "system_keys": 1,
+      "elapsed_s": 26.467793332001747,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "research_paper_argument_002",
+      "tps": 5.865047415174313,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 49.57101144599801,
+      "tokens": {
+        "input": 10601,
+        "output": 4852,
+        "total": 15453,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "technical_security_incident_005",
+      "tps": 6.536332662901385,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 44.55719282499922,
+      "tokens": {
+        "input": 11056,
+        "output": 3411,
+        "total": 14467,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "stem_observations_010",
+      "tps": 8.872104699392885,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 41.23990608200256,
+      "tokens": {
+        "input": 13754,
+        "output": 3001,
+        "total": 16755,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "stem_observations_009",
+      "tps": 8.9,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 44.97929146000024,
+      "tokens": {
+        "input": 8416,
+        "output": 2166,
+        "total": 10582,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "medical_discharge_001",
+      "tps": 6.9893825196787205,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 56.559636023001076,
+      "tokens": {
+        "input": 8226,
+        "output": 2504,
+        "total": 10730,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_theater_003",
+      "tps": 10.949562062551564,
+      "gold_keys": 11,
+      "system_keys": 11,
+      "elapsed_s": 39.85233956999946,
+      "tokens": {
+        "input": 14140,
+        "output": 2867,
+        "total": 17007,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_literature_003",
+      "tps": 4.46805244415784,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 33.00806406599804,
+      "tokens": {
+        "input": 11716,
+        "output": 1617,
+        "total": 13333,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_album_review_009",
+      "tps": 7.623517552483159,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 65.79227394799818,
+      "tokens": {
+        "input": 16501,
+        "output": 3208,
+        "total": 19709,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_biology_009",
+      "tps": 0.0,
+      "gold_keys": 8,
+      "system_keys": 1,
+      "elapsed_s": 12.864860046000103,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_biology_002",
+      "tps": 0.0,
+      "gold_keys": 8,
+      "system_keys": 1,
+      "elapsed_s": 12.42076883900154,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_diseases_001",
+      "tps": 3.585706794306467,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 32.73943863000022,
+      "tokens": {
+        "input": 15342,
+        "output": 2432,
+        "total": 17774,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_trials_007",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "elapsed_s": 30.544537226000102,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_legal_contracts_003",
+      "tps": 6.5445326310086935,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 24.152935324997088,
+      "tokens": {
+        "input": 12910,
+        "output": 2770,
+        "total": 15680,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_album_review_005",
+      "tps": 7.590358203697705,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 29.96689202199923,
+      "tokens": {
+        "input": 9214,
+        "output": 2114,
+        "total": 11328,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "technical_security_incident_010",
+      "tps": 6.663260489830105,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 56.28281518099902,
+      "tokens": {
+        "input": 10662,
+        "output": 2746,
+        "total": 13408,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_legal_legislation_001",
+      "tps": 4.347928044336612,
+      "gold_keys": 5,
+      "system_keys": 5,
+      "elapsed_s": 67.03765864999878,
+      "tokens": {
+        "input": 12764,
+        "output": 2174,
+        "total": 14938,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_theater_007",
+      "tps": 10.0,
+      "gold_keys": 11,
+      "system_keys": 11,
+      "elapsed_s": 55.211433131000376,
+      "tokens": {
+        "input": 7281,
+        "output": 2356,
+        "total": 9637,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "research_paper_argument_009",
+      "tps": 4.1141190259478275,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 65.46707417300058,
+      "tokens": {
+        "input": 11473,
+        "output": 3179,
+        "total": 14652,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_people_005",
+      "tps": 6.8,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 26.58743421499821,
+      "tokens": {
+        "input": 9246,
+        "output": 1534,
+        "total": 10780,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_astronomy_002",
+      "tps": 8.0,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 49.18800728000133,
+      "tokens": {
+        "input": 7558,
+        "output": 1318,
+        "total": 8876,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_legal_legislation_004",
+      "tps": 4.206041603025346,
+      "gold_keys": 5,
+      "system_keys": 5,
+      "elapsed_s": 28.052826778999588,
+      "tokens": {
+        "input": 11765,
+        "output": 1898,
+        "total": 13663,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "medical_discharge_004",
+      "tps": 6.606717819856351,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 52.38430702500045,
+      "tokens": {
+        "input": 7553,
+        "output": 2781,
+        "total": 10334,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_biology_007",
+      "tps": 0.0,
+      "gold_keys": 8,
+      "system_keys": 1,
+      "elapsed_s": 49.62869058100114,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_diseases_005",
+      "tps": 3.181976193094057,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 50.37389803000042,
+      "tokens": {
+        "input": 7659,
+        "output": 1272,
+        "total": 8931,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "stem_observations_002",
+      "tps": 8.53579143471871,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 46.662511578000704,
+      "tokens": {
+        "input": 7252,
+        "output": 2442,
+        "total": 9694,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_general_disasters_001",
+      "tps": 7.620510089904228,
+      "gold_keys": 10,
+      "system_keys": 10,
+      "elapsed_s": 66.41541542300547,
+      "tokens": {
+        "input": 5351,
+        "output": 1721,
+        "total": 7072,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_legal_contracts_005",
+      "tps": 7.0,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 53.18813433100149,
+      "tokens": {
+        "input": 7793,
+        "output": 1653,
+        "total": 9446,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_trials_005",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "elapsed_s": 27.344204525004898,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_extraction_002",
+      "tps": 0.6553989247133191,
+      "gold_keys": 1,
+      "system_keys": 1,
+      "elapsed_s": 38.67663151099987,
+      "tokens": {
+        "input": 9876,
+        "output": 308,
+        "total": 10184,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_theater_001",
+      "tps": 10.935483870967742,
+      "gold_keys": 11,
+      "system_keys": 11,
+      "elapsed_s": 71.05399251600466,
+      "tokens": {
+        "input": 7588,
+        "output": 2084,
+        "total": 9672,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_medical_trials_002",
+      "tps": 0.0,
+      "gold_keys": 10,
+      "system_keys": 1,
+      "elapsed_s": 30.001346979996015,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_astronomy_detailed_005",
+      "tps": 9.0,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 36.450884798003244,
+      "tokens": {
+        "input": 11644,
+        "output": 2092,
+        "total": 13736,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_biology_005",
+      "tps": 0.0,
+      "gold_keys": 8,
+      "system_keys": 1,
+      "elapsed_s": 31.772940139999264,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_album_review_002",
+      "tps": 6.826473365582539,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 100.29142862400477,
+      "tokens": {
+        "input": 9522,
+        "output": 2501,
+        "total": 12023,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "legal_case_timeline_008",
+      "tps": 4.549413430228214,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 74.05874146800488,
+      "tokens": {
+        "input": 9632,
+        "output": 2601,
+        "total": 12233,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_legal_legislation_006",
+      "tps": 4.337770210404323,
+      "gold_keys": 5,
+      "system_keys": 5,
+      "elapsed_s": 34.44468205099838,
+      "tokens": {
+        "input": 11651,
+        "output": 2291,
+        "total": 13942,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "technical_security_incident_002",
+      "tps": 6.4099558911236665,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 45.97939775499981,
+      "tokens": {
+        "input": 9592,
+        "output": 3302,
+        "total": 12894,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "legal_case_timeline_004",
+      "tps": 4.461566165135742,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 58.1183984340023,
+      "tokens": {
+        "input": 8621,
+        "output": 2067,
+        "total": 10688,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_environmental_assessments_001",
+      "tps": 6.175626568591263,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 68.73922005599889,
+      "tokens": {
+        "input": 15729,
+        "output": 1636,
+        "total": 17365,
+        "calls": 2
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_theater_008",
+      "tps": 9.37663415690625,
+      "gold_keys": 11,
+      "system_keys": 11,
+      "elapsed_s": 36.19201159699878,
+      "tokens": {
+        "input": 8115,
+        "output": 2595,
+        "total": 10710,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "stem_observations_004",
+      "tps": 7.751080110524703,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 33.93367174199375,
+      "tokens": {
+        "input": 7758,
+        "output": 2288,
+        "total": 10046,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_album_review_006",
+      "tps": 7.582189788161513,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 31.38313141400431,
+      "tokens": {
+        "input": 9963,
+        "output": 2024,
+        "total": 11987,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_legal_legislation_002",
+      "tps": 0.32081945208769136,
+      "gold_keys": 5,
+      "system_keys": 5,
+      "elapsed_s": 24.40421163100109,
+      "tokens": {
+        "input": 15502,
+        "output": 1276,
+        "total": 16778,
+        "calls": 4
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_environmental_assessments_003",
+      "tps": 5.300153516814662,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 41.74730108399672,
+      "tokens": {
+        "input": 15652,
+        "output": 2533,
+        "total": 18185,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "technical_security_incident_006",
+      "tps": 7.234292923904884,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 55.100334848000784,
+      "tokens": {
+        "input": 10257,
+        "output": 4041,
+        "total": 14298,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_biology_004",
+      "tps": 0.0,
+      "gold_keys": 8,
+      "system_keys": 1,
+      "elapsed_s": 5.703482012999302,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "stem_observations_007",
+      "tps": 8.116148364689622,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 32.05052552599955,
+      "tokens": {
+        "input": 7701,
+        "output": 2611,
+        "total": 10312,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_cultural_literature_002",
+      "tps": 5.5347268316612865,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 23.740087785998185,
+      "tokens": {
+        "input": 9530,
+        "output": 1660,
+        "total": 11190,
+        "calls": 3
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "test_stem_biology_006",
+      "tps": 0.0,
+      "gold_keys": 8,
+      "system_keys": 1,
+      "elapsed_s": 3.660449418995995,
+      "tokens": {
+        "input": 0,
+        "output": 0,
+        "total": 0,
+        "calls": 0
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "cultural_album_review_010",
+      "tps": 7.616998069641851,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 25.647797937999712,
+      "tokens": {
+        "input": 9454,
+        "output": 1901,
+        "total": 11355,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "task_id": "research_paper_argument_005",
+      "tps": 5.428212225591956,
+      "gold_keys": 8,
+      "system_keys": 8,
+      "elapsed_s": 35.101471387002675,
+      "tokens": {
+        "input": 8804,
+        "output": 2821,
+        "total": 11625,
+        "calls": 1
+      },
+      "status": "PASS",
+      "error": null
+    }
+  ]
+}

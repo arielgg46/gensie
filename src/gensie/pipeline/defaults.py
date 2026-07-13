@@ -20,6 +20,16 @@ from gensie.pipeline.specs import (
     SchemaPromptMode,
     TrialGroupSpec,
 )
+from gensie.fsp.rag import (
+    RAG_SELECTION_DEFAULT,
+    RAG_SELECTION_FIELD_TOP2_INDEPENDENT,
+    RAG_SELECTION_MODE_OPTION,
+    RAG_SELECTION_SAME_SCHEMA_FIRST,
+    RAG_SELECTION_SAME_SCHEMA_SECOND,
+    RAG_SKIP_MODE_OPTION,
+    RAG_SKIP_NON_SAME_SCHEMA,
+    RAG_SKIP_SAME_SCHEMA,
+)
 
 
 def default_pipeline_specs() -> tuple[PipelineSpec, ...]:
@@ -97,6 +107,7 @@ def default_pipeline_specs() -> tuple[PipelineSpec, ...]:
                 few_shot=FewShotMode.RAG,
             ),
         ),
+        *_component_ablation_pipeline_specs(),
         PipelineSpec(
             name="verbatim-entities-enriched-inline-reasoning",
             description="Two-call enriched inline reasoning: extract verbatim entities first, then inject the flat entity list into the extraction prompt.",
@@ -447,6 +458,119 @@ def default_pipeline_specs() -> tuple[PipelineSpec, ...]:
     )
 
 
+def _component_ablation_pipeline_specs() -> tuple[PipelineSpec, ...]:
+    bases = (
+        (
+            "enriched-schema-rag",
+            ReasoningMode.NONE,
+            SchemaPromptMode.PYDANTIC,
+            "plain Pydantic schema prompt",
+        ),
+        (
+            "enriched-inline-reasoning-rag",
+            ReasoningMode.TOP_LEVEL,
+            SchemaPromptMode.REASONED_PYDANTIC,
+            "reasoned Pydantic schema prompt",
+        ),
+    )
+    specs: list[PipelineSpec] = []
+    for base_name, reasoning, schema_prompt, prompt_description in bases:
+        specs.extend(
+            (
+                PipelineSpec(
+                    name=f"{base_name}-zero-shot",
+                    description=(
+                        f"Component ablation of {base_name}: {prompt_description} "
+                        "without FSP examples."
+                    ),
+                    extraction=ExtractionSpec(
+                        name=f"{base_name}-zero-shot",
+                        reasoning=reasoning,
+                        schema_prompt=schema_prompt,
+                        few_shot=FewShotMode.NONE,
+                    ),
+                    metadata={"component_analysis": "rag_zero_shot"},
+                ),
+                PipelineSpec(
+                    name=f"{base_name}-rag-field-top2-independent-non-same-schema",
+                    description=(
+                        f"Component ablation of {base_name}: skip same-schema "
+                        "tasks and use the two highest independent field-RAG "
+                        "scores for non-same-schema tasks."
+                    ),
+                    extraction=ExtractionSpec(
+                        name=(
+                            f"{base_name}-rag-field-top2-independent-non-same-schema"
+                        ),
+                        reasoning=reasoning,
+                        schema_prompt=schema_prompt,
+                        few_shot=FewShotMode.RAG,
+                        options={
+                            RAG_SELECTION_MODE_OPTION: (
+                                RAG_SELECTION_FIELD_TOP2_INDEPENDENT
+                            ),
+                            RAG_SKIP_MODE_OPTION: RAG_SKIP_SAME_SCHEMA,
+                        },
+                    ),
+                    metadata={"component_analysis": "rag_field_top2_independent"},
+                ),
+                PipelineSpec(
+                    name=f"{base_name}-rag-same-schema-first",
+                    description=(
+                        f"Component ablation of {base_name}: skip non-same-schema "
+                        "tasks and use only the first same-schema corpus example."
+                    ),
+                    extraction=ExtractionSpec(
+                        name=f"{base_name}-rag-same-schema-first",
+                        reasoning=reasoning,
+                        schema_prompt=schema_prompt,
+                        few_shot=FewShotMode.RAG,
+                        options={
+                            RAG_SELECTION_MODE_OPTION: RAG_SELECTION_SAME_SCHEMA_FIRST,
+                            RAG_SKIP_MODE_OPTION: RAG_SKIP_NON_SAME_SCHEMA,
+                        },
+                    ),
+                    metadata={"component_analysis": "rag_same_schema_first"},
+                ),
+                PipelineSpec(
+                    name=f"{base_name}-rag-same-schema-second",
+                    description=(
+                        f"Component ablation of {base_name}: skip non-same-schema "
+                        "tasks and use only the second same-schema corpus example."
+                    ),
+                    extraction=ExtractionSpec(
+                        name=f"{base_name}-rag-same-schema-second",
+                        reasoning=reasoning,
+                        schema_prompt=schema_prompt,
+                        few_shot=FewShotMode.RAG,
+                        options={
+                            RAG_SELECTION_MODE_OPTION: RAG_SELECTION_SAME_SCHEMA_SECOND,
+                            RAG_SKIP_MODE_OPTION: RAG_SKIP_NON_SAME_SCHEMA,
+                        },
+                    ),
+                    metadata={"component_analysis": "rag_same_schema_second"},
+                ),
+                PipelineSpec(
+                    name=f"{base_name}-free-json",
+                    description=(
+                        f"Constrained-decoding ablation of {base_name}: free text "
+                        "generation followed by extraction of the first complete "
+                        "valid JSON value in the response."
+                    ),
+                    extraction=ExtractionSpec(
+                        name=f"{base_name}-free-json",
+                        reasoning=reasoning,
+                        schema_prompt=schema_prompt,
+                        few_shot=FewShotMode.RAG,
+                        options={"constrained_decoding": False},
+                    ),
+                    metadata={"component_analysis": "free_json_decoding"},
+                ),
+            )
+        )
+    return tuple(specs)
+
+
 def build_default_registry() -> PipelineRegistry:
     registry = PipelineRegistry()
     for spec in default_pipeline_specs():
@@ -461,5 +585,12 @@ def default_fsp_provider_for(spec: PipelineSpec) -> FSPProvider:
     if few_shot is FewShotMode.SUPER_STATIC:
         return super_static_provider()
     if few_shot is FewShotMode.RAG:
-        return RagExtractionFspProvider(top_k=2)
+        return RagExtractionFspProvider(
+            top_k=2,
+            selection_mode=str(
+                spec.extraction.options.get(
+                    RAG_SELECTION_MODE_OPTION, RAG_SELECTION_DEFAULT
+                )
+            ),
+        )
     return NoFSPProvider()

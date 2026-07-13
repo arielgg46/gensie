@@ -1,0 +1,290 @@
+\definecolor{mixedfigblue}{RGB}{58,86,112}
+\definecolor{mixedfigteal}{RGB}{70,112,104}
+\definecolor{mixedfiggold}{RGB}{148,122,58}
+\definecolor{mixedfigviolet}{RGB}{103,82,124}
+\definecolor{mixedfigline}{RGB}{78,78,78}
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+  font=\scriptsize,
+  >=Latex,
+  line cap=round,
+  line join=round,
+  panel/.style={
+    draw=black!36,
+    fill=black!2,
+    rounded corners=4pt,
+    line width=0.46pt
+  },
+  module/.style={
+    draw=black!32,
+    fill=white,
+    rounded corners=3pt,
+    line width=0.40pt
+  },
+  card/.style={
+    draw=black!48,
+    fill=white,
+    rounded corners=2.6pt,
+    line width=0.42pt
+  },
+  title/.style={
+    draw=black!44,
+    fill=white,
+    rounded corners=2pt,
+    line width=0.34pt,
+    inner xsep=2.6pt,
+    inner ysep=1.2pt,
+    font=\scriptsize\bfseries
+  },
+  badge/.style={
+    draw=black!40,
+    fill=white,
+    rounded corners=2pt,
+    line width=0.32pt,
+    inner xsep=2.1pt,
+    inner ysep=0.9pt,
+    font=\scriptsize\bfseries
+  },
+  chip/.style={
+    draw=black!34,
+    fill=black!4,
+    rounded corners=1.8pt,
+    line width=0.28pt,
+    inner xsep=1.8pt,
+    inner ysep=0.8pt,
+    font=\scriptsize
+  },
+  mini/.style={
+    draw=black!30,
+    fill=black!3,
+    rounded corners=1.6pt,
+    line width=0.26pt,
+    inner xsep=1.5pt,
+    inner ysep=0.8pt,
+    font=\scriptsize,
+    align=center
+  },
+  note/.style={
+    font=\scriptsize,
+    text=black!70,
+    align=center
+  },
+  flow/.style={
+    -{Latex[length=2.0mm]},
+    draw=mixedfigline,
+    line width=0.66pt
+  },
+  softflow/.style={
+    -{Latex[length=1.9mm]},
+    draw=mixedfigteal,
+    line width=0.58pt,
+    densely dashed
+  },
+  strongflow/.style={
+    -{Latex[length=2.1mm]},
+    draw=mixedfigblue,
+    line width=0.82pt
+  }
+]
+
+% Deliberate grid:
+% Canvas: x 0..17.45, y 0..12.00.
+% Top row: y 7.35..11.80, bottom row: y 0.35..6.90.
+% Left workflow: x 0.10..13.70, output panel: x 14.05..17.35.
+\node[panel, minimum width=4.10cm, minimum height=4.45cm, anchor=south west] (trialsPanel) at (0.10,7.35) {};
+\node[panel, fill=mixedfigteal!4, minimum width=2.70cm, minimum height=4.45cm, anchor=south west] (gatePanel) at (4.45,7.35) {};
+\node[panel, fill=mixedfigblue!3, minimum width=6.35cm, minimum height=4.45cm, anchor=south west] (schemaPanel) at (7.35,7.35) {};
+\node[panel, fill=black!1, minimum width=3.30cm, minimum height=5.45cm, anchor=south west] (outputPanel) at (14.05,3.10) {};
+\node[panel, minimum width=13.60cm, minimum height=6.55cm, anchor=south west] (consPanel) at (0.10,0.35) {};
+
+% Panel titles.
+\node[title, anchor=west] at (0.32,11.54) {Candidate trials};
+\node[title, align=center, text width=2.10cm] at (5.80,11.54) {Valid outputs};
+\node[title, anchor=west] at (7.58,11.54) {Schema tree};
+\node[title, anchor=west] at (14.32,8.28) {Final JSON};
+
+% Candidate trials.
+\node[badge, draw=mixedfigviolet!70!black, fill=mixedfigviolet!7, anchor=west] at (0.34,11.18)
+  {\(\pi=(E_R,E_D,E_R,E_D)\)};
+\node[font=\scriptsize, text=black!58, anchor=west] at (0.34,10.76) {up to 4 trials};
+
+\node[card, draw=mixedfigviolet!75!black, fill=mixedfigviolet!7, minimum width=3.50cm, minimum height=0.56cm, anchor=west] (t1) at (0.42,10.18) {};
+\node[font=\scriptsize\bfseries, anchor=west] at (0.62,10.18) {T1 Reasoned};
+\node[chip, fill=white, anchor=east] at (3.64,10.18) {\(y_1\)};
+
+\node[card, draw=mixedfigblue!75!black, fill=mixedfigblue!6, dashed, minimum width=3.50cm, minimum height=0.56cm, anchor=west] (t2) at (0.42,9.40) {};
+\node[font=\scriptsize\bfseries, anchor=west] at (0.62,9.40) {T2 Direct};
+\node[chip, fill=white, anchor=east] at (3.64,9.40) {\(y_2\)};
+
+\node[card, draw=mixedfigviolet!75!black, fill=mixedfigviolet!7, minimum width=3.50cm, minimum height=0.56cm, anchor=west] (t3) at (0.42,8.62) {};
+\node[font=\scriptsize\bfseries, anchor=west] at (0.62,8.62) {T3 Reasoned};
+\node[chip, fill=white, anchor=east] at (3.64,8.62) {\(y_3\)};
+
+\node[card, draw=mixedfigblue!75!black, fill=mixedfigblue!6, dashed, minimum width=3.50cm, minimum height=0.56cm, anchor=west] (t4) at (0.42,7.84) {};
+\node[font=\scriptsize\bfseries, anchor=west] at (0.62,7.84) {T4 Direct};
+\node[chip, fill=white, anchor=east] at (3.64,7.84) {\(y_4\)};
+
+% Postprocessing gate.
+\node[card, draw=mixedfigteal!65!black, fill=white, minimum width=1.52cm, minimum height=0.34cm] (parse) at (5.80,10.70) {parse};
+\node[card, draw=mixedfigteal!65!black, fill=white, minimum width=1.52cm, minimum height=0.34cm] (unwrap) at (5.80,10.10) {unwrap};
+\node[card, draw=mixedfigteal!65!black, fill=white, minimum width=1.52cm, minimum height=0.34cm] (norm) at (5.80,9.50) {normalize};
+\node[card, draw=mixedfigteal!65!black, fill=white, minimum width=1.52cm, minimum height=0.34cm] (valid) at (5.80,8.90) {validate};
+\draw[flow] (parse.south) -- (unwrap.north);
+\draw[flow] (unwrap.south) -- (norm.north);
+\draw[flow] (norm.south) -- (valid.north);
+\node[card, draw=mixedfigteal!65!black, fill=mixedfigteal!7, align=center, text width=2.16cm, minimum height=0.68cm] (Ycard) at (5.80,8.02)
+  {\(\mathcal{Y}=\{(i,y_i):\)\\\(\operatorname{valid}_S(y_i)\}\)};
+
+% Top-row flow.
+\coordinate (trialsOut) at (4.20,10.70);
+\draw[softflow] (trialsOut) -- (parse.west);
+
+% Schema tree.
+\node[badge, draw=mixedfigblue!70!black, fill=white] at (10.48,11.06) {visit fields};
+
+\node[card, draw=mixedfigblue!70!black, fill=mixedfigblue!8, minimum width=1.75cm, minimum height=0.42cm] (root) at (10.48,10.34) {root object};
+\node[mini, fill=white, minimum width=1.58cm] (cityNode) at (8.55,9.55) {city:\\string\(\mid\)null};
+\node[mini, fill=white, minimum width=1.45cm] (metaNode) at (10.48,9.55) {details:\\object};
+\node[mini, fill=white, minimum width=1.45cm] (itemsNode) at (12.35,9.55) {items:\\array};
+\node[mini, minimum width=0.70cm] (nameNode) at (9.70,8.65) {name};
+\node[mini, minimum width=0.70cm] (dateNode) at (10.48,8.65) {date};
+\node[mini, minimum width=0.78cm] (flagNode) at (11.26,8.65) {status};
+\coordinate (rootBus) at (10.48,9.96);
+\draw[draw=mixedfigline, line width=0.55pt] (root.south) -- (rootBus);
+\draw[draw=mixedfigline, line width=0.55pt] (8.55,9.96) -- (12.35,9.96);
+\draw[flow] (8.55,9.96) -- (cityNode.north);
+\draw[flow] (10.48,9.96) -- (metaNode.north);
+\draw[flow] (12.35,9.96) -- (itemsNode.north);
+\coordinate (detailBus) at (10.48,9.06);
+\draw[draw=mixedfigline, line width=0.55pt] (metaNode.south) -- (detailBus);
+\draw[draw=mixedfigline, line width=0.55pt] (9.70,9.06) -- (11.26,9.06);
+\draw[flow] (9.70,9.06) -- (nameNode.north);
+\draw[flow] (10.48,9.06) -- (dateNode.north);
+\draw[flow] (11.26,9.06) -- (flagNode.north);
+\node[badge, draw=mixedfigblue!60!black, fill=white] (dispatch) at (10.48,7.78) {choose rule};
+\draw[strongflow] (Ycard.east) -- ++(0.62,0) |- (root.west);
+
+% Bottom modules.
+\node[module, fill=mixedfigblue!3, minimum width=3.95cm, minimum height=5.70cm, anchor=south west] (scalarMod) at (0.35,0.72) {};
+\node[module, fill=mixedfigteal!3, minimum width=3.70cm, minimum height=5.70cm, anchor=south west] (objectMod) at (4.55,0.72) {};
+\node[module, fill=mixedfiggold!4, minimum width=5.05cm, minimum height=5.70cm, anchor=south west] (arrayMod) at (8.50,0.72) {};
+
+% Dispatch arrows routed through the row gap.
+\coordinate (dispatchBus) at (10.48,7.00);
+\coordinate (scalarEntry) at (2.30,6.43);
+\coordinate (objectEntry) at (6.40,6.43);
+\coordinate (arrayEntry) at (11.05,6.43);
+\draw[softflow] (dispatch.south) -- (dispatchBus);
+\draw[softflow] (dispatchBus) -| (scalarEntry);
+\draw[softflow] (dispatchBus) -| (objectEntry);
+\draw[softflow] (dispatchBus) -| (arrayEntry);
+
+% Scalar module.
+\node[title, draw=mixedfigblue!65!black, anchor=west] at (0.60,6.02) {Scalars / strings};
+\node[chip, draw=mixedfigblue!60!black, fill=white, anchor=west] at (0.66,5.62) {candidate values};
+\node[chip, fill=white, anchor=west] at (0.66,5.20) {T1: ``Madrid''};
+\node[chip, fill=white, anchor=west] at (2.34,5.20) {T2: ``madrid''};
+\node[chip, fill=white, anchor=west] at (0.66,4.76) {T3: null};
+\node[chip, fill=white, anchor=west] at (2.34,4.76) {T4: ``Madrid''};
+\node[card, draw=mixedfigblue!65!black, fill=mixedfigblue!8, minimum width=1.86cm, minimum height=0.48cm] at (1.50,4.06) {same/similar: 3};
+\node[card, draw=black!35, fill=black!5, minimum width=1.08cm, minimum height=0.42cm] at (3.30,4.06) {null: 1};
+\node[note, align=left, anchor=west] at (0.66,3.02) {strings use a medoid};
+\node[note, align=left, anchor=west] at (0.66,2.68) {null only if most supported};
+\node[chip, draw=mixedfigblue!70!black, fill=mixedfigblue!8] (scalarOut) at (2.30,1.82) {city = ``Madrid''};
+
+% Object module.
+\node[title, draw=mixedfigteal!65!black, anchor=west] at (4.82,6.02) {Objects};
+\node[chip, draw=mixedfigteal!60!black, fill=white, anchor=west] at (4.88,5.62) {field keys};
+\node[card, draw=mixedfigteal!60!black, fill=mixedfigteal!8, minimum width=0.92cm, minimum height=0.50cm] (metaIn) at (5.08,4.82) {object};
+\node[chip, fill=white] (openFields) at (6.48,4.82) {open fields};
+\node[mini] (fieldName) at (5.58,3.98) {name};
+\node[mini] (fieldDate) at (6.36,3.98) {date};
+\node[mini] (fieldFlag) at (7.14,3.98) {status};
+\node[mini, fill=white, draw=mixedfigteal!60!black] (aggName) at (5.58,3.36) {\(A_{S_f}\)};
+\node[mini, fill=white, draw=mixedfigteal!60!black] (aggDate) at (6.36,3.36) {\(A_{S_f}\)};
+\node[mini, fill=white, draw=mixedfigteal!60!black] (aggFlag) at (7.14,3.36) {\(A_{S_f}\)};
+\node[chip, draw=mixedfigteal!60!black, fill=mixedfigteal!8] (rebuild) at (6.36,2.36) {rebuild object};
+\node[chip, draw=mixedfigteal!70!black, fill=mixedfigteal!8] (objectOut) at (6.40,1.20) {details = \{\(\cdots\)\}};
+\draw[flow] (metaIn.east) -- (openFields.west);
+\coordinate (fieldsBus) at (6.48,4.38);
+\draw[draw=mixedfigline, line width=0.55pt] (openFields.south) -- (fieldsBus);
+\draw[draw=mixedfigline, line width=0.55pt] (5.58,4.38) -- (7.14,4.38);
+\draw[flow] (5.58,4.38) -- (fieldName.north);
+\draw[flow] (6.36,4.38) -- (fieldDate.north);
+\draw[flow] (7.14,4.38) -- (fieldFlag.north);
+\draw[flow] (fieldName.south) -- (aggName.north);
+\draw[flow] (fieldDate.south) -- (aggDate.north);
+\draw[flow] (fieldFlag.south) -- (aggFlag.north);
+\coordinate (objectMerge) at (6.36,2.86);
+\draw[draw=mixedfigline, line width=0.55pt] (aggName.south) -- ++(0,-0.20) -| (objectMerge);
+\draw[draw=mixedfigline, line width=0.55pt] (aggDate.south) -- (objectMerge);
+\draw[draw=mixedfigline, line width=0.55pt] (aggFlag.south) -- ++(0,-0.20) -| (objectMerge);
+\draw[flow] (objectMerge) -- (rebuild.north);
+\draw[flow] (rebuild.south) -- (objectOut.north);
+
+% Array module.
+\node[title, draw=mixedfiggold!70!black, anchor=west] at (8.78,6.02) {Arrays};
+\node[chip, draw=mixedfiggold!65!black, fill=white, anchor=east] at (13.22,6.02) {one vote/trial};
+\node[chip, fill=white, align=center, text width=1.42cm] (dedupe) at (9.34,5.16) {1. dedupe\\within\\trial};
+\node[chip, fill=white, align=center, text width=1.20cm] (clusterStep) at (10.95,5.16) {2. cluster\\across trials};
+\node[chip, fill=white, align=center, text width=1.28cm] (scoreStep) at (12.62,5.16) {3. score\\candidate arrays};
+\draw[flow] (dedupe.east) -- (clusterStep.west);
+\draw[flow] (clusterStep.east) -- (scoreStep.west);
+
+\node[font=\scriptsize] at (9.26,4.02) {\(A_1,\ldots,A_k\)};
+\draw[fill=mixedfigblue!35, draw=black!30, line width=0.25pt] (9.12,3.72) circle (0.055);
+\draw[fill=mixedfigblue!18, draw=black!30, line width=0.25pt] (9.32,3.72) circle (0.055);
+\draw[fill=mixedfigviolet!35, draw=black!30, line width=0.25pt] (9.12,3.50) circle (0.055);
+\draw[fill=mixedfigviolet!18, draw=black!30, line width=0.25pt] (9.32,3.50) circle (0.055);
+\draw[fill=mixedfiggold!35, draw=black!30, line width=0.25pt] (9.52,3.61) circle (0.055);
+
+\node[card, draw=mixedfigteal!65!black, fill=mixedfigteal!8, minimum width=0.86cm, minimum height=0.50cm] (cl1) at (10.50,3.94) {};
+\node[mini, fill=white, inner xsep=0.7pt, inner ysep=0.3pt] at (10.50,3.79) {3 trials};
+\node[card, draw=mixedfigteal!65!black, fill=mixedfigteal!8, minimum width=0.86cm, minimum height=0.50cm] (cl2) at (10.50,3.30) {};
+\node[mini, fill=white, inner xsep=0.7pt, inner ysep=0.3pt] at (10.50,3.15) {2 trials};
+\node[card, draw=mixedfigteal!65!black, fill=mixedfigteal!8, minimum width=0.86cm, minimum height=0.50cm] (cl3) at (10.50,2.66) {};
+\node[mini, fill=white, inner xsep=0.7pt, inner ysep=0.3pt] at (10.50,2.51) {1 trial};
+\draw[fill=mixedfigblue!35, draw=black!25, line width=0.22pt] (10.33,4.01) circle (0.045);
+\draw[fill=mixedfigviolet!35, draw=black!25, line width=0.22pt] (10.50,4.01) circle (0.045);
+\draw[fill=mixedfiggold!35, draw=black!25, line width=0.22pt] (10.67,4.01) circle (0.045);
+\draw[fill=mixedfigblue!25, draw=black!25, line width=0.22pt] (10.42,3.37) circle (0.045);
+\draw[fill=mixedfigviolet!25, draw=black!25, line width=0.22pt] (10.58,3.37) circle (0.045);
+\draw[fill=mixedfiggold!30, draw=black!25, line width=0.22pt] (10.50,2.73) circle (0.045);
+
+\coordinate (itemSetOut) at (9.64,3.66);
+\draw[flow] (itemSetOut) -- (cl2.west);
+\node[card, fill=white, align=center, minimum height=1.10cm, anchor=east] (scoreboard) at (13.42,3.30)
+  {\setlength{\tabcolsep}{1.2pt}\begin{tabular}{@{}lcc@{}} & score & size\\\(z_1\)&.83&2\\\(z_2\)&.80&3 \(\checkmark\)\\\(z_3\)&.64&4\end{tabular}};
+\coordinate (clusterOut) at (11.06,3.30);
+\draw[draw=mixedfigline, line width=0.50pt] (clusterOut |- cl1.east) -- (clusterOut |- cl3.east);
+\draw[draw=mixedfigline, line width=0.50pt] (cl1.east) -- (clusterOut |- cl1.east);
+\draw[draw=mixedfigline, line width=0.50pt] (cl2.east) -- (clusterOut);
+\draw[draw=mixedfigline, line width=0.50pt] (cl3.east) -- (clusterOut |- cl3.east);
+\draw[flow] (clusterOut) -- (scoreboard.west);
+\node[note, text width=3.20cm] at (11.02,1.82)
+  {prefer longer near-ties};
+\node[chip, draw=mixedfiggold!70!black, fill=mixedfiggold!8] (arrayOut) at (11.05,1.16) {items = [...]};
+
+% Reconstructed output panel.
+\node[card, minimum width=2.96cm, minimum height=4.22cm, anchor=north] (jsonCard) at (15.70,7.72) {};
+\draw[draw=black!30, fill=black!8, line width=0.30pt]
+  (16.74,7.72) -- (17.03,7.72) -- (17.03,7.43) -- cycle;
+\draw[draw=black!30, line width=0.30pt] (16.74,7.72) -- (17.03,7.43);
+\node[font=\scriptsize\ttfamily, anchor=west] at (14.42,7.18) {\{};
+\node[font=\scriptsize\ttfamily, anchor=west] at (14.56,6.82) {city: ``Madrid'',};
+\node[font=\scriptsize\ttfamily, anchor=west] at (14.56,6.46) {details: \{};
+\node[font=\scriptsize\ttfamily, anchor=west] at (14.82,6.10) {name: \(\cdots\),};
+\node[font=\scriptsize\ttfamily, anchor=west] at (14.82,5.74) {date: \(\cdots\),};
+\node[font=\scriptsize\ttfamily, anchor=west] at (14.82,5.38) {status: \(\cdots\)};
+\node[font=\scriptsize\ttfamily, anchor=west] at (14.56,5.02) {\},};
+\node[font=\scriptsize\ttfamily, anchor=west] at (14.56,4.66) {items: [...]};
+\node[font=\scriptsize\ttfamily, anchor=west] at (14.42,4.30) {\}};
+
+\end{tikzpicture}%
+}
+\caption{Schema-aware heterogeneous self-consistency in DRILLER. Mixed-SC executes a budget-aware prefix of interleaved reasoning-augmented and direct trials, postprocesses valid outputs into the original challenge schema, and aggregates them by schema position rather than by whole-JSON string. Scalar and string positions are selected by support-based clustering, object positions are rebuilt through recursive field-wise aggregation, and array positions use within-trial deduplication, cross-trial item clustering, and recall-biased MBR-style selection. The final JSON is reconstructed in the original schema shape.}
+\label{fig:mixed-sc-aggregation}
+\end{figure}

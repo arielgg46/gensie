@@ -1,0 +1,62 @@
+\section{Introduction}
+
+Schema-guided information extraction requires systems to adapt to an output contract that may be unknown before inference time. The model receives a task-specific schema and must interpret each field for the current source text rather than extracting a fixed inventory of slots. This setting is increasingly common when language models are used behind APIs, form-filling workflows, or data integration tools: the schema is not just a validator, but part of the instruction. \cite{wen2025effectiveefficientschemaawareinformation}
+
+GenSIE 2026 formalizes this problem for Spanish information extraction \cite{gensie2026overview}. Each instance provides a Spanish source text, an extraction instruction, and a target JSON Schema; the system must return a grounded JSON object that conforms to that schema. The task is part of IberLEF 2026 \cite{iberlef2026overview} and uses a hosted, model-agnostic evaluation protocol, so a submitted system must respect the model selected by the evaluator rather than relying on a privately chosen backend. DRILLER is therefore designed around bounded inference-time adaptation.
+
+JSON validity is only one part of the task. A syntactically valid object can still be wrong if the system misreads field semantics: strings may require copied mentions, normalized values, or grounded summaries; enums may require mapping evidence to labels absent from the text; and nullable fields require deciding whether the passage supports a value. Arrays and nested objects add ambiguity about completeness and item identity.
+
+With a fixed schema, field semantics could be learned from training data or encoded in task-specific rules. Because field names, descriptions, type constraints, enum labels, nullability, and nesting form a runtime semantic specification, DRILLER treats schema interpretation as part of extraction rather than as post-hoc validation.
+
+DRILLER, originally named for \textit{\underline{D}ynamic \underline{R}easoning for \underline{I}nformation \underline{L}abeling and \underline{L}iteral \underline{E}vidence \underline{R}etrieval}, was submitted to the challenge as three pipelines. We refer to:
+\begin{itemize}
+\item \path{enriched-schema-rag} as \texttt{Schema-RAG}, the direct retrieval-augmented extractor.
+\item \path{enriched-inline-reasoning-rag} as \texttt{Reasoned-RAG}, which uses the same retrieval path but temporarily wraps top-level fields as reasoning/value objects during generation.
+\item \path{mixed-extractors-self-consistency-rag} as \texttt{Mixed-SC}, which combines direct and reasoning-augmented trials through heterogeneous self-consistency and schema-aware aggregation.
+\end{itemize}
+These aliases are used throughout the paper.
+
+All three pipelines share a schema-guided extraction spine. DRILLER renders the target schema in a compact Pydantic-style view for the prompt, sends a strict JSON Schema response format to constrain generation, retrieves up to two field-aware demonstrations from a curated few-shot corpus, and applies deterministic postprocessing before returning the final object. The pipelines differ in whether they use a temporary reasoning scaffold and whether they aggregate multiple candidates.
+
+The readable schema presented in the prompt foregrounds field names, descriptions, types, enums, nullability, and nesting. The generation schema constrains the model to return a complete JSON object. This separation lets DRILLER present the schema in a typed, class-like form while preserving the evaluator's original JSON shape.
+
+Field-aware few-shot retrieval selects examples by schema relevance, not by factual overlap with the current source. DRILLER first looks for demonstrations with the same normalized schema. When exact structural matches are unavailable, it falls back to field-level retrieval with type-compatible matching and a complementary pair objective. Retrieved examples illustrate extraction behavior, including contrasts such as present versus absent values, but their content is not evidence for the current instance.
+
+\texttt{Reasoned-RAG} represents each top-level field during generation as an object with a \texttt{reasoning} string and a \texttt{value} of the original field type, targeting fields whose values require evidence assessment, null decisions, or schema-specific label mapping. After generation, the reasoning strings are discarded and only the values are returned. \texttt{Mixed-SC} then uses both direct and reasoned extractors as heterogeneous candidate generators, aggregating their final-shape JSON outputs with recursive schema-aware rules for scalars, nulls, objects, and arrays.
+
+The contributions of this work are:
+\begin{itemize}
+    \item a modular schema-guided extraction architecture for variable JSON Schemas in Spanish information extraction;
+    \item schema-readable prompting paired with strict structured generation, separating schema interpretation from output-interface enforcement;
+    \item field-aware few-shot retrieval with same-schema matching, type-compatible field fallback, and complementary example selection;
+    \item a temporary top-level reasoning/value transformation that supports field-local evidence assessment while preserving the final schema interface;
+    \item heterogeneous self-consistency over direct and reasoning-augmented RAG extractors with conservative schema-aware postprocessing and aggregation.
+\end{itemize}
+
+\section{Background and Related Work}
+
+Schema-guided information extraction treats the schema as an instance-level specification of extraction targets rather than a fixed ontology. In GenSIE, the required JSON Schema specifies not only the output form, but also the extraction subtasks induced by field names, descriptions, types, enum labels, nullability, arrays, and nesting \cite{gensie2026overview}. Related schema-aware and universal information extraction work has studied how extraction behavior can be conditioned on schema information, including approaches based on schema-aware extraction modules and code-style schema representations \cite{wen2025effectiveefficientschemaawareinformation,li2024knowcoder}.
+
+Few-shot prompting addresses how task behavior can be provided at inference time without updating model parameters \cite{brown2020language}. However, in-context performance depends strongly on which examples are selected, motivating retrieval-based prompt selection and semantic-similarity example retrieval \cite{liu2022what,rubin2022learning}. Sentence embeddings provide a standard mechanism for comparing textual representations by semantic similarity \cite{reimers2019sentence}. This differs from retrieval-augmented generation over external factual evidence \cite{lewis2020retrieval}: DRILLER retrieves demonstrations for dynamic few-shot prompting, not evidence for the current instance. In information extraction, schema-aware reference-as-prompt methods provide a closer precedent for using retrieved schema-conditioned examples as prompts \cite{yao2023schema}.
+
+Structured generation methods constrain language-model outputs to formal interfaces such as grammars, schemas, or guided output spaces \cite{geng2023grammar,geng2025structured}. These methods address a necessary part of schema-guided extraction: the output must be parseable and compatible with the requested structure. At the same time, structural validity and extraction correctness remain distinct. A schema-valid JSON object can still contain an unsupported value, a wrong enum label, an incorrect null decision, or an incomplete array.
+
+Reasoning-oriented prompting, including chain-of-thought prompting, elicits intermediate reasoning before final answers \cite{wei2022chain}. In structured information extraction, related work has also separated intermediate natural-language content generation from the subsequent organization of that content into the desired structured format \cite{li2024simple}. Open-ended chain-of-thought is not the interface DRILLER returns: its scaffold is inline and field-local. Each top-level field is temporarily generated as a structured rationale/value pair, so the model must assess the local evidence immediately before committing to that field's value. Because the scaffold is part of the temporary response schema, this requirement can be enforced independently for each top-level field, while the value slot remains constrained by the field's original type.
+
+Self-consistency samples multiple reasoning paths and selects the most consistent answer rather than relying on one generation \cite{wang2022selfconsistency}. For structured extraction, the analogous problem is not only answer selection but also how to combine candidate JSON objects whose fields, arrays, or nested objects may disagree. Minimum Bayes risk decoding provides a general decision-theoretic view of selecting outputs by expected loss or utility over a candidate set \cite{kumar-byrne-2004-minimum}. DRILLER uses this idea only in an MBR-style array-selection heuristic based on agreement among candidate arrays.
+
+\section{Task Setting}
+
+GenSIE is a Spanish schema-guided information extraction task \cite{gensie2026overview}. Each instance provides a source text, a natural-language extraction instruction, and a target JSON Schema. The source text is the only evidence for the answer. The instruction states the extraction goal, and the schema defines the output structure through field names, descriptions, primitive types, objects, arrays, enum labels, nullability, and required properties.
+
+The required output is a JSON object grounded in the source text and conforming to the target schema. Conformance includes producing the expected object shape, using valid primitive and enum values, and representing nested structures and arrays according to the schema. Grounding means that values should be supported by the current passage rather than external knowledge, retrieved examples, or plausible background assumptions.
+
+Schemas vary across instances, so the extractor cannot rely on a fixed ontology or stable slot inventory. The same textual mention may be relevant for one schema and irrelevant for another; the same JSON type may correspond to different behaviors depending on the field description. The schema must therefore be interpreted dynamically at inference time.
+
+The official protocol also constrains inference cost. The submission guidelines describe token and wall-clock budgets as soft test-set averages: a target of 32K total input-plus-output tokens per instance, including reasoning, retries, and self-corrections, and a target of 60 seconds of user-code time per instance \cite{gensie2026submission}. These constraints mean that a system cannot assume arbitrarily many model calls, unbounded retries, or unlimited reasoning traces; inference-time methods must be organized as a bounded procedure.
+
+The task description emphasizes schema generalization: private evaluation may include both schemas that appeared during development and entirely new schemas, without reusing development source documents \cite{gensie2026taskdescription}. Exact or near-exact schema reuse is therefore a realistic evaluation condition, but not one that can be assumed for every instance. DRILLER's same-schema retrieval is a deliberate inference-time strategy: it first searches for structurally identical schema demonstrations before falling back to field-level analogies when no suitable same-schema references are available.
+
+Missing information must be handled conservatively. When the requested value is not supported by the source text and the schema permits null, the system should return JSON \texttt{null}. If evidence is present, returning \texttt{null} is also an error. DRILLER therefore treats nullability as a schema-guided evidence decision rather than a generic fallback.
+
+Official dataset construction, scoring, ranking, and evaluation protocol details are specified in the GenSIE overview paper. We focus on the submitted DRILLER pipelines and their inference-time mechanisms for producing grounded schema-conformant JSON under that protocol.

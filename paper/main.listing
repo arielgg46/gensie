@@ -1,0 +1,11 @@
+Nullable[T] = T | null
+
+class Reasoned[T](BaseModel):
+    reasoning: str
+    value: T
+
+MediumType = Literal["MOVIE", "BOOK", "TV_SERIES", "VIDEO_GAME"]
+
+class Output(BaseModel):
+    medium: Reasoned[MediumType] = Field(description="The type of media being reviewed")
+    director: Reasoned[Nullable[str]] = Field(description="The person who directed the film or series")

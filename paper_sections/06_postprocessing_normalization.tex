@@ -1,0 +1,11 @@
+\section{Postprocessing and Output Normalization}
+
+DRILLER uses deterministic postprocessing to align model outputs with the final schema interface. Even with a strict JSON Schema response format, outputs can contain representation artifacts such as literal Unicode escape strings or the string \texttt{"null"} where JSON \texttt{null} was intended. Postprocessing cleans these artifacts without changing the semantic content of the extraction.
+
+Postprocessing begins with JSON parsing: if an output cannot be parsed as JSON, the trial is marked invalid rather than repaired by string heuristics. This boundary is especially important for \texttt{Mixed-SC}, where aggregation should combine valid candidate objects rather than fragments of malformed responses.
+
+DRILLER then applies Unicode cleanup recursively to string values. Spanish text may include diacritics, the letter ñ, inverted punctuation marks, and other characters that can appear inconsistently across model outputs or API layers. The normalizer cleans literal escape artifacts such as \texttt{\textbackslash u00e1} when they appear inside strings and then normalizes strings to Unicode Normalization Form C (NFC). NFC makes visually identical strings more stable for comparison while preserving their textual content.
+
+The prompt asks the model to use JSON \texttt{null} for unsupported information when null is allowed, but models may emit string literals such as \texttt{"null"}, \texttt{"NULL"}, or other casing variants instead. DRILLER converts these string markers to JSON \texttt{null} only at schema positions where \texttt{null} is valid. It does not globally replace all occurrences, because a non-nullable string field should not be silently changed into a null value.
+
+Each \texttt{Mixed-SC} trial independently performs prompt construction, strict generation, parsing, Unicode cleanup, schema restoration when relevant, and null coercion. Invalid trials are excluded from aggregation. The aggregator receives postprocessed JSON candidates in the original schema shape; after aggregation, nullable-string coercion may be applied again so selected values remain aligned with schema-valid null representation.
