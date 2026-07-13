@@ -18,6 +18,7 @@ class RunInfo:
     label: str
     model: str
     pipeline: str
+    mode: str
     path: Path
 
 
@@ -43,6 +44,12 @@ def main() -> None:
         type=Path,
         default=Path("analysis/final_results_retrieval"),
     )
+    parser.add_argument(
+        "--drop-set",
+        choices=("none", "official"),
+        default="none",
+        help="Exclude the official GenSIE 20-instance drop-set before joining.",
+    )
     args = parser.parse_args()
 
     retrieval = load_retrieval(args.retrieval_csv)
@@ -62,7 +69,9 @@ def main() -> None:
     for result_path in result_paths:
         payload = json.loads(result_path.read_text(encoding="utf-8"))
         run = run_info(result_path, payload)
-        task_rows, run_warnings = join_run_tasks(run, payload, retrieval)
+        task_rows, run_warnings = join_run_tasks(
+            run, payload, retrieval, drop_set=args.drop_set
+        )
         warnings.extend(run_warnings)
         joined_rows.extend(task_rows)
         run_rows.append(run_summary_row(run, task_rows))
@@ -196,6 +205,8 @@ def join_run_tasks(
     run: RunInfo,
     payload: Mapping[str, Any],
     retrieval: Mapping[str, dict[str, Any]],
+    *,
+    drop_set: str,
 ) -> tuple[list[dict[str, Any]], list[str]]:
     warnings: list[str] = []
     rows: list[dict[str, Any]] = []
@@ -203,6 +214,8 @@ def join_run_tasks(
         if not isinstance(task, Mapping):
             continue
         task_id = str(task.get("task_id") or "")
+        if drop_set == "official" and is_official_drop_task_id(task_id):
+            continue
         r = retrieval.get(task_id)
         if r is None:
             warnings.append(f"{run.label}: missing retrieval row for {task_id}")
@@ -215,6 +228,7 @@ def join_run_tasks(
                 "run": run.label,
                 "model": run.model,
                 "pipeline": run.pipeline,
+                "mode": run.mode,
                 "result_file": str(run.path),
                 "task_id": task_id,
                 "tps": parse_float(task.get("tps")) or 0.0,
@@ -285,6 +299,7 @@ def group_metric_rows(run: RunInfo, rows: Sequence[dict[str, Any]]) -> list[dict
             "run": run.label,
             "model": run.model,
             "pipeline": run.pipeline,
+            "mode": run.mode,
             "group_family": family,
             "group": group,
             **metrics_for_rows(subset),
@@ -309,6 +324,7 @@ def selected_case_metric_rows(
                 "run": run.label,
                 "model": run.model,
                 "pipeline": run.pipeline,
+                "mode": run.mode,
                 "case_id": case_id,
                 "selected_task_count": len(subset),
                 **metrics,
@@ -322,6 +338,7 @@ def run_summary_row(run: RunInfo, rows: Sequence[dict[str, Any]]) -> dict[str, A
         "run": run.label,
         "model": run.model,
         "pipeline": run.pipeline,
+        "mode": run.mode,
         **metrics_for_rows(rows),
     }
 
@@ -480,12 +497,24 @@ def run_info(path: Path, payload: Mapping[str, Any]) -> RunInfo:
     config = payload.get("config") if isinstance(payload.get("config"), Mapping) else {}
     model = str(config.get("model") or "unknown_model")
     pipeline = str(config.get("pipeline") or "unknown_pipeline")
+    mode = mode_from_path(path)
+    label_parts = [short_model_label(model), pipeline]
+    if mode:
+        label_parts.append(mode)
     return RunInfo(
-        label=f"{short_model_label(model)}::{pipeline}",
+        label="::".join(label_parts),
         model=model,
         pipeline=pipeline,
+        mode=mode,
         path=path,
     )
+
+
+def mode_from_path(path: Path) -> str:
+    parts = path.stem.split("__")
+    if parts and parts[-1] in {"think", "nothink"}:
+        return parts[-1]
+    return ""
 
 
 def short_model_label(model: str) -> str:
@@ -495,6 +524,24 @@ def short_model_label(model: str) -> str:
     if "gemma" in value or "gema" in value:
         return "gemma-4-e4b-it"
     return model
+
+
+def is_official_drop_task_id(task_id: str) -> bool:
+    return domain_from_task_id(task_id) in {
+        "medical_trials",
+        "cultural_monuments",
+        "stem_biology",
+    }
+
+
+def domain_from_task_id(task_id: str) -> str:
+    value = task_id
+    if value.startswith("test_"):
+        value = value[len("test_") :]
+    parts = value.split("_")
+    if parts and parts[-1].isdigit():
+        parts = parts[:-1]
+    return "_".join(parts)
 
 
 def tertile_thresholds(values: Sequence[float]) -> tuple[float, float] | None:

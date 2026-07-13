@@ -32,23 +32,31 @@ def main() -> None:
         type=Path,
         default=Path("analysis/test_schema_subsets"),
     )
+    parser.add_argument(
+        "--drop-set",
+        choices=("none", "official"),
+        default="none",
+        help="Exclude the official GenSIE 20-instance drop-set before analysis.",
+    )
     args = parser.parse_args()
 
     dev_tasks = _load_tasks(args.dev_dir)
-    test_tasks = _load_tasks(args.test_dir)
+    all_test_tasks = _load_tasks(args.test_dir)
+    test_tasks = _apply_drop_set(all_test_tasks, args.drop_set)
     result_paths = sorted(args.results_dir.glob(args.results_glob))
     if not result_paths:
         raise SystemExit(f"no result files matched {args.results_dir / args.results_glob}")
 
     dev_fingerprints = {task["fingerprint"] for task in dev_tasks}
     test_by_id = {task["id"]: task for task in test_tasks}
-    test_aliases = _build_task_aliases(test_tasks)
+    test_aliases = _build_task_aliases(all_test_tasks)
 
     schema_rows = _schema_overlap_rows(test_tasks, dev_fingerprints)
     overlap_summary = _overlap_summary(schema_rows)
 
     result_payloads = [_read_json(path) for path in result_paths]
     common_zero_call_ids = _common_zero_call_task_ids(result_payloads, test_aliases)
+    common_zero_call_ids &= set(test_by_id)
     metrics_rows = _metrics_rows(
         result_paths=result_paths,
         result_payloads=result_payloads,
@@ -64,6 +72,8 @@ def main() -> None:
         {
             "dev_dir": str(args.dev_dir),
             "test_dir": str(args.test_dir),
+            "drop_set": args.drop_set,
+            "excluded_task_count": len(all_test_tasks) - len(test_tasks),
             "fingerprint_method": _fingerprint_method_description(),
             "summary": overlap_summary,
             "schemas": schema_rows,
@@ -74,6 +84,8 @@ def main() -> None:
         {
             "results_dir": str(args.results_dir),
             "results_glob": args.results_glob,
+            "drop_set": args.drop_set,
+            "excluded_task_count": len(all_test_tasks) - len(test_tasks),
             "common_zero_call_task_count": len(common_zero_call_ids),
             "common_zero_call_task_ids": sorted(common_zero_call_ids),
             "subsets": _subset_descriptions(),
@@ -111,6 +123,32 @@ def _load_tasks(directory: Path) -> list[dict[str, Any]]:
     if not tasks:
         raise ValueError(f"no JSON tasks found in {directory}")
     return tasks
+
+
+def _apply_drop_set(tasks: list[dict[str, Any]], drop_set: str) -> list[dict[str, Any]]:
+    if drop_set == "none":
+        return list(tasks)
+    if drop_set != "official":
+        raise ValueError(f"unknown drop-set: {drop_set}")
+    return [task for task in tasks if not _is_official_drop_task_id(task["id"])]
+
+
+def _is_official_drop_task_id(task_id: str) -> bool:
+    return _domain_from_task_id(task_id) in {
+        "medical_trials",
+        "cultural_monuments",
+        "stem_biology",
+    }
+
+
+def _domain_from_task_id(task_id: str) -> str:
+    value = task_id
+    if value.startswith("test_"):
+        value = value[len("test_") :]
+    parts = value.split("_")
+    if parts and parts[-1].isdigit():
+        parts = parts[:-1]
+    return "_".join(parts)
 
 
 def normalized_schema_fingerprint(schema: Any) -> str:
@@ -252,6 +290,8 @@ def _metrics_rows(
         tasks = []
         for task in payload.get("tasks", []):
             canonical_id = _canonical_task_id(str(task["task_id"]), test_aliases)
+            if canonical_id not in test_by_id:
+                continue
             test_task = test_by_id[canonical_id]
             tasks.append(
                 {

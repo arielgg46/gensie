@@ -16,7 +16,7 @@ Component-level effects remain empirical questions. Claims about the separate im
 
 \section{Conclusion}
 
-DRILLER submitted a modular schema-guided extraction system for GenSIE 2026. It treats each instance as Spanish information extraction under a variable JSON Schema, where the central challenge is interpreting field semantics from the current instruction, schema, and source text while returning grounded schema-conformant JSON.
+DRILLER submitted a modular schema-guided extraction system for GenSIE 2026. It treats each instance as information extraction in Spanish under a variable JSON Schema, where the central challenge is interpreting field semantics from the current instruction, schema, and source text while returning grounded schema-conformant JSON.
 
 The three submitted pipelines are \texttt{Schema-RAG}, \texttt{Reasoned-RAG}, and \texttt{Mixed-SC}. All use retrieval-augmented prompting. The common extraction spine combines schema-readable Pydantic-style prompting, strict structured JSON generation, field-aware few-shot retrieval, and conservative postprocessing. \texttt{Reasoned-RAG} adds temporary top-level reasoning/value wrappers that are removed before final output. \texttt{Mixed-SC} combines direct and reasoning-augmented candidates through heterogeneous self-consistency and recursive schema-aware aggregation.
 

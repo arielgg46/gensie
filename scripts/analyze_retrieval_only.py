@@ -71,6 +71,12 @@ def main() -> None:
     )
     parser.add_argument("--limit", type=int)
     parser.add_argument(
+        "--drop-set",
+        choices=("none", "official"),
+        default="none",
+        help="Exclude the official GenSIE 20-instance drop-set before analysis.",
+    )
+    parser.add_argument(
         "--same-schema-threshold",
         type=float,
         default=DEFAULT_SAME_SCHEMA_SIMILARITY_THRESHOLD,
@@ -86,7 +92,8 @@ def main() -> None:
     if args.fastembed_cache:
         os.environ.setdefault("FASTEMBED_CACHE_PATH", str(args.fastembed_cache.resolve()))
 
-    tasks = _load_tasks(args.data_dir, limit=args.limit)
+    loaded_tasks = _load_tasks(args.data_dir, limit=args.limit)
+    tasks = apply_drop_set(loaded_tasks, args.drop_set)
     cases = default_extraction_fsp_cases()
     embedder = CachingFieldEmbedder(model_name=args.model_name)
 
@@ -103,7 +110,13 @@ def main() -> None:
     ]
     elapsed_s = time.perf_counter() - started
 
-    summary = build_summary(records, elapsed_s=elapsed_s, embedding_cache_size=len(embedder.cache))
+    summary = build_summary(
+        records,
+        elapsed_s=elapsed_s,
+        embedding_cache_size=len(embedder.cache),
+        drop_set=args.drop_set,
+        excluded_task_count=len(loaded_tasks) - len(tasks),
+    )
     write_outputs(
         args.output_dir,
         records,
@@ -352,6 +365,8 @@ def build_summary(
     *,
     elapsed_s: float,
     embedding_cache_size: int,
+    drop_set: str,
+    excluded_task_count: int,
 ) -> dict[str, Any]:
     same_schema_records = [
         record for record in records if record["official_uses_same_schema"]
@@ -414,6 +429,8 @@ def build_summary(
 
     return {
         "task_count": len(records),
+        "drop_set": drop_set,
+        "excluded_task_count": excluded_task_count,
         "elapsed_s": round(elapsed_s, 3),
         "embedding_cache_size": embedding_cache_size,
         "structural_same_schema_count": len(structural_same_records),
@@ -464,6 +481,8 @@ def _summary_markdown(summary: dict[str, Any]) -> str:
         "# Retrieval-only summary",
         "",
         f"- Tasks: {summary['task_count']}",
+        f"- Drop-set: {summary['drop_set']} "
+        f"(excluded {summary['excluded_task_count']} tasks)",
         f"- Official same-schema route: {summary['same_schema_route_count']}",
         f"- Official field-RAG route: {summary['field_route_count']}",
         (
@@ -796,6 +815,22 @@ def _load_tasks(data_dir: Path, *, limit: int | None = None) -> list[Task]:
     if limit is not None:
         paths = paths[:limit]
     return [Task.load(path) for path in paths]
+
+
+def apply_drop_set(tasks: Sequence[Task], drop_set: str) -> list[Task]:
+    if drop_set == "none":
+        return list(tasks)
+    if drop_set != "official":
+        raise ValueError(f"unknown drop-set: {drop_set}")
+    return [task for task in tasks if not _is_official_drop_task_id(task.id)]
+
+
+def _is_official_drop_task_id(task_id: str) -> bool:
+    return _domain_from_task_id(task_id) in {
+        "medical_trials",
+        "cultural_monuments",
+        "stem_biology",
+    }
 
 
 def _uses_same_schema_route(results: Sequence[Any]) -> bool:

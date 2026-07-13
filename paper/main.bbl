@@ -21,18 +21,25 @@
   \url{https://arxiv.org/abs/2505.14992}.
   \href{http://arxiv.org/abs/2505.14992}{{\tt arXiv:2505.14992}}.
 %Type = Inproceedings
-\bibitem[{{GenSIE Organizers}(2026)}]{gensie2026overview}
-\bibinfo{author}{{GenSIE Organizers}},
-\newblock \bibinfo{title}{Overview of {GenSIE} 2026: Spanish schema-guided
-  information extraction},
-\newblock in: \bibinfo{booktitle}{Proceedings of IberLEF 2026},
-  \bibinfo{year}{2026}. \bibinfo{note}{To appear}.
+\bibitem[{Piad-Morffis et~al.(2026)}]{gensie2026overview}
+\bibinfo{author}{A.~Piad-Morffis}, et~al.,
+\newblock \bibinfo{title}{{Overview of {GenSIE} at {IberLEF} 2026:
+  Schema-Guided Information Extraction with Small Language Models in Spanish}},
+\newblock in: \bibinfo{booktitle}{Proceedings of the Iberian Languages
+  Evaluation Forum ({IberLEF} 2026), co-located with the 42nd Conference of the
+  Spanish Society for Natural Language Processing ({SEPLN} 2026), CEUR-WS.org},
+  \bibinfo{year}{2026}.
 %Type = Inproceedings
-\bibitem[{{IberLEF Organizers}(2026)}]{iberlef2026overview}
-\bibinfo{author}{{IberLEF Organizers}},
-\newblock \bibinfo{title}{Overview of {IberLEF} 2026},
-\newblock in: \bibinfo{booktitle}{Proceedings of IberLEF 2026},
-  \bibinfo{year}{2026}. \bibinfo{note}{To appear}.
+\bibitem[{Bonet-Jover et~al.(2026)Bonet-Jover, Gonz{\'a}lez-Barba, and
+  Chiruzzo}]{iberlef2026overview}
+\bibinfo{author}{A.~Bonet-Jover}, \bibinfo{author}{J.~{\'A}.
+  Gonz{\'a}lez-Barba}, \bibinfo{author}{L.~Chiruzzo},
+\newblock \bibinfo{title}{{Overview of {IberLEF} 2026: Natural Language
+  Processing Challenges for Spanish and other Iberian Languages}},
+\newblock in: \bibinfo{booktitle}{Proceedings of the Iberian Languages
+  Evaluation Forum ({IberLEF} 2026), co-located with the 42nd Conference of the
+  Spanish Society for Natural Language Processing ({SEPLN} 2026), CEUR-WS.org},
+  \bibinfo{year}{2026}.
 %Type = Misc
 \bibitem[{Li et~al.(2024)Li, Zeng, Zuo, Ren, Liu, Su, Guo, Liu, Li, Hu, Bai,
   Li, Liu, Yang, Jin, Guo, and Cheng}]{li2024knowcoder}

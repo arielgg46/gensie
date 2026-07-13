@@ -1,0 +1,211 @@
+{
+  "team": "DRILLER",
+  "institution": "Universidad de La Habana",
+  "rank": 1,
+  "avg_gap_closed": 0.2158,
+  "best": {
+    "gemma4-e4b": {
+      "pipeline": "mixed-extractors-self-consistency-rag",
+      "mode": "think",
+      "f1": 0.8285,
+      "precision": 0.8285,
+      "recall": 0.8285,
+      "gap_closed": 0.1854
+    },
+    "qwen3-14b": {
+      "pipeline": "enriched-schema-rag",
+      "mode": "nothink",
+      "f1": 0.8346,
+      "precision": 0.8346,
+      "recall": 0.8346,
+      "gap_closed": 0.2463
+    }
+  },
+  "pipelines": [
+    {
+      "pipeline": "mixed-extractors-self-consistency-rag",
+      "model": "gemma",
+      "mode": "think",
+      "f1": 0.8285,
+      "precision": 0.8285,
+      "recall": 0.8285,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-06-formal-eval"
+    },
+    {
+      "pipeline": "enriched-schema-rag",
+      "model": "gemma",
+      "mode": "think",
+      "f1": 0.8256,
+      "precision": 0.8256,
+      "recall": 0.8256,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-06-formal-eval"
+    },
+    {
+      "pipeline": "enriched-schema-rag",
+      "model": "gemma",
+      "mode": "nothink",
+      "f1": 0.8211,
+      "precision": 0.8211,
+      "recall": 0.8211,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-07-06-final-harvest"
+    },
+    {
+      "pipeline": "enriched-inline-reasoning-rag",
+      "model": "gemma",
+      "mode": "think",
+      "f1": 0.8181,
+      "precision": 0.8249,
+      "recall": 0.8115,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-06-formal-eval"
+    },
+    {
+      "pipeline": "enriched-inline-reasoning-rag",
+      "model": "gemma",
+      "mode": "nothink",
+      "f1": 0.8176,
+      "precision": 0.8239,
+      "recall": 0.8113,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-07-06-final-harvest"
+    },
+    {
+      "pipeline": "mixed-extractors-self-consistency-rag",
+      "model": "gemma",
+      "mode": "nothink",
+      "f1": 0.8165,
+      "precision": 0.8241,
+      "recall": 0.809,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-07-06-final-harvest"
+    },
+    {
+      "pipeline": "enriched-schema-rag",
+      "model": "qwen",
+      "mode": "nothink",
+      "f1": 0.8346,
+      "precision": 0.8346,
+      "recall": 0.8346,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-07-08-ainbox-missing-eval"
+    },
+    {
+      "pipeline": "enriched-inline-reasoning-rag",
+      "model": "qwen",
+      "mode": "think",
+      "f1": 0.8297,
+      "precision": 0.8297,
+      "recall": 0.8297,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-07-06-final-harvest"
+    },
+    {
+      "pipeline": "enriched-inline-reasoning-rag",
+      "model": "qwen",
+      "mode": "think",
+      "f1": 0.8297,
+      "precision": 0.8297,
+      "recall": 0.8297,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-06-formal-eval"
+    },
+    {
+      "pipeline": "enriched-inline-reasoning-rag",
+      "model": "qwen",
+      "mode": "nothink",
+      "f1": 0.828,
+      "precision": 0.828,
+      "recall": 0.828,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-07-08-ainbox-missing-eval"
+    },
+    {
+      "pipeline": "enriched-schema-rag",
+      "model": "qwen",
+      "mode": "think",
+      "f1": 0.8201,
+      "precision": 0.8201,
+      "recall": 0.8201,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-06-formal-eval"
+    },
+    {
+      "pipeline": "mixed-extractors-self-consistency-rag",
+      "model": "qwen",
+      "mode": "think",
+      "f1": 0.8177,
+      "precision": 0.8177,
+      "recall": 0.8177,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-06-formal-eval"
+    },
+    {
+      "pipeline": "mixed-extractors-self-consistency-rag",
+      "model": "qwen",
+      "mode": "nothink",
+      "f1": 0.8129,
+      "precision": 0.8129,
+      "recall": 0.8129,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-07-06-final-harvest"
+    },
+    {
+      "pipeline": "enriched-schema-rag",
+      "model": "qwen",
+      "mode": "nothink",
+      "f1": 0.8015,
+      "precision": 0.809,
+      "recall": 0.7942,
+      "n_instances": 125,
+      "valid": true,
+      "source_event": "2026-07-06-final-harvest"
+    }
+  ],
+  "methodology": {
+    "metric": "micro-F1 on 125 instances (145 test minus a 20-instance drop-set), and gap-closed over baseline, gap = max(0, (F1 - F1_base) / (1 - F1_base)), averaged over gemma4-e4b and qwen3-14b.",
+    "baselines_125_instance": {
+      "gemma4-e4b": 0.7895,
+      "qwen3-14b": 0.7805
+    },
+    "drop_set": {
+      "n_excluded": 20,
+      "reason": "Schemas structurally unscoreable on the constrained-decoding inference stack; excluded uniformly from every system and both baselines, so gap-closed comparisons remain fair.",
+      "groups": {
+        "medical_trials": {
+          "n": 8,
+          "why": "$defs/$ref schema → llama.cpp GBNF grammar-compilation failure"
+        },
+        "cultural_monuments": {
+          "n": 2,
+          "why": "$defs/$ref schema → llama.cpp GBNF grammar-compilation failure"
+        },
+        "stem_biology": {
+          "n": 10,
+          "why": "recursive $ref taxonomic-tree schema → parser recursion failures"
+        }
+      }
+    },
+    "caveats": [
+      "Modes: nothink = spec config (thinking off); think = June formal run (thinking on). Each team's best reported 125-instance result is used regardless of mode.",
+      "VerbaNex gemma: all three gemma pipelines destabilise the shared gemma backend at full-run scale (they complete in isolation, smoke F1 ~ 0.76); VerbaNex gets gap 0 on gemma and is carried by its qwen result — true gemma standing is likely higher.",
+      "Engine stability: the gemma backend (llama.cpp) crashes under sustained load; results were repaired per-instance on a restarted engine.",
+      "Third-party self-eval data (CodeStrange, JSONautas) and June think-mode data are used where a team lacked a clean spec-config run of their own."
+    ]
+  }
+}
